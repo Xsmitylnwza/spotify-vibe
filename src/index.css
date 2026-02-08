@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+  --color-spotify: #1DB954;
+  --color-spotify-dark: #169c46;
+  --color-spotify-light: #1ed760;
+  --color-paper: #f0f0f0;
+  --color-charcoal: #121212;
+  --color-offblack: #0a0a0a;
+
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-float-delayed: float 8s ease-in-out 4s infinite;
+  --animate-marquee: marquee 25s linear infinite;
+  --animate-spin-slow: spin 12s linear infinite;
+  --animate-bounce-slow: bounce 3s infinite;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+@utility torn-paper-1 {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 95% 92%, 90% 88%, 85% 91%, 80% 89%, 75% 92%, 70% 88%, 65% 91%, 60% 89%, 55% 92%, 50% 88%, 45% 91%, 40% 89%, 35% 92%, 30% 88%, 25% 91%, 20% 89%, 15% 92%, 10% 88%, 5% 91%, 0% 90%);
+}
+
+@utility torn-paper-2 {
+  clip-path: polygon(2% 2%, 98% 0%, 100% 95%, 92% 100%, 85% 96%, 78% 99%, 70% 95%, 62% 99%, 55% 96%, 48% 99%, 40% 95%, 32% 99%, 25% 96%, 18% 99%, 10% 95%, 2% 98%);
+}
+
+@utility tape-strip {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+
+  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.noise-overlay {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  width: 200%;
+  height: 200vh;
+  background: transparent url('http://assets.iceable.com/img/noise-transparent.png') repeat 0 0;
+  animation: bg-animation .2s infinite;
+  opacity: .05;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes bg-animation {
+  0% {
+    transform: translate(0, 0)
+  }
+
+  10% {
+    transform: translate(-5%, -5%)
+  }
+
+  20% {
+    transform: translate(-10%, 5%)
+  }
+
+  30% {
+    transform: translate(5%, -10%)
+  }
+
+  40% {
+    transform: translate(-5%, 15%)
+  }
+
+  50% {
+    transform: translate(-10%, 5%)
+  }
+
+  60% {
+    transform: translate(15%, 0)
+  }
+
+  70% {
+    transform: translate(0, 10%)
+  }
+
+  80% {
+    transform: translate(-15%, 0)
+  }
+
+  90% {
+    transform: translate(10%, 5%)
+  }
+
+  100% {
+    transform: translate(5%, 0)
+  }
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
