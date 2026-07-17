@@ -13,7 +13,25 @@ This is a local companion app, not a hosted website. Spotify showcase code under
 - Local-only config + secrets (no cloud account)
 - Optional GIPHY search for scene artwork
 - First-run **API keys** page in the Studio UI
-- Optional Start with Windows
+- Optional **Start with Windows** so Presence keeps running after reboot
+
+### Presence Studio preview
+
+![Presence Studio overview](docs/images/studio-overview.png)
+
+*Scene library, editor, Discord-style preview, and daily schedule in one local page.*
+
+![API keys setup](docs/images/api-keys.png)
+
+*Paste your Discord Application ID and optional GIPHY key. Credentials stay on this PC only.*
+
+![GIF picker](docs/images/gif-picker.png)
+
+*Browse or search GIFs for scene artwork after a GIPHY key is saved.*
+
+![Start with Windows](docs/images/start-with-windows.png)
+
+*Enable the companion to launch hidden after Windows sign-in so you do not need to run it manually every day.*
 
 ## Requirements
 
@@ -85,12 +103,65 @@ npm run presence:giphy-setup
 npm run presence:giphy-setup -- YOUR_GIPHY_KEY
 ```
 
+## Keep it running all day (recommended)
+
+Presence is owned by the **Background Companion** (a local Node process), not by the browser tab.
+
+### What to leave open
+
+| Component | Required? | Notes |
+| --- | --- | --- |
+| Discord Desktop | Yes | Must be signed in with activity sharing enabled |
+| Background Companion | Yes | Applies Scenes and watches the clock |
+| Presence Studio browser tab | No | Safe to close after setup |
+
+Closing the Studio tab does **not** stop Presence.
+
+### Enable Start with Windows
+
+Do this once after first setup so you do not need to run `npm run presence:studio` every reboot:
+
+1. Start the app once:
+   ```bash
+   npm run presence:studio
+   ```
+2. Save your **Discord Application ID** under **API keys**.
+3. In the right panel, open **Companion**.
+4. Turn **Start with Windows** on.
+
+After that:
+
+- Windows sign-in starts the companion hidden (no Studio browser window).
+- Daily Time Slots keep switching Scenes automatically.
+- Open Studio later only when you want to edit Scenes:
+  - visit `http://127.0.0.1:17345`, or
+  - run `npm run presence:studio` again (if the companion is already running, it reopens Studio instead of starting a second scheduler)
+
+The autostart launcher is created at:
+
+```text
+%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\Spotify Vibe Presence.vbs
+```
+
+### Stop or disable later
+
+- **Pause schedule** — keeps current Presence visible, stops automatic Scene changes
+- **Clear** — removes Rich Presence and pauses the schedule
+- **Exit** — clears Presence and stops the companion for this session
+- Turn **Start with Windows** off before Exit if you do not want it to return at the next sign-in
+
+### Quick health checks
+
+- Studio loads at `http://127.0.0.1:17345`
+- Connection pill shows Discord connected
+- Companion card shows **Start with Windows** enabled if you want reboot persistence
+
 ## Day-to-day use
 
 1. Keep **Discord Desktop** running.
-2. Start the companion with `npm run presence:studio` (or enable Start with Windows).
-3. Customize scenes and daily slots in the Studio.
-4. Closing the browser tab does **not** stop the scheduler. The Node companion owns Discord IPC and the clock.
+2. Keep the companion running (`npm run presence:studio`, or rely on Start with Windows).
+3. Customize scenes and daily slots in the Studio when needed.
+4. Leave the browser closed; the companion continues on its own.
 
 ### Controls
 
@@ -106,6 +177,7 @@ npm run presence:giphy-setup -- YOUR_GIPHY_KEY
 | Command | Purpose |
 | --- | --- |
 | `npm run presence:studio` | Start Background Companion + Studio |
+| `npm start` | Same as `presence:studio` |
 | `npm run presence:giphy-setup` | Save GIPHY key from clipboard or argument |
 | `npm test` | Run companion unit/integration tests |
 | `npm run build` | Build the optional React showcase under `src/` |
@@ -154,6 +226,13 @@ npm run build
 **Find a GIF is unavailable**
 - Open API keys and save a valid GIPHY key
 - Or paste any public HTTPS GIF/image URL into the scene artwork field
+
+**Companion did not start after reboot**
+- Confirm **Start with Windows** is still enabled in Studio
+- Confirm the Startup launcher still exists:
+  `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\Spotify Vibe Presence.vbs`
+- Confirm Node.js is still installed and the repo path has not moved
+- Start once manually with `npm run presence:studio`, then re-enable **Start with Windows**
 
 **Port already in use**
 - The companion is probably already running; it reopens `http://127.0.0.1:17345`
