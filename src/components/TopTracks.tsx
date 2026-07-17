@@ -1,12 +1,12 @@
 import { Icon } from '@iconify/react';
-import { tracks } from '../data/mockData';
 import type { Track } from '../types';
 
 interface TopTracksProps {
     onPlay: (track: Track) => void;
+    tracks: Track[];
 }
 
-export default function TopTracks({ onPlay }: TopTracksProps) {
+export default function TopTracks({ onPlay, tracks }: TopTracksProps) {
     return (
         <section id="tracks" className="py-24 px-6 max-w-7xl mx-auto relative">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16">
@@ -16,7 +16,7 @@ export default function TopTracks({ onPlay }: TopTracksProps) {
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-                {tracks.slice(1).map((track) => (
+                {tracks.map((track) => (
                     <div key={track.id} className="group cursor-pointer" onClick={() => onPlay(track)}>
                         <div className="relative overflow-hidden mb-4 aspect-square bg-gray-900">
                             <img src={track.cover}

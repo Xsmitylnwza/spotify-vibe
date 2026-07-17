@@ -1,0 +1,2667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vibe Dayline</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
+        color: #f2f5ff;
+        background: #0b1020;
+        --night: #0b1020;
+        --slate: #151b2f;
+        --slate-2: #1b233b;
+        --field: #0d1325;
+        --line: #2a3556;
+        --line-soft: rgba(157, 175, 221, .16);
+        --paper: #f2f5ff;
+        --muted: #98a5c7;
+        --faint: #667394;
+        --dawn: #ffb45a;
+        --noon: #73d7ff;
+        --dusk: #9d7cff;
+        --success: #78e6b0;
+        --danger: #ff8e9d;
+        --shadow: 0 24px 70px rgba(0, 0, 0, .28);
+      }
+      * { box-sizing: border-box; }
+      [hidden] { display: none !important; }
+      html { min-width: 320px; scroll-behavior: smooth; background: var(--night); }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(circle at 82% 2%, rgba(115, 215, 255, .09), transparent 29rem),
+          radial-gradient(circle at 12% 104%, rgba(157, 124, 255, .10), transparent 34rem),
+          var(--night);
+      }
+      button, input, select { font: inherit; }
+      button, a, select, input[type="checkbox"] { cursor: pointer; }
+      button:disabled, input:disabled, select:disabled { cursor: not-allowed; opacity: .45; }
+      button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible {
+        outline: 2px solid var(--noon);
+        outline-offset: 2px;
+      }
+      .appbar {
+        position: sticky;
+        z-index: 20;
+        top: 0;
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 0 20px;
+        background: rgba(11, 16, 32, .88);
+        border-bottom: 1px solid var(--line-soft);
+        backdrop-filter: blur(18px);
+      }
+      .brand { display: flex; align-items: center; gap: 11px; }
+      .brand-mark {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        overflow: hidden;
+        background: conic-gradient(from 215deg, var(--dusk), var(--night), var(--dawn), var(--noon), var(--dusk));
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 50%;
+        box-shadow: 0 0 26px rgba(115, 215, 255, .18);
+      }
+      .brand-mark::after {
+        position: absolute;
+        inset: 7px;
+        content: "";
+        background: var(--night);
+        border-radius: 50%;
+      }
+      .brand-copy { display: grid; gap: 2px; }
+      .brand-copy strong {
+        font-family: Bahnschrift, "Arial Narrow", sans-serif;
+        font-size: 14px;
+        font-stretch: condensed;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .brand-copy small, .utility {
+        color: var(--muted);
+        font: 650 9px/1.2 "Cascadia Mono", Consolas, monospace;
+        letter-spacing: .08em;
+      }
+      .header-status { display: flex; align-items: center; gap: 10px; }
+      .clock {
+        min-width: 64px;
+        color: var(--paper);
+        font: 700 13px/1 "Cascadia Mono", Consolas, monospace;
+        text-align: right;
+      }
+      .connection-pill {
+        display: flex;
+        min-height: 30px;
+        align-items: center;
+        gap: 8px;
+        padding: 0 10px;
+        color: #c7d0ea;
+        background: rgba(255,255,255,.04);
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        font-size: 10px;
+      }
+      .connection-dot {
+        width: 7px;
+        height: 7px;
+        background: var(--faint);
+        border-radius: 50%;
+      }
+      .connection-pill.connected .connection-dot { background: var(--success); box-shadow: 0 0 10px var(--success); }
+      .connection-pill.connecting .connection-dot { background: var(--dawn); box-shadow: 0 0 10px var(--dawn); }
+      .studio {
+        display: grid;
+        width: min(1580px, 100%);
+        min-height: calc(100vh - 64px);
+        grid-template-columns: 236px minmax(500px, 1fr) 370px;
+        margin: 0 auto;
+      }
+      .side-panel {
+        min-width: 0;
+        padding: 22px 16px 80px;
+        background: rgba(15, 21, 38, .72);
+      }
+      .scene-panel { scroll-margin-top: 76px; border-right: 1px solid var(--line-soft); }
+      .day-panel { border-left: 1px solid var(--line-soft); }
+      .editor { min-width: 0; padding: 28px clamp(22px, 3.2vw, 48px) 100px; }
+      .panel-heading, .editor-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .panel-heading { margin-bottom: 12px; }
+      .editor-head { align-items: flex-end; margin-bottom: 14px; }
+      .kicker {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--noon);
+        font: 700 8px/1 "Cascadia Mono", Consolas, monospace;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1, h2, h3 { font-family: Bahnschrift, "Arial Narrow", sans-serif; }
+      h1 { margin-bottom: 5px; font-size: clamp(24px, 3vw, 36px); font-weight: 540; letter-spacing: -.035em; }
+      h2 { margin: 0; font-size: 15px; font-weight: 580; }
+      h3 { margin: 0; font-size: 12px; font-weight: 580; }
+      .subcopy { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+      .scene-list { display: grid; gap: 7px; }
+      .scene-item {
+        display: grid;
+        width: 100%;
+        min-height: 58px;
+        grid-template-columns: 31px 1fr;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 9px;
+        color: #b8c3df;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        text-align: left;
+      }
+      .scene-item:hover { background: rgba(255,255,255,.035); }
+      .scene-item.is-selected { color: var(--paper); background: var(--slate-2); border-color: var(--line); }
+      .scene-item.is-live { box-shadow: inset 2px 0 var(--noon); }
+      .scene-icon {
+        display: grid;
+        width: 31px;
+        height: 31px;
+        place-items: center;
+        color: #0a1120;
+        background: linear-gradient(145deg, var(--dawn), var(--noon));
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+      .scene-copy { display: grid; min-width: 0; gap: 4px; }
+      .scene-copy strong, .scene-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .scene-copy strong { font-size: 12px; }
+      .scene-copy small { color: var(--muted); font: 650 9px/1 "Cascadia Mono", Consolas, monospace; text-transform: uppercase; }
+      .scene-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
+      .scene-tools button:last-child { grid-column: 1 / -1; }
+      .button {
+        display: inline-flex;
+        min-height: 38px;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 0 14px;
+        color: var(--paper);
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 720;
+      }
+      .button:hover { background: rgba(255,255,255,.05); }
+      .button.small { min-height: 32px; padding: 0 9px; font-size: 9px; }
+      .button.primary {
+        color: #07101a;
+        background: linear-gradient(120deg, var(--dawn), var(--noon));
+        border-color: transparent;
+        box-shadow: 0 8px 24px rgba(115, 215, 255, .14);
+      }
+      .button.danger { color: var(--danger); border-color: rgba(255, 142, 157, .3); }
+      .editor-head .subcopy { margin-bottom: 0; }
+      .editor-context {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 7px;
+        margin-top: 11px;
+      }
+      .context-pill {
+        display: inline-flex;
+        min-height: 28px;
+        align-items: center;
+        gap: 6px;
+        padding: 0 9px;
+        color: var(--muted);
+        background: rgba(255,255,255,.035);
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        font-size: 9px;
+      }
+      .context-pill strong { max-width: 190px; overflow: hidden; color: var(--paper); text-overflow: ellipsis; white-space: nowrap; }
+      .context-pill.live { color: #c9ffe5; border-color: rgba(120,230,176,.24); }
+      .context-pill.is-same { background: rgba(120,230,176,.06); }
+      .context-divider { color: var(--faint); font: 700 10px/1 "Cascadia Mono", Consolas, monospace; }
+      .customization-journey {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .journey-step {
+        display: grid;
+        min-width: 0;
+        grid-template-columns: 28px minmax(0, 1fr);
+        align-items: center;
+        gap: 9px;
+        padding: 10px;
+        color: var(--muted);
+        background: rgba(21,27,47,.48);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        text-decoration: none;
+        transition: border-color .18s ease, background .18s ease, color .18s ease;
+      }
+      .journey-step:hover { color: var(--paper); background: rgba(255,255,255,.045); border-color: var(--line); }
+      .journey-number {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        color: var(--paper);
+        background: var(--field);
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        font: 750 10px/1 "Cascadia Mono", Consolas, monospace;
+      }
+      .journey-step.is-complete .journey-number { color: #07101a; background: var(--success); border-color: transparent; }
+      .journey-step.is-current { border-color: rgba(115,215,255,.45); box-shadow: inset 0 0 0 1px rgba(115,215,255,.08); }
+      .journey-copy { display: grid; min-width: 0; gap: 3px; }
+      .journey-copy strong, .journey-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .journey-copy strong { color: var(--paper); font-size: 10px; }
+      .journey-copy small { color: var(--muted); font-size: 8px; }
+      .form-section {
+        scroll-margin-top: 82px;
+        margin-bottom: 13px;
+        padding: 18px;
+        background: rgba(21, 27, 47, .72);
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        box-shadow: 0 10px 32px rgba(0,0,0,.10);
+      }
+      .section-title { margin-bottom: 13px; }
+      .section-title strong { display: block; margin-bottom: 4px; font-size: 12px; }
+      .section-title small { color: var(--muted); font-size: 10px; line-height: 1.45; }
+      .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+      .field-grid.three { grid-template-columns: 1fr .8fr 1.3fr; }
+      .field { display: grid; min-width: 0; gap: 6px; margin-bottom: 11px; }
+      .field:last-child { margin-bottom: 0; }
+      .field-hint { color: var(--faint); font-size: 9px; line-height: 1.45; }
+      .label-note { color: var(--faint); font-size: 8px; font-weight: 520; }
+      .field-label-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+      .field-action {
+        padding: 0;
+        color: var(--noon);
+        background: transparent;
+        border: 0;
+        font-size: 9px;
+        font-weight: 750;
+      }
+      .field-action:hover { color: var(--paper); }
+      label { color: #c7d0ea; font-size: 10px; font-weight: 680; }
+      input, select {
+        width: 100%;
+        min-height: 42px;
+        padding: 0 10px;
+        color: var(--paper);
+        background: var(--field);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        font-size: 12px;
+      }
+      input::placeholder { color: #56617f; }
+      input:focus, select:focus { border-color: var(--noon); box-shadow: 0 0 0 3px rgba(115, 215, 255, .08); }
+      .inline-disclosure {
+        margin-top: 8px;
+        border-top: 1px solid var(--line-soft);
+      }
+      .inline-disclosure > summary,
+      .disclosure > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--paper);
+        cursor: pointer;
+        list-style: none;
+      }
+      .inline-disclosure > summary:focus-visible,
+      .disclosure > summary:focus-visible { outline: 2px solid var(--noon); outline-offset: -2px; }
+      .inline-disclosure > summary::-webkit-details-marker,
+      .disclosure > summary::-webkit-details-marker { display: none; }
+      .inline-disclosure > summary { min-height: 42px; padding: 9px 0 0; font-size: 10px; font-weight: 700; }
+      .inline-disclosure > summary::after,
+      .disclosure > summary::after {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        place-items: center;
+        content: "+";
+        color: var(--noon);
+        background: rgba(115,215,255,.06);
+        border: 1px solid rgba(115,215,255,.18);
+        border-radius: 50%;
+        font-size: 14px;
+        transition: transform .18s ease;
+      }
+      .inline-disclosure[open] > summary::after,
+      .disclosure[open] > summary::after { transform: rotate(45deg); }
+      .inline-disclosure-body { padding-top: 13px; }
+      .disclosure { padding: 0; overflow: hidden; }
+      .disclosure > summary { min-height: 68px; padding: 14px 18px; }
+      .disclosure > summary > span:first-child { display: grid; gap: 4px; }
+      .disclosure > summary strong { font-size: 12px; }
+      .disclosure > summary small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+      .disclosure-body { padding: 15px 18px 18px; border-top: 1px solid var(--line-soft); }
+      .option-status {
+        margin-left: auto;
+        padding: 5px 7px;
+        color: var(--muted);
+        background: rgba(255,255,255,.035);
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        font: 650 8px/1 "Cascadia Mono", Consolas, monospace;
+        white-space: nowrap;
+      }
+      .advanced-intro { display: flex; align-items: center; gap: 9px; margin: 18px 1px 9px; color: var(--muted); font-size: 10px; }
+      .advanced-intro::before, .advanced-intro::after { height: 1px; flex: 1; content: ""; background: var(--line-soft); }
+      .field-error { margin: -2px 0 0; color: var(--danger); font-size: 9px; line-height: 1.4; }
+      input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(255,142,157,.08); }
+      .form-actions {
+        position: sticky;
+        z-index: 8;
+        bottom: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 11px;
+        background: rgba(13,19,37,.94);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: 0 18px 44px rgba(0,0,0,.34);
+        backdrop-filter: blur(14px);
+      }
+      .save-feedback { display: grid; min-width: 190px; flex: 1; grid-template-columns: 9px minmax(0, 1fr); align-items: center; gap: 9px; }
+      .save-indicator { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 9px rgba(120,230,176,.45); }
+      .save-feedback[data-state="saving"] .save-indicator { background: var(--dawn); box-shadow: 0 0 9px rgba(255,180,90,.42); }
+      .save-feedback[data-state="dirty"] .save-indicator { background: var(--dawn); box-shadow: 0 0 9px rgba(255,180,90,.42); }
+      .save-feedback[data-state="warning"] .save-indicator,
+      .save-feedback[data-state="error"] .save-indicator { background: var(--danger); box-shadow: 0 0 9px rgba(255,142,157,.4); }
+      .save-copy { display: grid; min-width: 0; gap: 2px; }
+      .save-status { overflow: hidden; color: var(--paper); font: 700 9px/1.3 "Cascadia Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+      .save-copy small { color: var(--muted); font-size: 8px; }
+      .publish-action { display: grid; flex: 0 0 auto; gap: 3px; }
+      .publish-action small { color: var(--muted); font-size: 7px; text-align: center; }
+      .message { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+      .message.success { color: var(--success); }
+      .message.error { color: var(--danger); }
+      .card {
+        margin-bottom: 12px;
+        padding: 15px;
+        background: rgba(21, 27, 47, .84);
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+      .now-card {
+        background:
+          linear-gradient(130deg, rgba(255,180,90,.08), rgba(115,215,255,.07) 54%, rgba(157,124,255,.08)),
+          rgba(21, 27, 47, .92);
+      }
+      .now-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
+      .now-item { padding: 9px; background: rgba(9,14,27,.45); border: 1px solid var(--line-soft); border-radius: 8px; }
+      .now-item small { display: block; margin-bottom: 4px; color: var(--muted); font-size: 8px; text-transform: uppercase; }
+      .now-item strong { display: block; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .day-strip-wrap { margin: 14px 0 12px; }
+      .day-labels { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--faint); font: 650 7px/1 "Cascadia Mono", Consolas, monospace; }
+      .day-strip {
+        position: relative;
+        height: 14px;
+        background: linear-gradient(90deg, #251a48 0%, var(--dawn) 25%, var(--noon) 50%, var(--dusk) 75%, #251a48 100%);
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 999px;
+        box-shadow: inset 0 0 12px rgba(0,0,0,.26);
+      }
+      .slot-pin, .now-pin { position: absolute; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; }
+      .slot-pin { width: 7px; height: 7px; background: var(--paper); border: 1px solid var(--night); box-shadow: 0 0 0 2px rgba(255,255,255,.18); }
+      .now-pin {
+        z-index: 2;
+        width: 3px;
+        height: 22px;
+        background: #fff;
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(255,255,255,.75);
+      }
+      .slot-list { display: grid; gap: 7px; }
+      .slot-row {
+        display: grid;
+        grid-template-columns: 26px 72px minmax(0, 1fr) 28px;
+        align-items: center;
+        gap: 6px;
+      }
+      .slot-row input, .slot-row select { min-height: 32px; padding: 0 7px; font-size: 9px; }
+      .slot-toggle, .slot-remove {
+        display: grid;
+        width: 26px;
+        height: 28px;
+        place-items: center;
+        padding: 0;
+        color: var(--muted);
+        background: var(--field);
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        font-size: 10px;
+      }
+      .slot-toggle[aria-pressed="true"] { color: #07101a; background: var(--success); border-color: transparent; }
+      .slot-remove:hover { color: var(--danger); }
+      .timeline-actions { display: flex; gap: 7px; margin-top: 10px; }
+      .preview-dock {
+        position: relative;
+        isolation: isolate;
+        margin-bottom: 12px;
+        padding: 12px;
+        overflow: hidden;
+        background:
+          linear-gradient(145deg, rgba(88, 101, 242, .13), rgba(115, 215, 255, .05) 48%, rgba(157, 124, 255, .09)),
+          rgba(13, 19, 37, .96);
+        border: 1px solid rgba(115, 215, 255, .22);
+        border-radius: 14px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, .34), inset 0 1px rgba(255, 255, 255, .04);
+      }
+      .preview-dock::before {
+        position: absolute;
+        z-index: -1;
+        inset: 0 0 auto;
+        height: 2px;
+        content: "";
+        background: linear-gradient(90deg, var(--dawn), var(--noon), var(--dusk));
+      }
+      .preview-dock-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .preview-live-badge {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 7px;
+        color: #d7f5ff;
+        background: rgba(115, 215, 255, .08);
+        border: 1px solid rgba(115, 215, 255, .24);
+        border-radius: 999px;
+        font: 750 7px/1 "Cascadia Mono", Consolas, monospace;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .preview-live-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--noon);
+        border-radius: 50%;
+        box-shadow: 0 0 8px rgba(115, 215, 255, .6);
+      }
+      .preview-card {
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        background: #202225;
+        border-color: rgba(255,255,255,.12);
+        border-radius: 10px;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, .24);
+      }
+      .preview-banner { height: 62px; background: linear-gradient(100deg, #543e7b, #346a82 58%, #a66c48); }
+      .preview-body { padding: 14px; }
+      .preview-user { display: flex; align-items: center; gap: 10px; margin: -36px 0 14px; }
+      .avatar { display: grid; width: 52px; height: 52px; place-items: center; background: #12151b; border: 4px solid #202225; border-radius: 50%; font-size: 14px; font-weight: 800; }
+      .preview-user div { display: grid; gap: 2px; padding-top: 23px; }
+      .preview-user strong { font-size: 11px; }
+      .preview-user small { color: #b5bac1; font-size: 8px; }
+      .activity-label { margin-bottom: 8px; color: #b5bac1; font-size: 7px; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; }
+      .activity { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 11px; }
+      .asset-wrap { position: relative; width: 84px; height: 84px; }
+      .large-asset, .asset-placeholder { width: 84px; height: 84px; border-radius: 7px; }
+      .large-asset { display: block; object-fit: cover; }
+      .asset-placeholder { display: grid; place-items: center; color: #111827; background: linear-gradient(135deg, var(--dawn), var(--noon)); font-size: 25px; font-weight: 900; }
+      .small-asset, .small-placeholder {
+        position: absolute;
+        right: -4px;
+        bottom: -4px;
+        width: 28px;
+        height: 28px;
+        border: 3px solid #202225;
+        border-radius: 50%;
+      }
+      .small-asset { object-fit: cover; }
+      .small-placeholder { display: grid; place-items: center; color: #10151f; background: var(--success); font-size: 8px; }
+      .activity-copy { display: flex; min-width: 0; flex-direction: column; justify-content: center; }
+      .activity-copy strong, .activity-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .activity-copy strong { font-size: 11px; }
+      .activity-copy span { color: #dbdee1; font-size: 9px; }
+      .activity-copy small { margin-top: 6px; color: #b5bac1; font-size: 8px; }
+      .preview-buttons { display: grid; gap: 5px; margin-top: 9px; }
+      .preview-buttons.is-highlighted:empty { min-height: 24px; }
+      .preview-buttons.two { grid-template-columns: 1fr 1fr; }
+      .preview-buttons a { padding: 7px; color: #fff; background: #4e5058; border-radius: 4px; font-size: 8px; font-weight: 750; text-align: center; text-decoration: none; }
+      .preview-target {
+        border-radius: 6px;
+        transition: background .18s ease, box-shadow .18s ease;
+      }
+      .preview-target.is-highlighted {
+        background: rgba(115, 215, 255, .09);
+        box-shadow: 0 0 0 2px rgba(115, 215, 255, .65), 0 0 18px rgba(115, 215, 255, .12);
+      }
+      .preview-dock-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 9px;
+        color: var(--faint);
+        font: 650 7px/1.35 "Cascadia Mono", Consolas, monospace;
+      }
+      .preview-scene-name {
+        max-width: 42%;
+        overflow: hidden;
+        color: var(--paper);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .system-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--line-soft);
+      }
+      .system-row:last-child { border-bottom: 0; }
+      .system-copy { display: grid; gap: 3px; }
+      .system-copy strong { font-size: 10px; }
+      .system-copy small { color: var(--muted); font-size: 8px; line-height: 1.35; }
+      .switch { position: relative; width: 38px; height: 22px; flex: 0 0 auto; }
+      .switch input { position: absolute; opacity: 0; pointer-events: none; }
+      .switch span { position: absolute; inset: 0; background: #303a58; border-radius: 999px; transition: background .18s ease; }
+      .switch span::after { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; content: ""; background: #dce4fa; border-radius: 50%; transition: transform .18s ease; }
+      .switch input:checked + span { background: var(--noon); }
+      .switch input:checked + span::after { transform: translateX(16px); background: #07101a; }
+      .error-box { margin-bottom: 12px; padding: 10px; color: #ffd3d9; background: rgba(255,142,157,.08); border: 1px solid rgba(255,142,157,.24); border-radius: 9px; font-size: 9px; line-height: 1.45; }
+      .path { overflow: hidden; color: var(--faint); font: 600 7px/1.4 "Cascadia Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+      .settings-overlay {
+        position: fixed;
+        z-index: 90;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+      }
+      .settings-backdrop {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        background: rgba(3, 6, 15, .78);
+        border: 0;
+        border-radius: 0;
+        backdrop-filter: blur(8px);
+      }
+      .settings-dialog {
+        position: relative;
+        display: grid;
+        width: min(560px, 100%);
+        max-height: calc(100vh - 36px);
+        gap: 16px;
+        padding: 22px;
+        overflow: auto;
+        background:
+          radial-gradient(circle at 90% 0, rgba(115, 215, 255, .10), transparent 18rem),
+          #11182b;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+      .settings-dialog h2 { margin-bottom: 4px; font-size: 20px; }
+      .settings-dialog .subcopy { margin-bottom: 0; }
+      .settings-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .settings-form { display: grid; gap: 14px; }
+      .settings-status {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        background: rgba(255,255,255,.03);
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+      }
+      .settings-status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 11px;
+      }
+      .settings-status-row strong { font-size: 11px; }
+      .settings-status-row span { color: var(--muted); font-size: 10px; text-align: right; }
+      .settings-status-row .ok { color: var(--success); }
+      .settings-status-row .warn { color: var(--dawn); }
+      .settings-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .settings-actions .button { min-width: 110px; }
+      .setup-banner {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin: 0 auto;
+        padding: 12px 16px;
+        width: min(1580px, 100%);
+        background: rgba(255, 180, 90, .08);
+        border-bottom: 1px solid rgba(255, 180, 90, .22);
+      }
+      .setup-banner.visible { display: flex; }
+      .setup-banner p { margin: 0; color: #ffd8a8; font-size: 12px; line-height: 1.4; }
+      .field input[type="password"] { letter-spacing: .08em; }
+      body.settings-open { overflow: hidden; }
+      body.gif-picker-open { overflow: hidden; }
+      .gif-picker {
+        position: fixed;
+        z-index: 100;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+      }
+      .gif-picker-backdrop {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        background: rgba(3, 6, 15, .82);
+        border: 0;
+        border-radius: 0;
+        backdrop-filter: blur(8px);
+      }
+      .gif-dialog {
+        position: relative;
+        display: grid;
+        width: min(780px, 100%);
+        max-height: calc(100vh - 36px);
+        gap: 16px;
+        padding: 20px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 90% 0, rgba(115, 215, 255, .10), transparent 18rem),
+          #11182b;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: 0 32px 100px rgba(0, 0, 0, .55);
+      }
+      .gif-dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+      .gif-dialog-head h2 { margin-bottom: 5px; font-size: 20px; }
+      .gif-dialog-head p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+      .gif-close { flex: 0 0 auto; }
+      .gif-unavailable {
+        display: grid;
+        gap: 6px;
+        padding: 16px;
+        background: rgba(255,255,255,.035);
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+      }
+      .gif-unavailable strong { font-size: 12px; }
+      .gif-unavailable p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+      .gif-provider { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+      .gif-search-panel { display: grid; min-height: 0; gap: 12px; }
+      .gif-search-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+      .gif-search-status { min-height: 16px; margin: 0; color: var(--muted); font-size: 10px; }
+      .gif-search-status.error { color: var(--danger); }
+      .gif-results {
+        display: grid;
+        min-height: 190px;
+        max-height: min(52vh, 520px);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-auto-rows: max-content;
+        align-content: start;
+        gap: 9px;
+        padding-right: 3px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-color: rgba(115, 215, 255, .25) transparent;
+        scrollbar-width: thin;
+      }
+      .gif-result {
+        position: relative;
+        min-width: 0;
+        padding: 0;
+        overflow: hidden;
+        color: var(--paper);
+        background: var(--field);
+        border: 1px solid var(--line-soft);
+        border-radius: 10px;
+        text-align: left;
+      }
+      .gif-result:hover { border-color: var(--noon); transform: translateY(-1px); }
+      .gif-result img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #080d19; }
+      .gif-result span { display: block; padding: 8px; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+      .gif-empty { grid-column: 1 / -1; align-self: center; color: var(--muted); font-size: 11px; text-align: center; }
+      .gif-load-more { grid-column: 1 / -1; justify-self: center; min-width: 150px; margin: 4px 0 2px; }
+      .gif-provider { justify-content: space-between; color: var(--faint); font-size: 9px; }
+      .giphy-mark { color: var(--paper); font-weight: 850; letter-spacing: .08em; }
+      @media (min-width: 1181px) {
+        .day-panel {
+          position: sticky;
+          top: 64px;
+          align-self: start;
+          height: calc(100vh - 64px);
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          scrollbar-color: rgba(115, 215, 255, .25) transparent;
+          scrollbar-width: thin;
+        }
+        .day-panel::-webkit-scrollbar { width: 7px; }
+        .day-panel::-webkit-scrollbar-thumb { background: rgba(115, 215, 255, .22); border-radius: 999px; }
+      }
+      @media (max-width: 1180px) {
+        .studio { grid-template-columns: 220px minmax(0, 1fr); }
+        .day-panel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border-top: 1px solid var(--line-soft); border-left: 0; }
+        .day-panel > .card, .day-panel > .error-box, .day-panel > .preview-dock { margin: 0; }
+        .day-panel > .error-box { grid-column: 1 / -1; }
+      }
+      @media (max-width: 900px) and (min-width: 761px) {
+        .day-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 760px) {
+        .appbar { position: relative; flex-direction: column; align-items: stretch; gap: 12px; padding: 14px; }
+        .header-status { width: 100%; align-items: center; justify-content: space-between; flex-direction: row; gap: 10px; }
+        .connection-pill { min-width: 0; max-width: calc(100% - 74px); }
+        .connection-pill span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .studio { display: flex; min-height: auto; flex-direction: column; }
+        .scene-panel { order: 1; border-right: 0; border-bottom: 1px solid var(--line-soft); }
+        .editor { order: 2; padding: 24px 14px 60px; }
+        .day-panel { display: block; order: 3; padding: 14px; }
+        .day-panel > .card, .day-panel > .error-box, .day-panel > .preview-dock { margin-bottom: 10px; }
+        .field-grid, .field-grid.three { grid-template-columns: 1fr; }
+        .editor-head { align-items: flex-start; flex-direction: column; }
+        .gif-picker { padding: 8px; }
+        .gif-dialog { max-height: calc(100vh - 16px); padding: 16px; border-radius: 12px; }
+        .gif-search-row { grid-template-columns: 1fr; }
+        .gif-search-row .button { width: 100%; }
+        .gif-results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 560px) {
+        .customization-journey { grid-template-columns: 1fr; }
+        .journey-copy strong, .journey-copy small { white-space: normal; }
+        .form-actions { bottom: 8px; }
+        .save-feedback { min-width: 0; flex-basis: 100%; }
+        .form-actions > .button, .publish-action { flex: 1 1 0; }
+        .publish-action .button { width: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+        .preview-target { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="appbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="brand-copy"><strong>Vibe Dayline</strong><small>PERSONAL DISCORD PRESENCE</small></div>
+      </div>
+      <div class="header-status">
+        <button class="button small" id="openSettingsButton" type="button">API keys</button>
+        <span class="clock" id="localClock">--:--</span>
+        <div class="connection-pill connecting" id="connectionPill">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connectionText">Starting companion…</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="setup-banner" id="setupBanner" role="status">
+      <p id="setupBannerText">Add your Discord Application ID to connect Presence.</p>
+      <button class="button small primary" id="setupBannerButton" type="button">Open API keys</button>
+    </div>
+
+    <main class="studio">
+      <aside class="side-panel scene-panel" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
+        <div class="panel-heading">
+          <div><span class="kicker">Step 1 · Choose</span><h2 id="sceneLibraryTitle">Your Scenes</h2></div>
+        </div>
+        <p class="subcopy">Choose the Presence you want to personalize. The live Scene is marked separately.</p>
+        <div class="scene-list" id="sceneList"></div>
+        <div class="scene-tools">
+          <button class="button small" id="addSceneButton" type="button">+ Add</button>
+          <button class="button small" id="duplicateSceneButton" type="button">Duplicate</button>
+          <button class="button small danger" id="deleteSceneButton" type="button">Delete Scene</button>
+        </div>
+      </aside>
+
+      <section class="editor">
+        <div class="editor-head">
+          <div>
+            <span class="kicker">Step 2 · Personalize</span>
+            <h1 id="editorTitle">Loading…</h1>
+            <p class="subcopy">Start with the visible essentials. Optional Discord controls stay out of the way until you need them.</p>
+            <div class="editor-context" aria-live="polite">
+              <span class="context-pill"><span>Editing</span><strong id="editingSceneName">Loading…</strong></span>
+              <span class="context-divider" aria-hidden="true">→</span>
+              <span class="context-pill live" id="liveContextPill"><span>On Discord</span><strong id="liveSceneName">Checking…</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <nav class="customization-journey" aria-label="Scene customization journey">
+          <a class="journey-step is-complete" id="journeySceneStep" href="#sceneLibrary">
+            <span class="journey-number" aria-hidden="true">1</span>
+            <span class="journey-copy"><strong>Choose a Scene</strong><small id="journeySceneStatus">Selected</small></span>
+          </a>
+          <a class="journey-step is-current" id="journeyCustomizeStep" href="#essentialsSection" aria-current="step">
+            <span class="journey-number" aria-hidden="true">2</span>
+            <span class="journey-copy"><strong>Personalize</strong><small id="journeyCustomizeStatus">Edit what people see</small></span>
+          </a>
+          <a class="journey-step" id="journeyPreviewStep" href="#previewDock">
+            <span class="journey-number" aria-hidden="true">3</span>
+            <span class="journey-copy"><strong>Review &amp; show</strong><small id="journeyPreviewStatus">Preview before Discord</small></span>
+          </a>
+        </nav>
+
+        <form id="presenceForm" novalidate>
+          <section class="form-section" id="essentialsSection">
+            <div class="section-title"><strong>Scene basics</strong><small>Name this Scene for yourself, then choose the activity label Discord will display.</small></div>
+            <div class="field-grid three">
+              <div class="field"><label for="sceneName">Scene name <span class="label-note">only you see this</span></label><input id="sceneName" name="sceneName" type="text" minlength="1" maxlength="40" required /></div>
+              <div class="field"><label for="activityType">Discord activity type</label><select id="activityType" name="activityType"><option value="playing">Playing</option><option value="listening">Listening</option><option value="watching">Watching</option><option value="competing">Competing</option></select></div>
+              <div class="field"><label for="activityName">Activity name in Discord</label><input id="activityName" name="activityName" type="text" minlength="2" maxlength="128" required /></div>
+            </div>
+          </section>
+
+          <section class="form-section" id="visibleTextSection">
+            <div class="section-title"><strong>What people see</strong><small>These two lines appear beside your artwork on the Discord profile card.</small></div>
+            <div class="field-grid">
+              <div class="field"><label for="details">Top line in the card</label><input id="details" name="details" type="text" minlength="2" maxlength="128" required /></div>
+              <div class="field"><label for="state">Second line in the card</label><input id="state" name="state" type="text" minlength="2" maxlength="128" required /></div>
+            </div>
+            <details class="inline-disclosure" id="textLinksDisclosure">
+              <summary><span>Add click-through links</span><span class="option-status" id="textLinksStatus">Off</span></summary>
+              <div class="inline-disclosure-body field-grid">
+                <div class="field"><label for="detailsUrl">Top-line HTTPS link</label><input id="detailsUrl" name="detailsUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                <div class="field"><label for="stateUrl">Second-line HTTPS link</label><input id="stateUrl" name="stateUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+              </div>
+            </details>
+          </section>
+
+          <section class="form-section" id="artworkSection">
+            <div class="section-title"><strong>Large artwork</strong><small>Pick the main visual first. You can add a small badge and link details afterward.</small></div>
+            <div class="field">
+              <div class="field-label-row"><label for="largeImage">Main image or GIF</label><button class="field-action" data-gif-target="largeImage" type="button">Find a GIF</button></div>
+              <input id="largeImage" name="largeImage" type="text" maxlength="512" placeholder="Search GIPHY or paste an asset key / HTTPS URL" aria-describedby="largeImageHint" />
+              <small class="field-hint" id="largeImageHint">GIPHY is easiest. Discord asset keys and stable public HTTPS media URLs also work.</small>
+            </div>
+            <details class="inline-disclosure" id="artworkOptionsDisclosure">
+              <summary><span>Add a small badge or artwork details</span><span class="option-status" id="artworkOptionsStatus">Optional</span></summary>
+              <div class="inline-disclosure-body">
+                <div class="field-grid">
+                  <div class="field"><label for="largeImageText">Main artwork hover text</label><input id="largeImageText" name="largeImageText" type="text" minlength="2" maxlength="128" /></div>
+                  <div class="field"><label for="largeImageUrl">Main artwork HTTPS link</label><input id="largeImageUrl" name="largeImageUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                </div>
+                <div class="field">
+                  <div class="field-label-row"><label for="smallImage">Small badge image or GIF</label><button class="field-action" data-gif-target="smallImage" type="button">Find a GIF</button></div>
+                  <input id="smallImage" name="smallImage" type="text" maxlength="512" placeholder="Optional asset key or HTTPS URL" />
+                </div>
+                <div class="field-grid">
+                  <div class="field"><label for="smallImageText">Small badge hover text</label><input id="smallImageText" name="smallImageText" type="text" minlength="2" maxlength="128" /></div>
+                  <div class="field"><label for="smallImageUrl">Small badge HTTPS link</label><input id="smallImageUrl" name="smallImageUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <p class="advanced-intro">Optional Discord extras</p>
+
+          <details class="form-section disclosure" id="timerDisclosure">
+            <summary>
+              <span><strong>Add a Discord timer</strong><small>Count up or down without rapid Presence updates.</small></span>
+              <span class="option-status" id="timerStatus">Off</span>
+            </summary>
+            <div class="disclosure-body field-grid">
+              <div class="field"><label for="timerMode">Timer style</label><select id="timerMode" name="timerMode"><option value="none">No timer</option><option value="elapsed">Count up</option><option value="remaining">Count down</option></select></div>
+              <div class="field"><label for="timerMinutes">Countdown length in minutes</label><input id="timerMinutes" name="timerMinutes" type="number" min="1" max="1440" value="30" /></div>
+            </div>
+          </details>
+
+          <details class="form-section disclosure" id="buttonsDisclosure">
+            <summary>
+              <span><strong>Add profile buttons</strong><small>Other Discord users can open up to two HTTPS links.</small></span>
+              <span class="option-status" id="buttonsStatus">Off</span>
+            </summary>
+            <div class="disclosure-body field-grid">
+              <div class="field"><label for="button1Label">First button label</label><input id="button1Label" name="button1Label" type="text" minlength="1" maxlength="32" placeholder="Open link" /></div>
+              <div class="field"><label for="button1Url">First button HTTPS URL</label><input id="button1Url" name="button1Url" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+              <div class="field"><label for="button2Label">Second button label</label><input id="button2Label" name="button2Label" type="text" minlength="1" maxlength="32" /></div>
+              <div class="field"><label for="button2Url">Second button HTTPS URL</label><input id="button2Url" name="button2Url" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+            </div>
+          </details>
+
+          <p class="message" id="message" role="status" aria-live="polite"></p>
+          <div class="form-actions">
+            <div class="save-feedback" id="saveFeedback" data-state="saved" role="status" aria-live="polite">
+              <span class="save-indicator" aria-hidden="true"></span>
+              <span class="save-copy"><span class="save-status" id="saveStatus">All changes saved</span><small id="saveHint">Stored on this computer</small></span>
+            </div>
+            <button class="button" id="saveButton" type="submit">Save now</button>
+            <span class="publish-action">
+              <button class="button primary" id="useButton" type="button">Show on Discord</button>
+              <small id="applyHint">Until the next Daily Time Slot</small>
+            </span>
+          </div>
+        </form>
+      </section>
+
+      <aside class="side-panel day-panel">
+        <div class="error-box" id="errorBox" hidden></div>
+
+        <section class="preview-dock" id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
+          <header class="preview-dock-head">
+            <div><span class="kicker">Step 3 · Review</span><h2 id="previewDockTitle">Editing preview</h2></div>
+            <span class="preview-live-badge"><span class="preview-live-dot" aria-hidden="true"></span>Updates as you type</span>
+          </header>
+          <section class="card preview-card" aria-label="Editing preview of the Discord Rich Presence card">
+            <div class="preview-banner"></div>
+            <div class="preview-body">
+              <div class="preview-user"><span class="avatar">G</span><div><strong>golf.wav</strong><small>Discord profile inspection</small></div></div>
+              <div class="activity-label preview-target" id="previewActivityLabel">Playing Vibe Presence</div>
+              <div class="activity">
+                <div class="asset-wrap preview-target" id="previewArtwork">
+                  <img class="large-asset" id="previewLargeImage" alt="Large Rich Presence artwork" hidden />
+                  <span class="asset-placeholder" id="largePlaceholder">V</span>
+                  <img class="small-asset" id="previewSmallImage" alt="Small Rich Presence artwork" hidden />
+                  <span class="small-placeholder" id="smallPlaceholder">●</span>
+                </div>
+                <div class="activity-copy preview-target" id="previewCopy">
+                  <strong class="preview-target" id="previewDetails">Loading…</strong>
+                  <span class="preview-target" id="previewState"></span>
+                  <small class="preview-target" id="previewTimer" hidden></small>
+                </div>
+              </div>
+              <div class="preview-buttons preview-target" id="previewButtons"></div>
+            </div>
+          </section>
+          <footer class="preview-dock-footer">
+            <span class="preview-scene-name preview-target" id="previewSceneName">Selected Scene</span>
+            <span id="previewPublishHint">Preview only · show it on Discord when ready</span>
+          </footer>
+        </section>
+
+        <section class="card now-card">
+          <div class="panel-heading"><div><span class="kicker">Right now</span><h2 id="nowScene">Waiting for schedule</h2></div></div>
+          <div class="now-grid">
+            <div class="now-item"><small>Source</small><strong id="nowSource">Scheduled</strong></div>
+            <div class="now-item"><small>Next change</small><strong id="nextChange">--:--</strong></div>
+          </div>
+          <div class="timeline-actions">
+            <button class="button small" id="scheduleToggleButton" type="button">Pause schedule</button>
+            <button class="button small" id="cancelOverrideButton" type="button" hidden>Cancel override</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="panel-heading">
+            <div><span class="kicker">Daily Time Slots</span><h2>Repeats every day</h2></div>
+            <button class="button small" id="addSlotButton" type="button">+ Slot</button>
+          </div>
+          <p class="subcopy">Not a calendar. Each start time stays active until the next enabled slot.</p>
+          <div class="day-strip-wrap">
+            <div class="day-labels"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+            <div class="day-strip" id="dayStrip"><span class="now-pin" id="nowPin"></span></div>
+          </div>
+          <div class="slot-list" id="slotList"></div>
+        </section>
+
+        <section class="card">
+          <div class="panel-heading"><div><span class="kicker">Companion</span><h2>Runs in the background</h2></div></div>
+          <div class="system-row">
+            <div class="system-copy"><strong>API keys</strong><small id="apiKeysSummary">Discord + GIPHY stay on this PC only.</small></div>
+            <button class="button small" id="openSettingsButtonSide" type="button">Manage</button>
+          </div>
+          <div class="system-row">
+            <div class="system-copy"><strong>Start with Windows</strong><small>Launch hidden after sign-in.</small></div>
+            <label class="switch"><input id="autostartToggle" type="checkbox" /><span></span></label>
+          </div>
+          <div class="system-row">
+            <div class="system-copy"><strong>Pause and clear</strong><small>Stops automatic updates until resumed.</small></div>
+            <button class="button small danger" id="clearButton" type="button">Clear</button>
+          </div>
+          <div class="system-row">
+            <div class="system-copy"><strong>Exit companion</strong><small>Rich Presence is cleared before exit.</small></div>
+            <button class="button small" id="quitButton" type="button">Exit</button>
+          </div>
+          <p class="path" id="configPath" title="">Local configuration</p>
+        </section>
+      </aside>
+    </main>
+
+    <div class="settings-overlay" id="settingsOverlay" hidden>
+      <button class="settings-backdrop" id="settingsBackdrop" type="button" aria-label="Close API keys"></button>
+      <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-describedby="settingsDescription">
+        <header class="settings-head">
+          <div>
+            <span class="kicker">Local credentials</span>
+            <h2 id="settingsTitle">API keys</h2>
+            <p class="subcopy" id="settingsDescription">Keys stay in a private local file on this computer. Nothing is uploaded to a website.</p>
+          </div>
+          <button class="button small" id="settingsCloseButton" type="button" aria-label="Close API keys">Close</button>
+        </header>
+
+        <div class="settings-status" aria-live="polite">
+          <div class="settings-status-row">
+            <strong>Discord Application ID</strong>
+            <span id="discordStatusLabel" class="warn">Not set</span>
+          </div>
+          <div class="settings-status-row">
+            <strong>GIPHY API key</strong>
+            <span id="giphyStatusLabel" class="warn">Optional · not set</span>
+          </div>
+          <p class="path" id="secretsPath" title="">Secrets file</p>
+        </div>
+
+        <form class="settings-form" id="settingsForm">
+          <div class="field">
+            <label for="discordClientIdInput">Discord Application ID</label>
+            <input id="discordClientIdInput" name="discordClientId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="20" placeholder="17-20 digit Application ID" />
+            <small class="field-hint">Create an app in the Discord Developer Portal. The app name becomes the activity name Discord shows.</small>
+          </div>
+          <div class="field">
+            <label for="giphyApiKeyInput">GIPHY API key (optional)</label>
+            <input id="giphyApiKeyInput" name="giphyApiKey" type="password" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste free beta key" />
+            <small class="field-hint">Used only for Find a GIF. Create a free key at developers.giphy.com. Leave blank to keep the current key.</small>
+          </div>
+          <div class="settings-actions">
+            <button class="button" id="clearGiphyButton" type="button">Clear GIPHY key</button>
+            <button class="button primary" id="saveSettingsButton" type="submit">Save keys</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="gif-picker" id="gifPicker" hidden>
+      <button class="gif-picker-backdrop" id="gifPickerBackdrop" type="button" aria-label="Close GIF picker"></button>
+      <section class="gif-dialog" role="dialog" aria-modal="true" aria-labelledby="gifPickerTitle" aria-describedby="gifPickerDescription">
+        <header class="gif-dialog-head">
+          <div>
+            <span class="kicker">Animated artwork</span>
+            <h2 id="gifPickerTitle">Find a GIF</h2>
+            <p id="gifPickerDescription">Browse trending GIFs or search, then choose one to insert its animated URL into this Scene.</p>
+          </div>
+          <button class="button small gif-close" id="gifCloseButton" type="button" aria-label="Close GIF picker">Close</button>
+        </header>
+
+        <div class="gif-unavailable" id="gifUnavailable" hidden>
+          <strong>GIF search is not connected yet</strong>
+          <p id="gifUnavailableMessage">Add a GIPHY API key under API keys to browse GIFs. You can still paste HTTPS GIF URLs manually.</p>
+        </div>
+
+        <div class="gif-search-panel" id="gifSearchPanel" hidden>
+          <form class="gif-search-row" id="gifSearchForm">
+            <input id="gifSearchInput" type="search" minlength="2" maxlength="80" autocomplete="off" placeholder="Search: pixel rain, focus, night city…" aria-label="Search GIPHY" />
+            <button class="button primary" id="gifSearchButton" type="submit">Search GIFs</button>
+          </form>
+          <p class="gif-search-status" id="gifSearchStatus" role="status">Loading trending GIFs…</p>
+          <div class="gif-results" id="gifResults" aria-busy="false">
+            <p class="gif-empty">Loading trending GIFs…</p>
+            <button class="button small gif-load-more" id="gifLoadMoreButton" type="button" hidden>Load more GIFs</button>
+          </div>
+          <footer class="gif-provider">
+            <span>Trending when idle · searches as you type · <span class="giphy-mark">Powered by GIPHY</span></span>
+          </footer>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const form = document.querySelector('#presenceForm');
+      const sceneList = document.querySelector('#sceneList');
+      const slotList = document.querySelector('#slotList');
+      const dayStrip = document.querySelector('#dayStrip');
+      const nowPin = document.querySelector('#nowPin');
+      const message = document.querySelector('#message');
+      const saveFeedback = document.querySelector('#saveFeedback');
+      const saveStatus = document.querySelector('#saveStatus');
+      const saveHint = document.querySelector('#saveHint');
+      const saveButton = document.querySelector('#saveButton');
+      const editorTitle = document.querySelector('#editorTitle');
+      const editingSceneName = document.querySelector('#editingSceneName');
+      const liveSceneName = document.querySelector('#liveSceneName');
+      const liveContextPill = document.querySelector('#liveContextPill');
+      const journeySceneStep = document.querySelector('#journeySceneStep');
+      const journeyCustomizeStep = document.querySelector('#journeyCustomizeStep');
+      const journeyPreviewStep = document.querySelector('#journeyPreviewStep');
+      const journeySceneStatus = document.querySelector('#journeySceneStatus');
+      const journeyCustomizeStatus = document.querySelector('#journeyCustomizeStatus');
+      const journeyPreviewStatus = document.querySelector('#journeyPreviewStatus');
+      const previewLargeImage = document.querySelector('#previewLargeImage');
+      const previewSmallImage = document.querySelector('#previewSmallImage');
+      const previewSceneName = document.querySelector('#previewSceneName');
+      const previewPublishHint = document.querySelector('#previewPublishHint');
+      const largePlaceholder = document.querySelector('#largePlaceholder');
+      const smallPlaceholder = document.querySelector('#smallPlaceholder');
+      const useButton = document.querySelector('#useButton');
+      const applyHint = document.querySelector('#applyHint');
+      const deleteSceneButton = document.querySelector('#deleteSceneButton');
+      const scheduleToggleButton = document.querySelector('#scheduleToggleButton');
+      const cancelOverrideButton = document.querySelector('#cancelOverrideButton');
+      const autostartToggle = document.querySelector('#autostartToggle');
+      const errorBox = document.querySelector('#errorBox');
+      const gifPicker = document.querySelector('#gifPicker');
+      const gifDialog = gifPicker.querySelector('.gif-dialog');
+      const gifPickerTitle = document.querySelector('#gifPickerTitle');
+      const gifCloseButton = document.querySelector('#gifCloseButton');
+      const gifUnavailable = document.querySelector('#gifUnavailable');
+      const gifUnavailableMessage = document.querySelector('#gifUnavailableMessage');
+      const settingsOverlay = document.querySelector('#settingsOverlay');
+      const settingsForm = document.querySelector('#settingsForm');
+      const settingsCloseButton = document.querySelector('#settingsCloseButton');
+      const settingsBackdrop = document.querySelector('#settingsBackdrop');
+      const openSettingsButton = document.querySelector('#openSettingsButton');
+      const openSettingsButtonSide = document.querySelector('#openSettingsButtonSide');
+      const setupBanner = document.querySelector('#setupBanner');
+      const setupBannerText = document.querySelector('#setupBannerText');
+      const setupBannerButton = document.querySelector('#setupBannerButton');
+      const discordClientIdInput = document.querySelector('#discordClientIdInput');
+      const giphyApiKeyInput = document.querySelector('#giphyApiKeyInput');
+      const discordStatusLabel = document.querySelector('#discordStatusLabel');
+      const giphyStatusLabel = document.querySelector('#giphyStatusLabel');
+      const secretsPath = document.querySelector('#secretsPath');
+      const apiKeysSummary = document.querySelector('#apiKeysSummary');
+      const clearGiphyButton = document.querySelector('#clearGiphyButton');
+      const saveSettingsButton = document.querySelector('#saveSettingsButton');
+      let settingsReturnFocus = null;
+      let clearGiphyOnSave = false;
+      const gifSearchPanel = document.querySelector('#gifSearchPanel');
+      const gifSearchForm = document.querySelector('#gifSearchForm');
+      const gifSearchInput = document.querySelector('#gifSearchInput');
+      const gifSearchButton = document.querySelector('#gifSearchButton');
+      const gifSearchStatus = document.querySelector('#gifSearchStatus');
+      const gifResults = document.querySelector('#gifResults');
+      const gifLoadMoreButton = document.querySelector('#gifLoadMoreButton');
+      const appbar = document.querySelector('.appbar');
+      const studio = document.querySelector('.studio');
+      const textLinksDisclosure = document.querySelector('#textLinksDisclosure');
+      const artworkOptionsDisclosure = document.querySelector('#artworkOptionsDisclosure');
+      const timerDisclosure = document.querySelector('#timerDisclosure');
+      const buttonsDisclosure = document.querySelector('#buttonsDisclosure');
+      const textLinksStatus = document.querySelector('#textLinksStatus');
+      const artworkOptionsStatus = document.querySelector('#artworkOptionsStatus');
+      const timerStatus = document.querySelector('#timerStatus');
+      const buttonsStatus = document.querySelector('#buttonsStatus');
+
+      const GIF_PAGE_SIZE = 16;
+      const GIF_SCROLL_THRESHOLD = 180;
+
+      let config = null;
+      let runtime = null;
+      let selectedSceneId = null;
+      let previewStartedAt = Date.now();
+      let saveTimer = null;
+      let saveChain = Promise.resolve();
+      let applyBusy = false;
+      let highlightedPreview = null;
+      let gifTargetField = 'largeImage';
+      let gifReturnFocus = null;
+      let gifSearchTimer = null;
+      let gifSearchController = null;
+      let gifSearchSequence = 0;
+      let gifActiveQuery = '';
+      let gifNextOffset = 0;
+      let gifHasMore = false;
+      let gifLoading = false;
+      let gifScrollFrame = null;
+      const gifSeenIds = new Set();
+      const touchedFields = new Set();
+
+      const HTTPS_FIELDS = new Set([
+        'detailsUrl', 'stateUrl', 'largeImageUrl', 'smallImageUrl', 'button1Url', 'button2Url',
+      ]);
+      const IMAGE_FIELDS = new Set(['largeImage', 'smallImage']);
+      const FIELD_LABELS = {
+        sceneName: 'Scene name',
+        activityType: 'Discord activity type',
+        activityName: 'activity name',
+        details: 'top line',
+        detailsUrl: 'top-line link',
+        state: 'second line',
+        stateUrl: 'second-line link',
+        largeImage: 'main artwork',
+        largeImageText: 'main artwork hover text',
+        largeImageUrl: 'main artwork link',
+        smallImage: 'small badge artwork',
+        smallImageText: 'small badge hover text',
+        smallImageUrl: 'small badge link',
+        timerMinutes: 'countdown length',
+        button1Label: 'first button label',
+        button1Url: 'first button URL',
+        button2Label: 'second button label',
+        button2Url: 'second button URL',
+      };
+      const PREVIEW_TARGETS = {
+        sceneName: 'previewSceneName',
+        activityType: 'previewActivityLabel',
+        activityName: 'previewActivityLabel',
+        details: 'previewDetails',
+        detailsUrl: 'previewDetails',
+        state: 'previewState',
+        stateUrl: 'previewState',
+        largeImage: 'previewArtwork',
+        largeImageText: 'previewArtwork',
+        largeImageUrl: 'previewArtwork',
+        smallImage: 'previewArtwork',
+        smallImageText: 'previewArtwork',
+        smallImageUrl: 'previewArtwork',
+        timerMode: 'previewCopy',
+        timerMinutes: 'previewCopy',
+        button1Label: 'previewButtons',
+        button1Url: 'previewButtons',
+        button2Label: 'previewButtons',
+        button2Url: 'previewButtons',
+      };
+
+      function clone(value) {
+        return structuredClone(value);
+      }
+
+      function identifier(prefix) {
+        const suffix = globalThis.crypto?.randomUUID
+          ? globalThis.crypto.randomUUID().replaceAll('-', '').slice(0, 12)
+          : String(Date.now()) + String(Math.random()).slice(2, 7);
+        return prefix + '-' + suffix;
+      }
+
+      function showMessage(text, type) {
+        message.textContent = text || '';
+        message.className = 'message' + (type ? ' ' + type : '');
+      }
+
+      function setSaveState(state, label, detail) {
+        saveFeedback.dataset.state = state;
+        saveStatus.textContent = label;
+        saveHint.textContent = detail;
+      }
+
+      function setApplyBusy(busy) {
+        applyBusy = busy;
+        useButton.disabled = busy;
+        if (busy) {
+          useButton.textContent = 'Updating Discord…';
+        } else {
+          renderEditorJourney();
+        }
+      }
+
+      function fieldValue(name) {
+        return String(form.elements[name]?.value || '').trim();
+      }
+
+      function fieldLabel(field) {
+        return FIELD_LABELS[field.name] || field.name || 'this field';
+      }
+
+      function fieldValidationMessage(field) {
+        if (!field?.name || field.disabled) return '';
+        const value = String(field.value || '').trim();
+        const label = fieldLabel(field);
+
+        if (field.required && !value) return 'Enter the ' + label + '.';
+        if (value && field.minLength > 0 && value.length < field.minLength) {
+          return 'Use at least ' + field.minLength + ' characters for the ' + label + '.';
+        }
+
+        if (HTTPS_FIELDS.has(field.name) && value) {
+          try {
+            const parsed = new URL(value);
+            if (parsed.protocol !== 'https:') return 'Use an HTTPS link beginning with https://.';
+          } catch {
+            return 'Enter a complete HTTPS link, for example https://example.com.';
+          }
+        }
+
+        if (IMAGE_FIELDS.has(field.name) && value.includes('://')) {
+          try {
+            const parsed = new URL(value);
+            if (parsed.protocol !== 'https:') {
+              return 'Use a Discord asset key or a public HTTPS media URL.';
+            }
+          } catch {
+            return 'Use a Discord asset key or a complete public HTTPS media URL.';
+          }
+        }
+
+        const buttonPair = {
+          button1Label: ['button1Label', 'button1Url'],
+          button1Url: ['button1Label', 'button1Url'],
+          button2Label: ['button2Label', 'button2Url'],
+          button2Url: ['button2Label', 'button2Url'],
+        }[field.name];
+        if (buttonPair) {
+          const [labelName, urlName] = buttonPair;
+          if (field.name === labelName && !value && fieldValue(urlName)) {
+            return 'Add a label for this button, or remove its URL.';
+          }
+          if (field.name === urlName && !value && fieldValue(labelName)) {
+            return 'Add an HTTPS URL for this button, or remove its label.';
+          }
+        }
+
+        if (field.name === 'timerMinutes' && form.elements.timerMode.value === 'remaining') {
+          const minutes = Number(value);
+          if (!value || !Number.isFinite(minutes)) return 'Enter a countdown from 1 to 1440 minutes.';
+          if (minutes < 1 || minutes > 1440) return 'Choose a countdown from 1 to 1440 minutes.';
+        }
+
+        if (field.validity.typeMismatch) {
+          return 'Enter a complete HTTPS link, for example https://example.com.';
+        }
+        if (field.validity.rangeUnderflow || field.validity.rangeOverflow) {
+          return 'Choose a value from ' + field.min + ' to ' + field.max + '.';
+        }
+        if (field.validity.badInput) return 'Enter a valid number.';
+        return '';
+      }
+
+      function fieldErrorElement(field) {
+        const id = field.id + 'Error';
+        let error = document.getElementById(id);
+        if (!error) {
+          error = document.createElement('p');
+          error.className = 'field-error';
+          error.id = id;
+          error.hidden = true;
+          field.insertAdjacentElement('afterend', error);
+        }
+        const descriptions = new Set((field.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+        descriptions.add(id);
+        field.setAttribute('aria-describedby', [...descriptions].join(' '));
+        return error;
+      }
+
+      function validateField(field, { reveal = false } = {}) {
+        if (!field?.matches?.('input, select')) return true;
+        const wasRevealed = field.getAttribute('aria-invalid') === 'true';
+        field.setCustomValidity('');
+        const errorMessage = fieldValidationMessage(field);
+        field.setCustomValidity(errorMessage);
+        const valid = !errorMessage && field.validity.valid;
+        const shouldReveal = reveal || wasRevealed || touchedFields.has(field.name);
+
+        if (!valid && shouldReveal) {
+          const error = fieldErrorElement(field);
+          error.textContent = errorMessage || field.validationMessage;
+          error.hidden = false;
+          field.setAttribute('aria-invalid', 'true');
+        } else if (valid) {
+          document.getElementById(field.id + 'Error')?.setAttribute('hidden', '');
+          field.removeAttribute('aria-invalid');
+        }
+        return valid;
+      }
+
+      function openDisclosureForField(field) {
+        let parent = field.parentElement;
+        while (parent && parent !== form) {
+          if (parent.tagName === 'DETAILS') parent.open = true;
+          parent = parent.parentElement;
+        }
+      }
+
+      function validateForm({ reveal = false, focusFirst = false } = {}) {
+        const invalid = [];
+        form.querySelectorAll('input, select').forEach((field) => {
+          if (!validateField(field, { reveal })) invalid.push(field);
+        });
+        if (focusFirst && invalid.length) {
+          const first = invalid[0];
+          openDisclosureForField(first);
+          setTimeout(() => {
+            first.focus({ preventScroll: true });
+            first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 0);
+        }
+        return invalid.length === 0;
+      }
+
+      function resetFormValidation() {
+        touchedFields.clear();
+        form.querySelectorAll('input, select').forEach((field) => {
+          field.setCustomValidity('');
+          field.removeAttribute('aria-invalid');
+          document.getElementById(field.id + 'Error')?.setAttribute('hidden', '');
+        });
+      }
+
+      function highlightPreviewForField(field) {
+        highlightedPreview?.classList.remove('is-highlighted');
+        highlightedPreview = null;
+        const targetId = PREVIEW_TARGETS[field?.name];
+        if (!targetId) return;
+        highlightedPreview = document.getElementById(targetId);
+        highlightedPreview?.classList.add('is-highlighted');
+      }
+
+      function currentScene() {
+        return config?.scenes.find((scene) => scene.id === selectedSceneId) || null;
+      }
+
+      function sceneIcon(scene) {
+        return { listening: '♫', playing: '⌘', watching: '▶', competing: '⚔' }[scene.activityType] || '●';
+      }
+
+      function setJourneyStepState(step, { complete = false, current = false } = {}) {
+        step.classList.toggle('is-complete', complete);
+        step.classList.toggle('is-current', current);
+        if (current) step.setAttribute('aria-current', 'step');
+        else step.removeAttribute('aria-current');
+      }
+
+      function optionCountLabel(count, noun) {
+        if (!count) return 'Off';
+        return count + ' ' + noun + (count === 1 ? '' : 's');
+      }
+
+      function renderEditorJourney() {
+        const scene = currentScene();
+        if (!scene) return;
+        const liveName = runtime?.currentSceneName || runtime?.scheduledSceneName || 'No active Scene';
+        const selectedIsLive = scene.id === runtime?.currentSceneId;
+        const connected = runtime?.connectionState
+          ? runtime.connectionState === 'connected'
+          : Boolean(runtime?.connected);
+        const essentialsReady = ['sceneName', 'activityName', 'details', 'state']
+          .every((name) => !fieldValidationMessage(form.elements[name]));
+
+        editingSceneName.textContent = scene.sceneName || 'Untitled Scene';
+        liveSceneName.textContent = liveName;
+        liveContextPill.classList.toggle('is-same', selectedIsLive);
+        liveContextPill.querySelector('span').textContent = connected ? 'On Discord' : 'Queued for Discord';
+        liveContextPill.title = connected
+          ? (selectedIsLive ? 'You are editing the Scene currently shown on Discord.' : 'This is the Scene currently shown on Discord.')
+          : 'Discord is reconnecting. The selected live Scene will be reapplied automatically.';
+
+        journeySceneStatus.textContent = scene.sceneName || 'Untitled Scene';
+        journeyCustomizeStatus.textContent = essentialsReady ? 'Essentials ready' : 'Finish required fields';
+        journeyPreviewStatus.textContent = selectedIsLive ? 'Live now · review edits' : 'Ready to show on Discord';
+        setJourneyStepState(journeySceneStep, { complete: true });
+        setJourneyStepState(journeyCustomizeStep, { complete: essentialsReady, current: !essentialsReady });
+        setJourneyStepState(journeyPreviewStep, { complete: selectedIsLive, current: essentialsReady });
+
+        if (!applyBusy) useButton.textContent = selectedIsLive ? 'Update on Discord' : 'Show on Discord';
+        applyHint.textContent = selectedIsLive
+          ? 'Refresh this override until the next Daily Time Slot'
+          : 'Temporary override until the next Daily Time Slot';
+        previewPublishHint.textContent = selectedIsLive
+          ? (connected
+            ? 'This Scene is live · saved edits refresh it automatically'
+            : 'Selected for Discord · reconnecting automatically')
+          : 'Editing preview only · show it on Discord when ready';
+
+        const textLinkCount = ['detailsUrl', 'stateUrl'].filter((name) => fieldValue(name)).length;
+        const artworkOptionCount = [
+          'largeImageText', 'largeImageUrl', 'smallImage', 'smallImageText', 'smallImageUrl',
+        ].filter((name) => fieldValue(name)).length;
+        const timerMode = form.elements.timerMode.value;
+        const buttonCount = [1, 2].filter((index) => (
+          fieldValue('button' + index + 'Label') || fieldValue('button' + index + 'Url')
+        )).length;
+        textLinksStatus.textContent = optionCountLabel(textLinkCount, 'link');
+        artworkOptionsStatus.textContent = artworkOptionCount ? artworkOptionCount + ' set' : 'Optional';
+        timerStatus.textContent = timerMode === 'remaining'
+          ? fieldValue('timerMinutes') + ' min countdown'
+          : timerMode === 'elapsed' ? 'Count up' : 'Off';
+        buttonsStatus.textContent = optionCountLabel(buttonCount, 'button');
+      }
+
+      function renderSceneList() {
+        if (!config) return;
+        const focusedSceneId = document.activeElement?.closest?.('.scene-item')?.dataset.sceneId || null;
+        let focusRestoreTarget = null;
+        sceneList.innerHTML = '';
+        config.scenes.forEach((scene) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.dataset.sceneId = scene.id;
+          button.className = 'scene-item'
+            + (scene.id === selectedSceneId ? ' is-selected' : '')
+            + (scene.id === runtime?.currentSceneId ? ' is-live' : '');
+          button.setAttribute('aria-pressed', String(scene.id === selectedSceneId));
+          button.setAttribute('aria-label', 'Edit ' + (scene.sceneName || 'Untitled Scene')
+            + (scene.id === runtime?.currentSceneId ? ', currently live on Discord' : ''));
+          const icon = document.createElement('span');
+          icon.className = 'scene-icon';
+          icon.textContent = sceneIcon(scene);
+          const copy = document.createElement('span');
+          copy.className = 'scene-copy';
+          const title = document.createElement('strong');
+          title.textContent = scene.sceneName || 'Untitled Scene';
+          const type = document.createElement('small');
+          type.textContent = scene.id === runtime?.currentSceneId
+            ? (scene.id === runtime?.manualOverride?.sceneId ? 'Live · manual override' : 'Live now')
+            : scene.activityType || 'playing';
+          copy.append(title, type);
+          button.append(icon, copy);
+          button.addEventListener('click', () => selectScene(scene.id));
+          sceneList.append(button);
+          if (focusedSceneId === scene.id) focusRestoreTarget = button;
+        });
+        deleteSceneButton.disabled = config.scenes.length <= 1;
+        focusRestoreTarget?.focus({ preventScroll: true });
+      }
+
+      function fillForm(scene) {
+        if (!scene) return;
+        const fields = [
+          'sceneName', 'activityType', 'activityName', 'details', 'detailsUrl',
+          'state', 'stateUrl', 'largeImage', 'largeImageText', 'largeImageUrl',
+          'smallImage', 'smallImageText', 'smallImageUrl', 'timerMode', 'timerMinutes',
+        ];
+        fields.forEach((name) => { form.elements[name].value = scene[name] ?? ''; });
+        form.elements.button1Label.value = scene.buttons?.[0]?.label || '';
+        form.elements.button1Url.value = scene.buttons?.[0]?.url || '';
+        form.elements.button2Label.value = scene.buttons?.[1]?.label || '';
+        form.elements.button2Url.value = scene.buttons?.[1]?.url || '';
+        [textLinksDisclosure, artworkOptionsDisclosure, timerDisclosure, buttonsDisclosure]
+          .forEach((disclosure) => { disclosure.open = false; });
+        resetFormValidation();
+        updateTimerField();
+      }
+
+      function formScene() {
+        const existing = currentScene();
+        const value = (name) => form.elements[name].value.trim();
+        return {
+          id: existing.id,
+          sceneName: value('sceneName'),
+          activityType: form.elements.activityType.value,
+          activityName: value('activityName'),
+          details: value('details'),
+          detailsUrl: value('detailsUrl'),
+          state: value('state'),
+          stateUrl: value('stateUrl'),
+          largeImage: value('largeImage'),
+          largeImageText: value('largeImageText'),
+          largeImageUrl: value('largeImageUrl'),
+          smallImage: value('smallImage'),
+          smallImageText: value('smallImageText'),
+          smallImageUrl: value('smallImageUrl'),
+          timerMode: form.elements.timerMode.value,
+          timerMinutes: Number(form.elements.timerMinutes.value || 30),
+          buttons: [
+            { label: value('button1Label'), url: value('button1Url') },
+            { label: value('button2Label'), url: value('button2Url') },
+          ].filter((button) => button.label || button.url),
+        };
+      }
+
+      function syncFormToScene() {
+        if (!config || !currentScene()) return;
+        const index = config.scenes.findIndex((scene) => scene.id === selectedSceneId);
+        config.scenes[index] = formScene();
+        editorTitle.textContent = config.scenes[index].sceneName || 'Untitled Scene';
+      }
+
+      function selectScene(sceneId) {
+        if (!config?.scenes.some((scene) => scene.id === sceneId)) return;
+        if (currentScene()) syncFormToScene();
+        selectedSceneId = sceneId;
+        previewStartedAt = Date.now();
+        fillForm(currentScene());
+        editorTitle.textContent = currentScene().sceneName;
+        renderSceneList();
+        renderPreview();
+        renderEditorJourney();
+        showMessage('');
+      }
+
+      function updateTimerField() {
+        form.elements.timerMinutes.disabled = form.elements.timerMode.value !== 'remaining';
+        if (form.elements.timerMinutes.disabled) validateField(form.elements.timerMinutes);
+      }
+
+      function setImage(image, placeholder, value) {
+        const isUrl = /^https:\/\//i.test(value || '');
+        image.hidden = !isUrl;
+        placeholder.hidden = isUrl;
+        if (isUrl && image.src !== value) image.src = value;
+      }
+
+      previewLargeImage.addEventListener('error', () => {
+        previewLargeImage.hidden = true;
+        largePlaceholder.hidden = false;
+      });
+      previewSmallImage.addEventListener('error', () => {
+        previewSmallImage.hidden = true;
+        smallPlaceholder.hidden = false;
+      });
+
+      function renderPreview() {
+        const scene = currentScene();
+        if (!scene) return;
+        const verb = {
+          playing: 'Playing',
+          listening: 'Listening to',
+          watching: 'Watching',
+          competing: 'Competing in',
+        }[scene.activityType] || 'Playing';
+        previewSceneName.textContent = scene.sceneName || 'Untitled Scene';
+        document.querySelector('#previewActivityLabel').textContent = verb + ' ' + (scene.activityName || 'Vibe Presence');
+        document.querySelector('#previewDetails').textContent = scene.details || 'Untitled activity';
+        document.querySelector('#previewState').textContent = scene.state || 'No secondary text';
+        largePlaceholder.textContent = (scene.activityName || 'V').charAt(0).toUpperCase();
+        previewLargeImage.title = scene.largeImageText || '';
+        largePlaceholder.title = scene.largeImageText || '';
+        previewSmallImage.title = scene.smallImageText || '';
+        smallPlaceholder.title = scene.smallImageText || '';
+        setImage(previewLargeImage, largePlaceholder, scene.largeImage);
+        setImage(previewSmallImage, smallPlaceholder, scene.smallImage);
+        const buttons = document.querySelector('#previewButtons');
+        buttons.innerHTML = '';
+        (scene.buttons || []).slice(0, 2).forEach((button) => {
+          if (!button.label) return;
+          const link = document.createElement('a');
+          link.href = button.url || '#';
+          link.target = '_blank';
+          link.rel = 'noreferrer';
+          link.textContent = button.label;
+          buttons.append(link);
+        });
+        buttons.classList.toggle('two', buttons.children.length === 2);
+        renderPreviewTimer();
+      }
+
+      function formatDuration(totalSeconds) {
+        const seconds = Math.max(0, Math.floor(totalSeconds));
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainder = seconds % 60;
+        return hours > 0
+          ? hours + ':' + String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0')
+          : String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
+      }
+
+      function renderPreviewTimer() {
+        const scene = currentScene();
+        const timer = document.querySelector('#previewTimer');
+        if (!scene || scene.timerMode === 'none') {
+          timer.hidden = true;
+          return;
+        }
+        timer.hidden = false;
+        const elapsed = (Date.now() - previewStartedAt) / 1000;
+        timer.textContent = scene.timerMode === 'remaining'
+          ? formatDuration(scene.timerMinutes * 60 - elapsed) + ' remaining'
+          : formatDuration(elapsed) + ' elapsed';
+      }
+
+      function minutesFromTime(value) {
+        const parts = String(value).split(':').map(Number);
+        return parts[0] * 60 + parts[1];
+      }
+
+      function sortSlots() {
+        config.slots.sort((left, right) => minutesFromTime(left.startTime) - minutesFromTime(right.startTime));
+      }
+
+      function renderDayStrip() {
+        dayStrip.querySelectorAll('.slot-pin').forEach((pin) => pin.remove());
+        if (!config) return;
+        config.slots.filter((slot) => slot.enabled).forEach((slot) => {
+          const pin = document.createElement('span');
+          pin.className = 'slot-pin';
+          pin.style.left = (minutesFromTime(slot.startTime) / 1440 * 100) + '%';
+          const scene = config.scenes.find((item) => item.id === slot.sceneId);
+          pin.title = slot.startTime + ' · ' + (scene?.sceneName || 'Missing Scene');
+          dayStrip.append(pin);
+        });
+      }
+
+      function renderSlots() {
+        if (!config) return;
+        sortSlots();
+        slotList.innerHTML = '';
+        config.slots.forEach((slot) => {
+          const row = document.createElement('div');
+          row.className = 'slot-row';
+
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'slot-toggle';
+          toggle.setAttribute('aria-label', (slot.enabled ? 'Disable ' : 'Enable ') + slot.startTime);
+          toggle.setAttribute('aria-pressed', String(slot.enabled));
+          toggle.textContent = slot.enabled ? '●' : '○';
+          toggle.addEventListener('click', () => {
+            slot.enabled = !slot.enabled;
+            renderSlots();
+            scheduleSave();
+          });
+
+          const time = document.createElement('input');
+          time.type = 'time';
+          time.value = slot.startTime;
+          time.setAttribute('aria-label', 'Daily start time');
+          time.addEventListener('change', () => {
+            slot.startTime = time.value;
+            renderSlots();
+            scheduleSave();
+          });
+
+          const sceneSelect = document.createElement('select');
+          sceneSelect.setAttribute('aria-label', 'Scene for ' + slot.startTime);
+          config.scenes.forEach((scene) => {
+            const option = document.createElement('option');
+            option.value = scene.id;
+            option.textContent = scene.sceneName;
+            option.selected = scene.id === slot.sceneId;
+            sceneSelect.append(option);
+          });
+          sceneSelect.addEventListener('change', () => {
+            slot.sceneId = sceneSelect.value;
+            renderDayStrip();
+            scheduleSave();
+          });
+
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'slot-remove';
+          remove.setAttribute('aria-label', 'Remove ' + slot.startTime);
+          remove.textContent = '×';
+          remove.addEventListener('click', () => {
+            config.slots = config.slots.filter((item) => item.id !== slot.id);
+            renderSlots();
+            scheduleSave();
+          });
+
+          row.append(toggle, time, sceneSelect, remove);
+          slotList.append(row);
+        });
+        renderDayStrip();
+      }
+
+      function renderRuntime() {
+        if (!runtime || !config) return;
+        const connectionPill = document.querySelector('#connectionPill');
+        const connectionText = document.querySelector('#connectionText');
+        connectionPill.className = 'connection-pill ' + runtime.connectionState;
+        connectionText.textContent = runtime.connectionState === 'connected'
+          ? 'Discord connected'
+          : runtime.connectionState === 'connecting'
+            ? 'Connecting to Discord…'
+            : 'Discord offline · retrying';
+
+        const currentName = runtime.currentSceneName || runtime.scheduledSceneName || 'No active Scene';
+        document.querySelector('#nowScene').textContent = currentName;
+        document.querySelector('#nowSource').textContent = runtime.manualOverride
+          ? 'Manual override'
+          : runtime.scheduleEnabled
+            ? 'Daily schedule'
+            : 'Schedule paused';
+        scheduleToggleButton.textContent = runtime.scheduleEnabled ? 'Pause schedule' : 'Resume schedule';
+        cancelOverrideButton.hidden = !runtime.manualOverride;
+
+        autostartToggle.checked = Boolean(runtime.autostart?.enabled);
+        autostartToggle.disabled = !runtime.autostart?.supported;
+        document.querySelector('#configPath').textContent = runtime.configPath || 'Local configuration';
+        document.querySelector('#configPath').title = runtime.configPath || '';
+        renderSecretsStatus();
+
+        errorBox.hidden = !runtime.lastError;
+        errorBox.textContent = runtime.lastError || '';
+        renderSceneList();
+        renderEditorJourney();
+        renderClock();
+      }
+
+      function renderClock() {
+        const now = new Date();
+        document.querySelector('#localClock').textContent = now.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        });
+        const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+        nowPin.style.left = (minute / 1440 * 100) + '%';
+
+        const nextChange = document.querySelector('#nextChange');
+        if (!runtime?.scheduleEnabled) {
+          nextChange.textContent = 'Paused';
+        } else if (!runtime?.nextSwitchAt) {
+          nextChange.textContent = 'No enabled slots';
+        } else {
+          const next = new Date(runtime.nextSwitchAt);
+          const seconds = Math.max(0, (next.getTime() - Date.now()) / 1000);
+          nextChange.textContent = next.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          }) + ' · ' + formatDuration(seconds);
+          nextChange.title = runtime.nextSceneName || '';
+        }
+      }
+
+      function renderAll() {
+        renderSceneList();
+        renderSlots();
+        renderRuntime();
+        fillForm(currentScene());
+        editorTitle.textContent = currentScene()?.sceneName || 'No Scene';
+        renderPreview();
+        renderEditorJourney();
+      }
+
+      async function requestJson(url, options) {
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(data.error || 'Request failed with HTTP ' + response.status + '.');
+          error.code = data.code || null;
+          error.runtime = data.runtime || null;
+          throw error;
+        }
+        return data;
+      }
+
+      function setGifStatus(element, value, type = '') {
+        element.textContent = value || '';
+        element.classList.toggle('error', type === 'error');
+      }
+
+      function showGifUnavailable(message) {
+        gifUnavailable.hidden = false;
+        gifSearchPanel.hidden = true;
+        gifUnavailableMessage.textContent = message
+          || 'Add a GIPHY API key under API keys to browse GIFs. You can still paste HTTPS GIF URLs manually.';
+        setTimeout(() => gifCloseButton.focus(), 0);
+      }
+
+      function showGifSearch(status = 'Loading trending GIFs…') {
+        gifUnavailable.hidden = true;
+        gifSearchPanel.hidden = false;
+        setGifStatus(gifSearchStatus, status);
+        setTimeout(() => gifSearchInput.focus(), 0);
+      }
+
+      function stopGifRequest() {
+        gifSearchController?.abort();
+        gifSearchController = null;
+        gifLoading = false;
+        gifSearchButton.disabled = false;
+        gifResults.setAttribute('aria-busy', 'false');
+      }
+
+      function setStudioInert(inert) {
+        appbar.inert = inert;
+        studio.inert = inert;
+      }
+
+      function gifFocusableElements() {
+        return [...gifDialog.querySelectorAll(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        )].filter((element) => !element.hidden && element.getClientRects().length);
+      }
+
+      function trapGifFocus(event) {
+        if (event.key !== 'Tab' || gifPicker.hidden) return;
+        const focusable = gifFocusableElements();
+        if (!focusable.length) {
+          event.preventDefault();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        if (event.shiftKey && (document.activeElement === first || !gifDialog.contains(document.activeElement))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !gifDialog.contains(document.activeElement))) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+
+      function settingsFocusableElements() {
+        return [...settingsOverlay.querySelectorAll(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+        )].filter((element) => !element.hidden && element.getClientRects().length);
+      }
+
+      function trapSettingsFocus(event) {
+        if (event.key !== 'Tab' || settingsOverlay.hidden) return;
+        const focusable = settingsFocusableElements();
+        if (!focusable.length) {
+          event.preventDefault();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        if (event.shiftKey && (document.activeElement === first || !settingsOverlay.contains(document.activeElement))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !settingsOverlay.contains(document.activeElement))) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+
+      function renderSetupBanner() {
+        if (!runtime?.setup) {
+          setupBanner.classList.remove('visible');
+          return;
+        }
+        if (runtime.setup.needsDiscordApplicationId) {
+          setupBannerText.textContent = 'Add your Discord Application ID under API keys to connect Presence.';
+          setupBanner.classList.add('visible');
+          return;
+        }
+        if (runtime.setup.needsGiphyApiKey) {
+          setupBannerText.textContent = 'Optional: add a free GIPHY key under API keys to browse GIFs in Studio.';
+          setupBanner.classList.add('visible');
+          return;
+        }
+        setupBanner.classList.remove('visible');
+      }
+
+      function renderSecretsStatus() {
+        const setup = runtime?.setup;
+        const secrets = setup?.secrets;
+        const discordConfigured = Boolean(setup?.secrets?.discord?.configured || runtime?.clientId);
+        const giphyConfigured = Boolean(runtime?.gifSearch?.configured);
+        discordStatusLabel.textContent = discordConfigured
+          ? ('Configured' + (runtime?.clientId ? ' · ' + runtime.clientId : ''))
+          : 'Required · not set';
+        discordStatusLabel.className = discordConfigured ? 'ok' : 'warn';
+        giphyStatusLabel.textContent = giphyConfigured
+          ? ('Configured' + (runtime?.gifSearch?.source ? ' · ' + runtime.gifSearch.source : ''))
+          : 'Optional · not set';
+        giphyStatusLabel.className = giphyConfigured ? 'ok' : 'warn';
+        secretsPath.textContent = runtime?.secretsPath || secrets?.filePath || 'Secrets file';
+        secretsPath.title = runtime?.secretsPath || secrets?.filePath || '';
+        apiKeysSummary.textContent = discordConfigured
+          ? (giphyConfigured ? 'Discord + GIPHY ready on this PC.' : 'Discord ready · GIPHY optional.')
+          : 'Discord Application ID required.';
+        if (!settingsOverlay.hidden && document.activeElement !== discordClientIdInput) {
+          if (!discordClientIdInput.value && runtime?.clientId) {
+            discordClientIdInput.value = runtime.clientId;
+          }
+        }
+        renderSetupBanner();
+      }
+
+      function closeSettings() {
+        if (settingsOverlay.hidden) return;
+        settingsOverlay.hidden = true;
+        document.body.classList.remove('settings-open');
+        setStudioInert(false);
+        document.removeEventListener('keydown', trapSettingsFocus, true);
+        const focusTarget = settingsReturnFocus;
+        settingsReturnFocus = null;
+        if (focusTarget?.focus) focusTarget.focus();
+      }
+
+      function openSettings(trigger) {
+        settingsReturnFocus = trigger || document.activeElement;
+        clearGiphyOnSave = false;
+        giphyApiKeyInput.value = '';
+        giphyApiKeyInput.placeholder = runtime?.gifSearch?.configured
+          ? 'Leave blank to keep the saved key'
+          : 'Paste free beta key';
+        discordClientIdInput.value = runtime?.clientId || '';
+        settingsOverlay.hidden = false;
+        document.body.classList.add('settings-open');
+        setStudioInert(true);
+        document.addEventListener('keydown', trapSettingsFocus, true);
+        renderSecretsStatus();
+        setTimeout(() => discordClientIdInput.focus(), 0);
+      }
+
+      async function saveSettings(event) {
+        event.preventDefault();
+        saveSettingsButton.disabled = true;
+        clearGiphyButton.disabled = true;
+        try {
+          const body = {};
+          const discordValue = discordClientIdInput.value.trim();
+          body.discordClientId = discordValue;
+          if (clearGiphyOnSave) body.giphyApiKey = '';
+          else if (giphyApiKeyInput.value.trim()) body.giphyApiKey = giphyApiKeyInput.value.trim();
+
+          const data = await requestJson('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          runtime = data.runtime;
+          clearGiphyOnSave = false;
+          giphyApiKeyInput.value = '';
+          renderRuntime();
+          renderSecretsStatus();
+          closeSettings();
+          showMessage(runtime.setup?.needsDiscordApplicationId
+            ? 'Keys updated. Discord Application ID is still required.'
+            : 'API keys saved on this computer.', 'success');
+        } catch (error) {
+          showMessage(error.message, 'error');
+        } finally {
+          saveSettingsButton.disabled = false;
+          clearGiphyButton.disabled = false;
+        }
+      }
+
+      function openGifPicker(targetField, trigger) {
+        if (!['largeImage', 'smallImage'].includes(targetField)) return;
+        gifTargetField = targetField;
+        gifReturnFocus = trigger || document.activeElement;
+        gifPickerTitle.textContent = targetField === 'largeImage'
+          ? 'Find a large artwork GIF'
+          : 'Find a small artwork GIF';
+        gifPicker.hidden = false;
+        setStudioInert(true);
+        document.body.classList.add('gif-picker-open');
+        gifSearchInput.value = '';
+        gifResults.scrollTop = 0;
+        if (runtime?.gifSearch?.configured) {
+          showGifSearch();
+          void searchGifs({ automatic: true });
+        } else {
+          showGifUnavailable();
+        }
+      }
+
+      function closeGifPicker() {
+        if (gifPicker.hidden) return;
+        gifPicker.hidden = true;
+        setStudioInert(false);
+        document.body.classList.remove('gif-picker-open');
+        clearTimeout(gifSearchTimer);
+        gifSearchSequence += 1;
+        stopGifRequest();
+        if (gifScrollFrame !== null) cancelAnimationFrame(gifScrollFrame);
+        gifScrollFrame = null;
+        gifReturnFocus?.focus?.();
+        gifReturnFocus = null;
+      }
+
+      function chooseGif(item) {
+        const imageField = form.elements[gifTargetField];
+        const hoverField = form.elements[gifTargetField === 'largeImage'
+          ? 'largeImageText'
+          : 'smallImageText'];
+        imageField.value = item.originalUrl;
+        if (!hoverField.value.trim()) hoverField.value = item.title.slice(0, 128);
+        imageField.dispatchEvent(new Event('input', { bubbles: true }));
+        const destination = gifTargetField === 'largeImage' ? 'large artwork' : 'small artwork';
+        closeGifPicker();
+        showMessage('GIF selected for ' + destination + '. Saving Scene…', 'success');
+      }
+
+      function renderGifPlaceholder(text) {
+        gifSeenIds.clear();
+        gifResults.replaceChildren();
+        const empty = document.createElement('p');
+        empty.className = 'gif-empty';
+        empty.textContent = text;
+        gifResults.append(empty, gifLoadMoreButton);
+        gifLoadMoreButton.hidden = true;
+      }
+
+      function renderGifResults(items, { append = false, emptyMessage = '' } = {}) {
+        if (!append) {
+          gifSeenIds.clear();
+          gifResults.replaceChildren();
+        }
+
+        let added = 0;
+        items.forEach((item) => {
+          if (!item?.id || gifSeenIds.has(item.id)) return;
+          gifSeenIds.add(item.id);
+          added += 1;
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'gif-result';
+          button.dataset.gifId = item.id;
+          button.setAttribute('aria-label', 'Use GIF: ' + item.title);
+          const image = document.createElement('img');
+          image.src = item.previewUrl;
+          image.alt = '';
+          image.loading = 'lazy';
+          image.decoding = 'async';
+          const title = document.createElement('span');
+          title.textContent = item.title;
+          button.append(image, title);
+          button.addEventListener('click', () => chooseGif(item));
+          gifResults.append(button);
+        });
+
+        if (!gifSeenIds.size) {
+          const empty = document.createElement('p');
+          empty.className = 'gif-empty';
+          empty.textContent = emptyMessage || 'No GIFs matched that search. Try a different mood or phrase.';
+          gifResults.append(empty);
+        }
+        gifResults.append(gifLoadMoreButton);
+        return added;
+      }
+
+      function updateGifLoadMore({ retry = false } = {}) {
+        const visible = gifLoading || gifHasMore || retry;
+        gifLoadMoreButton.hidden = !visible;
+        gifLoadMoreButton.disabled = gifLoading;
+        gifLoadMoreButton.textContent = gifLoading
+          ? (gifSeenIds.size ? 'Loading more GIFs…' : 'Loading GIFs…')
+          : (retry ? 'Retry loading more' : 'Load more GIFs');
+        if (visible) gifResults.append(gifLoadMoreButton);
+      }
+
+      function queueGifPageIfNeeded() {
+        if (gifScrollFrame !== null) return;
+        gifScrollFrame = requestAnimationFrame(() => {
+          gifScrollFrame = null;
+          const distanceFromEnd = gifResults.scrollHeight - gifResults.scrollTop - gifResults.clientHeight;
+          if (!gifPicker.hidden && !gifLoading && gifHasMore && distanceFromEnd <= GIF_SCROLL_THRESHOLD) {
+            void searchGifs({ automatic: true, append: true });
+          }
+        });
+      }
+
+      async function searchGifs({ automatic = false, append = false } = {}) {
+        const query = gifSearchInput.value.trim();
+        if (query.length === 1) {
+          if (!automatic) gifSearchInput.reportValidity();
+          return;
+        }
+
+        if (append) {
+          if (gifLoading || !gifHasMore || query !== gifActiveQuery) return;
+        } else {
+          stopGifRequest();
+          gifSearchSequence += 1;
+          gifActiveQuery = query;
+          gifNextOffset = 0;
+          gifHasMore = false;
+          gifResults.scrollTop = 0;
+          renderGifPlaceholder(query
+            ? 'Loading animated search results…'
+            : 'Loading trending GIFs…');
+        }
+
+        const sequence = gifSearchSequence;
+        const offset = append ? gifNextOffset : 0;
+        const controller = new AbortController();
+        gifSearchController = controller;
+        gifLoading = true;
+        gifSearchButton.disabled = true;
+        gifResults.setAttribute('aria-busy', 'true');
+        setGifStatus(gifSearchStatus, append
+          ? 'Loading more ' + (query ? 'results for “' + query + '”' : 'trending GIFs') + '…'
+          : (query ? 'Searching GIPHY for “' + query + '”…' : 'Loading trending GIFs…'));
+        updateGifLoadMore();
+        let retryMore = false;
+        let addedCount = 0;
+        try {
+          const data = await requestJson('/api/gifs/search?q=' + encodeURIComponent(query)
+            + '&limit=' + GIF_PAGE_SIZE + '&offset=' + offset, {
+            signal: controller.signal,
+          });
+          if (sequence !== gifSearchSequence || gifSearchController !== controller) return;
+          const items = data.items || [];
+          addedCount = renderGifResults(items, {
+            append,
+            emptyMessage: query
+              ? 'No GIFs matched that search. Try a different mood or phrase.'
+              : 'No trending GIFs are available right now. Try a search instead.',
+          });
+          const pagination = data.pagination || {};
+          const fallbackNextOffset = offset + Math.max(Number(pagination.count) || 0, items.length);
+          const providerNextOffset = Number(pagination.nextOffset);
+          gifNextOffset = pagination.nextOffset == null || !Number.isFinite(providerNextOffset)
+            ? fallbackNextOffset
+            : providerNextOffset;
+          gifHasMore = (typeof pagination.hasMore === 'boolean'
+            ? pagination.hasMore
+            : items.length >= GIF_PAGE_SIZE) && gifNextOffset > offset;
+          const subject = query ? 'GIFs loaded for “' + query + '”' : 'trending GIFs loaded';
+          const continuation = gifHasMore ? ' Scroll to load more.' : ' You reached the end.';
+          setGifStatus(gifSearchStatus, gifSeenIds.size + ' ' + subject + '.' + continuation);
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          if (error.runtime) runtime = error.runtime;
+          if (['GIPHY_API_KEY_REQUIRED', 'GIPHY_API_KEY_INVALID'].includes(error.code)) {
+            showGifUnavailable('GIF search needs a valid GIPHY key under API keys. ' + error.message);
+          } else if (append && gifSeenIds.size) {
+            retryMore = true;
+            setGifStatus(gifSearchStatus, 'Could not load more GIFs. ' + error.message, 'error');
+          } else {
+            gifHasMore = false;
+            renderGifResults([], {
+              emptyMessage: 'GIFs could not be loaded. Try the search again.',
+            });
+            setGifStatus(gifSearchStatus, error.message, 'error');
+          }
+        } finally {
+          if (sequence === gifSearchSequence && gifSearchController === controller) {
+            gifSearchController = null;
+            gifLoading = false;
+            gifSearchButton.disabled = false;
+            gifResults.setAttribute('aria-busy', 'false');
+            updateGifLoadMore({ retry: retryMore });
+            if (!retryMore && addedCount > 0) queueGifPageIfNeeded();
+          }
+        }
+      }
+
+      async function saveConfig(showSuccess) {
+        if (!config || !validateForm({ reveal: showSuccess, focusFirst: showSuccess })) {
+          setSaveState('warning', 'Finish required fields', 'Fix the nearby message to resume autosave');
+          if (showSuccess) showMessage('Fix the highlighted field, then save again.', 'error');
+          return false;
+        }
+        syncFormToScene();
+        const payload = clone({ scenes: config.scenes, slots: config.slots });
+        setSaveState('saving', 'Saving changes…', 'Keeping this Scene on your computer');
+        saveButton.disabled = true;
+        const operation = async () => {
+          try {
+            const data = await requestJson('/api/config', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            const preservedSelection = selectedSceneId;
+            config = data.config;
+            runtime = data.runtime;
+            selectedSceneId = config.scenes.some((scene) => scene.id === preservedSelection)
+              ? preservedSelection
+              : config.scenes[0].id;
+            setSaveState('saved', 'All changes saved', 'Stored on this computer');
+            renderSceneList();
+            renderSlots();
+            renderRuntime();
+            if (showSuccess) showMessage('Scene saved on this computer.', 'success');
+            return true;
+          } catch (error) {
+            setSaveState('error', 'Couldn’t save changes', 'Your edits are still visible—try again');
+            showMessage(error.message, 'error');
+            return false;
+          } finally {
+            saveButton.disabled = false;
+          }
+        };
+        const result = saveChain.then(operation, operation);
+        saveChain = result.catch(() => false);
+        return result;
+      }
+
+      function scheduleSave() {
+        clearTimeout(saveTimer);
+        if (!validateForm()) {
+          setSaveState('warning', 'Finish required fields', 'Fix the nearby message to resume autosave');
+          return;
+        }
+        setSaveState('dirty', 'Unsaved changes', 'Autosaving in a moment…');
+        saveTimer = setTimeout(() => void saveConfig(false), 650);
+      }
+
+      async function useSelectedScene() {
+        clearTimeout(saveTimer);
+        if (!validateForm({ reveal: true, focusFirst: true })) {
+          setSaveState('warning', 'Finish required fields', 'Fix the nearby message before showing this Scene');
+          showMessage('Fix the highlighted field before showing this Scene on Discord.', 'error');
+          return;
+        }
+        const sceneId = selectedSceneId;
+        const sceneName = currentScene()?.sceneName || 'Scene';
+        const wasLive = sceneId === runtime?.currentSceneId;
+        setApplyBusy(true);
+        showMessage((wasLive ? 'Updating ' : 'Showing ') + sceneName + ' on Discord…');
+        try {
+          const saved = await saveConfig(false);
+          if (!saved) return;
+          const data = await requestJson('/api/override', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sceneId }),
+          });
+          runtime = data.runtime;
+          config.manualOverride = runtime.manualOverride;
+          previewStartedAt = Date.now();
+          renderRuntime();
+          showMessage(data.applied
+            ? sceneName + ' is now live until the next Daily Time Slot.'
+            : sceneName + ' is saved and will appear when Discord reconnects.', 'success');
+        } catch (error) {
+          setSaveState('warning', 'Scene saved, Discord not updated', 'Check the message and try Show on Discord again');
+          showMessage(error.message, 'error');
+        } finally {
+          setApplyBusy(false);
+        }
+      }
+
+      async function setSchedule(enabled) {
+        scheduleToggleButton.disabled = true;
+        try {
+          const data = await requestJson('/api/schedule', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled }),
+          });
+          runtime = data.runtime;
+          config.settings.scheduleEnabled = runtime.scheduleEnabled;
+          if (!enabled) config.manualOverride = null;
+          renderRuntime();
+          showMessage(enabled ? 'Daily schedule resumed.' : 'Daily schedule paused.', 'success');
+        } catch (error) {
+          showMessage(error.message, 'error');
+        } finally {
+          scheduleToggleButton.disabled = false;
+        }
+      }
+
+      async function cancelOverride() {
+        cancelOverrideButton.disabled = true;
+        try {
+          const data = await requestJson('/api/override', { method: 'DELETE' });
+          runtime = data.runtime;
+          config.manualOverride = null;
+          renderRuntime();
+          showMessage('Returned to the Daily Time Slot schedule.', 'success');
+        } catch (error) {
+          showMessage(error.message, 'error');
+        } finally {
+          cancelOverrideButton.disabled = false;
+        }
+      }
+
+      async function pollState() {
+        try {
+          runtime = await requestJson('/api/state');
+          renderRuntime();
+        } catch {
+          runtime = {
+            ...(runtime || {}),
+            connectionState: 'disconnected',
+            lastError: 'The local companion is not responding.',
+          };
+          renderRuntime();
+        }
+      }
+
+      document.querySelectorAll('[data-gif-target]').forEach((button) => {
+        button.addEventListener('click', () => openGifPicker(button.dataset.gifTarget, button));
+      });
+      gifCloseButton.addEventListener('click', closeGifPicker);
+      document.querySelector('#gifPickerBackdrop').addEventListener('click', closeGifPicker);
+      gifSearchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        clearTimeout(gifSearchTimer);
+        if (gifSearchInput.value.trim().length === 1) {
+          gifSearchInput.reportValidity();
+          return;
+        }
+        void searchGifs();
+      });
+      gifSearchInput.addEventListener('input', () => {
+        clearTimeout(gifSearchTimer);
+        gifSearchSequence += 1;
+        stopGifRequest();
+        gifHasMore = false;
+        updateGifLoadMore();
+        const query = gifSearchInput.value.trim();
+        if (!query) {
+          setGifStatus(gifSearchStatus, 'Loading trending GIFs…');
+          gifSearchTimer = setTimeout(() => void searchGifs({ automatic: true }), 250);
+          return;
+        }
+        if (query.length === 1) {
+          renderGifPlaceholder('Type one more character to search GIPHY.');
+          setGifStatus(gifSearchStatus, 'Type at least 2 characters. Results update automatically.');
+          return;
+        }
+        setGifStatus(gifSearchStatus, 'Ready to search for “' + query + '”…');
+        gifSearchTimer = setTimeout(() => void searchGifs({ automatic: true }), 650);
+      });
+      gifLoadMoreButton.addEventListener('click', () => {
+        void searchGifs({ automatic: true, append: true });
+      });
+      gifResults.addEventListener('scroll', () => {
+        queueGifPageIfNeeded();
+      }, { passive: true });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !settingsOverlay.hidden) {
+          closeSettings();
+          return;
+        }
+        if (gifPicker.hidden) return;
+        if (event.key === 'Escape') closeGifPicker();
+        else trapGifFocus(event);
+      });
+
+      form.addEventListener('input', (event) => {
+        if (!config) return;
+        if (event.target.name === 'timerMode') updateTimerField();
+        if (touchedFields.has(event.target.name) || event.target.getAttribute('aria-invalid') === 'true') {
+          validateField(event.target, { reveal: true });
+        }
+        const buttonPair = /^button([12])(?:Label|Url)$/.exec(event.target.name);
+        if (buttonPair) {
+          ['button' + buttonPair[1] + 'Label', 'button' + buttonPair[1] + 'Url'].forEach((name) => {
+            const pairedField = form.elements[name];
+            if (touchedFields.has(name) || pairedField.getAttribute('aria-invalid') === 'true') {
+              validateField(pairedField, { reveal: true });
+            }
+          });
+        }
+        syncFormToScene();
+        renderSceneList();
+        renderPreview();
+        renderEditorJourney();
+        scheduleSave();
+      });
+      form.addEventListener('focusin', (event) => {
+        highlightPreviewForField(event.target);
+      });
+      form.addEventListener('focusout', (event) => {
+        if (event.target.matches('input, select')) {
+          touchedFields.add(event.target.name);
+          validateField(event.target, { reveal: true });
+          const buttonPair = /^button([12])(?:Label|Url)$/.exec(event.target.name);
+          if (buttonPair) {
+            ['button' + buttonPair[1] + 'Label', 'button' + buttonPair[1] + 'Url'].forEach((name) => {
+              touchedFields.add(name);
+              validateField(form.elements[name], { reveal: true });
+            });
+          }
+          renderEditorJourney();
+        }
+        requestAnimationFrame(() => {
+          highlightPreviewForField(form.contains(document.activeElement) ? document.activeElement : null);
+        });
+      });
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        clearTimeout(saveTimer);
+        void saveConfig(true);
+      });
+      useButton.addEventListener('click', () => void useSelectedScene());
+
+      document.querySelector('#addSceneButton').addEventListener('click', () => {
+        if (!config || !currentScene()) return;
+        syncFormToScene();
+        const scene = clone(currentScene());
+        scene.id = identifier('scene');
+        scene.sceneName = ('Custom ' + (config.scenes.length + 1)).slice(0, 40);
+        config.scenes.push(scene);
+        selectedSceneId = scene.id;
+        fillForm(scene);
+        renderAll();
+        scheduleSave();
+      });
+
+      document.querySelector('#duplicateSceneButton').addEventListener('click', () => {
+        if (!config || !currentScene()) return;
+        syncFormToScene();
+        const scene = clone(currentScene());
+        scene.id = identifier('scene');
+        scene.sceneName = (scene.sceneName + ' Copy').slice(0, 40);
+        const index = config.scenes.findIndex((item) => item.id === selectedSceneId);
+        config.scenes.splice(index + 1, 0, scene);
+        selectedSceneId = scene.id;
+        fillForm(scene);
+        renderAll();
+        scheduleSave();
+      });
+
+      deleteSceneButton.addEventListener('click', () => {
+        if (!config || config.scenes.length <= 1 || !currentScene()) return;
+        const scene = currentScene();
+        if (!confirm('Delete “' + scene.sceneName + '” and its Daily Time Slots?')) return;
+        config.scenes = config.scenes.filter((item) => item.id !== scene.id);
+        config.slots = config.slots.filter((slot) => slot.sceneId !== scene.id);
+        selectedSceneId = config.scenes[0].id;
+        renderAll();
+        scheduleSave();
+      });
+
+      document.querySelector('#addSlotButton').addEventListener('click', () => {
+        if (!config || !currentScene()) return;
+        const used = new Set(config.slots.map((slot) => slot.startTime));
+        const candidates = ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '23:00', '00:00'];
+        let startTime = candidates.find((time) => !used.has(time));
+        if (!startTime) {
+          for (let hour = 0; hour < 24 && !startTime; hour += 1) {
+            const candidate = String(hour).padStart(2, '0') + ':30';
+            if (!used.has(candidate)) startTime = candidate;
+          }
+        }
+        if (!startTime) {
+          showMessage('No unique start time is available.', 'error');
+          return;
+        }
+        config.slots.push({
+          id: identifier('slot'),
+          startTime,
+          sceneId: selectedSceneId,
+          enabled: true,
+        });
+        renderSlots();
+        scheduleSave();
+      });
+
+      scheduleToggleButton.addEventListener('click', () => void setSchedule(!runtime.scheduleEnabled));
+      cancelOverrideButton.addEventListener('click', () => void cancelOverride());
+
+      autostartToggle.addEventListener('change', async () => {
+        autostartToggle.disabled = true;
+        try {
+          const data = await requestJson('/api/autostart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: autostartToggle.checked }),
+          });
+          runtime = data.runtime;
+          config.settings.autostartEnabled = runtime.autostart.enabled;
+          renderRuntime();
+          showMessage(runtime.autostart.enabled
+            ? 'The companion will start with Windows.'
+            : 'Windows automatic startup disabled.', 'success');
+        } catch (error) {
+          autostartToggle.checked = !autostartToggle.checked;
+          showMessage(error.message, 'error');
+        } finally {
+          autostartToggle.disabled = !runtime.autostart?.supported;
+        }
+      });
+
+      document.querySelector('#clearButton').addEventListener('click', async () => {
+        try {
+          const data = await requestJson('/api/presence', { method: 'DELETE' });
+          runtime = data.runtime;
+          config.settings.scheduleEnabled = false;
+          config.manualOverride = null;
+          renderRuntime();
+          showMessage('Rich Presence cleared and Daily Time Slots paused.', 'success');
+        } catch (error) {
+          showMessage(error.message, 'error');
+        }
+      });
+
+      document.querySelector('#quitButton').addEventListener('click', async () => {
+        if (!confirm('Exit the background companion and clear Rich Presence?')) return;
+        try {
+          await requestJson('/api/quit', { method: 'POST' });
+          showMessage('Companion stopped. It will start again at the next Windows sign-in.', 'success');
+        } catch (error) {
+          showMessage(error.message, 'error');
+        }
+      });
+
+      openSettingsButton.addEventListener('click', () => openSettings(openSettingsButton));
+      openSettingsButtonSide.addEventListener('click', () => openSettings(openSettingsButtonSide));
+      setupBannerButton.addEventListener('click', () => openSettings(setupBannerButton));
+      settingsCloseButton.addEventListener('click', () => closeSettings());
+      settingsBackdrop.addEventListener('click', () => closeSettings());
+      settingsForm.addEventListener('submit', (event) => void saveSettings(event));
+      clearGiphyButton.addEventListener('click', () => {
+        clearGiphyOnSave = true;
+        giphyApiKeyInput.value = '';
+        giphyApiKeyInput.placeholder = 'Will clear on save';
+        showMessage('Click Save keys to clear the stored GIPHY key.', 'success');
+      });
+
+      async function initialize() {
+        try {
+          const [loadedConfig, loadedRuntime] = await Promise.all([
+            requestJson('/api/config'),
+            requestJson('/api/state'),
+          ]);
+          config = loadedConfig;
+          runtime = loadedRuntime;
+          selectedSceneId = config.scenes.some((scene) => scene.id === runtime.currentSceneId)
+            ? runtime.currentSceneId
+            : config.scenes[0]?.id || null;
+          renderAll();
+          setSaveState('saved', 'All changes saved', 'Stored on this computer');
+          renderSecretsStatus();
+          if (runtime.setup?.needsDiscordApplicationId) {
+            showMessage('Add your Discord Application ID under API keys to connect Presence.');
+            openSettings(openSettingsButton);
+          } else {
+            showMessage(runtime.connected
+              ? 'Choose a Scene, personalize it, then review and show it on Discord.'
+              : 'Studio is ready. Discord will reconnect automatically.');
+          }
+        } catch (error) {
+          document.querySelector('#connectionText').textContent = 'Companion unavailable';
+          showMessage(error.message, 'error');
+        }
+      }
+
+      setInterval(renderPreviewTimer, 1000);
+      setInterval(renderClock, 1000);
+      setInterval(() => void pollState(), 3000);
+      void initialize();
+    </script>
+  </body>
+</html>

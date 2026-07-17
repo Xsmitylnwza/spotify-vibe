@@ -5,6 +5,7 @@ export interface Track {
     album?: string;
     duration: string;
     cover: string;
+    previewUrl?: string; // from Spotify DB
 }
 
 export interface Playlist {

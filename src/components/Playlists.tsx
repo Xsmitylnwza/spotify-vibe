@@ -1,12 +1,12 @@
 import { Icon } from '@iconify/react';
-import { playlists } from '../data/mockData';
 import type { Playlist } from '../types';
 
 interface PlaylistsProps {
     onSelect: (playlist: Playlist) => void;
+    playlists: Playlist[];
 }
 
-export default function Playlists({ onSelect }: PlaylistsProps) {
+export default function Playlists({ onSelect, playlists }: PlaylistsProps) {
     return (
         <section id="playlists" className="py-24 px-6 bg-[#080808] border-y border-white/5">
             <div className="max-w-7xl mx-auto">

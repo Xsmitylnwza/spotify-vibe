@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Icon } from '@iconify/react';
 import type { PlayerState } from '../types';
 
@@ -8,6 +9,40 @@ interface PreviewPlayerProps {
 }
 
 export default function PreviewPlayer({ playerState, onClose, onToggle }: PreviewPlayerProps) {
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        if (playerState.track?.previewUrl) {
+            if (!audioRef.current) {
+                audioRef.current = new Audio(playerState.track.previewUrl);
+                audioRef.current.volume = 0.5;
+            } else if (audioRef.current.src !== playerState.track.previewUrl) {
+                audioRef.current.src = playerState.track.previewUrl;
+            }
+
+            if (playerState.isPlaying) {
+                audioRef.current.play().catch(e => console.log("Audio play error", e));
+            } else {
+                audioRef.current.pause();
+            }
+        } else {
+            // Track has no preview or is playing is toggled without track
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        }
+    }, [playerState.isPlaying, playerState.track]);
+
+    useEffect(() => {
+        // Cleanup on unmount
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, []);
+
     if (!playerState.track) return null;
 
     return (
@@ -17,7 +52,10 @@ export default function PreviewPlayer({ playerState, onClose, onToggle }: Previe
                     <img src={playerState.track.cover} className="w-full h-full object-cover grayscale" alt="Cover" />
                 </div>
                 <div>
-                    <p className="text-sm font-bold truncate w-32 md:w-48">{playerState.track.title}</p>
+                    <p className="text-sm font-bold truncate w-32 md:w-48">
+                        {playerState.track.title}
+                        {!playerState.track.previewUrl && <span className="text-red-500 ml-2 text-xs">(No Preview)</span>}
+                    </p>
                     <p className="text-[10px] uppercase tracking-widest text-gray-500">{playerState.track.artist}</p>
                 </div>
             </div>

@@ -1,10 +1,16 @@
 {
-  "name": "temp_project",
+  "name": "spotify-vibe",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Personal scheduled Discord Rich Presence (Vibe Dayline) with a local Presence Studio",
   "scripts": {
     "dev": "vite",
+    "presence:poc": "node scripts/discord-presence-poc.mjs",
+    "presence:studio": "node scripts/discord-presence-studio.mjs",
+    "presence:giphy-setup": "node scripts/setup-giphy-key.mjs",
+    "start": "node scripts/discord-presence-studio.mjs",
+    "test": "node --test scripts/tests/*.test.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,12 +18,13 @@
   "dependencies": {
     "@iconify/react": "^6.0.2",
     "@tailwindcss/vite": "^4.1.18",
+    "discord-rpc": "^4.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.12.0",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
@@ -31,5 +38,8 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

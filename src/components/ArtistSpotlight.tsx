@@ -10,7 +10,7 @@ export default function ArtistSpotlight() {
                     <span className="text-spotify text-sm uppercase tracking-widest">Artist Spotlight</span>
                     <h2 className="font-serif text-6xl md:text-7xl mb-8 leading-none">The Sound of<br /><span className="italic text-gray-400">Melancholy</span></h2>
                     <p className="text-gray-400 text-lg mb-8 max-w-md">Exploring the depths of lo-fi aesthetics and alternative R&B.</p>
-                    <a href="#" id="explore-artist-link" className="inline-block border-b border-white pb-1 text-sm uppercase tracking-[0.2em] hover:text-spotify hover:border-spotify transition-colors">Explore Collection</a>
+                    <a href="https://open.spotify.com/artist/3pc0bOVB5whdxDNeCEABJQ" target="_blank" rel="noopener noreferrer" id="explore-artist-link" className="inline-block border-b border-white pb-1 text-sm uppercase tracking-[0.2em] hover:text-spotify hover:border-spotify transition-colors">Explore Collection on Spotify</a>
                 </div>
             </div>
         </section>
