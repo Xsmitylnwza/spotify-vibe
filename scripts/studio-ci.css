@@ -640,3 +640,76 @@ input::placeholder { color: #5b6685; }
 .now-item { min-width: 0; }
 .preview-dock-head { flex-wrap: wrap; row-gap: 8px; }
 .preview-dock-head > * { min-width: 0; }
+
+/* ---------- 18. Motion: alive but calm (Phase 3) ----------
+ * Professional everyday-tool motion: confident, quiet, never bouncy.
+ * Spec: 120ms press, 150-180ms hover. All covered by the existing
+ * prefers-reduced-motion block (section 16) which kills animation/transition.
+ */
+@keyframes vibe-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes vibe-img-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes vibe-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(110, 168, 254, .45); }
+  70% { box-shadow: 0 0 0 7px rgba(110, 168, 254, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(110, 168, 254, 0); }
+}
+@keyframes vibe-now-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 255, 255, .7); }
+  50% { box-shadow: 0 0 18px rgba(255, 255, 255, .95); }
+}
+@keyframes vibe-flash {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+/* Screen transitions: applied by JS when a view is shown */
+.view-enter { animation: vibe-fade-up 220ms ease-out; }
+.settings-dialog:not([hidden]), .gif-dialog:not([hidden]) {
+  animation: vibe-fade-up 200ms ease-out;
+}
+
+/* LIVE pulse: connection dot, preview badge dot, scene live badges */
+.connection-pill.connected .connection-dot,
+.preview-live-dot,
+.live-badge {
+  animation: vibe-pulse-ring 2s ease-out infinite;
+}
+
+/* Dayline now-marker: gentle glow sweep */
+.now-pin { animation: vibe-now-glow 2.4s ease-in-out infinite; }
+
+/* Preview card shimmer when the edited scene changes (JS toggles .card-flash) */
+.preview-dock.card-flash::after {
+  position: absolute; inset: 0; z-index: 3;
+  content: ""; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, .1) 50%, transparent 58%);
+  transform: translateX(-100%);
+  animation: vibe-flash 600ms ease;
+}
+
+/* Buttons: 120ms press, 160ms hover */
+.button {
+  transition: background-color 160ms ease, color 160ms ease,
+    border-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+}
+.button:hover { transition-duration: 160ms; }
+.button:active { transform: scale(.98); }
+
+/* Scene library + preset tiles: staggered fade-in on render */
+.scene-item { animation: vibe-fade-up 240ms ease-out backwards; }
+.preset-tile { animation: vibe-fade-up 240ms ease-out backwards; }
+
+/* App/preset images: soft fade-in as they decode */
+.application-tile img, .preset-tile img, .look-option img {
+  animation: vibe-img-in 240ms ease-out;
+}
+
+/* Toggles: smooth 180ms knob glide */
+.switch span { transition: background-color 180ms ease; }
+.switch span::after { transition: transform 180ms ease; }

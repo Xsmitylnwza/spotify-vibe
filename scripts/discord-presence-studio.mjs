@@ -693,6 +693,32 @@ server = createServer(async (request, response) => {
       response.end(bytes);
       return;
     }
+    // Bundled Studio mock assets (app icons, avatar mocks). Flat directory,
+    // extension allowlist, no traversal — Studio UI only, never sent to Discord.
+    const mockArtDirs = { '/art/apps/': 'art/apps', '/art/scenes/': 'art/scenes' };
+    const mockArtTypes = { '.svg': 'image/svg+xml', '.png': 'image/png', '.gif': 'image/gif' };
+    for (const [prefix, dir] of Object.entries(mockArtDirs)) {
+      if (request.method === 'GET' && url.pathname.startsWith(prefix)) {
+        const name = url.pathname.slice(prefix.length);
+        const dot = name.lastIndexOf('.');
+        const type = dot > 0 ? mockArtTypes[name.slice(dot).toLowerCase()] : undefined;
+        const safe = name && !name.includes('/') && !name.includes('\\') && !name.includes('..') && type;
+        if (!safe) {
+          response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+          response.end('not found');
+          return;
+        }
+        try {
+          const bytes = await readFile(join(scriptDirectory, '../public', dir, name));
+          response.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+          response.end(bytes);
+        } catch {
+          response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+          response.end('not found');
+        }
+        return;
+      }
+    }
     if (request.method === 'GET' && url.pathname === '/studio-ci.css') {
       response.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
       response.end(await readFile(join(scriptDirectory, 'studio-ci.css')));

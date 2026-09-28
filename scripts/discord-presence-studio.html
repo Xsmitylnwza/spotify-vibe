@@ -1609,13 +1609,14 @@
         const focusedSceneId = document.activeElement?.closest?.('.scene-item')?.dataset.sceneId || null;
         let focusRestoreTarget = null;
         sceneList.innerHTML = '';
-        config.scenes.forEach((scene) => {
+        config.scenes.forEach((scene, index) => {
           const button = document.createElement('button');
           button.type = 'button';
           button.dataset.sceneId = scene.id;
           button.className = 'scene-item'
             + (scene.id === selectedSceneId ? ' is-selected' : '')
             + (scene.id === runtime?.currentSceneId ? ' is-live' : '');
+          button.style.animationDelay = Math.min(index, 9) * 28 + 'ms';
           button.setAttribute('aria-pressed', String(scene.id === selectedSceneId));
           button.setAttribute('aria-label', 'Edit ' + (scene.sceneName || 'Untitled Scene')
             + (scene.id === runtime?.currentSceneId ? ', currently live on Discord' : ''));
@@ -1730,6 +1731,11 @@
         }
         if (value === 'builtin:hinata-idle') return stillPreview() ? '/art/hinata/poster.png' : '/art/hinata/idle.gif';
         if (value === 'builtin:hinata-poster') return '/art/hinata/poster.png';
+        // Studio preview only: the bundled default scenes point at Discord's CDN
+        // default avatars. Mock them with local assets so the preview never shows
+        // a broken image; the stored config value is untouched (Discord payload).
+        const discordAvatar = /^https:\/\/cdn\.discordapp\.com\/embed\/avatars\/(\d+)\.png/i.exec(value || '');
+        if (discordAvatar) return '/art/apps/avatar-' + (Number(discordAvatar[1]) % 4) + '.svg';
         return /^https:\/\//i.test(value || '') ? value : '';
       }
       function refreshCharacterMotion() {
@@ -1768,9 +1774,21 @@
         smallPlaceholder.hidden = false;
       });
 
+      let lastPreviewSceneId = null;
       function renderPreview() {
         const scene = currentScene();
         if (!scene) return;
+        // Subtle shimmer when the edited scene changes (not on every keystroke).
+        if (scene.id !== lastPreviewSceneId) {
+          lastPreviewSceneId = scene.id;
+          const dock = document.querySelector('#previewDock');
+          if (dock) {
+            dock.classList.remove('card-flash');
+            void dock.offsetWidth;
+            dock.classList.add('card-flash');
+            dock.addEventListener('animationend', () => dock.classList.remove('card-flash'), { once: true });
+          }
+        }
         document.querySelectorAll('[data-character-art]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.characterArt === scene.largeImage)));
         document.querySelector('#characterAvailability').textContent = runtime?.characterArt?.publicUrlConfigured
           ? 'Public artwork URL configured. Check connection status for Discord delivery.'
@@ -2787,6 +2805,14 @@
         document.querySelector('#presetsPage').hidden = !editor;
         document.querySelector('#setupPageLink').setAttribute('aria-current',editor?'false':'page');
         document.querySelector('#presetsPageLink').setAttribute('aria-current',editor?'page':'false');
+        // Calm screen transition on the newly shown view (skipped under reduced motion by CSS).
+        for (const page of [document.querySelector('#appSetupPage'), document.querySelector('#presetsPage')]) {
+          if (page && !page.hidden) {
+            page.classList.remove('view-enter');
+            void page.offsetWidth;
+            page.classList.add('view-enter');
+          }
+        }
         if (config) { presetOptions(document.querySelector('#appPresetSelect'),selectedSceneId); }
       }
       window.addEventListener('hashchange',navigateStudio);
@@ -2797,9 +2823,37 @@
           .replace(/(\\windowsapps\\openai\.codex_)\d+\.\d+\.\d+\.\d+(_[^\\]+\\app\\chatgpt\.exe)$/, '$1version$2');
       }
       function appIcon(app) {
-        if (/RobloxPlayerBeta\.exe$/i.test(app?.executable || '')) { const img=document.createElement('img');img.src='https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/apps/roblox.png';img.alt='';img.width=44;img.height=44;return img; }
-        if(app?.icon?.startsWith('data:image/png;base64,')){const img=document.createElement('img');img.src=app.icon;img.alt='';img.width=44;img.height=44;return img;}
-        const fallback=document.createElement('span');fallback.className='app-icon-fallback';fallback.textContent=(app?.name||'?').slice(0,2).toUpperCase();fallback.setAttribute('aria-hidden','true');return fallback;
+        const executable = String(app?.executable || '');
+        // Real icon first: the OS-provided data-URL icon when we have one.
+        if (app?.icon?.startsWith('data:image/png;base64,')) {
+          const img = document.createElement('img');
+          img.src = app.icon; img.alt = ''; img.width = 44; img.height = 44;
+          img.loading = 'lazy'; img.decoding = 'async';
+          return img;
+        }
+        // Bundled mock icons — always load locally, no external dependency.
+        const pickAppIcon = () => {
+          if (/roblox/i.test(executable)) return 'roblox.svg';
+          if (/spotify/i.test(executable)) return 'spotify.svg';
+          if (/discord/i.test(executable)) return 'discord.svg';
+          if (/chrome|firefox|msedge|brave|opera/i.test(executable)) return 'browser.svg';
+          if (/codex|code\.exe|zed\.exe|devenv/i.test(executable)) return 'code.svg';
+          if (/steam|epic|game/i.test(executable)) return 'game.svg';
+          return 'app.svg';
+        };
+        const img = document.createElement('img');
+        img.src = '/art/apps/' + pickAppIcon();
+        img.alt = ''; img.width = 44; img.height = 44;
+        img.loading = 'lazy'; img.decoding = 'async';
+        img.onerror = () => {
+          img.onerror = null;
+          const fallback = document.createElement('span');
+          fallback.className = 'app-icon-fallback';
+          fallback.textContent = (app?.name || '?').slice(0, 2).toUpperCase();
+          fallback.setAttribute('aria-hidden', 'true');
+          img.replaceWith(fallback);
+        };
+        return img;
       }
       function renderAppTiles() {
         const grid=document.querySelector('#applicationTiles');grid.replaceChildren();
@@ -2825,8 +2879,9 @@
       }
       function renderPresetTiles() {
         const host=document.querySelector('#presetTiles');host.replaceChildren();
+        let tileIndex=0;
         for(const scene of config.scenes){
-          const button=document.createElement('button');button.type='button';button.className='preset-tile';button.setAttribute('aria-pressed',String(document.querySelector('#appPresetSelect').value===scene.id));
+          const button=document.createElement('button');button.type='button';button.className='preset-tile';button.style.animationDelay=Math.min(tileIndex++,9)*28+'ms';button.setAttribute('aria-pressed',String(document.querySelector('#appPresetSelect').value===scene.id));
           const img=document.createElement('img');img.width=56;img.height=56;img.alt='';
           const source=characterPreviewSource(scene.largeImage);
           img.src=source||'/art/hinata/poster.png';img.onerror=()=>{img.onerror=null;img.src='/art/hinata/poster.png';};
