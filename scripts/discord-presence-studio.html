@@ -850,7 +850,25 @@
       <button class="button small primary" id="setupBannerButton" type="button">ตั้งค่าขั้นสูง</button>
     </div>
 
-    <nav class="studio-navigation" aria-label="หน้าหลัก"><a href="#setup" id="setupPageLink" aria-current="page">ตั้งค่าแอป</a><a href="#presets" id="presetsPageLink">สร้าง Scene</a></nav><section id="appSetupPage" class="setup-page"><section class="status-hero" aria-labelledby="statusHeroTitle">
+        <div class="app-shell" id="appShell">
+      <aside class="app-sidebar" id="appSidebar">
+        <div class="sidebar-brand">
+          <span class="sidebar-status-dot" aria-hidden="true"></span>
+          <span class="sidebar-wordmark">Vibe Studio</span>
+        </div>
+        <nav class="sidebar-nav" aria-label="หลัก">
+          <a class="sidebar-link" href="#/status" data-screen="status" aria-current="page"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="sidebar-label">สถานะ</span></a>
+          <a class="sidebar-link" href="#/scenes" data-screen="scenes"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span class="sidebar-label">Scenes</span></a>
+          <a class="sidebar-link" href="#/editor" data-screen="editor"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><span class="sidebar-label">Editor</span></a>
+          <a class="sidebar-link" href="#/dayline" data-screen="dayline"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="sidebar-label">Dayline</span></a>
+          <a class="sidebar-link" href="#/settings" data-screen="settings"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="sidebar-label">ตั้งค่า</span></a>
+        </nav>
+        <button id="sidebarCollapse" class="sidebar-collapse" aria-label="ย่อ/ขยายเมนู" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
+      </aside>
+      <div class="app-main">
+        <section class="app-screen" id="screen-status" data-screen="status">
+          <div class="error-box" id="errorBox" role="alert" hidden></div>
+          <section class="status-hero" aria-labelledby="statusHeroTitle">
           <h2 id="statusHeroTitle" class="status-hero-title">สถานะตอนนี้</h2>
           <div class="status-grid">
             <div class="status-item">
@@ -871,19 +889,22 @@
             </div>
           </div>
           <p class="set-and-forget-note">ปิดหน้านี้ได้เลย — companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกทีเมื่อต้องการเปลี่ยนการตั้งค่าเท่านั้น</p>
-        </section><section class="application-manager" aria-labelledby="appsTitle">
-          <div class="apps-heading"><div><h1 id="appsTitle">แอปของคุณ</h1></div><button class="button" type="button" id="refreshApps">รีเฟรช</button></div>
-          <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
-          <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกหลายแอปได้</span></div><div id="applicationTiles" class="application-tiles" aria-label="แอปที่เปิดอยู่"></div><select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select><div class="app-add-row pairing-bar"><div class="visual-presets"><span>ใช้ Scene</span><div id="presetTiles" class="preset-tiles"></div><select id="appPresetSelect" hidden aria-label="Scene ที่เลือก"></select></div><button type="button" class="button primary" id="addAppMapping">ใช้ Scene นี้</button><button type="button" class="button" id="createPresetFromSetup">+ Scene ใหม่</button></div>
-          <details><summary>ระบุไฟล์โปรแกรมเอง</summary><label>ตำแหน่งไฟล์ .exe<input id="manualExecutable" placeholder="C:\Apps\MyApp\MyApp.exe" /></label><p class="field-hint">สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้</p></details>
-          <details class="codex-session-options"><summary>ข้อความ Codex แบบตั้งเอง</summary><p class="field-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p><label for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /><button type="button" class="button" id="shareCodexSession">ใช้ข้อความนี้และเริ่มจับเวลา</button><p id="codexSessionStatus" role="status"></p></details><h2 class="mapping-title">แอปที่จับคู่แล้ว</h2><div id="appMappingList" class="app-mapping-list"></div>
-          <div class="app-mode-row"><details class="auto-options"><summary>ตัวเลือก Auto</summary><label>เลือก Presence ตาม<select id="selectionMode"><option value="apps">แอปที่เปิดอยู่</option><option value="schedule">ตารางเวลาเดิม</option></select></label><p class="field-hint">เปิดทิ้งไว้ก็แสดงได้ · ถ้าเปิดหลายแอป ใช้แอปที่ใช้งานล่าสุด</p></details><button type="button" class="button primary" id="saveAppMappings" hidden>บันทึกการแก้ไข</button></div>
-          
-          <p id="appMappingMessage" role="status"></p>
         </section>
-</section>
-    <main class="studio" id="presetsPage" hidden>
-      <aside class="side-panel scene-panel" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
+          <section class="card now-card">
+          <div class="panel-heading"><div><span class="kicker">Right now</span><h2 id="nowScene">Waiting for schedule</h2></div></div>
+          <div class="now-grid">
+            <div class="now-item"><small>Source</small><strong id="nowSource">Scheduled</strong></div>
+            <div class="now-item"><small>Next change</small><strong id="nextChange">--:--</strong></div>
+          </div>
+          <div class="timeline-actions">
+            <button class="button small" id="scheduleToggleButton" type="button">Pause schedule</button>
+            <button class="button small" id="cancelOverrideButton" type="button" hidden>Cancel override</button>
+          </div>
+          <p class="override-duration" id="overrideDuration" hidden></p>
+        </section>
+        </section>
+        <section class="app-screen" id="screen-scenes" data-screen="scenes" hidden>
+          <aside class="side-panel scene-panel" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
         <div class="panel-heading">
           <div><span class="kicker">Scene library</span><h2 id="sceneLibraryTitle">Scenes</h2></div>
         </div>
@@ -895,8 +916,19 @@
           <button class="button small danger" id="deleteSceneButton" type="button">Delete Scene</button>
         </div>
       </aside>
-
-      <section class="editor">
+          <section class="application-manager" aria-labelledby="appsTitle">
+          <div class="apps-heading"><div><h1 id="appsTitle">แอปของคุณ</h1></div><button class="button" type="button" id="refreshApps">รีเฟรช</button></div>
+          <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
+          <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกหลายแอปได้</span></div><div id="applicationTiles" class="application-tiles" aria-label="แอปที่เปิดอยู่"></div><select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select><div class="app-add-row pairing-bar"><div class="visual-presets"><span>ใช้ Scene</span><div id="presetTiles" class="preset-tiles"></div><select id="appPresetSelect" hidden aria-label="Scene ที่เลือก"></select></div><button type="button" class="button primary" id="addAppMapping">ใช้ Scene นี้</button><button type="button" class="button" id="createPresetFromSetup">+ Scene ใหม่</button></div>
+          <details><summary>ระบุไฟล์โปรแกรมเอง</summary><label>ตำแหน่งไฟล์ .exe<input id="manualExecutable" placeholder="C:\Apps\MyApp\MyApp.exe" /></label><p class="field-hint">สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้</p></details>
+          <details class="codex-session-options"><summary>ข้อความ Codex แบบตั้งเอง</summary><p class="field-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p><label for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /><button type="button" class="button" id="shareCodexSession">ใช้ข้อความนี้และเริ่มจับเวลา</button><p id="codexSessionStatus" role="status"></p></details><h2 class="mapping-title">แอปที่จับคู่แล้ว</h2><div id="appMappingList" class="app-mapping-list"></div>
+          <div class="app-mode-row"><details class="auto-options"><summary>ตัวเลือก Auto</summary><label>เลือก Presence ตาม<select id="selectionMode"><option value="apps">แอปที่เปิดอยู่</option><option value="schedule">ตารางเวลาเดิม</option></select></label><p class="field-hint">เปิดทิ้งไว้ก็แสดงได้ · ถ้าเปิดหลายแอป ใช้แอปที่ใช้งานล่าสุด</p></details><button type="button" class="button primary" id="saveAppMappings" hidden>บันทึกการแก้ไข</button></div>
+          
+          <p id="appMappingMessage" role="status"></p>
+        </section>
+        </section>
+        <section class="app-screen" id="screen-editor" data-screen="editor" hidden>
+          <section class="editor">
         <section class="character-stage" aria-labelledby="characterTitle">
           <div class="portrait-frame"><img id="characterHero" src="/art/hinata/poster.png" alt="Hinata with orange hair, fists raised, ready for the next rally" width="192" height="192" /></div>
           <div class="character-copy"><span class="character-tag">Your default look</span><h1 id="characterTitle">Hinata</h1><p>แต่งการ์ดให้เป็นคุณ แล้วค่อยไปลุยต่อ</p><div class="character-controls"><label for="motionPreference">Preview motion</label><select id="motionPreference"><option value="system">Follow system</option><option value="reduced">Still image</option><option value="full">Animate</option></select></div></div>
@@ -1021,11 +1053,7 @@
           </div>
         </form>
       </section>
-
-      <aside class="side-panel day-panel">
-        <div class="error-box" id="errorBox" role="alert" hidden></div>
-
-        <section class="preview-dock" id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
+          <section class="preview-dock" id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
           <header class="preview-dock-head">
             <div><span class="kicker">Discord preview</span><h2 id="previewDockTitle">ตัวอย่าง</h2></div>
             <span class="preview-live-badge"><span class="preview-live-dot" aria-hidden="true"></span>Updates as you type</span>
@@ -1059,21 +1087,9 @@
             <span id="previewPublishHint">Preview only · show it on Discord when ready</span>
           </footer>
         </section>
-
-        <section class="card now-card">
-          <div class="panel-heading"><div><span class="kicker">Right now</span><h2 id="nowScene">Waiting for schedule</h2></div></div>
-          <div class="now-grid">
-            <div class="now-item"><small>Source</small><strong id="nowSource">Scheduled</strong></div>
-            <div class="now-item"><small>Next change</small><strong id="nextChange">--:--</strong></div>
-          </div>
-          <div class="timeline-actions">
-            <button class="button small" id="scheduleToggleButton" type="button">Pause schedule</button>
-            <button class="button small" id="cancelOverrideButton" type="button" hidden>Cancel override</button>
-          </div>
-          <p class="override-duration" id="overrideDuration" hidden></p>
         </section>
-
-        <section class="card" id="legacyScheduleCard">
+        <section class="app-screen" id="screen-dayline" data-screen="dayline" hidden>
+          <section class="card" id="legacyScheduleCard">
           <div class="panel-heading">
             <div><span class="kicker">Daily Time Slots</span><h2>Repeats every day</h2></div>
             <button class="button small" id="addSlotButton" type="button">+ Slot</button>
@@ -1085,8 +1101,46 @@
           </div>
           <div class="slot-list" id="slotList"></div>
         </section>
-
-        <section class="card">
+        </section>
+        <section class="app-screen" id="screen-settings" data-screen="settings" hidden>
+          <section class="settings-dialog" aria-labelledby="settingsTitle">
+            <header class="settings-head">
+              <div>
+                <span class="kicker">Optional settings</span>
+                <h2 id="settingsTitle">ตั้งค่าขั้นสูง</h2>
+                <p class="subcopy" id="settingsDescription">Discord พร้อมเชื่อมต่ออัตโนมัติ เปลี่ยนค่าเฉพาะเมื่ออยากใช้แอปของคุณเอง</p>
+              </div>
+            </header>
+            <div class="settings-status" aria-live="polite">
+          <div class="settings-status-row">
+            <strong>Discord Application ID</strong>
+            <span id="discordStatusLabel" class="warn">Not set</span>
+          </div>
+          <div class="settings-status-row">
+            <strong>GIPHY API key</strong>
+            <span id="giphyStatusLabel" class="warn">Optional · not set</span>
+          </div>
+          <p class="path" id="secretsPath" title="">Secrets file</p>
+        </div>
+            <form class="settings-form" id="settingsForm">
+          <div class="field">
+            <label for="discordClientIdInput">Discord Application ID</label>
+            <input id="discordClientIdInput" name="discordClientId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="20" placeholder="17-20 digit Application ID" />
+            <small class="field-hint">มี Application ID เริ่มต้นให้แล้ว ช่องนี้ใช้เปลี่ยนเป็นของคุณเองเท่านั้น</small>
+          </div>
+          <div class="field">
+            <label for="giphyApiKeyInput">GIPHY API key (optional)</label>
+            <input id="giphyApiKeyInput" name="giphyApiKey" type="password" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste free beta key" />
+            <small class="field-hint">Used only for Find a GIF. Create a free key at developers.giphy.com. Leave blank to keep the current key.</small>
+          </div>
+          <div class="settings-actions">
+            <button class="button" id="clearGiphyButton" type="button">Clear GIPHY key</button>
+            <button class="button primary" id="saveSettingsButton" type="submit">Save keys</button>
+          </div>
+        </form>
+            <p class="message" id="settingsMessage" role="status" aria-live="polite"></p>
+          </section>
+          <section class="card">
           <div class="panel-heading"><div><span class="kicker">Companion</span><h2>Runs in the background</h2></div></div>
           <div class="system-row">
             <div class="system-copy"><strong>ตั้งค่าขั้นสูง</strong><small id="apiKeysSummary">Discord + GIPHY stay on this PC only.</small></div>
@@ -1109,50 +1163,15 @@
           </div>
           <p class="path" id="configPath" title="">Local configuration</p>
         </section>
-      </aside>
-    </main>
-
-    <div class="settings-overlay" id="settingsOverlay" hidden>
-      <button class="settings-backdrop" id="settingsBackdrop" type="button" aria-label="Close ตั้งค่าขั้นสูง"></button>
-      <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-describedby="settingsDescription">
-        <header class="settings-head">
-          <div>
-            <span class="kicker">Optional settings</span>
-            <h2 id="settingsTitle">ตั้งค่าขั้นสูง</h2>
-            <p class="subcopy" id="settingsDescription">Discord พร้อมเชื่อมต่ออัตโนมัติ เปลี่ยนค่าเฉพาะเมื่ออยากใช้แอปของคุณเอง</p>
-          </div>
-          <button class="button small" id="settingsCloseButton" type="button" aria-label="Close ตั้งค่าขั้นสูง">Close</button>
-        </header>
-
-        <div class="settings-status" aria-live="polite">
-          <div class="settings-status-row">
-            <strong>Discord Application ID</strong>
-            <span id="discordStatusLabel" class="warn">Not set</span>
-          </div>
-          <div class="settings-status-row">
-            <strong>GIPHY API key</strong>
-            <span id="giphyStatusLabel" class="warn">Optional · not set</span>
-          </div>
-          <p class="path" id="secretsPath" title="">Secrets file</p>
-        </div>
-
-        <form class="settings-form" id="settingsForm">
-          <div class="field">
-            <label for="discordClientIdInput">Discord Application ID</label>
-            <input id="discordClientIdInput" name="discordClientId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="20" placeholder="17-20 digit Application ID" />
-            <small class="field-hint">มี Application ID เริ่มต้นให้แล้ว ช่องนี้ใช้เปลี่ยนเป็นของคุณเองเท่านั้น</small>
-          </div>
-          <div class="field">
-            <label for="giphyApiKeyInput">GIPHY API key (optional)</label>
-            <input id="giphyApiKeyInput" name="giphyApiKey" type="password" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste free beta key" />
-            <small class="field-hint">Used only for Find a GIF. Create a free key at developers.giphy.com. Leave blank to keep the current key.</small>
-          </div>
-          <div class="settings-actions">
-            <button class="button" id="clearGiphyButton" type="button">Clear GIPHY key</button>
-            <button class="button primary" id="saveSettingsButton" type="submit">Save keys</button>
-          </div>
-        </form>
-      </section>
+        </section>
+      </div>
+      <nav class="bottom-nav" aria-label="หลัก">
+        <a class="bottom-link" href="#/status" data-screen="status" aria-current="page"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="sidebar-label">สถานะ</span></a>
+        <a class="bottom-link" href="#/scenes" data-screen="scenes"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span class="sidebar-label">Scenes</span></a>
+        <a class="bottom-link" href="#/editor" data-screen="editor"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><span class="sidebar-label">Editor</span></a>
+        <a class="bottom-link" href="#/dayline" data-screen="dayline"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="sidebar-label">Dayline</span></a>
+        <a class="bottom-link" href="#/settings" data-screen="settings"><svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span class="sidebar-label">ตั้งค่า</span></a>
+      </nav>
     </div>
 
     <div class="gif-picker" id="gifPicker" hidden>
@@ -1237,10 +1256,8 @@
       const gifCloseButton = document.querySelector('#gifCloseButton');
       const gifUnavailable = document.querySelector('#gifUnavailable');
       const gifUnavailableMessage = document.querySelector('#gifUnavailableMessage');
-      const settingsOverlay = document.querySelector('#settingsOverlay');
       const settingsForm = document.querySelector('#settingsForm');
-      const settingsCloseButton = document.querySelector('#settingsCloseButton');
-      const settingsBackdrop = document.querySelector('#settingsBackdrop');
+      const settingsMessage = document.querySelector('#settingsMessage');
       const openSettingsButton = document.querySelector('#openSettingsButton');
       const openSettingsButtonSide = document.querySelector('#openSettingsButtonSide');
       const setupBanner = document.querySelector('#setupBanner');
@@ -1254,7 +1271,6 @@
       const apiKeysSummary = document.querySelector('#apiKeysSummary');
       const clearGiphyButton = document.querySelector('#clearGiphyButton');
       const saveSettingsButton = document.querySelector('#saveSettingsButton');
-      let settingsReturnFocus = null;
       let clearGiphyOnSave = false;
       const gifSearchPanel = document.querySelector('#gifSearchPanel');
       const gifSearchForm = document.querySelector('#gifSearchForm');
@@ -1264,7 +1280,6 @@
       const gifResults = document.querySelector('#gifResults');
       const gifLoadMoreButton = document.querySelector('#gifLoadMoreButton');
       const appbar = document.querySelector('.appbar');
-      const studio = document.querySelector('.studio');
       const textLinksDisclosure = document.querySelector('#textLinksDisclosure');
       const artworkOptionsDisclosure = document.querySelector('#artworkOptionsDisclosure');
       const timerDisclosure = document.querySelector('#timerDisclosure');
@@ -2069,9 +2084,10 @@
 
       function setStudioInert(inert) {
         appbar.inert = inert;
-        studio.inert = inert;
-        document.querySelector("#appSetupPage").inert = inert;
-        document.querySelector(".studio-navigation").inert = inert;
+        const shell = document.querySelector('#appShell');
+        if (shell) shell.inert = inert;
+        const banner = document.querySelector('#setupBanner');
+        if (banner) banner.inert = inert;
       }
 
       function gifFocusableElements() {
@@ -2093,30 +2109,6 @@
           event.preventDefault();
           last.focus();
         } else if (!event.shiftKey && (document.activeElement === last || !gifDialog.contains(document.activeElement))) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-
-      function settingsFocusableElements() {
-        return [...settingsOverlay.querySelectorAll(
-          'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
-        )].filter((element) => !element.hidden && element.getClientRects().length);
-      }
-
-      function trapSettingsFocus(event) {
-        if (event.key !== 'Tab' || settingsOverlay.hidden) return;
-        const focusable = settingsFocusableElements();
-        if (!focusable.length) {
-          event.preventDefault();
-          return;
-        }
-        const first = focusable[0];
-        const last = focusable.at(-1);
-        if (event.shiftKey && (document.activeElement === first || !settingsOverlay.contains(document.activeElement))) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && (document.activeElement === last || !settingsOverlay.contains(document.activeElement))) {
           event.preventDefault();
           first.focus();
         }
@@ -2154,39 +2146,22 @@
         apiKeysSummary.textContent = discordConfigured
           ? (giphyConfigured ? 'Discord + GIPHY ready on this PC.' : 'Discord ready · GIPHY optional.')
           : 'Discord Application ID required.';
-        if (!settingsOverlay.hidden && document.activeElement !== discordClientIdInput) {
-          if (!discordClientIdInput.value && runtime?.clientId) {
-            discordClientIdInput.value = runtime.clientId;
-          }
+        if (!discordClientIdInput.value && runtime?.clientId) {
+          discordClientIdInput.value = runtime.clientId;
         }
         renderSetupBanner();
       }
 
-      function closeSettings() {
-        if (settingsOverlay.hidden) return;
-        settingsOverlay.hidden = true;
-        document.body.classList.remove('settings-open');
-        setStudioInert(false);
-        document.removeEventListener('keydown', trapSettingsFocus, true);
-        const focusTarget = settingsReturnFocus;
-        settingsReturnFocus = null;
-        if (focusTarget?.focus) focusTarget.focus();
-      }
-
-      function openSettings(trigger) {
-        settingsReturnFocus = trigger || document.activeElement;
+      // The settings form lives on the Settings screen now (no modal). Reset
+      // it to the saved state whenever the screen is shown, mirroring the
+      // old modal-open behaviour.
+      function resetSettingsForm() {
         clearGiphyOnSave = false;
         giphyApiKeyInput.value = '';
         giphyApiKeyInput.placeholder = runtime?.gifSearch?.configured
           ? 'Leave blank to keep the saved key'
           : 'Paste free beta key';
         discordClientIdInput.value = runtime?.clientId || '';
-        settingsOverlay.hidden = false;
-        document.body.classList.add('settings-open');
-        setStudioInert(true);
-        document.addEventListener('keydown', trapSettingsFocus, true);
-        renderSecretsStatus();
-        setTimeout(() => discordClientIdInput.focus(), 0);
       }
 
       async function saveSettings(event) {
@@ -2210,12 +2185,20 @@
           giphyApiKeyInput.value = '';
           renderRuntime();
           renderSecretsStatus();
-          closeSettings();
-          showMessage(runtime.setup?.needsDiscordApplicationId
+          const settingsNotice = runtime.setup?.needsDiscordApplicationId
             ? 'Keys updated. Discord Application ID is still required.'
-            : 'ตั้งค่าขั้นสูง saved on this computer.', 'success');
+            : 'ตั้งค่าขั้นสูง saved on this computer.';
+          showMessage(settingsNotice, 'success');
+          if (settingsMessage) {
+            settingsMessage.textContent = settingsNotice;
+            settingsMessage.className = 'message success';
+          }
         } catch (error) {
           showMessage(error.message, 'error');
+          if (settingsMessage) {
+            settingsMessage.textContent = error.message;
+            settingsMessage.className = 'message error';
+          }
         } finally {
           saveSettingsButton.disabled = false;
           clearGiphyButton.disabled = false;
@@ -2608,10 +2591,6 @@
         queueGifPageIfNeeded();
       }, { passive: true });
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !settingsOverlay.hidden) {
-          closeSettings();
-          return;
-        }
         if (gifPicker.hidden) return;
         if (event.key === 'Escape') closeGifPicker();
         else trapGifFocus(event);
@@ -2785,39 +2764,78 @@
         }
       });
 
-      openSettingsButton.addEventListener('click', () => openSettings(openSettingsButton));
-      openSettingsButtonSide.addEventListener('click', () => openSettings(openSettingsButtonSide));
-      setupBannerButton.addEventListener('click', () => openSettings(setupBannerButton));
-      settingsCloseButton.addEventListener('click', () => closeSettings());
-      settingsBackdrop.addEventListener('click', () => closeSettings());
+      // "ตั้งค่าขั้นสูง" buttons now jump to the Settings screen (the API-keys
+      // form lives there instead of a modal).
+      const goToSettingsScreen = () => { location.hash = '#/settings'; };
+      openSettingsButton.addEventListener('click', goToSettingsScreen);
+      openSettingsButtonSide.addEventListener('click', goToSettingsScreen);
+      setupBannerButton.addEventListener('click', goToSettingsScreen);
       settingsForm.addEventListener('submit', (event) => void saveSettings(event));
       clearGiphyButton.addEventListener('click', () => {
         clearGiphyOnSave = true;
         giphyApiKeyInput.value = '';
         giphyApiKeyInput.placeholder = 'Will clear on save';
         showMessage('Click Save keys to clear the stored GIPHY key.', 'success');
+        if (settingsMessage) {
+          settingsMessage.textContent = 'Click Save keys to clear the stored GIPHY key.';
+          settingsMessage.className = 'message success';
+        }
       });
 
       const selectedApps = new Set();
+      const STUDIO_SCREENS = ['status', 'scenes', 'editor', 'dayline', 'settings'];
+      function resolveStudioScreen() {
+        const match = /^#\/(status|scenes|editor|dayline|settings)$/.exec(location.hash);
+        if (match) return match[1];
+        // Legacy compat: the old two-page hashes map onto the new screens.
+        if (location.hash === '#setup') return 'status';
+        if (location.hash === '#presets') return 'editor';
+        // Set-and-forget: Status is the landing screen.
+        return 'status';
+      }
       function navigateStudio() {
-        const editor = location.hash !== '#setup' && location.hash !== '';
-        document.querySelector('#appSetupPage').hidden = editor;
-        document.querySelector('#presetsPage').hidden = !editor;
-        document.querySelector('#setupPageLink').setAttribute('aria-current',editor?'false':'page');
-        document.querySelector('#presetsPageLink').setAttribute('aria-current',editor?'page':'false');
-        // Calm screen transition on the newly shown view (skipped under reduced motion by CSS).
-        for (const page of [document.querySelector('#appSetupPage'), document.querySelector('#presetsPage')]) {
-          if (page && !page.hidden) {
-            page.classList.remove('view-enter');
-            void page.offsetWidth;
-            page.classList.add('view-enter');
-          }
+        const screen = resolveStudioScreen();
+        const canonical = '#/' + screen;
+        if (location.hash !== canonical) {
+          // Normalize empty, unknown, and legacy hashes without a history entry.
+          history.replaceState(null, '', canonical);
         }
+        for (const name of STUDIO_SCREENS) {
+          const section = document.querySelector('#screen-' + name);
+          if (section) section.hidden = name !== screen;
+        }
+        for (const link of document.querySelectorAll('.sidebar-link, .bottom-link')) {
+          link.setAttribute('aria-current', link.dataset.screen === screen ? 'page' : 'false');
+        }
+        // Calm screen transition on the newly shown view (skipped under reduced motion by CSS).
+        const shown = document.querySelector('#screen-' + screen);
+        if (shown) {
+          shown.classList.remove('view-enter');
+          void shown.offsetWidth;
+          shown.classList.add('view-enter');
+        }
+        if (screen === 'settings') resetSettingsForm();
         if (config) { presetOptions(document.querySelector('#appPresetSelect'),selectedSceneId); }
       }
       window.addEventListener('hashchange',navigateStudio);
       navigateStudio();
-      document.querySelector('#createPresetFromSetup').onclick=()=>{location.hash='presets'; document.querySelector('#addSceneButton').click(); document.querySelector('#sceneName').focus();};
+      // Sidebar collapse: icon rail on desktop, choice persists across sessions.
+      const sidebarCollapse = document.querySelector('#sidebarCollapse');
+      function applySidebarCollapsed(collapsed) {
+        document.body.classList.toggle('sidebar-collapsed', collapsed);
+        if (sidebarCollapse) sidebarCollapse.setAttribute('aria-expanded', String(!collapsed));
+      }
+      let sidebarCollapsed = false;
+      try { sidebarCollapsed = localStorage.getItem('vibe.sidebarCollapsed') === 'true'; } catch (error) {}
+      applySidebarCollapsed(sidebarCollapsed);
+      if (sidebarCollapse) {
+        sidebarCollapse.addEventListener('click', () => {
+          sidebarCollapsed = !document.body.classList.contains('sidebar-collapsed');
+          applySidebarCollapsed(sidebarCollapsed);
+          try { localStorage.setItem('vibe.sidebarCollapsed', String(sidebarCollapsed)); } catch (error) {}
+        });
+      }
+      document.querySelector('#createPresetFromSetup').onclick=()=>{location.hash='#/editor'; document.querySelector('#addSceneButton').click(); document.querySelector('#sceneName').focus();};
       function applicationKey(path) {
         return String(path || '').trim().replaceAll('/', '\\').toLowerCase()
           .replace(/(\\windowsapps\\openai\.codex_)\d+\.\d+\.\d+\.\d+(_[^\\]+\\app\\chatgpt\.exe)$/, '$1version$2');
