@@ -870,6 +870,7 @@
               <span class="status-value" id="heroConnection">…</span>
             </div>
           </div>
+          <p class="set-and-forget-note">ปิดหน้านี้ได้เลย — companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกทีเมื่อต้องการเปลี่ยนการตั้งค่าเท่านั้น</p>
         </section><section class="application-manager" aria-labelledby="appsTitle">
           <div class="apps-heading"><div><h1 id="appsTitle">แอปของคุณ</h1></div><button class="button" type="button" id="refreshApps">รีเฟรช</button></div>
           <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
@@ -1091,8 +1092,11 @@
             <div class="system-copy"><strong>ตั้งค่าขั้นสูง</strong><small id="apiKeysSummary">Discord + GIPHY stay on this PC only.</small></div>
             <button class="button small" id="openSettingsButtonSide" type="button">ตั้งค่าขั้นสูง</button>
           </div>
+          <!-- Windows-only hook: POST /api/autostart is backed by windows-autostart.mjs
+               (win32 only). On other platforms the toggle is disabled and the hint
+               below explains why — never a dead control. -->
           <div class="system-row">
-            <div class="system-copy"><strong>Start with Windows</strong><small>Launch hidden after sign-in.</small></div>
+            <div class="system-copy"><strong>Start with Windows <span class="platform-tag">Windows-only</span></strong><small id="autostartHint">Launch hidden after sign-in.</small></div>
             <label class="switch"><input id="autostartToggle" type="checkbox" /><span></span></label>
           </div>
           <div class="system-row">
@@ -1225,6 +1229,7 @@
       const cancelOverrideButton = document.querySelector('#cancelOverrideButton');
       const overrideDuration = document.querySelector('#overrideDuration');
       const autostartToggle = document.querySelector('#autostartToggle');
+      const autostartHint = document.querySelector('#autostartHint');
       const errorBox = document.querySelector('#errorBox');
       const gifPicker = document.querySelector('#gifPicker');
       const gifDialog = gifPicker.querySelector('.gif-dialog');
@@ -1944,6 +1949,10 @@
 
         autostartToggle.checked = Boolean(runtime.autostart?.enabled);
         autostartToggle.disabled = !runtime.autostart?.supported;
+        // Windows-only: surface the degraded state honestly instead of a dead toggle.
+        autostartHint.textContent = runtime.autostart?.supported
+          ? 'Launch hidden after sign-in.'
+          : 'Windows-only · automatic startup is unavailable on this system.';
         document.querySelector('#configPath').textContent = runtime.configPath || 'Local configuration';
         document.querySelector('#configPath').title = runtime.configPath || '';
         renderSecretsStatus();

@@ -619,3 +619,24 @@ input::placeholder { color: #5b6685; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- 17. Phase 2: set-and-forget + overflow hardening ---------- */
+.set-and-forget-note { margin: 12px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+/* Windows-only marker for companion hooks that have no equivalent on this platform. */
+.platform-tag {
+  display: inline-block; margin-left: 6px; padding: 2px 8px;
+  color: var(--dawn); background: rgba(240, 181, 107, .1);
+  border: 1px solid rgba(240, 181, 107, .35); border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; vertical-align: 1px;
+}
+/*
+ * Overflow hardening: grid/flex children default to min-width:auto, so nowrap
+ * status text ("While your app is running" in .now-item strong) and the badges
+ * in .preview-dock-head forced their tracks wider than the 370px day panel,
+ * clipping the right column at 1440px viewport. min-width:0 lets the existing
+ * ellipsis rules truncate inside the tracks; the dock head wraps instead of
+ * overflowing when the badges don't fit on one line.
+ */
+.now-item { min-width: 0; }
+.preview-dock-head { flex-wrap: wrap; row-gap: 8px; }
+.preview-dock-head > * { min-width: 0; }
