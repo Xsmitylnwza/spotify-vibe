@@ -11,11 +11,14 @@ This is a local companion app, not a hosted website. Spotify showcase code under
 - Assign scenes to repeating **Daily Time Slots** (`06:00`, `12:00`, …)
 - Temporary **Manual Override** until the next enabled slot
 - Local-only config + secrets (no cloud account)
-- Optional GIPHY search for scene artwork
-- First-run **API keys** page in the Studio UI
+- Bundled Discord Application ID — Presence connects out of the box, no Developer Portal setup
+- Optional GIPHY search for scene artwork (a key is only needed for the GIF browser)
+- **Advanced settings** in the Studio for key overrides
 - Optional **Start with Windows** so Presence keeps running after reboot
 
 ### Presence Studio preview
+
+*Screenshots show the pre-redesign Studio and will be refreshed.*
 
 ![Presence Studio overview](docs/images/studio-overview.png)
 
@@ -23,7 +26,7 @@ This is a local companion app, not a hosted website. Spotify showcase code under
 
 ![API keys setup](docs/images/api-keys.png)
 
-*Paste your Discord Application ID and optional GIPHY key. Credentials stay on this PC only.*
+*The bundled Discord Application ID works out of the box — the Discord field is only an advanced override. A GIPHY key is only needed for the GIF browser. Credentials stay on this PC only.*
 
 ![GIF picker](docs/images/gif-picker.png)
 
@@ -39,8 +42,8 @@ This is a local companion app, not a hosted website. Spotify showcase code under
 - [Node.js](https://nodejs.org/) 20+ and npm
 - Discord Desktop signed in, with activity sharing enabled:
   **User Settings → Activity Privacy**
-- A Discord application from the [Discord Developer Portal](https://discord.com/developers/applications)
-- Optional free GIPHY beta key from the [GIPHY Developer Dashboard](https://developers.giphy.com/dashboard/?create=true)
+- A bundled Discord Application ID is used by default — no Developer Portal setup needed
+- Optional free GIPHY beta key from the [GIPHY Developer Dashboard](https://developers.giphy.com/dashboard/?create=true) (only needed for the **Find a GIF** browser)
 
 ## Quick start
 
@@ -55,12 +58,14 @@ The companion starts and opens:
 http://127.0.0.1:17345
 ```
 
-### First-run setup (API keys page)
+### First run — no keys required
 
-1. Studio opens an **API keys** dialog when Discord is not configured yet.
-2. Paste your **Discord Application ID** (17–20 digit number from the Developer Portal).
-3. Optionally paste a **GIPHY API key** if you want the Find a GIF browser.
-4. Click **Save keys**.
+A Discord Application ID is **bundled by default** (`1526867893508116620` — a public identifier, not a secret), so Presence connects as soon as Discord Desktop is running and signed in. **You do not need to enter anything.**
+
+The **Advanced settings** dialog (Studio header → **ตั้งค่าขั้นสูง**) shows the Discord Application ID as *Configured* and is only for overrides:
+
+- **Your own Discord Application ID** (advanced) — use an app you created in the [Discord Developer Portal](https://discord.com/developers/applications) instead of the bundled one.
+- **GIPHY API key (optional)** — only needed for the **Find a GIF** browser. Without a key you can still paste any public HTTPS GIF/image URL as scene artwork.
 
 Keys are stored only on your machine at:
 
@@ -68,17 +73,19 @@ Keys are stored only on your machine at:
 %APPDATA%\Spotify Vibe\app-secrets.json
 ```
 
+(non-Windows: `~/.spotify-vibe/app-secrets.json`). The file is written with owner-only permissions and is never uploaded anywhere.
+
 Scene and schedule data is stored separately at:
 
 ```text
 %APPDATA%\Spotify Vibe\presence-config.json
 ```
 
-You can reopen the page any time from **API keys** in the header or **Companion → Manage**.
+You can reopen Advanced settings any time from the header. Override priority: CLI argument / environment variable → saved key in `app-secrets.json` → bundled default.
 
-### Alternative setup methods
+### Advanced overrides (optional)
 
-CLI Application ID (automation / power users):
+Override the bundled Discord Application ID or preset keys via automation / power-user methods:
 
 ```bash
 npm run presence:studio -- YOUR_APPLICATION_ID
@@ -125,7 +132,7 @@ Do this once after first setup so you do not need to run `npm run presence:studi
    ```bash
    npm run presence:studio
    ```
-2. Save your **Discord Application ID** under **API keys**.
+2. Confirm the Discord connection status shows connected (the bundled Application ID is already active).
 3. In the right panel, open **Companion**.
 4. Turn **Start with Windows** on.
 
@@ -187,6 +194,7 @@ The autostart launcher is created at:
 ## Security notes
 
 - Never commit `.env`, `app-secrets.json`, refresh tokens, or API keys.
+- Secrets live only in the local `app-secrets.json` file on this PC; they are never uploaded anywhere.
 - Studio binds to `127.0.0.1` only.
 - GIPHY and Discord credentials are not returned by public config endpoints.
 - The React/Spotify demo should use your own `.env` values if you run it; the repository ships no live secrets.
@@ -221,10 +229,10 @@ npm run build
 **Studio says Discord is disconnected**
 - Confirm Discord Desktop is open and signed in
 - Confirm Activity Privacy allows activity sharing
-- Confirm Application ID is correct under API keys
+- Confirm **Advanced settings** shows the Discord Application ID as *Configured* (a bundled ID is used by default; only an override you entered yourself can be wrong)
 
 **Find a GIF is unavailable**
-- Open API keys and save a valid GIPHY key
+- Open **Advanced settings** (Studio header → **ตั้งค่าขั้นสูง**) and save a valid GIPHY key
 - Or paste any public HTTPS GIF/image URL into the scene artwork field
 
 **Companion did not start after reboot**
@@ -244,14 +252,3 @@ npm run build
 ## License
 
 Private / personal project unless you add an explicit license.
-# Approved character art
-
-Discord Application ID `1526867893508116620` is bundled by default. Users do not need to create a Discord application or enter a key. CLI/environment and saved custom IDs override the bundled value. Optional overrides are under Advanced settings. This ID is public; no bot token or client secret is bundled. Public artwork hosting remains a separate requirement.
-
-The Studio opens on **Set up apps**: select one or more application icons, choose a preset, then Save and activate. **Create presets** is a separate editor page. App mode selects the stable foreground application; unmapped apps show no companion activity. Legacy time slots remain available by explicitly selecting schedule mode. See [application journey](docs/presence-studio/APP-SETUP-JOURNEY.md).
-
-Presence Studio now uses the approved Hinata Court idle portrait as its bundled default for new configurations. Existing Scene artwork is preserved. Select Animated idle or Still portrait in the editor to use the bundled art on an existing Scene. Preview motion can follow the system, animate, or use a still poster.
-
-Run `npm start` for the real local Studio; `npm run dev` still runs the legacy React prototype. Bundled art previews locally without keys. The runtime uses the published Hinata artwork by default; set `PRESENCE_ART_BASE_URL` in the launching shell to override its public HTTPS directory, or paste a hosted image URL. The server does not automatically load `.env` files. Discord rendering should still be checked in a separate viewer/client.
-
-See [approved CI](docs/presence-studio/ART-DIRECTION.md) and [implementation status](docs/presence-studio/IMPLEMENTATION-STATUS.md) for the current plan.
