@@ -830,6 +830,11 @@
   <link rel="stylesheet" href="/studio-ci.css" />
   </head>
   <body>
+    <script>
+      // Pre-apply the persisted sidebar state before first paint so returning
+      // users never see the expanded sidebar flash before it snaps to the rail.
+      try { if (localStorage.getItem('vibe.sidebarCollapsed') === 'true') document.body.classList.add('sidebar-collapsed'); } catch (e) {}
+    </script>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
     <header class="appbar">
       <div class="brand">
@@ -1280,6 +1285,12 @@
       const clearGiphyButton = document.querySelector('#clearGiphyButton');
       const saveSettingsButton = document.querySelector('#saveSettingsButton');
       let clearGiphyOnSave = false;
+      // Dirty tracking: navigating to Settings must not wipe a typed-but-unsaved
+      // key (review M3). The flag is set on any user edit and cleared on save.
+      let settingsFormDirty = false;
+      const markSettingsDirty = () => { settingsFormDirty = true; };
+      giphyApiKeyInput.addEventListener('input', markSettingsDirty);
+      discordClientIdInput.addEventListener('input', markSettingsDirty);
       const gifSearchPanel = document.querySelector('#gifSearchPanel');
       const gifSearchForm = document.querySelector('#gifSearchForm');
       const gifSearchInput = document.querySelector('#gifSearchInput');
@@ -2219,6 +2230,7 @@
           });
           runtime = data.runtime;
           clearGiphyOnSave = false;
+          settingsFormDirty = false;
           giphyApiKeyInput.value = '';
           renderRuntime();
           renderSecretsStatus();
@@ -2495,6 +2507,22 @@
         setSaveState('dirty', 'มีการแก้ไขที่ยังไม่บันทึก', 'กำลังจะบันทึกอัตโนมัติ…');
         saveTimer = setTimeout(() => void saveConfig(false), 650);
       }
+
+      // Best-effort flush: closing/reloading the tab within the 650 ms debounce
+      // window would otherwise silently drop the last edits (review M4).
+      window.addEventListener('pagehide', () => {
+        if (!saveTimer) return;
+        clearTimeout(saveTimer);
+        saveTimer = null;
+        try {
+          if (!config || !validateForm()) return;
+          syncFormToScene();
+          const payload = JSON.stringify({ scenes: config.scenes, slots: config.slots });
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon('/api/config', new Blob([payload], { type: 'application/json' }));
+          }
+        } catch (error) { /* unload path: nothing left to do */ }
+      });
 
       async function useSelectedScene() {
         clearTimeout(saveTimer);
@@ -2813,6 +2841,7 @@
       settingsForm.addEventListener('submit', (event) => void saveSettings(event));
       clearGiphyButton.addEventListener('click', () => {
         clearGiphyOnSave = true;
+        settingsFormDirty = true;
         giphyApiKeyInput.value = '';
         giphyApiKeyInput.placeholder = 'จะล้างเมื่อบันทึก';
         showMessage('กด "บันทึกคีย์" เพื่อล้างคีย์ GIPHY ที่เก็บไว้', 'success');
@@ -2824,8 +2853,15 @@
 
       const selectedApps = new Set();
       const STUDIO_SCREENS = ['status', 'scenes', 'editor', 'dayline', 'settings'];
+      // Pending focus target for programmatic navigation (e.g. "+ Scene ใหม่"
+      // focuses the name field only after the editor screen is actually shown).
+      let pendingFocusSelector = null;
+      let currentStudioScreen = null;
       function resolveStudioScreen() {
-        const match = /^#\/(status|scenes|editor|dayline|settings)$/.exec(location.hash);
+        // Normalize before matching: case-insensitive, ignore trailing slashes,
+        // so `#/dayline/` or `#/EDITOR` still land on the intended screen.
+        const hash = location.hash.toLowerCase().replace(/\/+$/, '');
+        const match = /^#\/(status|scenes|editor|dayline|settings)$/.exec(hash);
         if (match) return match[1];
         // Legacy compat: the old two-page hashes map onto the new screens.
         if (location.hash === '#setup') return 'status';
@@ -2840,6 +2876,8 @@
           // Normalize empty, unknown, and legacy hashes without a history entry.
           history.replaceState(null, '', canonical);
         }
+        const changed = currentStudioScreen !== screen;
+        currentStudioScreen = screen;
         for (const name of STUDIO_SCREENS) {
           const section = document.querySelector('#screen-' + name);
           if (section) section.hidden = name !== screen;
@@ -2854,7 +2892,31 @@
           void shown.offsetWidth;
           shown.classList.add('view-enter');
         }
-        if (screen === 'settings') resetSettingsForm();
+        if (changed) {
+          // Standard SPA behavior: never land mid-page on a new screen.
+          window.scrollTo(0, 0);
+          // Rescue keyboard focus stranded inside the now-hidden screen
+          // (back/forward and programmatic navigation). Click navigation keeps
+          // focus on the activated link, which we must not steal.
+          const active = document.activeElement;
+          const activeScreen = active && active.closest ? active.closest('.app-screen') : null;
+          if (activeScreen && activeScreen.hidden && shown) {
+            const heading = shown.querySelector('h1, h2');
+            if (heading) {
+              heading.setAttribute('tabindex', '-1');
+              heading.focus({ preventScroll: true });
+            }
+          }
+        }
+        // A screen change always dismisses the floating GIF picker so it can
+        // never write into a hidden editor form.
+        if (typeof closeGifPicker === 'function') closeGifPicker();
+        if (pendingFocusSelector) {
+          const target = document.querySelector(pendingFocusSelector);
+          pendingFocusSelector = null;
+          if (target) target.focus({ preventScroll: true });
+        }
+        if (screen === 'settings' && !settingsFormDirty) resetSettingsForm();
         if (config) { presetOptions(document.querySelector('#appPresetSelect'),selectedSceneId); }
       }
       window.addEventListener('hashchange',navigateStudio);
@@ -2875,7 +2937,10 @@
           try { localStorage.setItem('vibe.sidebarCollapsed', String(sidebarCollapsed)); } catch (error) {}
         });
       }
-      document.querySelector('#createPresetFromSetup').onclick=()=>{location.hash='#/editor'; document.querySelector('#addSceneButton').click(); document.querySelector('#sceneName').focus();};
+      // "+ Scene ใหม่" jumps to the editor, creates a scene, and focuses its name
+      // field — but the hashchange is async, so focus is deferred until the
+      // editor screen is actually shown (review m1).
+      document.querySelector('#createPresetFromSetup').onclick=()=>{location.hash='#/editor'; document.querySelector('#addSceneButton').click(); pendingFocusSelector='#sceneName';};
       function applicationKey(path) {
         return String(path || '').trim().replaceAll('/', '\\').toLowerCase()
           .replace(/(\\windowsapps\\openai\.codex_)\d+\.\d+\.\d+\.\d+(_[^\\]+\\app\\chatgpt\.exe)$/, '$1version$2');

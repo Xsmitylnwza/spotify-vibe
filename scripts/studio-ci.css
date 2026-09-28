@@ -468,8 +468,12 @@ input::placeholder { color: #7a86a8; }
 }
 .slot-list { display: grid; gap: 7px; }
 .slot-empty { margin: 4px 2px 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
-.slot-row { display: grid; grid-template-columns: 28px 76px minmax(0, 1fr) 30px; align-items: center; gap: 7px; }
+.slot-row { display: grid; grid-template-columns: 28px 104px minmax(0, 1fr) 30px; align-items: center; gap: 7px; }
 .slot-row input, .slot-row select { min-height: 34px; padding: 0 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+/* Time inputs: the native calendar-picker indicator needs room beside the
+   value, otherwise the last digit clips under it (review M3). */
+.slot-time { padding: 0 4px; }
+.slot-time::-webkit-calendar-picker-indicator { margin-left: 2px; }
 .slot-toggle, .slot-remove {
   display: grid; width: 28px; height: 32px; place-items: center; padding: 0;
   color: var(--muted); background: var(--field);
@@ -815,6 +819,15 @@ html, body { overflow-x: clip; }
   }
   body.sidebar-collapsed .sidebar-brand { justify-content: center; padding: 16px 0; }
   body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
+}
+
+/* ---- Desktop appbar: the fixed sidebar covers the appbar's left edge, so the
+   appbar brand is hidden behind it when expanded and sliced by the rail when
+   collapsed — never show it on desktop (review M4). Mobile keeps it because
+   the sidebar is hidden there. ---- */
+@media (min-width: 761px) {
+  .appbar .brand { display: none; }
+  .appbar { justify-content: flex-end; }
 }
 
 /* ---- Screen transitions: the .view-enter pattern, re-triggered by JS on
