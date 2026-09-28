@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -106,7 +106,7 @@
         background: rgba(255,255,255,.04);
         border: 1px solid var(--line-soft);
         border-radius: 999px;
-        font-size: 10px;
+        font-size: 12px;
       }
       .connection-dot {
         width: 7px;
@@ -143,7 +143,7 @@
         display: block;
         margin-bottom: 5px;
         color: var(--noon);
-        font: 700 8px/1 "Cascadia Mono", Consolas, monospace;
+        font: 700 12px/1 "Cascadia Mono", Consolas, monospace;
         letter-spacing: .16em;
         text-transform: uppercase;
       }
@@ -185,7 +185,7 @@
       .scene-copy { display: grid; min-width: 0; gap: 4px; }
       .scene-copy strong, .scene-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .scene-copy strong { font-size: 12px; }
-      .scene-copy small { color: var(--muted); font: 650 9px/1 "Cascadia Mono", Consolas, monospace; text-transform: uppercase; }
+      .scene-copy small { color: var(--muted); font: 650 12px/1 "Cascadia Mono", Consolas, monospace; text-transform: uppercase; }
       .scene-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }
       .scene-tools button:last-child { grid-column: 1 / -1; }
       .button {
@@ -199,11 +199,11 @@
         background: transparent;
         border: 1px solid var(--line);
         border-radius: 8px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 720;
       }
       .button:hover { background: rgba(255,255,255,.05); }
-      .button.small { min-height: 32px; padding: 0 9px; font-size: 9px; }
+      .button.small { min-height: 32px; padding: 0 9px; font-size: 12px; }
       .button.primary {
         color: #07101a;
         background: linear-gradient(120deg, var(--dawn), var(--noon));
@@ -229,12 +229,12 @@
         background: rgba(255,255,255,.035);
         border: 1px solid var(--line-soft);
         border-radius: 999px;
-        font-size: 9px;
+        font-size: 12px;
       }
       .context-pill strong { max-width: 190px; overflow: hidden; color: var(--paper); text-overflow: ellipsis; white-space: nowrap; }
       .context-pill.live { color: #c9ffe5; border-color: rgba(120,230,176,.24); }
       .context-pill.is-same { background: rgba(120,230,176,.06); }
-      .context-divider { color: var(--faint); font: 700 10px/1 "Cascadia Mono", Consolas, monospace; }
+      .context-divider { color: var(--faint); font: 700 12px/1 "Cascadia Mono", Consolas, monospace; }
       .customization-journey {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -289,19 +289,19 @@
       .field-grid.three { grid-template-columns: 1fr .8fr 1.3fr; }
       .field { display: grid; min-width: 0; gap: 6px; margin-bottom: 11px; }
       .field:last-child { margin-bottom: 0; }
-      .field-hint { color: var(--faint); font-size: 9px; line-height: 1.45; }
-      .label-note { color: var(--faint); font-size: 8px; font-weight: 520; }
+      .field-hint { color: var(--faint); font-size: 12px; line-height: 1.45; }
+      .label-note { color: var(--faint); font-size: 12px; font-weight: 520; }
       .field-label-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
       .field-action {
         padding: 0;
         color: var(--noon);
         background: transparent;
         border: 0;
-        font-size: 9px;
+        font-size: 12px;
         font-weight: 750;
       }
       .field-action:hover { color: var(--paper); }
-      label { color: #c7d0ea; font-size: 10px; font-weight: 680; }
+      label { color: #c7d0ea; font-size: 12px; font-weight: 680; }
       input, select {
         width: 100%;
         min-height: 42px;
@@ -332,7 +332,7 @@
       .disclosure > summary:focus-visible { outline: 2px solid var(--noon); outline-offset: -2px; }
       .inline-disclosure > summary::-webkit-details-marker,
       .disclosure > summary::-webkit-details-marker { display: none; }
-      .inline-disclosure > summary { min-height: 42px; padding: 9px 0 0; font-size: 10px; font-weight: 700; }
+      .inline-disclosure > summary { min-height: 42px; padding: 9px 0 0; font-size: 12px; font-weight: 700; }
       .inline-disclosure > summary::after,
       .disclosure > summary::after {
         display: grid;
@@ -364,12 +364,12 @@
         background: rgba(255,255,255,.035);
         border: 1px solid var(--line-soft);
         border-radius: 999px;
-        font: 650 8px/1 "Cascadia Mono", Consolas, monospace;
+        font: 650 12px/1 "Cascadia Mono", Consolas, monospace;
         white-space: nowrap;
       }
-      .advanced-intro { display: flex; align-items: center; gap: 9px; margin: 18px 1px 9px; color: var(--muted); font-size: 10px; }
+      .advanced-intro { display: flex; align-items: center; gap: 9px; margin: 18px 1px 9px; color: var(--muted); font-size: 12px; }
       .advanced-intro::before, .advanced-intro::after { height: 1px; flex: 1; content: ""; background: var(--line-soft); }
-      .field-error { margin: -2px 0 0; color: var(--danger); font-size: 9px; line-height: 1.4; }
+      .field-error { margin: -2px 0 0; color: var(--danger); font-size: 12px; line-height: 1.4; }
       input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(255,142,157,.08); }
       .form-actions {
         position: sticky;
@@ -394,11 +394,11 @@
       .save-feedback[data-state="warning"] .save-indicator,
       .save-feedback[data-state="error"] .save-indicator { background: var(--danger); box-shadow: 0 0 9px rgba(255,142,157,.4); }
       .save-copy { display: grid; min-width: 0; gap: 2px; }
-      .save-status { overflow: hidden; color: var(--paper); font: 700 9px/1.3 "Cascadia Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
-      .save-copy small { color: var(--muted); font-size: 8px; }
+      .save-status { overflow: hidden; color: var(--paper); font: 700 12px/1.3 "Cascadia Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+      .save-copy small { color: var(--muted); font-size: 12px; }
       .publish-action { display: grid; flex: 0 0 auto; gap: 3px; }
-      .publish-action small { color: var(--muted); font-size: 7px; text-align: center; }
-      .message { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 10px; }
+      .publish-action small { color: var(--muted); font-size: 12px; text-align: center; }
+      .message { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 12px; }
       .message.success { color: var(--success); }
       .message.error { color: var(--danger); }
       .card {
@@ -416,10 +416,10 @@
       }
       .now-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 12px; }
       .now-item { padding: 9px; background: rgba(9,14,27,.45); border: 1px solid var(--line-soft); border-radius: 8px; }
-      .now-item small { display: block; margin-bottom: 4px; color: var(--muted); font-size: 8px; text-transform: uppercase; }
-      .now-item strong { display: block; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .now-item small { display: block; margin-bottom: 4px; color: var(--muted); font-size: 12px; text-transform: uppercase; }
+      .now-item strong { display: block; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
       .day-strip-wrap { margin: 14px 0 12px; }
-      .day-labels { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--faint); font: 650 7px/1 "Cascadia Mono", Consolas, monospace; }
+      .day-labels { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--faint); font: 650 12px/1 "Cascadia Mono", Consolas, monospace; }
       .day-strip {
         position: relative;
         height: 14px;
@@ -445,7 +445,7 @@
         align-items: center;
         gap: 6px;
       }
-      .slot-row input, .slot-row select { min-height: 32px; padding: 0 7px; font-size: 9px; }
+      .slot-row input, .slot-row select { min-height: 32px; padding: 0 7px; font-size: 12px; }
       .slot-toggle, .slot-remove {
         display: grid;
         width: 26px;
@@ -456,11 +456,12 @@
         background: var(--field);
         border: 1px solid var(--line);
         border-radius: 7px;
-        font-size: 10px;
+        font-size: 12px;
       }
       .slot-toggle[aria-pressed="true"] { color: #07101a; background: var(--success); border-color: transparent; }
       .slot-remove:hover { color: var(--danger); }
       .timeline-actions { display: flex; gap: 7px; margin-top: 10px; }
+      .override-duration { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
       .preview-dock {
         position: relative;
         isolation: isolate;
@@ -567,7 +568,7 @@
         gap: 8px;
         margin-top: 9px;
         color: var(--faint);
-        font: 650 7px/1.35 "Cascadia Mono", Consolas, monospace;
+        font: 650 12px/1.5 "Cascadia Mono", Consolas, monospace;
       }
       .preview-scene-name {
         max-width: 42%;
@@ -575,6 +576,12 @@
         color: var(--paper);
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+      .editing-disclaimer {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
       }
       .system-row {
         display: flex;
@@ -586,16 +593,16 @@
       }
       .system-row:last-child { border-bottom: 0; }
       .system-copy { display: grid; gap: 3px; }
-      .system-copy strong { font-size: 10px; }
-      .system-copy small { color: var(--muted); font-size: 8px; line-height: 1.35; }
+      .system-copy strong { font-size: 12px; }
+      .system-copy small { color: var(--muted); font-size: 12px; line-height: 1.35; }
       .switch { position: relative; width: 38px; height: 22px; flex: 0 0 auto; }
       .switch input { position: absolute; opacity: 0; pointer-events: none; }
       .switch span { position: absolute; inset: 0; background: #303a58; border-radius: 999px; transition: background .18s ease; }
       .switch span::after { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; content: ""; background: #dce4fa; border-radius: 50%; transition: transform .18s ease; }
       .switch input:checked + span { background: var(--noon); }
       .switch input:checked + span::after { transform: translateX(16px); background: #07101a; }
-      .error-box { margin-bottom: 12px; padding: 10px; color: #ffd3d9; background: rgba(255,142,157,.08); border: 1px solid rgba(255,142,157,.24); border-radius: 9px; font-size: 9px; line-height: 1.45; }
-      .path { overflow: hidden; color: var(--faint); font: 600 7px/1.4 "Cascadia Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+      .error-box { margin-bottom: 12px; padding: 10px; color: #ffd3d9; background: rgba(255,142,157,.08); border: 1px solid rgba(255,142,157,.24); border-radius: 9px; font-size: 12px; line-height: 1.45; }
+      .path { overflow: hidden; color: var(--faint); font: 600 12px/1.4 "Cascadia Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
       .settings-overlay {
         position: fixed;
         z-index: 90;
@@ -652,10 +659,10 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        font-size: 11px;
+        font-size: 12px;
       }
-      .settings-status-row strong { font-size: 11px; }
-      .settings-status-row span { color: var(--muted); font-size: 10px; text-align: right; }
+      .settings-status-row strong { font-size: 12px; }
+      .settings-status-row span { color: var(--muted); font-size: 12px; text-align: right; }
       .settings-status-row .ok { color: var(--success); }
       .settings-status-row .warn { color: var(--dawn); }
       .settings-actions {
@@ -717,7 +724,7 @@
       }
       .gif-dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
       .gif-dialog-head h2 { margin-bottom: 5px; font-size: 20px; }
-      .gif-dialog-head p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+      .gif-dialog-head p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
       .gif-close { flex: 0 0 auto; }
       .gif-unavailable {
         display: grid;
@@ -728,11 +735,11 @@
         border-radius: 12px;
       }
       .gif-unavailable strong { font-size: 12px; }
-      .gif-unavailable p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+      .gif-unavailable p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
       .gif-provider { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
       .gif-search-panel { display: grid; min-height: 0; gap: 12px; }
       .gif-search-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
-      .gif-search-status { min-height: 16px; margin: 0; color: var(--muted); font-size: 10px; }
+      .gif-search-status { min-height: 16px; margin: 0; color: var(--muted); font-size: 12px; }
       .gif-search-status.error { color: var(--danger); }
       .gif-results {
         display: grid;
@@ -761,10 +768,10 @@
       }
       .gif-result:hover { border-color: var(--noon); transform: translateY(-1px); }
       .gif-result img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #080d19; }
-      .gif-result span { display: block; padding: 8px; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
-      .gif-empty { grid-column: 1 / -1; align-self: center; color: var(--muted); font-size: 11px; text-align: center; }
+      .gif-result span { display: block; padding: 8px; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+      .gif-empty { grid-column: 1 / -1; align-self: center; color: var(--muted); font-size: 12px; text-align: center; }
       .gif-load-more { grid-column: 1 / -1; justify-self: center; min-width: 150px; margin: 4px 0 2px; }
-      .gif-provider { justify-content: space-between; color: var(--faint); font-size: 9px; }
+      .gif-provider { justify-content: space-between; color: var(--faint); font-size: 12px; }
       .giphy-mark { color: var(--paper); font-weight: 850; letter-spacing: .08em; }
       @media (min-width: 1181px) {
         .day-panel {
@@ -840,7 +847,7 @@
 
     <div class="setup-banner" id="setupBanner" role="status">
       <p id="setupBannerText">Add your Discord Application ID to connect Presence.</p>
-      <button class="button small primary" id="setupBannerButton" type="button">Open ตั้งค่าขั้นสูง</button>
+      <button class="button small primary" id="setupBannerButton" type="button">ตั้งค่าขั้นสูง</button>
     </div>
 
     <nav class="studio-navigation" aria-label="หน้าหลัก"><a href="#setup" id="setupPageLink" aria-current="page">ตั้งค่าแอป</a><a href="#presets" id="presetsPageLink">สร้างพรีเซ็ต</a></nav><section id="appSetupPage" class="setup-page"><section class="application-manager" aria-labelledby="appsTitle">
@@ -988,14 +995,14 @@
             <button class="button" id="saveButton" type="submit">Save now</button>
             <span class="publish-action">
               <button class="button primary" id="useButton" type="button">Show on Discord</button>
-              <small id="applyHint">Until the next Daily Time Slot</small>
+              <small id="applyHint">ปักหมุด 1 ชม.</small>
             </span>
           </div>
         </form>
       </section>
 
       <aside class="side-panel day-panel">
-        <div class="error-box" id="errorBox" hidden></div>
+        <div class="error-box" id="errorBox" role="alert" hidden></div>
 
         <section class="preview-dock" id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
           <header class="preview-dock-head">
@@ -1023,6 +1030,7 @@
               <div class="preview-buttons preview-target" id="previewButtons"></div>
             </div>
           </section>
+          <p class="editing-disclaimer">ร่าง — ยังไม่ขึ้น Discord</p>
           <footer class="preview-dock-footer">
             <span class="preview-scene-name preview-target" id="previewSceneName">Selected Scene</span>
             <span id="previewPublishHint">Preview only · show it on Discord when ready</span>
@@ -1039,6 +1047,7 @@
             <button class="button small" id="scheduleToggleButton" type="button">Pause schedule</button>
             <button class="button small" id="cancelOverrideButton" type="button" hidden>Cancel override</button>
           </div>
+          <p class="override-duration" id="overrideDuration" hidden></p>
         </section>
 
         <section class="card" id="legacyScheduleCard">
@@ -1058,7 +1067,7 @@
           <div class="panel-heading"><div><span class="kicker">Companion</span><h2>Runs in the background</h2></div></div>
           <div class="system-row">
             <div class="system-copy"><strong>ตั้งค่าขั้นสูง</strong><small id="apiKeysSummary">Discord + GIPHY stay on this PC only.</small></div>
-            <button class="button small" id="openSettingsButtonSide" type="button">Manage</button>
+            <button class="button small" id="openSettingsButtonSide" type="button">ตั้งค่าขั้นสูง</button>
           </div>
           <div class="system-row">
             <div class="system-copy"><strong>Start with Windows</strong><small>Launch hidden after sign-in.</small></div>
@@ -1186,6 +1195,7 @@
       const deleteSceneButton = document.querySelector('#deleteSceneButton');
       const scheduleToggleButton = document.querySelector('#scheduleToggleButton');
       const cancelOverrideButton = document.querySelector('#cancelOverrideButton');
+      const overrideDuration = document.querySelector('#overrideDuration');
       const autostartToggle = document.querySelector('#autostartToggle');
       const errorBox = document.querySelector('#errorBox');
       const gifPicker = document.querySelector('#gifPicker');
@@ -1502,6 +1512,10 @@
         return count + ' ' + noun + (count === 1 ? '' : 's');
       }
 
+      function overrideDurationCopy() {
+        return runtime?.selectionMode === 'apps' ? 'ปักหมุด 1 ชม.' : 'ถึงรอบถัดไป';
+      }
+
       function renderEditorJourney() {
         const scene = currentScene();
         if (!scene) return;
@@ -1529,9 +1543,7 @@
         setJourneyStepState(journeyPreviewStep, { complete: selectedIsLive, current: essentialsReady });
 
         if (!applyBusy) useButton.textContent = selectedIsLive ? 'Update on Discord' : 'Show on Discord';
-        applyHint.textContent = selectedIsLive
-          ? 'Refresh this override until the next Daily Time Slot'
-          : 'ใช้ชั่วคราว';
+        applyHint.textContent = overrideDurationCopy();
         previewPublishHint.textContent = selectedIsLive
           ? (connected
             ? 'This Scene is live · saved edits refresh it automatically'
@@ -1881,6 +1893,9 @@
             : 'Schedule paused';
         scheduleToggleButton.textContent = runtime.scheduleEnabled ? 'Pause Auto' : 'Resume Auto';
         cancelOverrideButton.hidden = !runtime.manualOverride;
+        const overrideActive = Boolean(runtime.manualOverride);
+        overrideDuration.hidden = !overrideActive;
+        if (overrideActive) overrideDuration.textContent = overrideDurationCopy();
 
         autostartToggle.checked = Boolean(runtime.autostart?.enabled);
         autostartToggle.disabled = !runtime.autostart?.supported;
@@ -1889,7 +1904,8 @@
         renderSecretsStatus();
 
         errorBox.hidden = !runtime.lastError;
-        errorBox.textContent = runtime.lastError || '';
+        const errorText = runtime.lastError || '';
+        if (errorBox.textContent !== errorText) errorBox.textContent = errorText;
         renderSceneList();
         renderEditorJourney();
         renderClock();
@@ -2444,7 +2460,9 @@
           runtime = data.runtime;
           config.manualOverride = null;
           renderRuntime();
-          showMessage('Returned to the Daily Time Slot schedule.', 'success');
+          showMessage(runtime.selectionMode === 'apps'
+            ? 'Returned to app-based switching.'
+            : 'Returned to the Daily Time Slot schedule.', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
         } finally {
@@ -2599,7 +2617,9 @@
       deleteSceneButton.addEventListener('click', () => {
         if (!config || config.scenes.length <= 1 || !currentScene()) return;
         const scene = currentScene();
-        if (!confirm('Delete “' + scene.sceneName + '” and its Daily Time Slots?')) return;
+        if (!confirm(runtime.selectionMode === 'apps'
+          ? 'Delete “' + scene.sceneName + '”?'
+          : 'Delete “' + scene.sceneName + '” and its Daily Time Slots?')) return;
         config.scenes = config.scenes.filter((item) => item.id !== scene.id);
         config.slots = config.slots.filter((slot) => slot.sceneId !== scene.id);
         selectedSceneId = config.scenes[0].id;
@@ -2664,17 +2684,24 @@
           config.settings.scheduleEnabled = false;
           config.manualOverride = null;
           renderRuntime();
-          showMessage('Rich Presence cleared and Daily Time Slots paused.', 'success');
+          showMessage(runtime.selectionMode === 'apps'
+            ? 'Rich Presence cleared and Auto paused.'
+            : 'Rich Presence cleared and Daily Time Slots paused.', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
         }
       });
 
       document.querySelector('#quitButton').addEventListener('click', async () => {
-        if (!confirm('Exit the background companion and clear Rich Presence?')) return;
+        const autostartOn = Boolean(runtime?.autostart?.enabled);
+        if (!confirm(autostartOn
+          ? 'Start with Windows is on — the companion will return at the next Windows sign-in. Turn it off first to stop it fully. Quit anyway?'
+          : 'Exit the background companion and clear Rich Presence? The companion will stay stopped.')) return;
         try {
           await requestJson('/api/quit', { method: 'POST' });
-          showMessage('Companion stopped. It will start again at the next Windows sign-in.', 'success');
+          showMessage(autostartOn
+            ? 'Companion stopped. It will start again at the next Windows sign-in.'
+            : 'Companion stopped.', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
         }
