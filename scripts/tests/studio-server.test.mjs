@@ -42,6 +42,8 @@ function startStudio({
       PRESENCE_CONFIG_PATH: configPath,
       PRESENCE_SECRETS_PATH: secretsPath,
       PRESENCE_AUTOSTART_DISABLE: '1',
+      PRESENCE_APP_DETECTION_DISABLE: '1',
+      PRESENCE_DISABLE_DEFAULT_APPLICATION: '1',
       GIPHY_API_KEY: giphyApiKey,
       DISCORD_CLIENT_ID: passClientIdArg ? '' : discordClientId,
     },
@@ -192,4 +194,24 @@ test('CLI Discord Application ID argument still works for automation', async () 
     await stopStudio(studio);
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+test('application mappings persist across restart and reject dangling presets', async () => {
+  const directory=await mkdtemp(join(tmpdir(),'vibe-app-mapping-'));
+  const port=await freePort();const base='http://127.0.0.1:'+port;
+  const options={port,configPath:join(directory,'config.json'),secretsPath:join(directory,'secrets.json')};
+  let studio=startStudio(options);
+  try {
+    const config=await waitForJson(base+'/api/config');
+    const payload={selectionMode:'apps',mappings:[{name:'Codex',executable:'C:\\Apps\\Codex.exe',sceneId:config.scenes[0].id,enabled:true}]};
+    const saved=await fetch(base+'/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    assert.equal(saved.status,200);
+    const invalid=await fetch(base+'/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,mappings:[{...payload.mappings[0],sceneId:'missing'}]})});
+    assert.equal(invalid.status,400);
+    assert.deepEqual((await waitForJson(base+'/api/apps')).mappings,payload.mappings);
+    await stopStudio(studio);studio=startStudio(options);
+    const restored=await waitForJson(base+'/api/config');
+    assert.deepEqual(restored.appMappings,payload.mappings);
+    assert.equal(restored.settings.selectionMode,'apps');
+  } finally {await stopStudio(studio);await rm(directory,{recursive:true,force:true});}
 });

@@ -1,3 +1,6 @@
+import { validateCodexSession } from './codex-session.mjs';
+import { characterArt, defaultCharacterArt, resolveDiscordArt } from './character-art.mjs';
+import { validateMappings } from './app-presence.mjs';
 import { parseLocalTime } from './presence-scheduler.mjs';
 
 export const activityTypes = {
@@ -7,12 +10,7 @@ export const activityTypes = {
   competing: 5,
 };
 
-const gifUrls = {
-  morning: 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
-  afternoon: 'https://media.giphy.com/media/13HgwGsXF0aiGY/giphy.gif',
-  evening: 'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',
-  sleep: 'https://media.giphy.com/media/y0NFayaBeiWEU/giphy.gif',
-};
+const gifUrls = Object.fromEntries(["morning", "afternoon", "evening", "sleep"].map(key => [key, defaultCharacterArt]));
 
 function text(value) {
   return String(value ?? '').trim();
@@ -51,6 +49,7 @@ function validateHttpsUrl(label, value) {
 }
 
 function validateImageReference(label, value) {
+  if (value.startsWith("builtin:") && !characterArt[value]) throw new Error("Unknown bundled character artwork.");
   if (!value) return;
   if (value.length > 512) throw new Error(label + ' must not exceed 512 characters.');
   if (value.includes('://')) validateHttpsUrl(label, value);
@@ -168,10 +167,13 @@ export function validateConfig(input) {
   slots.sort((left, right) => parseLocalTime(left.startTime) - parseLocalTime(right.startTime));
 
   return {
-    version: 1,
+    version: 2,
+    codexSession: validateCodexSession(input?.codexSession),
+    appMappings: validateMappings(input?.appMappings, sceneIds),
     scenes,
     slots,
     settings: {
+      selectionMode: input?.settings?.selectionMode === "apps" ? "apps" : "schedule",
       scheduleEnabled: input?.settings?.scheduleEnabled !== false,
       autostartEnabled: input?.settings?.autostartEnabled !== false,
     },
@@ -267,6 +269,7 @@ export function createDefaultConfig() {
       { id: 'slot-sleep', startTime: '23:00', sceneId: 'sleep', enabled: true },
     ],
     settings: {
+      selectionMode: "apps",
       scheduleEnabled: true,
       autostartEnabled: true,
     },
@@ -274,7 +277,7 @@ export function createDefaultConfig() {
   });
 }
 
-export function createDiscordActivity(scene, now = new Date()) {
+export function createDiscordActivity(scene, now = new Date(), { artBaseUrl = "" } = {}) {
   const validScene = validateScene(scene);
   let timestamps;
   if (validScene.timerMode === 'elapsed') {
@@ -283,6 +286,8 @@ export function createDiscordActivity(scene, now = new Date()) {
     timestamps = { end: now.getTime() + validScene.timerMinutes * 60_000 };
   }
 
+  validScene.largeImage = resolveDiscordArt(validScene.largeImage, artBaseUrl);
+  validScene.smallImage = resolveDiscordArt(validScene.smallImage, artBaseUrl);
   const hasAssets = validScene.largeImage || validScene.smallImage;
   const assets = hasAssets ? {
     large_image: validScene.largeImage || undefined,

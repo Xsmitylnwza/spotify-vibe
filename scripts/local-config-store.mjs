@@ -24,14 +24,24 @@ export function createConfigStore({ filePath, createDefault, validate }) {
 
   function save(value) {
     const normalized = validate(value);
-    writeChain = writeChain.then(() => atomicWrite(normalized));
-    return writeChain.then(() => normalized);
+    const operation = writeChain.then(() => atomicWrite(normalized), () => atomicWrite(normalized));
+    writeChain = operation.catch(() => undefined);
+    return operation.then(() => normalized);
   }
 
   async function load() {
     try {
       const raw = await readFile(filePath, 'utf8');
-      return { config: validate(JSON.parse(raw)), source: 'disk', warning: null };
+      const parsed = JSON.parse(raw);
+      const normalized = validate(parsed);
+      let migrationWarning = null;
+      if (parsed.version === 1 && normalized.version === 2) {
+        // Keep the old representation before the first v2 save.
+        await writeFile(filePath + '.v1-backup', raw, { encoding:'utf8', flag:'wx' }).catch(error => {
+          if (error.code !== 'EEXIST') migrationWarning = 'The existing configuration was loaded, but its v1 backup could not be created.';
+        });
+      }
+      return { config: normalized, source: 'disk', warning: migrationWarning };
     } catch (error) {
       if (error?.code === 'ENOENT') {
         const config = validate(createDefault());

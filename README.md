@@ -244,3 +244,14 @@ npm run build
 ## License
 
 Private / personal project unless you add an explicit license.
+# Approved character art
+
+Discord Application ID `1526867893508116620` is bundled by default. Users do not need to create a Discord application or enter a key. CLI/environment and saved custom IDs override the bundled value. Optional overrides are under Advanced settings. This ID is public; no bot token or client secret is bundled. Public artwork hosting remains a separate requirement.
+
+The Studio opens on **Set up apps**: select one or more application icons, choose a preset, then Save and activate. **Create presets** is a separate editor page. App mode selects the stable foreground application; unmapped apps show no companion activity. Legacy time slots remain available by explicitly selecting schedule mode. See [application journey](docs/presence-studio/APP-SETUP-JOURNEY.md).
+
+Presence Studio now uses the approved Hinata Court idle portrait as its bundled default for new configurations. Existing Scene artwork is preserved. Select Animated idle or Still portrait in the editor to use the bundled art on an existing Scene. Preview motion can follow the system, animate, or use a still poster.
+
+Run `npm start` for the real local Studio; `npm run dev` still runs the legacy React prototype. Bundled art previews locally without keys. The runtime uses the published Hinata artwork by default; set `PRESENCE_ART_BASE_URL` in the launching shell to override its public HTTPS directory, or paste a hosted image URL. The server does not automatically load `.env` files. Discord rendering should still be checked in a separate viewer/client.
+
+See [approved CI](docs/presence-studio/ART-DIRECTION.md) and [implementation status](docs/presence-studio/IMPLEMENTATION-STATUS.md) for the current plan.

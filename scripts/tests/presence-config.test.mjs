@@ -64,6 +64,7 @@ test('Presence configuration drops legacy GIPHY keys from its settings boundary'
 test('Discord activity preserves supported custom fields and timestamps', () => {
   const scene = createDefaultConfig().scenes[0];
   const now = new Date('2026-07-16T00:00:00.000Z');
+  scene.largeImage = 'https://example.com/custom.gif';
   const activity = createDiscordActivity(scene, now);
   assert.equal(activity.name, scene.activityName);
   assert.equal(activity.type, 2);

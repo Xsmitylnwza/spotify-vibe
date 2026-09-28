@@ -1,3 +1,9 @@
+import { codexSessionScene } from './codex-session.mjs';
+import { withApplicationBadge } from './application-badges.mjs';
+import { withDefaultApplication } from './discord-application.mjs';
+import { selectRunningPreset, createForegroundSettler } from './app-presence.mjs';
+import { watchWindowsApps } from './windows-apps.mjs';
+import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -66,6 +72,7 @@ let appSecrets = await loadAppSecrets({
   environmentDiscordClientId: argumentClientId || process.env.DISCORD_CLIENT_ID || '',
 });
 
+if (process.env.PRESENCE_DISABLE_DEFAULT_APPLICATION !== '1') appSecrets = withDefaultApplication(appSecrets);
 let clientId = appSecrets.discordClientId || '';
 let searchConfiguredGiphy = createCachedGiphySearch({ apiKey: appSecrets.giphyApiKey });
 let autostart = createWindowsAutostart({
@@ -89,6 +96,13 @@ let reconnectTimer;
 let reconnectAttempt = 0;
 let discordQueue = Promise.resolve();
 let isStopping = false;
+let stopAppWatcher = () => {};
+let appSnapshot = { apps:[], supported:process.platform === "win32", error:null };
+let stableForeground = null;
+let recentApplications = [];
+const settleForeground = createForegroundSettler();
+let activityStartedAt = new Date();
+let activityIdentity = null;
 
 const runtime = {
   connectionState: 'disconnected',
@@ -171,6 +185,13 @@ function desiredPresence(now = new Date()) {
     };
   }
   if (!config.settings.scheduleEnabled) return { scene: null, key: null, source: 'paused' };
+  if (config.settings.selectionMode === 'apps') {
+    const mapping = selectRunningPreset(config.appMappings, appSnapshot.running || appSnapshot.apps.map(app => app.executable), recentApplications);
+    return { scene:mapping ? codexSessionScene(withApplicationBadge(sceneById(mapping.sceneId), mapping), mapping, config.codexSession) : null,
+      key:mapping ? 'app:' + mapping.executable.toLowerCase() + ':' + mapping.sceneId : null,
+      source:mapping ? 'app' : 'unmapped', application:mapping?.name || null,
+      session: mapping && /OpenAI\.Codex_/i.test(mapping.executable) ? config.codexSession : null };
+  }
   const schedule = scheduleSnapshot(now);
   if (!schedule.activeSlot) return { scene: null, key: null, source: 'no-slots' };
   return {
@@ -187,6 +208,11 @@ function runtimeSnapshot(now = new Date()) {
   const scheduledScene = sceneById(schedule.activeSlot?.sceneId);
   const nextScene = sceneById(schedule.nextSlot?.sceneId);
   return {
+    selectionMode: config.settings.selectionMode,
+    selectionSource: desiredPresence(now).source,
+    selectedApplication: desiredPresence(now).application || null,
+    applicationBadge: desiredPresence(now).scene?.smallImage || null,
+    selectedPresetName: desiredPresence(now).scene?.sceneName || null,
     connected: runtime.connectionState === 'connected',
     connectionState: runtime.connectionState,
     active: runtime.active,
@@ -210,6 +236,7 @@ function runtimeSnapshot(now = new Date()) {
     lastError: runtime.lastError,
     autostart: autostartState,
     gifSearch: gifSearchSnapshot(),
+    characterArt: { publicUrlConfigured: Boolean(process.env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl) },
     localTime: now.toISOString(),
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local time',
   };
@@ -270,16 +297,31 @@ async function applyScene(scene, key, { force = false } = {}) {
   return enqueueDiscord(async () => {
     const candidate = discordClient;
     if (!candidate || runtime.connectionState !== 'connected') return false;
+    if (runtime.desiredKey !== key) return false;
+    if (!force && runtime.active && runtime.appliedKey === key) return true;
+    let activity;
+    const artBaseUrl = process.env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl;
+    const pendingArt = !artBaseUrl && [scene.largeImage, scene.smallImage].some(value => value?.startsWith('builtin:'));
+    const deliveryScene = pendingArt ? { ...scene,
+      largeImage: scene.largeImage?.startsWith('builtin:') ? '' : scene.largeImage,
+      smallImage: scene.smallImage?.startsWith('builtin:') ? '' : scene.smallImage,
+    } : scene;
+    try {
+      activity = createDiscordActivity(deliveryScene, activityStartedAt, { artBaseUrl });
+    } catch (error) {
+      runtime.lastError = errorMessage(error);
+      return false;
+    }
     try {
       await candidate.request('SET_ACTIVITY', {
         pid: process.pid,
-        activity: createDiscordActivity(scene),
+        activity,
       });
       runtime.active = true;
       runtime.currentSceneId = scene.id;
       runtime.appliedKey = key;
       runtime.lastSuccessAt = new Date().toISOString();
-      runtime.lastError = null;
+      runtime.lastError = pendingArt ? 'Presence is active without character artwork. Hinata needs a public image URL.' : null;
       console.log('Presence applied: ' + scene.sceneName);
       return true;
     } catch (error) {
@@ -396,10 +438,14 @@ async function reconcilePresence({ force = false, reason = 'Schedule changed' } 
   await expireOverride(now);
   const desired = desiredPresence(now);
   runtime.desiredSceneId = desired.scene?.id || null;
+  if (desired.session) desired.key += ":session:" + desired.session.startedAt + ":" + desired.session.title;
   runtime.desiredKey = desired.key;
+  if (activityIdentity !== desired.key) { activityIdentity = desired.key; activityStartedAt = desired.session ? new Date(desired.session.startedAt) : now; }
   let applied = false;
   if (desired.scene) {
     applied = await applyScene(desired.scene, desired.key, { force });
+  } else if (config.settings.selectionMode === "apps" && runtime.active) {
+    await clearDiscordPresence();
   }
   scheduleHeartbeat();
   if (force) console.log(reason + '.');
@@ -504,13 +550,13 @@ async function setManualOverride(sceneId) {
   const scene = sceneById(sceneId);
   if (!scene) throw new Error('Choose an existing Scene.');
   const schedule = scheduleSnapshot();
-  if (!schedule.nextAt) throw new Error('Add at least one enabled Daily Time Slot before using an override.');
+  if (config.settings.selectionMode === 'schedule' && !schedule.nextAt) throw new Error('Add at least one enabled Daily Time Slot before using an override.');
   config = validateConfig({
     ...config,
     settings: { ...config.settings, scheduleEnabled: true },
     manualOverride: {
       sceneId,
-      expiresAt: schedule.nextAt.toISOString(),
+      expiresAt: config.settings.selectionMode === 'apps' ? new Date(Date.now() + 3600000).toISOString() : schedule.nextAt.toISOString(),
     },
   });
   await persistConfig();
@@ -553,7 +599,7 @@ async function applySavedSecrets(saved, { reconnectDiscord = false } = {}) {
     filePath: appSecretsPath,
     environmentApiKey: process.env.GIPHY_API_KEY,
     environmentGiphyApiKey: process.env.GIPHY_API_KEY,
-    environmentDiscordClientId: process.env.DISCORD_CLIENT_ID || '',
+    environmentDiscordClientId: argumentClientId || process.env.DISCORD_CLIENT_ID || '',
   });
 
   // Prefer freshly saved values when environment is not overriding them.
@@ -562,11 +608,12 @@ async function applySavedSecrets(saved, { reconnectDiscord = false } = {}) {
     appSecrets.giphySource = saved.giphySource;
     appSecrets.source = saved.giphySource;
   }
-  if (!process.env.DISCORD_CLIENT_ID) {
+  if (!argumentClientId && !process.env.DISCORD_CLIENT_ID) {
     appSecrets.discordClientId = saved.discordClientId;
     appSecrets.discordSource = saved.discordSource;
   }
 
+  if (process.env.PRESENCE_DISABLE_DEFAULT_APPLICATION !== '1') appSecrets = withDefaultApplication(appSecrets);
   clientId = appSecrets.discordClientId || '';
   searchConfiguredGiphy = createCachedGiphySearch({ apiKey: appSecrets.giphyApiKey });
   rebuildAutostart();
@@ -617,6 +664,7 @@ async function updateSecretsFromBody(body) {
 async function stop(exitCode = 0) {
   if (isStopping) return;
   isStopping = true;
+  stopAppWatcher();
   stopSchedulerTimer();
   stopReconnectTimer();
 
@@ -638,6 +686,18 @@ server = createServer(async (request, response) => {
   const url = new URL(request.url || '/', 'http://' + (request.headers.host || '127.0.0.1'));
 
   try {
+    const art = Object.values(characterArt).find(item => item.path === url.pathname);
+    if (request.method === 'GET' && art) {
+      const bytes = await readFile(join(scriptDirectory, '../public', art.path));
+      response.writeHead(200, { 'Content-Type': art.type, 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+      response.end(bytes);
+      return;
+    }
+    if (request.method === 'GET' && url.pathname === '/studio-ci.css') {
+      response.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
+      response.end(await readFile(join(scriptDirectory, 'studio-ci.css')));
+      return;
+    }
     if (request.method === 'GET' && url.pathname === '/') {
       response.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',
@@ -653,6 +713,26 @@ server = createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === 'PUT' && url.pathname === '/api/codex-session') {
+      const body = await readJson(request);
+      const next = validateConfig({ ...config, codexSession:body.title ? { title:body.title, startedAt:body.restart || !config.codexSession ? new Date().toISOString() : config.codexSession.startedAt } : null });
+      config = await configStore.save(next);
+      await reconcilePresence({force:true,reason:'Codex session shared'});
+      sendJson(response,200,{session:config.codexSession,runtime:runtimeSnapshot()});return;
+    }
+    if (request.method === 'GET' && url.pathname === '/api/apps') {
+      sendJson(response, 200, { ...appSnapshot, foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
+      return;
+    }
+    if (request.method === 'PUT' && url.pathname === '/api/app-mappings') {
+      const body = await readJson(request);
+      if (!['apps', 'schedule'].includes(body.selectionMode)) throw new Error('Choose applications or schedule.');
+      const next = validateConfig({ ...config, appMappings:body.mappings, settings:{ ...config.settings, selectionMode:body.selectionMode, scheduleEnabled:true }, manualOverride:null });
+      config = await configStore.save(next);
+      await reconcilePresence({ force:true, reason:'Application mappings saved' });
+      sendJson(response, 200, { config:publicConfig(), runtime:runtimeSnapshot() });
+      return;
+    }
     if (request.method === 'GET' && url.pathname === '/api/config') {
       sendJson(response, 200, publicConfig());
       return;
@@ -774,6 +854,12 @@ server.on('error', (error) => {
 });
 
 server.listen(port, '127.0.0.1', async () => {
+  stopAppWatcher = watchWindowsApps(snapshot => {
+    appSnapshot = snapshot;
+    stableForeground = settleForeground(snapshot.apps.find(app => app.foreground)?.executable || '');
+    if (stableForeground && stableForeground !== recentApplications[0]) recentApplications = [stableForeground, ...recentApplications.filter(path => path !== stableForeground)].slice(0,100);
+    if (config.settings.selectionMode === 'apps') void reconcilePresence({ reason:'Foreground application changed' }).catch(error => { runtime.lastError = errorMessage(error); });
+  }, { disabled:process.env.PRESENCE_APP_DETECTION_DISABLE === '1' });
   const studioUrl = 'http://127.0.0.1:' + port;
   console.log('\nPresence Studio is ready.');
   console.log(studioUrl);
@@ -793,3 +879,4 @@ server.listen(port, '127.0.0.1', async () => {
   void connectDiscord();
   if (shouldOpenBrowser) openBrowser(studioUrl);
 });
+

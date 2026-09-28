@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vibe Dayline</title>
+    <title>Vibe Studio</title>
     <style>
       :root {
         color-scheme: dark;
@@ -820,15 +820,16 @@
         .preview-target { transition: none; }
       }
     </style>
+  <link rel="stylesheet" href="/studio-ci.css" />
   </head>
   <body>
     <header class="appbar">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <div class="brand-copy"><strong>Vibe Dayline</strong><small>PERSONAL DISCORD PRESENCE</small></div>
+        <img class="brand-portrait" src="/art/hinata/poster.png" alt="" width="40" height="40" />
+        <div class="brand-copy"><strong>Vibe Studio</strong><small>Your corner of Discord</small></div>
       </div>
       <div class="header-status">
-        <button class="button small" id="openSettingsButton" type="button">API keys</button>
+        <button class="button small" id="openSettingsButton" type="button">ตั้งค่าขั้นสูง</button>
         <span class="clock" id="localClock">--:--</span>
         <div class="connection-pill connecting" id="connectionPill">
           <span class="connection-dot" aria-hidden="true"></span>
@@ -839,27 +840,42 @@
 
     <div class="setup-banner" id="setupBanner" role="status">
       <p id="setupBannerText">Add your Discord Application ID to connect Presence.</p>
-      <button class="button small primary" id="setupBannerButton" type="button">Open API keys</button>
+      <button class="button small primary" id="setupBannerButton" type="button">Open ตั้งค่าขั้นสูง</button>
     </div>
 
-    <main class="studio">
+    <nav class="studio-navigation" aria-label="หน้าหลัก"><a href="#setup" id="setupPageLink" aria-current="page">ตั้งค่าแอป</a><a href="#presets" id="presetsPageLink">สร้างพรีเซ็ต</a></nav><section id="appSetupPage" class="setup-page"><section class="application-manager" aria-labelledby="appsTitle">
+          <div class="apps-heading"><div><h1 id="appsTitle">แอปของคุณ</h1></div><button class="button" type="button" id="refreshApps">รีเฟรช</button></div>
+          <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
+          <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกหลายแอปได้</span></div><div id="applicationTiles" class="application-tiles" aria-label="แอปที่เปิดอยู่"></div><select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select><div class="app-add-row pairing-bar"><div class="visual-presets"><span>ใช้พรีเซ็ต</span><div id="presetTiles" class="preset-tiles"></div><select id="appPresetSelect" hidden aria-label="พรีเซ็ตที่เลือก"></select></div><button type="button" class="button primary" id="addAppMapping">ใช้พรีเซ็ตนี้</button><button type="button" class="button" id="createPresetFromSetup">+ พรีเซ็ตใหม่</button></div>
+          <details><summary>ระบุไฟล์โปรแกรมเอง</summary><label>ตำแหน่งไฟล์ .exe<input id="manualExecutable" placeholder="C:\Apps\MyApp\MyApp.exe" /></label><p class="field-hint">สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้</p></details>
+          <details class="codex-session-options"><summary>ข้อความ Codex แบบตั้งเอง</summary><p class="field-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p><label for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /><button type="button" class="button" id="shareCodexSession">ใช้ข้อความนี้และเริ่มจับเวลา</button><p id="codexSessionStatus" role="status"></p></details><h2 class="mapping-title">แอปที่จับคู่แล้ว</h2><div id="appMappingList" class="app-mapping-list"></div>
+          <div class="app-mode-row"><details class="auto-options"><summary>ตัวเลือก Auto</summary><label>เลือก Presence ตาม<select id="selectionMode"><option value="apps">แอปที่เปิดอยู่</option><option value="schedule">ตารางเวลาเดิม</option></select></label><p class="field-hint">เปิดทิ้งไว้ก็แสดงได้ · ถ้าเปิดหลายแอป ใช้แอปที่ใช้งานล่าสุด</p></details><button type="button" class="button primary" id="saveAppMappings" hidden>บันทึกการแก้ไข</button></div>
+          
+          <p id="appMappingMessage" role="status"></p>
+        </section>
+</section>
+    <main class="studio" id="presetsPage" hidden>
       <aside class="side-panel scene-panel" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
         <div class="panel-heading">
-          <div><span class="kicker">Step 1 · Choose</span><h2 id="sceneLibraryTitle">Your Scenes</h2></div>
+          <div><span class="kicker">Preset library</span><h2 id="sceneLibraryTitle">พรีเซ็ต</h2></div>
         </div>
         <p class="subcopy">Choose the Presence you want to personalize. The live Scene is marked separately.</p>
         <div class="scene-list" id="sceneList"></div>
         <div class="scene-tools">
           <button class="button small" id="addSceneButton" type="button">+ Add</button>
           <button class="button small" id="duplicateSceneButton" type="button">Duplicate</button>
-          <button class="button small danger" id="deleteSceneButton" type="button">Delete Scene</button>
+          <button class="button small danger" id="deleteSceneButton" type="button">Delete preset</button>
         </div>
       </aside>
 
       <section class="editor">
+        <section class="character-stage" aria-labelledby="characterTitle">
+          <div class="portrait-frame"><img id="characterHero" src="/art/hinata/poster.png" alt="Hinata with orange hair, fists raised, ready for the next rally" width="192" height="192" /></div>
+          <div class="character-copy"><span class="character-tag">Your default look</span><h1 id="characterTitle">Hinata</h1><p>แต่งการ์ดให้เป็นคุณ แล้วค่อยไปลุยต่อ</p><div class="character-controls"><label for="motionPreference">Preview motion</label><select id="motionPreference"><option value="system">Follow system</option><option value="reduced">Still image</option><option value="full">Animate</option></select></div></div>
+        </section>
         <div class="editor-head">
           <div>
-            <span class="kicker">Step 2 · Personalize</span>
+            <span class="kicker">Preset editor</span>
             <h1 id="editorTitle">Loading…</h1>
             <p class="subcopy">Start with the visible essentials. Optional Discord controls stay out of the way until you need them.</p>
             <div class="editor-context" aria-live="polite">
@@ -870,7 +886,7 @@
           </div>
         </div>
 
-        <nav class="customization-journey" aria-label="Scene customization journey">
+        <nav hidden class="customization-journey" aria-label="Scene customization journey">
           <a class="journey-step is-complete" id="journeySceneStep" href="#sceneLibrary">
             <span class="journey-number" aria-hidden="true">1</span>
             <span class="journey-copy"><strong>Choose a Scene</strong><small id="journeySceneStatus">Selected</small></span>
@@ -887,22 +903,22 @@
 
         <form id="presenceForm" novalidate>
           <section class="form-section" id="essentialsSection">
-            <div class="section-title"><strong>Scene basics</strong><small>Name this Scene for yourself, then choose the activity label Discord will display.</small></div>
+            <div class="section-title"><strong>ชื่อพรีเซ็ต</strong><small>Name this Scene for yourself, then choose the activity label Discord will display.</small></div>
             <div class="field-grid three">
-              <div class="field"><label for="sceneName">Scene name <span class="label-note">only you see this</span></label><input id="sceneName" name="sceneName" type="text" minlength="1" maxlength="40" required /></div>
-              <div class="field"><label for="activityType">Discord activity type</label><select id="activityType" name="activityType"><option value="playing">Playing</option><option value="listening">Listening</option><option value="watching">Watching</option><option value="competing">Competing</option></select></div>
-              <div class="field"><label for="activityName">Activity name in Discord</label><input id="activityName" name="activityName" type="text" minlength="2" maxlength="128" required /></div>
+              <div class="field"><label for="sceneName">ชื่อพรีเซ็ต</label><input id="sceneName" name="sceneName" type="text" minlength="1" maxlength="40" required /></div>
+              <div class="field"><label for="activityType">ประเภทกิจกรรม</label><select id="activityType" name="activityType"><option value="playing">Playing</option><option value="listening">Listening</option><option value="watching">Watching</option><option value="competing">Competing</option></select></div>
+              <div class="field"><label for="activityName">ชื่อกิจกรรม</label><input id="activityName" name="activityName" type="text" minlength="2" maxlength="128" required /></div>
             </div>
           </section>
 
           <section class="form-section" id="visibleTextSection">
-            <div class="section-title"><strong>What people see</strong><small>These two lines appear beside your artwork on the Discord profile card.</small></div>
+            <div class="section-title"><strong>ข้อความบน Discord</strong><small>These two lines appear beside your artwork on the Discord profile card.</small></div>
             <div class="field-grid">
-              <div class="field"><label for="details">Top line in the card</label><input id="details" name="details" type="text" minlength="2" maxlength="128" required /></div>
-              <div class="field"><label for="state">Second line in the card</label><input id="state" name="state" type="text" minlength="2" maxlength="128" required /></div>
+              <div class="field"><label for="details">ข้อความหลัก</label><input id="details" name="details" type="text" minlength="2" maxlength="128" required /></div>
+              <div class="field"><label for="state">ข้อความรอง</label><input id="state" name="state" type="text" minlength="2" maxlength="128" required /></div>
             </div>
             <details class="inline-disclosure" id="textLinksDisclosure">
-              <summary><span>Add click-through links</span><span class="option-status" id="textLinksStatus">Off</span></summary>
+              <summary><span>ลิงก์ข้อความ</span><span class="option-status" id="textLinksStatus">Off</span></summary>
               <div class="inline-disclosure-body field-grid">
                 <div class="field"><label for="detailsUrl">Top-line HTTPS link</label><input id="detailsUrl" name="detailsUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
                 <div class="field"><label for="stateUrl">Second-line HTTPS link</label><input id="stateUrl" name="stateUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
@@ -911,14 +927,15 @@
           </section>
 
           <section class="form-section" id="artworkSection">
-            <div class="section-title"><strong>Large artwork</strong><small>Pick the main visual first. You can add a small badge and link details afterward.</small></div>
+            <div class="look-library" aria-label="Character looks"><div><strong>ตัวละคร</strong><p>Hinata · Court idle</p></div><button type="button" class="look-option" data-character-art="builtin:hinata-idle" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>Animated idle</span></button><button type="button" class="look-option" data-character-art="builtin:hinata-poster" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>Still portrait</span></button><button type="button" class="look-option" data-character-art="builtin:hinata-gaming" aria-pressed="false"><img src="/art/hinata/gaming-poster.png" alt="" width="56" height="56" /><span>Gaming</span></button><button type="button" class="look-option" data-character-art="builtin:hinata-chill" aria-pressed="false"><img src="/art/hinata/chill-poster.png" alt="" width="56" height="56" /><span>Chill</span></button><p id="characterAvailability" class="field-hint">Bundled artwork is ready to preview. Discord needs a public image URL.</p></div>
+            <div class="section-title"><strong>ภาพตัวละคร</strong><small>Pick the main visual first. You can add a small badge and link details afterward.</small></div>
             <div class="field">
-              <div class="field-label-row"><label for="largeImage">Main image or GIF</label><button class="field-action" data-gif-target="largeImage" type="button">Find a GIF</button></div>
+              <div class="field-label-row"><label for="largeImage">ลิงก์ภาพ / GIF</label><button class="field-action" data-gif-target="largeImage" type="button">Find a GIF</button></div>
               <input id="largeImage" name="largeImage" type="text" maxlength="512" placeholder="Search GIPHY or paste an asset key / HTTPS URL" aria-describedby="largeImageHint" />
-              <small class="field-hint" id="largeImageHint">GIPHY is easiest. Discord asset keys and stable public HTTPS media URLs also work.</small>
+              <small class="field-hint" id="largeImageHint">Choose your character above, or use a Discord asset key / public HTTPS image URL.</small>
             </div>
             <details class="inline-disclosure" id="artworkOptionsDisclosure">
-              <summary><span>Add a small badge or artwork details</span><span class="option-status" id="artworkOptionsStatus">Optional</span></summary>
+              <summary><span>ไอคอนเล็กและลิงก์</span><span class="option-status" id="artworkOptionsStatus">Optional</span></summary>
               <div class="inline-disclosure-body">
                 <div class="field-grid">
                   <div class="field"><label for="largeImageText">Main artwork hover text</label><input id="largeImageText" name="largeImageText" type="text" minlength="2" maxlength="128" /></div>
@@ -936,11 +953,11 @@
             </details>
           </section>
 
-          <p class="advanced-intro">Optional Discord extras</p>
+          <p class="advanced-intro">เพิ่มเติม</p>
 
           <details class="form-section disclosure" id="timerDisclosure">
             <summary>
-              <span><strong>Add a Discord timer</strong><small>Count up or down without rapid Presence updates.</small></span>
+              <span><strong>เวลา</strong><small>Count up or down without rapid Presence updates.</small></span>
               <span class="option-status" id="timerStatus">Off</span>
             </summary>
             <div class="disclosure-body field-grid">
@@ -951,7 +968,7 @@
 
           <details class="form-section disclosure" id="buttonsDisclosure">
             <summary>
-              <span><strong>Add profile buttons</strong><small>Other Discord users can open up to two HTTPS links.</small></span>
+              <span><strong>ปุ่มลิงก์</strong><small>Other Discord users can open up to two HTTPS links.</small></span>
               <span class="option-status" id="buttonsStatus">Off</span>
             </summary>
             <div class="disclosure-body field-grid">
@@ -982,7 +999,7 @@
 
         <section class="preview-dock" id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
           <header class="preview-dock-head">
-            <div><span class="kicker">Step 3 · Review</span><h2 id="previewDockTitle">Editing preview</h2></div>
+            <div><span class="kicker">Discord preview</span><h2 id="previewDockTitle">ตัวอย่าง</h2></div>
             <span class="preview-live-badge"><span class="preview-live-dot" aria-hidden="true"></span>Updates as you type</span>
           </header>
           <section class="card preview-card" aria-label="Editing preview of the Discord Rich Presence card">
@@ -1024,7 +1041,7 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card" id="legacyScheduleCard">
           <div class="panel-heading">
             <div><span class="kicker">Daily Time Slots</span><h2>Repeats every day</h2></div>
             <button class="button small" id="addSlotButton" type="button">+ Slot</button>
@@ -1040,7 +1057,7 @@
         <section class="card">
           <div class="panel-heading"><div><span class="kicker">Companion</span><h2>Runs in the background</h2></div></div>
           <div class="system-row">
-            <div class="system-copy"><strong>API keys</strong><small id="apiKeysSummary">Discord + GIPHY stay on this PC only.</small></div>
+            <div class="system-copy"><strong>ตั้งค่าขั้นสูง</strong><small id="apiKeysSummary">Discord + GIPHY stay on this PC only.</small></div>
             <button class="button small" id="openSettingsButtonSide" type="button">Manage</button>
           </div>
           <div class="system-row">
@@ -1061,15 +1078,15 @@
     </main>
 
     <div class="settings-overlay" id="settingsOverlay" hidden>
-      <button class="settings-backdrop" id="settingsBackdrop" type="button" aria-label="Close API keys"></button>
+      <button class="settings-backdrop" id="settingsBackdrop" type="button" aria-label="Close ตั้งค่าขั้นสูง"></button>
       <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-describedby="settingsDescription">
         <header class="settings-head">
           <div>
-            <span class="kicker">Local credentials</span>
-            <h2 id="settingsTitle">API keys</h2>
-            <p class="subcopy" id="settingsDescription">Keys stay in a private local file on this computer. Nothing is uploaded to a website.</p>
+            <span class="kicker">Optional settings</span>
+            <h2 id="settingsTitle">ตั้งค่าขั้นสูง</h2>
+            <p class="subcopy" id="settingsDescription">Discord พร้อมเชื่อมต่ออัตโนมัติ เปลี่ยนค่าเฉพาะเมื่ออยากใช้แอปของคุณเอง</p>
           </div>
-          <button class="button small" id="settingsCloseButton" type="button" aria-label="Close API keys">Close</button>
+          <button class="button small" id="settingsCloseButton" type="button" aria-label="Close ตั้งค่าขั้นสูง">Close</button>
         </header>
 
         <div class="settings-status" aria-live="polite">
@@ -1088,7 +1105,7 @@
           <div class="field">
             <label for="discordClientIdInput">Discord Application ID</label>
             <input id="discordClientIdInput" name="discordClientId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="20" placeholder="17-20 digit Application ID" />
-            <small class="field-hint">Create an app in the Discord Developer Portal. The app name becomes the activity name Discord shows.</small>
+            <small class="field-hint">มี Application ID เริ่มต้นให้แล้ว ช่องนี้ใช้เปลี่ยนเป็นของคุณเองเท่านั้น</small>
           </div>
           <div class="field">
             <label for="giphyApiKeyInput">GIPHY API key (optional)</label>
@@ -1117,7 +1134,7 @@
 
         <div class="gif-unavailable" id="gifUnavailable" hidden>
           <strong>GIF search is not connected yet</strong>
-          <p id="gifUnavailableMessage">Add a GIPHY API key under API keys to browse GIFs. You can still paste HTTPS GIF URLs manually.</p>
+          <p id="gifUnavailableMessage">Add a GIPHY API key under ตั้งค่าขั้นสูง to browse GIFs. You can still paste HTTPS GIF URLs manually.</p>
         </div>
 
         <div class="gif-search-panel" id="gifSearchPanel" hidden>
@@ -1514,7 +1531,7 @@
         if (!applyBusy) useButton.textContent = selectedIsLive ? 'Update on Discord' : 'Show on Discord';
         applyHint.textContent = selectedIsLive
           ? 'Refresh this override until the next Daily Time Slot'
-          : 'Temporary override until the next Daily Time Slot';
+          : 'ใช้ชั่วคราว';
         previewPublishHint.textContent = selectedIsLive
           ? (connected
             ? 'This Scene is live · saved edits refresh it automatically'
@@ -1643,11 +1660,47 @@
         if (form.elements.timerMinutes.disabled) validateField(form.elements.timerMinutes);
       }
 
+      const motionPreference = document.querySelector('#motionPreference');
+      const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+      try { motionPreference.value = localStorage.getItem('vibe-motion') || 'system'; } catch { /* storage optional */ }
+      if (!motionPreference.value) motionPreference.value = 'system';
+      function stillPreview() {
+        return document.hidden || motionPreference.value === 'reduced' || (motionPreference.value === 'system' && motionQuery.matches);
+      }
+      function characterPreviewSource(value) {
+        for (const action of ['gaming', 'chill']) {
+          if (value === 'builtin:hinata-' + action) return '/art/hinata/' + action + (stillPreview() ? '-poster.png' : '.gif');
+          if (value === 'builtin:hinata-' + action + '-poster') return '/art/hinata/' + action + '-poster.png';
+        }
+        if (value === 'builtin:hinata-idle') return stillPreview() ? '/art/hinata/poster.png' : '/art/hinata/idle.gif';
+        if (value === 'builtin:hinata-poster') return '/art/hinata/poster.png';
+        return /^https:\/\//i.test(value || '') ? value : '';
+      }
+      function refreshCharacterMotion() {
+        document.documentElement.dataset.motion = stillPreview() ? 'reduced' : 'full';
+        const hero = document.querySelector('#characterHero');
+        const source = characterPreviewSource('builtin:hinata-idle');
+        if (hero.getAttribute('src') !== source) hero.src = source;
+        renderPreview();
+      }
+      motionPreference.addEventListener('change', () => {
+        try { localStorage.setItem('vibe-motion', motionPreference.value); } catch { /* storage optional */ }
+        refreshCharacterMotion();
+      });
+      motionQuery.addEventListener('change', refreshCharacterMotion);
+      document.addEventListener('visibilitychange', refreshCharacterMotion);
+      document.querySelectorAll('[data-character-art]').forEach(button => button.addEventListener('click', () => {
+        form.elements.largeImage.value = button.dataset.characterArt;
+        form.elements.largeImageText.value = 'Hinata · Ready for the next rally';
+        syncFormToScene(); renderPreview(); renderEditorJourney(); scheduleSave();
+      }));
+      queueMicrotask(refreshCharacterMotion);
       function setImage(image, placeholder, value) {
-        const isUrl = /^https:\/\//i.test(value || '');
+        const source = characterPreviewSource(value);
+        const isUrl = Boolean(source);
         image.hidden = !isUrl;
         placeholder.hidden = isUrl;
-        if (isUrl && image.src !== value) image.src = value;
+        if (isUrl && image.getAttribute("src") !== source) image.src = source;
       }
 
       previewLargeImage.addEventListener('error', () => {
@@ -1662,6 +1715,10 @@
       function renderPreview() {
         const scene = currentScene();
         if (!scene) return;
+        document.querySelectorAll('[data-character-art]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.characterArt === scene.largeImage)));
+        document.querySelector('#characterAvailability').textContent = runtime?.characterArt?.publicUrlConfigured
+          ? 'Public artwork URL configured. Check connection status for Discord delivery.'
+          : 'Ready to preview. Add a public image URL before showing Hinata to friends on Discord.';
         const verb = {
           playing: 'Playing',
           listening: 'Listening to',
@@ -1813,14 +1870,16 @@
             ? 'Connecting to Discord…'
             : 'Discord offline · retrying';
 
-        const currentName = runtime.currentSceneName || runtime.scheduledSceneName || 'No active Scene';
+        const currentName = runtime.currentSceneName || runtime.selectedPresetName || (runtime.selectionMode === 'apps' ? 'No matching app' : runtime.scheduledSceneName) || 'No active Scene';
         document.querySelector('#nowScene').textContent = currentName;
+        renderAppReason();
+        document.querySelector("#legacyScheduleCard").hidden = runtime.selectionMode === "apps";
         document.querySelector('#nowSource').textContent = runtime.manualOverride
           ? 'Manual override'
           : runtime.scheduleEnabled
-            ? 'Daily schedule'
+            ? (runtime.selectionMode === 'apps' ? 'Application: ' + (runtime.selectedApplication || 'no match') : 'Daily schedule')
             : 'Schedule paused';
-        scheduleToggleButton.textContent = runtime.scheduleEnabled ? 'Pause schedule' : 'Resume schedule';
+        scheduleToggleButton.textContent = runtime.scheduleEnabled ? 'Pause Auto' : 'Resume Auto';
         cancelOverrideButton.hidden = !runtime.manualOverride;
 
         autostartToggle.checked = Boolean(runtime.autostart?.enabled);
@@ -1847,6 +1906,7 @@
         nowPin.style.left = (minute / 1440 * 100) + '%';
 
         const nextChange = document.querySelector('#nextChange');
+        if (runtime?.selectionMode === 'apps' && !runtime.manualOverride) { nextChange.textContent = 'While your app is running'; return; }
         if (!runtime?.scheduleEnabled) {
           nextChange.textContent = 'Paused';
         } else if (!runtime?.nextSwitchAt) {
@@ -1894,7 +1954,7 @@
         gifUnavailable.hidden = false;
         gifSearchPanel.hidden = true;
         gifUnavailableMessage.textContent = message
-          || 'Add a GIPHY API key under API keys to browse GIFs. You can still paste HTTPS GIF URLs manually.';
+          || 'Add a GIPHY API key under ตั้งค่าขั้นสูง to browse GIFs. You can still paste HTTPS GIF URLs manually.';
         setTimeout(() => gifCloseButton.focus(), 0);
       }
 
@@ -1916,6 +1976,8 @@
       function setStudioInert(inert) {
         appbar.inert = inert;
         studio.inert = inert;
+        document.querySelector("#appSetupPage").inert = inert;
+        document.querySelector(".studio-navigation").inert = inert;
       }
 
       function gifFocusableElements() {
@@ -1972,12 +2034,8 @@
           return;
         }
         if (runtime.setup.needsDiscordApplicationId) {
-          setupBannerText.textContent = 'Add your Discord Application ID under API keys to connect Presence.';
-          setupBanner.classList.add('visible');
-          return;
-        }
-        if (runtime.setup.needsGiphyApiKey) {
-          setupBannerText.textContent = 'Optional: add a free GIPHY key under API keys to browse GIFs in Studio.';
+          setupBannerText.textContent = 'ยังไม่ได้เชื่อมต่อ Discord';
+          setupBannerButton.textContent = 'เชื่อมต่อ';
           setupBanner.classList.add('visible');
           return;
         }
@@ -2061,7 +2119,7 @@
           closeSettings();
           showMessage(runtime.setup?.needsDiscordApplicationId
             ? 'Keys updated. Discord Application ID is still required.'
-            : 'API keys saved on this computer.', 'success');
+            : 'ตั้งค่าขั้นสูง saved on this computer.', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
         } finally {
@@ -2249,7 +2307,7 @@
           if (error.name === 'AbortError') return;
           if (error.runtime) runtime = error.runtime;
           if (['GIPHY_API_KEY_REQUIRED', 'GIPHY_API_KEY_INVALID'].includes(error.code)) {
-            showGifUnavailable('GIF search needs a valid GIPHY key under API keys. ' + error.message);
+            showGifUnavailable('GIF search needs a valid GIPHY key under ตั้งค่าขั้นสูง. ' + error.message);
           } else if (append && gifSeenIds.size) {
             retryMore = true;
             setGifStatus(gifSearchStatus, 'Could not load more GIFs. ' + error.message, 'error');
@@ -2349,7 +2407,7 @@
           previewStartedAt = Date.now();
           renderRuntime();
           showMessage(data.applied
-            ? sceneName + ' is now live until the next Daily Time Slot.'
+            ? sceneName + (runtime.selectionMode === 'apps' ? ' is pinned for one hour.' : ' is now live until the next Daily Time Slot.')
             : sceneName + ' is saved and will appear when Discord reconnects.', 'success');
         } catch (error) {
           setSaveState('warning', 'Scene saved, Discord not updated', 'Check the message and try Show on Discord again');
@@ -2371,7 +2429,7 @@
           config.settings.scheduleEnabled = runtime.scheduleEnabled;
           if (!enabled) config.manualOverride = null;
           renderRuntime();
-          showMessage(enabled ? 'Daily schedule resumed.' : 'Daily schedule paused.', 'success');
+          showMessage(enabled ? 'Auto resumed.' : 'Auto paused.', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
         } finally {
@@ -2394,7 +2452,10 @@
         }
       }
 
+      let statePollPending = false;
       async function pollState() {
+        if (statePollPending) return;
+        statePollPending = true;
         try {
           runtime = await requestJson('/api/state');
           renderRuntime();
@@ -2405,6 +2466,8 @@
             lastError: 'The local companion is not responding.',
           };
           renderRuntime();
+        } finally {
+          statePollPending = false;
         }
       }
 
@@ -2630,6 +2693,126 @@
         showMessage('Click Save keys to clear the stored GIPHY key.', 'success');
       });
 
+      const selectedApps = new Set();
+      function navigateStudio() {
+        const editor = location.hash !== '#setup' && location.hash !== '';
+        document.querySelector('#appSetupPage').hidden = editor;
+        document.querySelector('#presetsPage').hidden = !editor;
+        document.querySelector('#setupPageLink').setAttribute('aria-current',editor?'false':'page');
+        document.querySelector('#presetsPageLink').setAttribute('aria-current',editor?'page':'false');
+        if (config) { presetOptions(document.querySelector('#appPresetSelect'),selectedSceneId); }
+      }
+      window.addEventListener('hashchange',navigateStudio);
+      navigateStudio();
+      document.querySelector('#createPresetFromSetup').onclick=()=>{location.hash='presets'; document.querySelector('#addSceneButton').click(); document.querySelector('#sceneName').focus();};
+      function applicationKey(path) {
+        return String(path || '').trim().replaceAll('/', '\\').toLowerCase()
+          .replace(/(\\windowsapps\\openai\.codex_)\d+\.\d+\.\d+\.\d+(_[^\\]+\\app\\chatgpt\.exe)$/, '$1version$2');
+      }
+      function appIcon(app) {
+        if (/RobloxPlayerBeta\.exe$/i.test(app?.executable || '')) { const img=document.createElement('img');img.src='https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/apps/roblox.png';img.alt='';img.width=44;img.height=44;return img; }
+        if(app?.icon?.startsWith('data:image/png;base64,')){const img=document.createElement('img');img.src=app.icon;img.alt='';img.width=44;img.height=44;return img;}
+        const fallback=document.createElement('span');fallback.className='app-icon-fallback';fallback.textContent=(app?.name||'?').slice(0,2).toUpperCase();fallback.setAttribute('aria-hidden','true');return fallback;
+      }
+      function renderAppTiles() {
+        const grid=document.querySelector('#applicationTiles');grid.replaceChildren();
+        const seen=new Set();
+        for(const app of [...discoveredApps, ...mappingDraft]) {
+          const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);
+          const button=document.createElement('button');button.type='button';button.className='application-tile';button.title=app.executable;button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));
+          const name=document.createElement('strong');name.textContent=app.name;
+          const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||'จับคู่แล้ว') : '';detail.hidden=!mapped;
+          button.append(appIcon(app),name,detail);
+          button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent='เลือกแล้ว '+selectedApps.size+' แอป';};
+          grid.append(button);
+        }
+        if(!seen.size){const empty=document.createElement('p');empty.textContent='กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง';grid.append(empty);}
+        document.querySelector('#appSelectionCount').textContent='เลือกแล้ว '+selectedApps.size+' แอป';
+      }
+      let mappingDraft = [];
+      let discoveredApps = [];
+      const appMessage = document.querySelector('#appMappingMessage');
+      function renderAppReason() {
+        const mode = runtime?.selectionMode;
+        document.querySelector('#appSelectionReason').textContent = !runtime?.scheduleEnabled ? 'Auto หยุดอยู่' : runtime?.manualOverride ? 'กำลังใช้พรีเซ็ตที่ปักไว้ชั่วคราว' : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : 'รอเปิดแอปที่จับคู่ไว้') : 'ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้';
+      }
+      function renderPresetTiles() {
+        const host=document.querySelector('#presetTiles');host.replaceChildren();
+        for(const scene of config.scenes){
+          const button=document.createElement('button');button.type='button';button.className='preset-tile';button.setAttribute('aria-pressed',String(document.querySelector('#appPresetSelect').value===scene.id));
+          const img=document.createElement('img');img.width=56;img.height=56;img.alt='';
+          const source=characterPreviewSource(scene.largeImage);
+          img.src=source||'/art/hinata/poster.png';img.onerror=()=>{img.onerror=null;img.src='/art/hinata/poster.png';};
+          const name=document.createElement('span');name.textContent=scene.sceneName;button.append(img,name);
+          button.onclick=()=>{document.querySelector('#appPresetSelect').value=scene.id;renderPresetTiles();};host.append(button);
+        }
+      }
+      function presetOptions(select, selected) {
+        select.replaceChildren();
+        for (const scene of config.scenes) { const option = new Option(scene.sceneName, scene.id); select.add(option); }
+        if (selected) select.value = selected;
+        if(select.id === "appPresetSelect") renderPresetTiles();
+      }
+      function renderMappings() {
+        const list = document.querySelector('#appMappingList'); list.replaceChildren();
+        if (!mappingDraft.length) { const p=document.createElement('p');p.textContent='ยังไม่มีการจับคู่ เริ่มจากแอปที่ใช้บ่อย เช่น Codex หรือ Discord';list.append(p); }
+        mappingDraft.forEach((mapping,index) => {
+          const row=document.createElement('div');row.className='app-mapping-row';
+          const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label','เปิดใช้ '+mapping.name);enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
+          const label=document.createElement('div'); const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent='ตำแหน่งไฟล์';info.append(summary,path);label.append(name);label.title=mapping.executable;
+          const select=document.createElement('select');select.setAttribute('aria-label','พรีเซ็ตของ '+mapping.name);presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
+          const remove=document.createElement('button');remove.type='button';remove.className='button small';remove.textContent='ลบ';remove.setAttribute('aria-label','ลบการจับคู่ '+mapping.name);remove.onclick=()=>{mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
+          const icon=appIcon(discoveredApps.find(app=>applicationKey(app.executable)===applicationKey(mapping.executable))||mapping);label.prepend(icon);row.append(enabled,label,select,remove);list.append(row);
+        });
+      }
+      async function refreshApplications() {
+        try {
+          const data=await requestJson('/api/apps');discoveredApps=data.apps || [];
+          const select=document.querySelector('#runningAppSelect');select.replaceChildren(new Option('เลือกแอปที่เปิดอยู่',''));
+          const seen=new Set();for(const app of [...discoveredApps, ...mappingDraft]) { const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);select.add(new Option(app.name+(app.foreground?' · หน้าสุด':''),app.executable)); }
+          presetOptions(document.querySelector('#appPresetSelect'),document.querySelector('#appPresetSelect').value||selectedSceneId);
+          renderAppTiles(); renderMappings();
+          if(data.error) appMessage.textContent=data.error;
+        } catch(error) { appMessage.textContent=error.message; }
+      }
+      document.querySelector('#refreshApps').onclick=()=>void refreshApplications();
+      document.querySelector('#selectionMode').onchange=()=>{document.querySelector('#saveAppMappings').hidden=false;};
+      document.querySelector('#addAppMapping').onclick=async()=>{
+        const manual=document.querySelector('#manualExecutable');const paths=[...selectedApps];if(manual.value.trim()) paths.push(manual.value.trim());
+        if(!paths.length){appMessage.textContent='กดเลือกไอคอนแอปก่อน แล้วเลือกพรีเซ็ตที่จะใช้';return;}
+        for(const executable of paths) {
+          const existing=mappingDraft.find(item=>applicationKey(item.executable)===applicationKey(executable));
+          if(existing){existing.sceneId=document.querySelector('#appPresetSelect').value;existing.enabled=true;continue;}
+          const app=discoveredApps.find(item=>item.executable===executable);
+          mappingDraft.push({executable,name:app?.name||executable.split(/[\\/]/).at(-1),sceneId:document.querySelector('#appPresetSelect').value,enabled:true});
+        }
+        if (!await saveMappingDraft()) { document.querySelector('#saveAppMappings').hidden=false; return; }
+        manual.value='';selectedApps.clear();renderMappings();renderAppTiles();
+        if(!stillPreview()) document.querySelector('#appMappingList').animate([{transform:'translateY(-12px)',opacity:.4},{transform:'translateY(0)',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});
+        appMessage.textContent='ใช้แล้วกับ '+paths.length+' แอป';
+      };
+      document.querySelector('#saveAppMappings').onclick=()=>void saveMappingDraft();
+      async function saveMappingDraft(){
+        const button=document.querySelector('#saveAppMappings');const apply=document.querySelector('#addAppMapping');if(apply.disabled)return false;button.disabled=true;apply.disabled=true;appMessage.textContent='กำลังบันทึก…';
+        try {
+          if (!await saveConfig(false)) { appMessage.textContent="บันทึกพรีเซ็ตไม่สำเร็จ ตรวจหน้าแก้ไขพรีเซ็ต"; return false; }
+          const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
+          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
+        } catch(error) { appMessage.textContent=error.message;return false; } finally {button.disabled=false;apply.disabled=false;}
+      };
+      function simplifyEditor() {
+        const field=document.querySelector('#largeImage').closest('.field');
+        const disclosure=document.createElement('details');disclosure.className='inline-disclosure';
+        const summary=document.createElement('summary');summary.textContent='ใช้ภาพอื่น';field.before(disclosure);disclosure.append(summary,field);
+        const system=document.querySelector('#configPath').closest('section');
+        const settings=document.createElement('details');settings.className='system-disclosure';
+        const title=document.createElement('summary');title.textContent='ตั้งค่าเพิ่มเติม';system.before(settings);settings.append(title,system);
+      }
+      simplifyEditor();
+      document.querySelector('#shareCodexSession').onclick=async()=>{
+        const button=document.querySelector('#shareCodexSession');button.disabled=true;
+        try{const result=await requestJson('/api/codex-session',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.querySelector('#codexSessionTitle').value,restart:true})});runtime=result.runtime;config.codexSession=result.session;renderRuntime();document.querySelector('#codexSessionStatus').textContent=result.session?'ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex':'ใช้สถานะ Codex ทั่วไปแล้ว';}catch(error){document.querySelector('#codexSessionStatus').textContent=error.message;}finally{button.disabled=false;}
+      };
       async function initialize() {
         try {
           const [loadedConfig, loadedRuntime] = await Promise.all([
@@ -2637,6 +2820,12 @@
             requestJson('/api/state'),
           ]);
           config = loadedConfig;
+          document.querySelector("#codexSessionTitle").value=config.codexSession?.title || "";
+          mappingDraft = clone(config.appMappings || []);
+          document.querySelector("#selectionMode").value=config.settings.selectionMode || "schedule";
+          renderMappings();
+          void refreshApplications();
+          setTimeout(()=>void refreshApplications(),2500);
           runtime = loadedRuntime;
           selectedSceneId = config.scenes.some((scene) => scene.id === runtime.currentSceneId)
             ? runtime.currentSceneId
@@ -2645,8 +2834,7 @@
           setSaveState('saved', 'All changes saved', 'Stored on this computer');
           renderSecretsStatus();
           if (runtime.setup?.needsDiscordApplicationId) {
-            showMessage('Add your Discord Application ID under API keys to connect Presence.');
-            openSettings(openSettingsButton);
+            showMessage('Try your look here first. Add a Discord Application ID when you are ready to connect.');
           } else {
             showMessage(runtime.connected
               ? 'Choose a Scene, personalize it, then review and show it on Discord.'
@@ -2660,7 +2848,8 @@
 
       setInterval(renderPreviewTimer, 1000);
       setInterval(renderClock, 1000);
-      setInterval(() => void pollState(), 3000);
+      setInterval(() => { if (!document.hidden) void pollState(); }, 500);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) void pollState(); });
       void initialize();
     </script>
   </body>
