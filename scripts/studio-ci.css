@@ -15,7 +15,7 @@
      --line-soft    rgba(154,170,205,.14)
      --paper        #eef2fb  primary text
      --muted        #a2afcc  secondary text
-     --faint        #6d7899  tertiary text
+     --faint        #8b96b8  tertiary text (lightened for 4.5:1 on night/slate)
      --accent       #6ea8fe  THE single primary accent (calm blue)
      --accent-ink   #0a1428  text on accent fills
      --accent-soft  rgba(110,168,254,.12)
@@ -54,7 +54,7 @@
   --line-soft: rgba(154, 170, 205, .14);
   --paper: #eef2fb;
   --muted: #a2afcc;
-  --faint: #6d7899;
+  --faint: #8b96b8;
   --accent: #6ea8fe;
   --accent-ink: #0a1428;
   --accent-soft: rgba(110, 168, 254, .12);
@@ -92,7 +92,7 @@ h3 { font-size: 13px; font-weight: 600; }
 .subcopy { font-size: 13px; line-height: 1.6; }
 label { font-size: 13px; }
 input, select { font-size: 14px; min-height: 44px; }
-input::placeholder { color: #5b6685; }
+input::placeholder { color: #7a86a8; }
 .button { font-size: 13px; min-height: 40px; }
 .button.small { min-height: 34px; font-size: 13px; }
 .section-title strong { font-size: 15px; font-weight: 650; }
@@ -191,7 +191,7 @@ input::placeholder { color: #5b6685; }
 }
 .preset-tile img { image-rendering: auto; border-radius: 6px; object-fit: cover; }
 .preset-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
-.preset-tile:active { transform: scale(.97); }
+.preset-tile:active { transform: scale(.98); }
 .app-add-row, .app-mode-row { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
 .app-add-row label, .app-mode-row label { flex: 1; min-width: 140px; display: grid; gap: 6px; font-size: 13px; }
 .app-mode-row { justify-content: flex-end; }
@@ -310,7 +310,7 @@ input::placeholder { color: #5b6685; }
 .button.primary:hover { background: #86b6fe; border-color: transparent; }
 .button.danger { color: var(--danger); border-color: rgba(240, 136, 155, .32); }
 .button.danger:hover { background: rgba(240, 136, 155, .08); }
-.look-option:active, .button:active { transform: translateY(1px); }
+.look-option:active { transform: scale(.98); }
 
 /* ---------- 9. Editor & forms ---------- */
 .editor { padding: 28px clamp(22px, 3.2vw, 48px) 100px; }
@@ -376,6 +376,9 @@ input::placeholder { color: #5b6685; }
   font-variant-numeric: tabular-nums;
 }
 .status-value small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; margin-top: 2px; }
+/* The Scene compare string (editing vs live) is long by nature; let it wrap at
+   word boundaries instead of ellipsizing mid-word. */
+#heroSceneCompare { white-space: normal; font-size: 13px; }
 .status-item.is-live { border-color: rgba(99, 214, 159, .35); }
 .status-item.is-live .status-label { color: var(--success); }
 .status-item.is-warn { border-color: rgba(240, 181, 107, .35); }
@@ -455,13 +458,14 @@ input::placeholder { color: #5b6685; }
   border: 1px solid var(--line); border-radius: 999px;
 }
 .slot-pin, .now-pin { position: absolute; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; }
-.slot-pin { width: 8px; height: 8px; background: var(--accent); border: 1px solid var(--night); box-shadow: 0 0 0 2px rgba(110, 168, 254, .25); }
+.slot-pin { width: 8px; height: 8px; background: var(--accent); border: 1px solid var(--night); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
 .now-pin {
   z-index: 2; width: 3px; height: 22px;
   background: #fff; border-radius: 2px;
   box-shadow: 0 0 10px rgba(255, 255, 255, .7);
 }
 .slot-list { display: grid; gap: 7px; }
+.slot-empty { margin: 4px 2px 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .slot-row { display: grid; grid-template-columns: 28px 76px minmax(0, 1fr) 30px; align-items: center; gap: 7px; }
 .slot-row input, .slot-row select { min-height: 34px; padding: 0 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
 .slot-toggle, .slot-remove {
@@ -686,9 +690,10 @@ input::placeholder { color: #5b6685; }
 .button:hover { transition-duration: 160ms; }
 .button:active { transform: scale(.98); }
 
-/* Scene library + preset tiles: staggered fade-in on render */
-.scene-item { animation: vibe-fade-up 240ms ease-out backwards; }
-.preset-tile { animation: vibe-fade-up 240ms ease-out backwards; }
+/* Scene library + preset tiles: staggered fade-in on first mount only.
+   Re-renders (the 500ms state poll, typing in the editor) must not replay it. */
+.scene-list:not(.is-mounted) .scene-item { animation: vibe-fade-up 240ms ease-out backwards; }
+.preset-tiles:not(.is-mounted) .preset-tile { animation: vibe-fade-up 240ms ease-out backwards; }
 
 /* App/preset images: soft fade-in as they decode */
 .application-tile img, .preset-tile img, .look-option img {
@@ -846,9 +851,27 @@ html, body { overflow-x: clip; }
   .bottom-link svg { width: 22px; height: 22px; flex: 0 0 auto; }
   .bottom-link span { overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
   .bottom-link:hover { color: var(--muted); }
-  .bottom-link:active { transform: scale(.96); }
+  .bottom-link:active { transform: scale(.98); }
   .bottom-link[aria-current="page"] {
     color: var(--accent);
     box-shadow: inset 0 2px 0 var(--accent); /* unmistakable active tab marker */
   }
 }
+
+/* Skip link: visually hidden until focused (WCAG 2.4.1) */
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 200;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--accent); color: var(--night);
+  font-weight: 700; font-size: 14px; text-decoration: none;
+  transform: translateY(-200%); transition: transform 160ms ease-out;
+}
+.skip-link:focus-visible { transform: none; }
+
+/* ---------- 20. Setup banner: warning treatment from the token palette ----------
+ * (overrides the legacy inline styles in the page <style> block) */
+.setup-banner {
+  background: color-mix(in srgb, var(--dawn) 7%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--dawn) 24%, transparent);
+}
+.setup-banner p { color: var(--dawn); }
