@@ -266,7 +266,7 @@ function scheduleReconnect(error) {
   runtime.appliedKey = null;
   runtime.nextReconnectAt = null;
   if (error) {
-    runtime.lastError = 'Discord Desktop is unavailable. Retrying automatically. ' + errorMessage(error);
+    runtime.lastError = 'Discord Desktop ไม่พร้อมใช้งาน กำลังลองใหม่โดยอัตโนมัติ ' + errorMessage(error);
   }
 
   const delay = Math.min(30_000, 1_000 * (2 ** Math.min(reconnectAttempt, 5)));
@@ -321,11 +321,11 @@ async function applyScene(scene, key, { force = false } = {}) {
       runtime.currentSceneId = scene.id;
       runtime.appliedKey = key;
       runtime.lastSuccessAt = new Date().toISOString();
-      runtime.lastError = pendingArt ? 'Presence is active without character artwork. Hinata needs a public image URL.' : null;
+      runtime.lastError = pendingArt ? 'Presence ทำงานอยู่แต่ไม่มีภาพตัวละคร Hinata ต้องการ URL รูปภาพสาธารณะ' : null;
       console.log('Presence applied: ' + scene.sceneName);
       return true;
     } catch (error) {
-      runtime.lastError = 'Discord rejected the Presence update. ' + errorMessage(error);
+      runtime.lastError = 'Discord ปฏิเสธการอัปเดต Presence ' + errorMessage(error);
       handleDisconnected(candidate, error);
       return false;
     }
@@ -350,7 +350,7 @@ async function clearDiscordPresence() {
       runtime.lastError = null;
       return true;
     } catch (error) {
-      runtime.lastError = 'Discord Presence could not be cleared. ' + errorMessage(error);
+      runtime.lastError = 'ล้าง Discord Presence ไม่ได้ ' + errorMessage(error);
       handleDisconnected(candidate, error);
       return false;
     }
@@ -374,7 +374,7 @@ async function connectDiscord() {
   if (isStopping || !clientId) {
     runtime.connectionState = 'disconnected';
     if (!clientId) {
-      runtime.lastError = runtime.lastError || 'Add your Discord Application ID in API keys to connect.';
+      runtime.lastError = runtime.lastError || 'ใส่ Discord Application ID ที่ API keys เพื่อเชื่อมต่อ';
     }
     return;
   }
@@ -475,7 +475,7 @@ async function syncAutostart() {
       enabled: await autostart.isEnabled().catch(() => false),
       filePath: autostart.filePath,
     };
-    runtime.lastError = 'Windows automatic startup could not be updated. ' + errorMessage(error);
+    runtime.lastError = 'อัปเดตการเปิดอัตโนมัติของ Windows ไม่ได้ ' + errorMessage(error);
     return autostartState;
   }
 }
@@ -626,7 +626,7 @@ async function applySavedSecrets(saved, { reconnectDiscord = false } = {}) {
       runtime.lastError = null;
       void connectDiscord();
     } else {
-      runtime.lastError = 'Add your Discord Application ID in API keys to connect.';
+      runtime.lastError = 'ใส่ Discord Application ID ที่ API keys เพื่อเชื่อมต่อ';
     }
   }
 }
