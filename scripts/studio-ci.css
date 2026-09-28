@@ -127,6 +127,8 @@ input::placeholder { color: #7a86a8; }
 
 /* ---------- 4. Appbar ---------- */
 .appbar { background: rgba(13, 19, 34, .92); border-bottom: 1px solid var(--line-soft); }
+/* Keep the appbar settings shortcut on one line at narrow widths */
+#openSettingsButton { white-space: nowrap; }
 .brand-mark {
   background: var(--accent);
   border: 1px solid rgba(255, 255, 255, .22);
