@@ -657,6 +657,9 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   transform: translateY(-50%); line-height: 1;
 }
 .vs-tick::after { content: ""; flex: 1; height: 1px; background: var(--vs-hairline-soft); }
+.vs-tick-edge-top > span { transform: none; }
+.vs-tick-edge-bottom > span { transform: translateY(-100%); }
+.vs-dayline-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .vs-block {
   position: absolute; left: 52px; right: 12px;
   background: var(--vs-sunken); border: 1px solid var(--vs-hairline);

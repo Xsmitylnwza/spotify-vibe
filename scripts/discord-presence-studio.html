@@ -333,27 +333,41 @@
           </div>
         </section>
 <section class="app-screen" id="screen-dayline" data-screen="dayline" hidden>
-          <section class="card" id="legacyScheduleCard">
-          <div class="panel-heading">
-            <div><span class="kicker">Daily Time Slots</span><h2>Repeats every day</h2></div>
-            <button class="button small" id="addSlotButton" type="button">+ Slot</button>
+          <div class="vs-page">
+            <section class="vs-card vs-dayline" id="legacyScheduleCard">
+              <div class="vs-card-head vs-dayline-head">
+                <div>
+                  <span class="vs-kicker">ช่วงเวลารายวัน</span>
+                  <h2>Dayline</h2>
+                  <p class="vs-subcopy">แต่ละเวลาเริ่มต้นจะใช้ไปจนกว่าจะถึงช่วงเวลาถัดไปที่เปิดไว้ — ไม่ใช่ปฏิทินรายวัน ทำซ้ำทุกวัน</p>
+                </div>
+                <button class="vs-btn vs-btn-sm vs-btn-primary" id="addSlotButton" type="button">+ เพิ่มช่วงเวลา</button>
+              </div>
+              <div class="vs-day-grid">
+                <div class="vs-timeline" id="dayStrip" role="img" aria-label="ไทม์ไลน์ 24 ชั่วโมง">
+          <div class="vs-tick vs-tick-edge-top" style="top:0.0%"><span>00</span></div>
+          <div class="vs-tick" style="top:12.5%"><span>03</span></div>
+          <div class="vs-tick" style="top:25.0%"><span>06</span></div>
+          <div class="vs-tick" style="top:37.5%"><span>09</span></div>
+          <div class="vs-tick" style="top:50.0%"><span>12</span></div>
+          <div class="vs-tick" style="top:62.5%"><span>15</span></div>
+          <div class="vs-tick" style="top:75.0%"><span>18</span></div>
+          <div class="vs-tick" style="top:87.5%"><span>21</span></div>
+          <div class="vs-tick vs-tick-edge-bottom" style="top:100.0%"><span>24</span></div>
+                  <div class="vs-nowline" id="nowPin"><span class="vs-nowline-tag">ตอนนี้ --:--</span></div>
+                </div>
+                <ul class="vs-slot-list" id="slotList" aria-label="ช่วงเวลา"></ul>
+              </div>
+            </section>
+            <section class="vs-note-card" id="daylineAppsNote" hidden>
+              <span class="vs-kicker">ช่วงเวลารายวัน</span>
+              <h2>ตารางเวลาถูกซ่อนไว้</h2>
+              <p class="vs-subcopy">ตอนนี้อยู่ในโหมดแอป — ตารางเวลารายวันจึงถูกซ่อนไว้ เปลี่ยนเป็นโหมดตารางเวลาได้ที่หน้า Scenes หัวข้อ "การจับคู่แอป"</p>
+              <button class="vs-btn vs-btn-sm vs-btn-primary" id="daylineGoStatusButton" type="button">ไปหน้า Scenes</button>
+            </section>
           </div>
-          <p class="subcopy">Not a calendar. Each start time stays active until the next enabled slot.</p>
-          <div class="day-strip-wrap">
-            <div class="day-labels"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
-            <div class="day-strip" id="dayStrip"><span class="now-pin" id="nowPin"></span></div>
-          </div>
-          <div class="slot-list" id="slotList"></div>
         </section>
-          <section class="card" id="daylineAppsNote" hidden>
-          <div class="panel-heading">
-            <div><span class="kicker">Daily Time Slots</span><h2>ตารางเวลาถูกซ่อนไว้</h2></div>
-          </div>
-          <p class="subcopy">ตอนนี้อยู่ในโหมดแอป ตารางเวลารายวันจึงไม่แสดง สลับเป็นโหมดตารางเวลาที่หน้าสถานะเพื่อกลับมาตั้งช่วงเวลา</p>
-          <button class="button small" id="daylineGoStatusButton" type="button">ไปหน้าสถานะ</button>
-        </section>
-        </section>
-        <section class="app-screen" id="screen-settings" data-screen="settings" hidden>
+<section class="app-screen" id="screen-settings" data-screen="settings" hidden>
           <section class="settings-dialog" aria-labelledby="settingsTitle">
             <header class="settings-head">
               <div>
@@ -1205,16 +1219,45 @@
       }
 
       function renderDayStrip() {
-        dayStrip.querySelectorAll('.slot-pin').forEach((pin) => pin.remove());
+        dayStrip.querySelectorAll('.vs-block').forEach((block) => block.remove());
         if (!config) return;
-        config.slots.filter((slot) => slot.enabled).forEach((slot) => {
-          const pin = document.createElement('span');
-          pin.className = 'slot-pin';
-          pin.style.left = (minutesFromTime(slot.startTime) / 1440 * 100) + '%';
+        const enabled = config.slots
+          .filter((slot) => slot.enabled)
+          .sort((a, b) => minutesFromTime(a.startTime) - minutesFromTime(b.startTime));
+        if (!enabled.length) return;
+        const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+        enabled.forEach((slot, i) => {
+          const start = minutesFromTime(slot.startTime);
+          const endMinutes = i + 1 < enabled.length
+            ? minutesFromTime(enabled[i + 1].startTime)
+            : minutesFromTime(enabled[0].startTime) + 1440;
           const scene = config.scenes.find((item) => item.id === slot.sceneId);
-          pin.title = slot.startTime + ' · ' + (scene?.sceneName || 'Missing Scene');
-          dayStrip.append(pin);
+          const name = scene?.sceneName || 'Scene หายไป';
+          const block = document.createElement('div');
+          block.className = 'vs-block';
+          block.style.top = (start / 1440 * 100) + '%';
+          block.style.height = Math.max((endMinutes - start) / 1440 * 100, 2.4) + '%';
+          const wraps = endMinutes > 1440;
+          const inBlock = wraps
+            ? (nowMinutes >= start || nowMinutes < endMinutes - 1440)
+            : (nowMinutes >= start && nowMinutes < endMinutes);
+          if (inBlock) block.classList.add('is-now-block');
+          const nameEl = document.createElement('div');
+          nameEl.className = 'vs-block-name';
+          nameEl.textContent = name;
+          const timeEl = document.createElement('div');
+          timeEl.className = 'vs-block-time';
+          const endLabel = i + 1 < enabled.length ? enabled[i + 1].startTime : enabled[0].startTime;
+          timeEl.textContent = slot.startTime + ' – ' + endLabel;
+          block.append(nameEl, timeEl);
+          block.title = slot.startTime + ' · ' + name;
+          dayStrip.append(block);
         });
+        dayStrip.append(nowPin);
+        dayStrip.setAttribute('aria-label', 'ไทม์ไลน์ 24 ชั่วโมง: ' + enabled.map((s) => {
+          const scene = config.scenes.find((item) => item.id === s.sceneId);
+          return s.startTime + ' ' + (scene?.sceneName || 'Scene หายไป');
+        }).join(', '));
       }
 
       function renderSlots() {
@@ -1222,32 +1265,30 @@
         sortSlots();
         slotList.innerHTML = '';
         if (!config.slots.length) {
-          const empty = document.createElement('p');
-          empty.className = 'slot-empty';
-          empty.textContent = 'ยังไม่มีช่วงเวลา — กด + Slot เพื่อเพิ่มช่วงแรกของวัน';
+          const empty = document.createElement('div');
+          empty.className = 'vs-empty';
+          const emptyTitle = document.createElement('h3');
+          emptyTitle.className = 'vs-empty-title';
+          emptyTitle.textContent = 'เริ่มวันของคุณ';
+          const emptyText = document.createElement('p');
+          emptyText.textContent = 'ยังไม่มีช่วงเวลา — เพิ่มช่วงแรกของวัน แล้ว Scene จะสลับตามเวลาอัตโนมัติ';
+          const cta = document.createElement('button');
+          cta.type = 'button';
+          cta.className = 'vs-btn vs-btn-primary';
+          cta.textContent = '+ เพิ่มช่วงเวลาแรก';
+          cta.addEventListener('click', () => document.querySelector('#addSlotButton').click());
+          empty.append(emptyTitle, emptyText, cta);
           slotList.append(empty);
         }
         config.slots.forEach((slot) => {
-          const row = document.createElement('div');
-          row.className = 'slot-row';
-
-          const toggle = document.createElement('button');
-          toggle.type = 'button';
-          toggle.className = 'slot-toggle';
-          toggle.setAttribute('aria-label', (slot.enabled ? 'ปิดช่อง ' : 'เปิดช่อง ') + slot.startTime);
-          toggle.setAttribute('aria-pressed', String(slot.enabled));
-          toggle.textContent = slot.enabled ? '●' : '○';
-          toggle.addEventListener('click', () => {
-            slot.enabled = !slot.enabled;
-            renderSlots();
-            scheduleSave();
-          });
+          const row = document.createElement('li');
+          row.className = 'vs-slot';
 
           const time = document.createElement('input');
           time.type = 'time';
-          time.className = 'slot-time';
+          time.className = 'vs-slot-time';
           time.value = slot.startTime;
-          time.setAttribute('aria-label', 'เวลาเริ่มต้นของวัน');
+          time.setAttribute('aria-label', 'เวลาเริ่มต้นของช่วงเวลา');
           time.addEventListener('change', () => {
             slot.startTime = time.value;
             renderSlots();
@@ -1255,7 +1296,7 @@
           });
 
           const sceneSelect = document.createElement('select');
-          sceneSelect.className = 'slot-scene';
+          sceneSelect.className = 'vs-slot-scene';
           sceneSelect.setAttribute('aria-label', 'Scene ของ ' + slot.startTime);
           config.scenes.forEach((scene) => {
             const option = document.createElement('option');
@@ -1270,18 +1311,36 @@
             scheduleSave();
           });
 
+          const actions = document.createElement('span');
+          actions.className = 'vs-slot-actions';
+
+          const switchLabel = document.createElement('label');
+          switchLabel.className = 'vs-switch';
+          const toggle = document.createElement('input');
+          toggle.type = 'checkbox';
+          toggle.checked = slot.enabled;
+          toggle.setAttribute('aria-label', (slot.enabled ? 'ปิดช่วงเวลา ' : 'เปิดช่วงเวลา ') + slot.startTime);
+          toggle.addEventListener('change', () => {
+            slot.enabled = toggle.checked;
+            renderSlots();
+            scheduleSave();
+          });
+          const knob = document.createElement('span');
+          switchLabel.append(toggle, knob);
+
           const remove = document.createElement('button');
           remove.type = 'button';
-          remove.className = 'slot-remove';
+          remove.className = 'vs-icon-btn';
           remove.setAttribute('aria-label', 'ลบ ' + slot.startTime);
-          remove.textContent = '×';
+          remove.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/></svg>';
           remove.addEventListener('click', () => {
             config.slots = config.slots.filter((item) => item.id !== slot.id);
             renderSlots();
             scheduleSave();
           });
 
-          row.append(toggle, time, sceneSelect, remove);
+          actions.append(switchLabel, remove);
+          row.append(time, sceneSelect, actions);
           slotList.append(row);
         });
         renderDayStrip();
@@ -1387,7 +1446,9 @@
           hour12: false,
         });
         const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-        nowPin.style.left = (minute / 1440 * 100) + '%';
+        nowPin.style.top = (minute / 1440 * 100) + '%';
+        const nowTag = nowPin.querySelector('.vs-nowline-tag');
+        if (nowTag) nowTag.textContent = 'ตอนนี้ ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
         const nextChange = document.querySelector('#nextChange');
         if (runtime?.selectionMode === 'apps' && !runtime.manualOverride) {
@@ -2086,7 +2147,7 @@
       });
 
       document.querySelector('#daylineGoStatusButton').addEventListener('click', () => {
-        location.hash = '#/status';
+        location.hash = '#/scenes';
       });
       document.querySelector('#addSlotButton').addEventListener('click', () => {
         if (!config || !currentScene()) return;
@@ -2417,7 +2478,7 @@
         try {
           if (!await saveConfig(false)) { appMessage.textContent='บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'; return false; }
           const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
-          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
+          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();renderSlots();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
         } catch(error) { appMessage.textContent=error.message;return false; } finally {button.disabled=false;apply.disabled=false;}
       };
       document.querySelector('#shareCodexSession').onclick=async()=>{
