@@ -436,17 +436,18 @@
         <a class="bottom-link" href="#/settings" data-screen="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>ตั้งค่า</span></a>
       </nav>
     </div>
+    </div>
 
     <div class="gif-picker" id="gifPicker" hidden>
       <button class="gif-picker-backdrop" id="gifPickerBackdrop" type="button" aria-label="ปิดหน้าค้นหา GIF"></button>
-      <section class="gif-dialog" role="dialog" aria-modal="true" aria-labelledby="gifPickerTitle" aria-describedby="gifPickerDescription">
+      <section class="gif-dialog vs-dialog" role="dialog" aria-modal="true" aria-labelledby="gifPickerTitle" aria-describedby="gifPickerDescription">
         <header class="gif-dialog-head">
           <div>
             <span class="kicker">ภาพเคลื่อนไหว</span>
             <h2 id="gifPickerTitle">ค้นหา GIF</h2>
             <p id="gifPickerDescription">ดู GIF กำลังฮิตหรือค้นหา แล้วเลือกเพื่อใส่ลิงก์ภาพเคลื่อนไหวลง Scene นี้</p>
           </div>
-          <button class="button small gif-close" id="gifCloseButton" type="button" aria-label="ปิดหน้าค้นหา GIF">ปิด</button>
+          <button class="vs-btn vs-btn-sm gif-close" id="gifCloseButton" type="button" aria-label="ปิดหน้าค้นหา GIF">ปิด</button>
         </header>
 
         <div class="gif-unavailable" id="gifUnavailable" hidden>
@@ -457,17 +458,38 @@
         <div class="gif-search-panel" id="gifSearchPanel" hidden>
           <form class="gif-search-row" id="gifSearchForm">
             <input id="gifSearchInput" type="search" minlength="2" maxlength="80" autocomplete="off" placeholder="ค้นหา เช่น pixel rain, night city…" aria-label="ค้นหา GIPHY" />
-            <button class="button primary" id="gifSearchButton" type="submit">ค้นหา GIF</button>
+            <button class="vs-btn vs-btn-primary" id="gifSearchButton" type="submit">ค้นหา GIF</button>
           </form>
           <p class="gif-search-status" id="gifSearchStatus" role="status">กำลังโหลด GIF กำลังฮิต…</p>
           <div class="gif-results" id="gifResults" aria-busy="false">
             <p class="gif-empty">กำลังโหลด GIF กำลังฮิต…</p>
-            <button class="button small gif-load-more" id="gifLoadMoreButton" type="button" hidden>โหลด GIF เพิ่ม</button>
+            <button class="vs-btn vs-btn-sm gif-load-more" id="gifLoadMoreButton" type="button" hidden>โหลด GIF เพิ่ม</button>
           </div>
           <footer class="gif-provider">
-            <span>ว่างๆ แสดงกำลังฮิต · พิมพ์แล้วค้นหาทันที · <span class="giphy-mark">ขับเคลื่อนโดย GIPHY</span></span>
+            <span>เว้นว่างเพื่อดู GIF กำลังฮิต · พิมพ์แล้วค้นหาทันที · <span class="giphy-mark">ขับเคลื่อนโดย GIPHY</span></span>
           </footer>
         </div>
+      </section>
+    </div>
+
+    <div id="onboardingOverlay" hidden>
+      <div class="vs-scrim" aria-hidden="true"></div>
+      <section class="vs-onboard" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+        <div class="vs-ob-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h2 class="vs-ob-title" id="onboardingTitle">เริ่มใช้งาน Vibe Studio</h2>
+        <p class="vs-ob-sub">เพื่อนร่วมทางบน Discord ของคุณ — ตั้งครั้งเดียว แล้วปิดไปได้เลย companion จะดูแลที่เหลือเอง</p>
+        <ol class="vs-ob-steps">
+          <li class="vs-ob-step"><span class="vs-ob-n" aria-hidden="true">1</span><div><h3>เชื่อมต่อ Discord</h3><p>รหัสแอปพลิเคชันใส่ไว้ให้แล้ว กดปุ่มเดียวก็พร้อม</p></div></li>
+          <li class="vs-ob-step"><span class="vs-ob-n" aria-hidden="true">2</span><div><h3>เลือก Scene แรก</h3><p>มี Scene ตัวอย่างให้ 4 แบบ แก้ไขได้ทุกอย่างทีหลัง</p></div></li>
+          <li class="vs-ob-step"><span class="vs-ob-n" aria-hidden="true">3</span><div><h3>เปิดทิ้งไว้ได้เลย</h3><p>companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกครั้งเมื่ออยากเปลี่ยนเท่านั้น</p></div></li>
+        </ol>
+        <div class="vs-ob-actions">
+          <button class="vs-btn vs-btn-primary" id="onboardingStart" type="button">เริ่มใช้งาน</button>
+          <button class="vs-skip" id="onboardingSkip" type="button">ข้ามไปดูก่อน</button>
+        </div>
+        <p class="vs-ob-note">ใช้เวลาไม่ถึง 1 นาที · ข้ามได้ตลอด กลับมาดูใหม่ได้ที่หน้าแรก</p>
       </section>
     </div>
 
@@ -618,15 +640,31 @@
             'ล้าง Discord Presence ไม่ได้'],
           ['อัปเดตการเปิดอัตโนมัติของ Windows ไม่ได้',
             'เปิดพร้อม Windows ไม่ได้'],
+          ['Add your Discord Application ID',
+            'ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ'],
+          ['Windows automatic startup is unavailable',
+            'เปิดพร้อม Windows ไม่ได้'],
+          ['Provide a Discord Application ID or GIPHY API key',
+            'ใส่รหัสแอปพลิเคชัน Discord หรือคีย์ GIPHY ก่อนบันทึก'],
+          ['Choose an existing Scene',
+            'เลือก Scene ที่มีอยู่ก่อนแสดงบน Discord'],
+          ['Add at least one enabled Daily Time Slot',
+            'เพิ่มช่วงเวลาที่เปิดไว้อย่างน้อย 1 ช่วงก่อน'],
+          ['Choose applications or schedule',
+            'เลือกโหมดแอปหรือตารางเวลา'],
         ];
         for (const [prefix, copy] of cases) {
           if (text.startsWith(prefix)) return { text: copy, title: text };
         }
-        if (text.startsWith('ใส่ Discord Application ID')) {
+        if (text.startsWith('ใส่ Discord Application ID') || text.startsWith('Add your Discord Application ID')) {
           return {
             html: 'ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ · <a href="#/settings">ไปหน้าตั้งค่า</a>',
+            text: 'ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ',
             title: text,
           };
+        }
+        if (/failed to fetch|load failed|networkerror|network request failed/i.test(text)) {
+          return { text: 'companion ในเครื่องไม่ตอบสนอง', title: text };
         }
         return { text, title: '' };
       }
@@ -689,7 +727,20 @@
       }
 
       function showMessage(text, type) {
-        message.textContent = text || '';
+        if (type === 'error') {
+          // Humanize backend/English errors: Thai copy in the UI, raw detail in title.
+          const mapped = humanizeError(text);
+          if (mapped.html) {
+            message.innerHTML = mapped.html;
+          } else {
+            message.textContent = mapped.text;
+          }
+          if (mapped.title) message.title = mapped.title;
+          else message.removeAttribute('title');
+        } else {
+          message.textContent = text || '';
+          message.removeAttribute('title');
+        }
         message.className = 'message' + (type ? ' ' + type : '');
       }
 
@@ -1503,7 +1554,7 @@
         gifUnavailable.hidden = false;
         gifSearchPanel.hidden = true;
         gifUnavailableMessage.textContent = message
-          || 'ใส่ GIPHY API key ที่ตั้งค่าขั้นสูงเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้';
+          || 'ใส่คีย์ GIPHY ที่หน้าตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้';
         setTimeout(() => gifCloseButton.focus(), 0);
       }
 
@@ -1634,7 +1685,7 @@
         } catch (error) {
           showMessage(error.message, 'error');
           if (settingsMessage) {
-            settingsMessage.textContent = error.message;
+            settingsMessage.textContent = humanizeError(error.message).text;
             settingsMessage.className = 'message error';
           }
         } finally {
@@ -1816,22 +1867,22 @@
             ? pagination.hasMore
             : items.length >= GIF_PAGE_SIZE) && gifNextOffset > offset;
           const subject = query ? 'โหลด GIF ของ “' + query + '” แล้ว' : 'โหลด GIF กำลังฮิตแล้ว';
-          const continuation = gifHasMore ? ' เลื่อนเพื่อโหลดเพิ่ม' : ' หมดแล้ว';
-          setGifStatus(gifSearchStatus, gifSeenIds.size + ' ' + subject + '.' + continuation);
+          const continuation = gifHasMore ? 'เลื่อนเพื่อโหลดเพิ่ม' : 'หมดแล้ว';
+          setGifStatus(gifSearchStatus, subject + ' ' + gifSeenIds.size + ' รายการ · ' + continuation);
         } catch (error) {
           if (error.name === 'AbortError') return;
           if (error.runtime) runtime = error.runtime;
           if (['GIPHY_API_KEY_REQUIRED', 'GIPHY_API_KEY_INVALID'].includes(error.code)) {
-            showGifUnavailable('ค้นหา GIF ต้องใช้ GIPHY key ที่ถูกต้องในตั้งค่าขั้นสูง ' + error.message);
+            showGifUnavailable('ค้นหา GIF ต้องใช้คีย์ GIPHY ที่ถูกต้องในหน้าตั้งค่า');
           } else if (append && gifSeenIds.size) {
             retryMore = true;
-            setGifStatus(gifSearchStatus, 'โหลด GIF เพิ่มไม่ได้ ' + error.message, 'error');
+            setGifStatus(gifSearchStatus, humanizeError(error.message).text, 'error');
           } else {
             gifHasMore = false;
             renderGifResults([], {
               emptyMessage: 'โหลด GIF ไม่ได้ ลองค้นหาอีกครั้ง',
             });
-            setGifStatus(gifSearchStatus, error.message, 'error');
+            setGifStatus(gifSearchStatus, humanizeError(error.message).text, 'error');
           }
         } finally {
           if (sequence === gifSearchSequence && gifSearchController === controller) {
@@ -2431,7 +2482,7 @@
           presetOptions(document.querySelector('#appPresetSelect'),document.querySelector('#appPresetSelect').value||selectedSceneId);
           renderAppTiles(); renderMappings();
           if(data.error) appMessage.textContent=data.error;
-        } catch(error) { appMessage.textContent=error.message; }
+        } catch(error) { appMessage.textContent=humanizeError(error.message).text; }
       }
       document.querySelector('#refreshApps').onclick=()=>void refreshApplications();
       document.querySelector('#selectionMode').onchange=()=>{document.querySelector('#saveAppMappings').hidden=false;syncModeSegmented();};
@@ -2474,11 +2525,11 @@
           if (!await saveConfig(false)) { appMessage.textContent='บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'; return false; }
           const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
           config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();renderSlots();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
-        } catch(error) { appMessage.textContent=error.message;return false; } finally {button.disabled=false;apply.disabled=false;}
+        } catch(error) { appMessage.textContent=humanizeError(error.message).text;return false; } finally {button.disabled=false;apply.disabled=false;}
       };
       document.querySelector('#shareCodexSession').onclick=async()=>{
         const button=document.querySelector('#shareCodexSession');button.disabled=true;
-        try{const result=await requestJson('/api/codex-session',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.querySelector('#codexSessionTitle').value,restart:true})});runtime=result.runtime;config.codexSession=result.session;renderRuntime();document.querySelector('#codexSessionStatus').textContent=result.session?'ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex':'ใช้สถานะ Codex ทั่วไปแล้ว';}catch(error){document.querySelector('#codexSessionStatus').textContent=error.message;}finally{button.disabled=false;}
+        try{const result=await requestJson('/api/codex-session',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.querySelector('#codexSessionTitle').value,restart:true})});runtime=result.runtime;config.codexSession=result.session;renderRuntime();document.querySelector('#codexSessionStatus').textContent=result.session?'ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex':'ใช้สถานะ Codex ทั่วไปแล้ว';}catch(error){document.querySelector('#codexSessionStatus').textContent=humanizeError(error.message).text;}finally{button.disabled=false;}
       };
       async function initialize() {
         try {
@@ -2518,6 +2569,29 @@
       setInterval(renderClock, 1000);
       setInterval(() => { if (!document.hidden) void pollState(); }, 500);
       document.addEventListener('visibilitychange', () => { if (!document.hidden) void pollState(); });
+
+      // First-run onboarding — frontend only, fail-open: if storage is
+      // unavailable the Studio still works and the overlay simply won't show.
+      const onboardingOverlay = document.querySelector('#onboardingOverlay');
+      const onboardingStart = document.querySelector('#onboardingStart');
+      function showOnboarding() {
+        onboardingOverlay.hidden = false;
+        setStudioInert(true);
+        setTimeout(() => onboardingStart.focus(), 0);
+      }
+      function dismissOnboarding() {
+        try { localStorage.setItem('vibe.onboarded', '1'); } catch { /* fail-open */ }
+        onboardingOverlay.hidden = true;
+        setStudioInert(false);
+        location.hash = '#/status';
+      }
+      onboardingStart.addEventListener('click', dismissOnboarding);
+      document.querySelector('#onboardingSkip').addEventListener('click', dismissOnboarding);
+      document.querySelector('#onboardingReshow').addEventListener('click', showOnboarding);
+      let onboarded = true;
+      try { onboarded = localStorage.getItem('vibe.onboarded') === '1'; } catch { onboarded = true; }
+      if (!onboarded) showOnboarding();
+
       void initialize();
     </script>
   </body>
