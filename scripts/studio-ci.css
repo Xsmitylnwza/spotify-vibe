@@ -355,14 +355,14 @@ body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 .vs-card-head h2 { font-size: 16px; }
 /* Inline editor card on the Scenes page (merged from the old Editor screen). */
 .vs-editor-card { scroll-margin-top: 80px; }
-/* The card is narrower than the old full-width editor page: stack the form
-   and the Discord preview the same way small viewports already do. */
-.vs-editor-card .vs-ed-grid { grid-template-columns: 1fr; }
-.vs-editor-card .vs-preview-col { position: static; }
-.vs-editor-card .vs-discord-card { max-width: 420px; }
-.vs-jstep-link { cursor: pointer; border-radius: var(--vs-r-sm); }
-.vs-jstep-link:hover { color: var(--vs-ink); }
-.vs-jstep-link:focus-visible { outline: 2px solid var(--vs-accent); outline-offset: 2px; }
+/* Scenes master-detail: the library list and the editor are separate
+   subviews. The detail view is full-width, so the two-column form + sticky
+   Discord preview layout applies again — no more scrolling past the whole
+   form to see the preview. */
+#screen-scenes[data-subview="list"] #sceneEditorCard { display: none; }
+#screen-scenes[data-subview="detail"] #sceneLibrary,
+#screen-scenes[data-subview="detail"] .vs-pairing { display: none; }
+.vs-detail-topbar { margin-bottom: var(--vs-s4); }
 .vs-sec-head { margin-bottom: var(--vs-s4); }
 .vs-sec-head h2 { font-size: 15px; }
 .vs-sec-head p { font-size: 13px; color: var(--vs-ink2); margin-top: 2px; }
@@ -693,22 +693,6 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 .vs-context .context-pill.live strong { color: var(--vs-accent-deep); }
 .vs-context .context-divider { color: var(--vs-ink3); font-size: 12px; }
 
-/* Journey stepper — slim, not cards */
-.vs-journey { display: flex; align-items: center; gap: 0; margin: 0 0 var(--vs-s6); padding: 0; list-style: none; }
-.vs-jstep { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--vs-ink3); }
-.vs-jstep-n {
-  width: 24px; height: 24px; border-radius: 50%;
-  border: 1px solid var(--vs-hairline); background: var(--vs-surface);
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; flex: 0 0 24px;
-}
-.vs-jstep small { display: block; font-size: 11px; color: var(--vs-ink3); }
-.vs-jstep.is-done { color: var(--vs-ink2); }
-.vs-jstep.is-done .vs-jstep-n { background: var(--vs-neutral-bg); border-color: transparent; color: var(--vs-ink2); }
-.vs-jstep.is-now { color: var(--vs-ink); font-weight: 500; }
-.vs-jstep.is-now .vs-jstep-n { background: var(--vs-accent); border-color: var(--vs-accent); color: #fff; }
-.vs-jline { flex: 1; height: 1px; background: var(--vs-hairline); margin: 0 12px; min-width: 16px; }
-
 /* Character card */
 .vs-char { display: flex; gap: 18px; align-items: center; }
 .vs-char-face {
@@ -992,9 +976,6 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   .vs-grid2 { grid-template-columns: 1fr; }
   .vs-savebar { bottom: 76px; flex-wrap: wrap; }
   #sceneList { margin: 0 calc(var(--vs-s4) * -1); padding: 0 var(--vs-s4); }
-  .vs-journey { overflow-x: auto; scrollbar-width: none; }
-  .vs-journey::-webkit-scrollbar { display: none; }
-  .vs-jstep { flex-shrink: 0; }
 }
 
 /* Settings: key status, system rows */

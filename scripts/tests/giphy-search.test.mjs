@@ -23,11 +23,54 @@ test('normalizes a GIPHY result into preview and Discord artwork URLs', () => {
     title: 'Lo-fi cat',
     previewUrl: 'https://media.giphy.com/preview.webp',
     originalUrl: 'https://media.giphy.com/original.gif',
+    originalBytes: null,
     pageUrl: 'https://giphy.com/gifs/gif-1',
     width: 640,
     height: 480,
   });
   assert.equal(normalizeGiphyResult({ id: 'unsafe', images: { original: { url: 'http://example.com/a.gif' } } }), null);
+});
+
+test('picks a Discord-friendly GIF rendition instead of a huge original', () => {
+  const result = normalizeGiphyResult({
+    id: 'big-1',
+    title: 'Huge GIF',
+    images: {
+      original: { url: 'https://media.giphy.com/big.gif', width: '800', height: '600', size: '12000000' },
+      downsized_large: { url: 'https://media.giphy.com/big-large.gif', width: '600', height: '450', size: '1800000' },
+      downsized: { url: 'https://media.giphy.com/big-small.gif', width: '300', height: '225', size: '700000' },
+    },
+  });
+
+  assert.equal(result.originalUrl, 'https://media.giphy.com/big-large.gif');
+  assert.equal(result.originalBytes, 1800000);
+});
+
+test('falls back to the smallest rendition when nothing fits the Discord budget', () => {
+  const result = normalizeGiphyResult({
+    id: 'massive-1',
+    title: 'Massive GIF',
+    images: {
+      original: { url: 'https://media.giphy.com/massive.gif', width: '1000', height: '800', size: '30000000' },
+      downsized: { url: 'https://media.giphy.com/massive-down.gif', width: '400', height: '320', size: '9000000' },
+    },
+  });
+
+  assert.equal(result.originalUrl, 'https://media.giphy.com/massive-down.gif');
+  assert.equal(result.originalBytes, 9000000);
+});
+
+test('never picks a webp rendition for the Discord artwork URL', () => {
+  const result = normalizeGiphyResult({
+    id: 'webp-1',
+    title: 'Webp only smaller',
+    images: {
+      original: { url: 'https://media.giphy.com/anim.gif', width: '500', height: '500', size: '900000' },
+      fixed_width: { webp: 'https://media.giphy.com/anim.webp', width: '200', height: '200', size: '100000' },
+    },
+  });
+
+  assert.equal(result.originalUrl, 'https://media.giphy.com/anim.gif');
 });
 
 test('searches GIPHY with bounded safe parameters and normalized results', async () => {

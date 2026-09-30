@@ -19,11 +19,63 @@ function httpsUrl(value) {
   return candidate.startsWith('https://') ? candidate : '';
 }
 
+// Discord fetches Rich Presence artwork through its own media proxy, which
+// silently fails on very large files and shows "?" instead. GIPHY's
+// `original` rendition is often 5–20MB, so prefer the largest rendition that
+// stays under a proxy-friendly budget. Only animated `.url` (GIF) renditions
+// are considered — never `.webp`, which Discord may not animate.
+const DISCORD_SAFE_BYTES = 2_500_000;
+const DISCORD_ARTWORK_RENDITIONS = [
+  'downsized_large',
+  'downsized_medium',
+  'downsized',
+  'downsized_small',
+  'fixed_height',
+  'fixed_width',
+  'fixed_height_small',
+  'fixed_width_small',
+  'original',
+];
+
+function pickDiscordArtworkUrl(images) {
+  const candidates = [];
+  for (const key of DISCORD_ARTWORK_RENDITIONS) {
+    const rendition = images?.[key];
+    const url = httpsUrl(rendition?.url);
+    if (!url) continue;
+    const bytes = Number(rendition?.size);
+    candidates.push({
+      key,
+      url,
+      bytes: Number.isFinite(bytes) && bytes > 0 ? bytes : Infinity,
+      width: Number(rendition?.width) || 0,
+    });
+  }
+  if (!candidates.length) return { url: '', key: '', bytes: null };
+  const fitting = candidates.filter((candidate) => candidate.bytes <= DISCORD_SAFE_BYTES);
+  if (fitting.length) {
+    // Best quality that fits: widest rendition wins; ties prefer the smaller
+    // rendition listed earlier.
+    fitting.sort((a, b) => (b.width - a.width)
+      || (DISCORD_ARTWORK_RENDITIONS.indexOf(a.key) - DISCORD_ARTWORK_RENDITIONS.indexOf(b.key)));
+    const winner = fitting[0];
+    return { url: winner.url, key: winner.key, bytes: winner.bytes === Infinity ? null : winner.bytes };
+  }
+  // Nothing fits the budget — every option is risky on Discord, so take the
+  // smallest file for the best chance of loading.
+  candidates.sort((a, b) => a.bytes - b.bytes);
+  const fallback = candidates[0];
+  return {
+    url: fallback.url,
+    key: fallback.key,
+    bytes: fallback.bytes === Infinity ? null : fallback.bytes,
+  };
+}
+
 export function normalizeGiphyResult(item) {
   const images = item?.images || {};
-  const originalUrl = httpsUrl(images.original?.url)
-    || httpsUrl(images.downsized_medium?.url)
-    || httpsUrl(images.downsized?.url);
+  const picked = pickDiscordArtworkUrl(images);
+  const originalUrl = picked.url;
   if (!item?.id || !originalUrl) return null;
 
   const previewUrl = httpsUrl(images.fixed_width_small?.webp)
@@ -37,6 +89,7 @@ export function normalizeGiphyResult(item) {
     title: text(item.title) || 'Untitled GIF',
     previewUrl,
     originalUrl,
+    originalBytes: picked.bytes,
     pageUrl: httpsUrl(item.url),
     width: Number(images.original?.width || 0) || null,
     height: Number(images.original?.height || 0) || null,

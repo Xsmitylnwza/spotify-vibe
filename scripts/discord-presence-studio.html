@@ -119,7 +119,7 @@
             <p id="overrideDuration" hidden></p>
           </div>
         </section>
-        <section class="app-screen" id="screen-scenes" data-screen="scenes" hidden>
+        <section class="app-screen" id="screen-scenes" data-screen="scenes" data-subview="list" hidden>
           <div class="vs-page">
             <div class="vs-page-head">
               <span class="vs-kicker">เลือกและจับคู่</span>
@@ -140,6 +140,9 @@
             </section>
             <section class="vs-card vs-editor-card" id="sceneEditorCard" aria-labelledby="editorTitle">
               <div class="vs-card-head">
+                <div class="vs-detail-topbar">
+                  <button class="vs-btn vs-btn-sm vs-btn-ghost" id="backToScenesButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg><span>กลับคลัง Scene</span></button>
+                </div>
                 <span class="vs-kicker">แต่ง Scene</span>
                 <h2 id="editorTitle">กำลังโหลด…</h2>
                 <p class="vs-subcopy">เริ่มจากส่วนสำคัญที่เห็นได้ชัด — ส่วนเสริมของ Discord จะซ่อนไว้จนกว่าคุณต้องการ</p>
@@ -151,22 +154,6 @@
               </div>
               <div class="vs-ed-grid">
                 <div class="vs-ed-main">
-                  <ol class="vs-journey" aria-label="ขั้นตอนแต่ง Scene">
-                    <li class="vs-jstep vs-jstep-link" id="journeySceneStep" tabindex="0" role="button" aria-label="กลับไปเลือก Scene จากรายการ">
-                      <span class="vs-jstep-n" aria-hidden="true">1</span>
-                      <span><span>เลือก Scene</span><small id="journeySceneStatus"></small></span>
-                    </li>
-                    <li class="vs-jline" aria-hidden="true"></li>
-                    <li class="vs-jstep" id="journeyCustomizeStep">
-                      <span class="vs-jstep-n" aria-hidden="true">2</span>
-                      <span><span>แต่งให้เป็นคุณ</span><small id="journeyCustomizeStatus"></small></span>
-                    </li>
-                    <li class="vs-jline" aria-hidden="true"></li>
-                    <li class="vs-jstep" id="journeyPreviewStep">
-                      <span class="vs-jstep-n" aria-hidden="true">3</span>
-                      <span><span>ตรวจทานและแสดง</span><small id="journeyPreviewStatus"></small></span>
-                    </li>
-                  </ol>
                   <section class="vs-card vs-character" aria-labelledby="characterTitle">
                     <div class="vs-char">
                       <span class="vs-char-face"><img id="characterHero" src="/art/hinata/poster.png" alt="Hinata ผมสีส้ม ชูกำปั้น พร้อมลุยแต้มต่อไป" width="192" height="192" /></span>
@@ -596,6 +583,7 @@ const STR = {
 "+ เพิ่ม Scene": "+ Add Scene",
 "ทำสำเนา": "Duplicate",
 "ลบ Scene": "Delete Scene",
+"กลับคลัง Scene": "Back to Scene library",
 "การจับคู่แอป": "App pairing",
 "แอปของคุณ": "Your apps",
 "แอปที่เปิดอยู่": "Running apps",
@@ -873,6 +861,7 @@ const STR = {
 "ค้นหา GIF ไอคอนเล็ก": "Find a GIF for the small icon",
 "เลือก GIF สำหรับภาพหลักแล้ว กำลังบันทึก Scene…": "Picked a GIF for the main artwork — saving the Scene…",
 "เลือก GIF สำหรับไอคอนเล็กแล้ว กำลังบันทึก Scene…": "Picked a GIF for the small icon — saving the Scene…",
+"แปลงลิงก์ GIPHY เป็นลิงก์ไฟล์ GIF ตรงให้แล้ว": "Converted the GIPHY link into a direct GIF file link",
 "ใช้ GIF: {t}": "Use GIF: {t}",
 "ไม่เจอ GIF ที่ตรงกับการค้นหา ลองคำอื่นดู": "No GIFs matched your search — try another term",
 "ตอนนี้ไม่มี GIF กำลังฮิต ลองค้นหาแทน": "No trending GIFs right now — try searching instead",
@@ -1199,24 +1188,6 @@ function reemitToast() {
       const statusEmpty = document.querySelector('#statusEmpty');
       const draftBadge = document.querySelector('#draftBadge');
       const liveBadge = document.querySelector('#liveBadge');
-      const journeySceneStep = document.querySelector('#journeySceneStep');
-      // Step 1 jumps back to the scene list above the inline editor.
-      const goToSceneList = () => {
-        const lib = document.querySelector('#sceneLibrary');
-        if (lib) {
-          const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          lib.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-        }
-      };
-      journeySceneStep.addEventListener('click', goToSceneList);
-      journeySceneStep.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToSceneList(); }
-      });
-      const journeyCustomizeStep = document.querySelector('#journeyCustomizeStep');
-      const journeyPreviewStep = document.querySelector('#journeyPreviewStep');
-      const journeySceneStatus = document.querySelector('#journeySceneStatus');
-      const journeyCustomizeStatus = document.querySelector('#journeyCustomizeStatus');
-      const journeyPreviewStatus = document.querySelector('#journeyPreviewStatus');
       const previewLargeImage = document.querySelector('#previewLargeImage');
       const previewSmallImage = document.querySelector('#previewSmallImage');
       const previewSceneName = document.querySelector('#previewSceneName');
@@ -1453,7 +1424,7 @@ function reemitToast() {
         if (busy) {
           setText(document.querySelector('#useButtonLabel'), t('กำลังอัปเดต Discord…'));
         } else {
-          renderEditorJourney();
+          renderEditorMeta();
         }
       }
 
@@ -1614,14 +1585,6 @@ function reemitToast() {
         return { listening: '♫', playing: '⌘', watching: '▶', competing: '⚔' }[scene.activityType] || '●';
       }
 
-      function setJourneyStepState(step, { complete = false, current = false } = {}) {
-        step.classList.toggle('is-complete', complete);
-        step.classList.toggle('is-done', complete);
-        step.classList.toggle('is-current', current);
-        if (current) step.setAttribute('aria-current', 'step');
-        else step.removeAttribute('aria-current');
-      }
-
       function optionCountLabel(count, noun, enSingular, enPlural) {
         if (!count) return t('ปิด');
         if (LANG === 'en') return count + ' ' + (count === 1 ? enSingular : enPlural);
@@ -1632,7 +1595,11 @@ function reemitToast() {
         return runtime?.selectionMode === 'apps' ? t('ปักหมุดไว้ 1 ชม.') : t('ปักหมุดจนถึงรอบถัดไป');
       }
 
-      function renderEditorJourney() {
+      // Editor header meta: which scene is being edited vs. what's live on
+      // Discord, the publish button label, and the disclosure option counts.
+      // (The old 3-step journey stepper was removed — list → detail navigation
+      // replaced it.)
+      function renderEditorMeta() {
         const scene = currentScene();
         if (!scene) return;
         const liveName = runtime?.currentSceneName || runtime?.scheduledSceneName || t('ไม่มี Scene ที่กำลังแสดง');
@@ -1640,8 +1607,6 @@ function reemitToast() {
         const connected = runtime?.connectionState
           ? runtime.connectionState === 'connected'
           : Boolean(runtime?.connected);
-        const essentialsReady = ['sceneName', 'activityName', 'details', 'state']
-          .every((name) => !fieldValidationMessage(form.elements[name]));
 
         setText(editingSceneName, scene.sceneName || t('Scene ไร้ชื่อ'));
         setText(liveSceneName, liveName);
@@ -1653,13 +1618,6 @@ function reemitToast() {
         liveContextPill.title = connected
           ? (selectedIsLive ? t('คุณกำลังแก้ไข Scene ที่แสดงบน Discord อยู่') : t('Scene นี้กำลังแสดงบน Discord'))
           : t('Discord กำลังเชื่อมต่อใหม่ Scene ที่เลือกไว้จะกลับมาแสดงอัตโนมัติ');
-
-        setText(journeySceneStatus, scene.sceneName || t('Scene ไร้ชื่อ'));
-        setText(journeyCustomizeStatus, essentialsReady ? t('กรอกข้อมูลหลักครบแล้ว') : t('กรอกช่องที่จำเป็นให้ครบ'));
-        setText(journeyPreviewStatus, selectedIsLive ? t('กำลังแสดง · ตรวจทานก่อนแก้') : t('พร้อมแสดงบน Discord'));
-        setJourneyStepState(journeySceneStep, { complete: true });
-        setJourneyStepState(journeyCustomizeStep, { complete: essentialsReady, current: !essentialsReady });
-        setJourneyStepState(journeyPreviewStep, { complete: selectedIsLive, current: essentialsReady });
 
         if (!applyBusy) setText(document.querySelector('#useButtonLabel'), selectedIsLive ? t('อัปเดตบน Discord') : t('แสดงบน Discord'));
         setText(applyHint, overrideDurationCopy());
@@ -1766,7 +1724,7 @@ function reemitToast() {
             badge.textContent = t('ร่าง');
           }
           button.append(icon, meta, badge);
-          button.addEventListener('click', () => selectScene(scene.id, true));
+          button.addEventListener('click', () => openSceneDetail(scene.id));
           sceneList.append(button);
           if (focusedSceneId === scene.id) focusRestoreTarget = button;
         });
@@ -1826,7 +1784,7 @@ function reemitToast() {
         editorTitle.textContent = config.scenes[index].sceneName || t('Scene ไร้ชื่อ');
       }
 
-      function selectScene(sceneId, reveal) {
+      function selectScene(sceneId) {
         if (!config?.scenes.some((scene) => scene.id === sceneId)) return;
         if (currentScene()) syncFormToScene();
         selectedSceneId = sceneId;
@@ -1835,18 +1793,33 @@ function reemitToast() {
         editorTitle.textContent = currentScene().sceneName;
         renderSceneList();
         renderPreview();
-        renderEditorJourney();
+        renderEditorMeta();
         showMessage('');
-        if (reveal) revealEditorCard();
       }
 
-      // The editor now lives inline on the Scenes page: bring it into view
-      // when the user picks a scene from the list above it.
-      function revealEditorCard() {
-        const card = document.querySelector('#sceneEditorCard');
-        if (!card) return;
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        card.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      // Scenes master-detail: the library list and the editor are separate
+      // subviews. Opening a scene goes deeper into its detail view (form on
+      // the left, Discord preview pinned on the right) instead of scrolling
+      // to an editor buried below the list.
+      let scenesSubView = 'list';
+      function setScenesSubView(view) {
+        scenesSubView = view === 'detail' ? 'detail' : 'list';
+        const screen = document.querySelector('#screen-scenes');
+        if (screen) screen.dataset.subview = scenesSubView;
+      }
+      function openSceneDetail(sceneId) {
+        selectScene(sceneId);
+        setScenesSubView('detail');
+        window.scrollTo(0, 0);
+        const title = document.querySelector('#editorTitle');
+        if (title) {
+          title.setAttribute('tabindex', '-1');
+          title.focus({ preventScroll: true });
+        }
+      }
+      function closeSceneDetail() {
+        setScenesSubView('list');
+        window.scrollTo(0, 0);
       }
 
       function updateTimerField() {
@@ -1895,6 +1868,15 @@ function reemitToast() {
         }
         return '';
       }
+      // Turn a pasted GIPHY page link into the direct GIF file Discord needs,
+      // e.g. https://giphy.com/gifs/cute-cat-aBc123XyZ →
+      // https://media.giphy.com/media/aBc123XyZ/giphy.gif — so a paste "just works".
+      function normalizeArtworkUrl(value) {
+        const url = String(value || '').trim();
+        const match = /^https:\/\/(www\.)?giphy\.com\/(gifs|stickers|clips)\/(?:[^/\s?#]*-)?([A-Za-z0-9]+)\/?(?:[?#].*)?$/.exec(url);
+        if (!match) return url;
+        return 'https://media.giphy.com/media/' + match[3] + '/giphy.gif';
+      }
       function flagArtError(text) {
         const warn = document.querySelector('#previewArtWarning');
         if (!warn) return;
@@ -1933,7 +1915,7 @@ function reemitToast() {
       document.querySelectorAll('[data-character-art]').forEach(button => button.addEventListener('click', () => {
         form.elements.largeImage.value = button.dataset.characterArt;
         form.elements.largeImageText.value = 'Hinata · พร้อมสำหรับแต้มต่อไป';
-        syncFormToScene(); renderPreview(); renderEditorJourney(); scheduleSave();
+        syncFormToScene(); renderPreview(); renderEditorMeta(); scheduleSave();
       }));
       queueMicrotask(refreshCharacterMotion);
       function setImage(image, placeholder, value) {
@@ -2267,7 +2249,7 @@ function reemitToast() {
         }
         errorBox.title = mappedError.title || '';
         renderSceneList();
-        renderEditorJourney();
+        renderEditorMeta();
         renderClock();
         renderNowSub();
       }
@@ -2337,7 +2319,7 @@ function reemitToast() {
         fillForm(currentScene());
         editorTitle.textContent = currentScene()?.sceneName || t('Scene ไร้ชื่อ');
         renderPreview();
-        renderEditorJourney();
+        renderEditorMeta();
       }
 
       async function requestJson(url, options) {
@@ -2939,7 +2921,7 @@ function reemitToast() {
         syncFormToScene();
         renderSceneList();
         renderPreview();
-        renderEditorJourney();
+        renderEditorMeta();
         scheduleSave();
       });
       form.addEventListener('focusin', (event) => {
@@ -2947,6 +2929,16 @@ function reemitToast() {
       });
       form.addEventListener('focusout', (event) => {
         if (event.target.matches('input, select')) {
+          // Pasting a GIPHY page link is the #1 way artwork silently breaks on
+          // Discord — rewrite it to the direct file before validating.
+          if (event.target.name === 'largeImage' || event.target.name === 'smallImage') {
+            const fixed = normalizeArtworkUrl(event.target.value);
+            if (fixed !== event.target.value) {
+              event.target.value = fixed;
+              event.target.dispatchEvent(new Event('input', { bubbles: true }));
+              showMessage('แปลงลิงก์ GIPHY เป็นลิงก์ไฟล์ GIF ตรงให้แล้ว', 'success');
+            }
+          }
           touchedFields.add(event.target.name);
           validateField(event.target, { reveal: true });
           const buttonPair = /^button([12])(?:Label|Url)$/.exec(event.target.name);
@@ -2956,7 +2948,7 @@ function reemitToast() {
               validateField(form.elements[name], { reveal: true });
             });
           }
-          renderEditorJourney();
+          renderEditorMeta();
         }
         requestAnimationFrame(() => {
           highlightPreviewForField(form.contains(document.activeElement) ? document.activeElement : null);
@@ -2968,6 +2960,8 @@ function reemitToast() {
         void saveConfig(true);
       });
       useButton.addEventListener('click', () => void useSelectedScene());
+
+      document.querySelector('#backToScenesButton').addEventListener('click', closeSceneDetail);
 
       document.querySelector('#addSceneButton').addEventListener('click', () => {
         if (!config) return;
@@ -2997,7 +2991,8 @@ function reemitToast() {
         renderAll();
         scheduleSave();
         showMessage('เพิ่ม Scene "{name}" แล้ว', 'success', { name: scene.sceneName });
-        revealEditorCard();
+        setScenesSubView('detail');
+        window.scrollTo(0, 0);
         const nameField = document.querySelector('#sceneName');
         if (nameField) nameField.focus({ preventScroll: true });
       });
@@ -3028,6 +3023,7 @@ function reemitToast() {
         selectedSceneId = config.scenes[0].id;
         renderAll();
         scheduleSave();
+        setScenesSubView('list');
         showMessage('ลบ Scene "{name}" แล้ว', 'success', { name: scene.sceneName });
       });
 
@@ -3179,6 +3175,9 @@ function reemitToast() {
         if (changed) {
           // Standard SPA behavior: never land mid-page on a new screen.
           window.scrollTo(0, 0);
+          // Entering Scenes always lands on the library list; the editor is
+          // a detail view opened by clicking a scene.
+          if (screen === 'scenes' && typeof setScenesSubView === 'function') setScenesSubView('list');
           // Rescue keyboard focus stranded inside the now-hidden screen
           // (back/forward and programmatic navigation). Click navigation keeps
           // focus on the activated link, which we must not steal.
