@@ -128,8 +128,7 @@
             </div>
             <section class="vs-card vs-library" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
               <div class="vs-card-head">
-                <span class="vs-kicker">คลัง Scene</span>
-                <h2 id="sceneLibraryTitle">Scene ทั้งหมด</h2>
+                <h2 id="sceneLibraryTitle">คลัง Scene</h2>
                 <p class="vs-subcopy">เลือก Scene ที่ต้องการแก้ไข — Scene ที่มีป้าย "กำลังแสดง" คือ Scene ที่อยู่บน Discord ตอนนี้</p>
               </div>
               <div class="vs-toolbar vs-toolbar-top">
@@ -334,7 +333,6 @@
               <select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select>
               <div class="vs-pair-bar">
                 <select id="appPresetSelect" class="vs-select" aria-label="Scene ที่เลือก"></select>
-                <div id="presetTiles" hidden></div>
                 <button type="button" class="vs-btn vs-btn-primary" id="addAppMapping"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>จับคู่เลย</button>
                 <button type="button" class="vs-btn vs-btn-ghost" id="createPresetFromSetup">+ สร้าง Scene ใหม่</button>
               </div>
@@ -469,7 +467,6 @@
                 <button class="vs-btn vs-btn-sm" id="quitButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>ออก</button>
               </div>
               <p class="vs-card-foot vs-caption" id="configPath" title="">ไฟล์ตั้งค่าอยู่ในเครื่องนี้</p>
-              <button id="openSettingsButtonSide" type="button" hidden>ตั้งค่าขั้นสูง</button>
             </section>
           </div>
         </section>
@@ -496,7 +493,7 @@
 
         <div class="gif-unavailable" id="gifUnavailable" hidden>
           <strong>ยังเชื่อมต่อค้นหา GIF ไม่ได้</strong>
-          <p id="gifUnavailableMessage">ใส่ GIPHY API key ที่ตั้งค่าขั้นสูงเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้</p>
+          <p id="gifUnavailableMessage">ใส่ GIPHY API key ที่ตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้</p>
         </div>
 
         <div class="gif-search-panel" id="gifSearchPanel" hidden>
@@ -626,6 +623,8 @@ const STR = {
 "บันทึกการแก้ไข": "Save changes",
 "+ Scene ใหม่": "+ New Scene",
 "Scene ใหม่ {n}": "New Scene {n}",
+"เพิ่งสร้าง Scene นี้": "Just created this Scene",
+"กำลังตกแต่ง…": "Setting things up…",
 "เพิ่ม Scene \"{name}\" แล้ว": ({name}) => `Added Scene "${name}"`,
 "ทำสำเนา \"{name}\" แล้ว": ({name}) => `Duplicated "${name}"`,
 "ลบ Scene \"{name}\"?": ({name}) => `Delete Scene "${name}"?`,
@@ -838,7 +837,6 @@ const STR = {
 "ล้าง Rich Presence ก่อนออก": "Clear Rich Presence before quitting",
 "ออก": "Quit",
 "ไฟล์ตั้งค่าอยู่ในเครื่องนี้": "The config file lives on this machine",
-"ตั้งค่าขั้นสูง": "Advanced settings",
 "companion จะเปิดพร้อม Windows": "The companion will start with Windows",
 "ปิดการเปิดพร้อม Windows แล้ว": "Windows startup disabled",
 "ล้าง Rich Presence และหยุดการสลับอัตโนมัติแล้ว": "Rich Presence cleared and auto-switching stopped",
@@ -856,7 +854,7 @@ const STR = {
 "ดู GIF กำลังฮิตหรือค้นหา แล้วเลือกเพื่อใส่ลิงก์ภาพเคลื่อนไหวลง Scene นี้": "Browse trending GIFs or search, then pick one to add its animated link to this Scene",
 "ปิดหน้าค้นหา GIF": "Close GIF search",
 "ยังเชื่อมต่อค้นหา GIF ไม่ได้": "GIF search isn't connected yet",
-"ใส่ GIPHY API key ที่ตั้งค่าขั้นสูงเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้": "Add a GIPHY API key under advanced settings to search GIFs — or paste your own HTTPS GIF link",
+"ใส่ GIPHY API key ที่ตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้": "Add a GIPHY API key in settings to search GIFs — or paste your own HTTPS GIF link",
 "ใส่คีย์ GIPHY ที่หน้าตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้": "Add a GIPHY key in settings to search GIFs — or paste your own HTTPS GIF link",
 "กำลังโหลด GIF กำลังฮิต…": "Loading trending GIFs…",
 "โหลด GIF เพิ่ม": "Load more GIFs",
@@ -1237,7 +1235,6 @@ function reemitToast() {
       const settingsForm = document.querySelector('#settingsForm');
       const settingsMessage = document.querySelector('#settingsMessage');
       const openSettingsButton = document.querySelector('#openSettingsButton');
-      const openSettingsButtonSide = document.querySelector('#openSettingsButtonSide');
       const setupBanner = document.querySelector('#setupBanner');
       const setupBannerText = document.querySelector('#setupBannerText');
       const setupBannerButton = document.querySelector('#setupBannerButton');
@@ -2938,11 +2935,27 @@ function reemitToast() {
       useButton.addEventListener('click', () => void useSelectedScene());
 
       document.querySelector('#addSceneButton').addEventListener('click', () => {
-        if (!config || !currentScene()) return;
+        if (!config) return;
         syncFormToScene();
-        const scene = clone(currentScene());
-        scene.id = identifier('scene');
-        scene.sceneName = t('Scene ใหม่ {n}', { n: config.scenes.length + 1 }).slice(0, 40);
+        const scene = {
+          id: identifier('scene'),
+          sceneName: t('Scene ใหม่ {n}', { n: config.scenes.length + 1 }).slice(0, 40),
+          activityType: 'playing',
+          activityName: 'Vibe Presence',
+          details: t('เพิ่งสร้าง Scene นี้'),
+          detailsUrl: '',
+          state: t('กำลังตกแต่ง…'),
+          stateUrl: '',
+          largeImage: '',
+          largeImageText: '',
+          largeImageUrl: '',
+          smallImage: '',
+          smallImageText: '',
+          smallImageUrl: '',
+          timerMode: 'elapsed',
+          timerMinutes: 30,
+          buttons: [],
+        };
         config.scenes.push(scene);
         selectedSceneId = scene.id;
         fillForm(scene);
@@ -3066,11 +3079,10 @@ function reemitToast() {
         }
       });
 
-      // "ตั้งค่าขั้นสูง" buttons now jump to the Settings screen (the API-keys
+      // "ตั้งค่า" buttons jump to the Settings screen (the API-keys
       // form lives there instead of a modal).
       const goToSettingsScreen = () => { location.hash = '#/settings'; };
       openSettingsButton.addEventListener('click', goToSettingsScreen);
-      openSettingsButtonSide.addEventListener('click', goToSettingsScreen);
       setupBannerButton.addEventListener('click', goToSettingsScreen);
       settingsForm.addEventListener('submit', (event) => void saveSettings(event));
       clearGiphyButton.addEventListener('click', () => {
@@ -3234,24 +3246,10 @@ function reemitToast() {
         const mode = runtime?.selectionMode;
         setText(document.querySelector('#appSelectionReason'), !runtime?.scheduleEnabled ? t('หยุดสลับอัตโนมัติอยู่') : runtime?.manualOverride ? t('กำลังใช้ Scene ที่ปักไว้ชั่วคราว') : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : t('รอเปิดแอปที่จับคู่ไว้')) : t('ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้'));
       }
-      function renderPresetTiles() {
-        const host=document.querySelector('#presetTiles');host.replaceChildren();
-        let tileIndex=0;
-        for(const scene of config.scenes){
-          const button=document.createElement('button');button.type='button';button.className='preset-tile';button.style.animationDelay=Math.min(tileIndex++,9)*28+'ms';button.setAttribute('aria-pressed',String(document.querySelector('#appPresetSelect').value===scene.id));
-          const img=document.createElement('img');img.width=56;img.height=56;img.alt='';
-          const source=characterPreviewSource(scene.largeImage);
-          img.src=source||'/art/hinata/poster.png';img.onerror=()=>{img.onerror=null;img.src='/art/hinata/poster.png';};
-          const name=document.createElement('span');name.textContent=scene.sceneName;button.append(img,name);
-          button.onclick=()=>{document.querySelector('#appPresetSelect').value=scene.id;renderPresetTiles();};host.append(button);
-        }
-        host.classList.add('is-mounted');
-      }
       function presetOptions(select, selected) {
         select.replaceChildren();
         for (const scene of config.scenes) { const option = new Option(scene.sceneName, scene.id); select.add(option); }
         if (selected) select.value = selected;
-        if(select.id === "appPresetSelect") renderPresetTiles();
       }
       function renderMappings() {
         const list = document.querySelector('#appMappingList'); list.replaceChildren();
