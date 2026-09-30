@@ -938,3 +938,42 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   border: 1px solid var(--vs-hairline); border-radius: var(--vs-r-pill);
   padding: 2px 10px; background: var(--vs-surface); white-space: nowrap;
 }
+
+/* ---------- Update banner (Electron shell) ---------- */
+.vs-update-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--vs-s3);
+  padding: 10px var(--vs-s6);
+  background: var(--vs-accent-soft);
+  border-bottom: 1px solid var(--vs-accent-line);
+  font-size: 13px;
+  color: var(--vs-ink);
+}
+.vs-update-banner[hidden] {
+  display: none;
+}
+.vs-update-banner p {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+.vs-update-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vs-accent);
+  flex: none;
+}
+.vs-update-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vs-s2);
+  flex: none;
+}
+.vs-update-dismiss {
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+  line-height: 1;
+}

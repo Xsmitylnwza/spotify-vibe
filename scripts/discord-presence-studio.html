@@ -42,6 +42,15 @@
       </div>
     </header>
 
+    <div class="vs-update-banner" id="updateBanner" role="status" hidden>
+      <span class="vs-update-dot" aria-hidden="true"></span>
+      <p><span id="updateBannerCopy">มีเวอร์ชันใหม่ของ Vibe Studio แล้ว</span> <span id="updateBannerVersion"></span></p>
+      <div class="vs-update-actions">
+        <button class="vs-btn vs-btn-sm vs-btn-primary" id="updateActionButton" type="button">อัปเดตเลย</button>
+        <button class="vs-icon-btn vs-update-dismiss" id="updateDismissButton" type="button" aria-label="ปิดแบนเนอร์">✕</button>
+      </div>
+    </div>
+
     <div class="setup-banner vs-setup" id="setupBanner" role="status">
       <p id="setupBannerText">ยังไม่ได้เชื่อมต่อ Discord — ใส่รหัสแอปพลิเคชันเพื่อเริ่มใช้งาน</p>
       <button class="vs-btn vs-btn-sm vs-btn-primary" id="setupBannerButton" type="button">ตั้งค่า</button>
@@ -423,12 +432,27 @@
               <p class="message" id="settingsMessage" role="status" aria-live="polite"></p>
               <p class="vs-card-foot" id="apiKeysSummary">คีย์ทั้งหมดเก็บไว้ในเครื่องนี้เท่านั้น</p>
             </section>
+            <section class="vs-card" id="electronAppCard" hidden>
+              <div class="vs-card-head">
+                <h2>แอป Vibe Studio</h2>
+                <p class="vs-subcopy">เวอร์ชันเดสก์ท็อป — ทำงานเบื้องหลังเงียบๆ</p>
+              </div>
+              <div class="vs-sysrow">
+                <div class="vs-sysrow-copy"><strong>เวอร์ชัน</strong><small id="appVersionValue">…</small></div>
+                <button class="vs-btn vs-btn-sm" id="checkUpdatesButton" type="button">ตรวจหาอัปเดต</button>
+              </div>
+              <div class="vs-sysrow">
+                <div class="vs-sysrow-copy"><strong>เปิดพร้อมระบบ</strong><small>เปิดแอปแบบซ่อนทุกครั้งที่ล็อกอิน</small></div>
+                <label class="vs-switch"><input id="launchAtLoginToggle" type="checkbox" /><span></span></label>
+              </div>
+              <p class="vs-card-foot vs-caption">ปิดหน้าต่างแล้วแอปยังทำงานต่อในถาดระบบ — คลิกขวาที่ไอคอนเพื่อออกจริง</p>
+            </section>
             <section class="vs-card">
               <div class="vs-card-head">
                 <h2>Companion บนเครื่องนี้</h2>
                 <p class="vs-subcopy">สิ่งที่ทำงานอยู่เบื้องหลัง — ปกติไม่ต้องแตะ</p>
               </div>
-              <div class="vs-sysrow">
+              <div class="vs-sysrow" id="legacyAutostartRow">
                 <div class="vs-sysrow-copy"><strong>เปิดพร้อม Windows <span class="vs-platform-tag">เฉพาะ Windows</span></strong><small id="autostartHint">เปิดแบบซ่อนหลังล็อกอิน</small></div>
                 <label class="vs-switch"><input id="autostartToggle" type="checkbox" /><span></span></label>
               </div>
@@ -913,6 +937,24 @@ const STR = {
 "ภาษาและธีม": "Language and theme",
 "ภาษา": "Language",
 "สลับธีมสว่าง/มืด": "Toggle light/dark theme",
+/* Electron shell — update banner + desktop app card */
+"มีเวอร์ชันใหม่ของ Vibe Studio แล้ว": "A new version of Vibe Studio is available",
+"อัปเดตเลย": "Update now",
+"กำลังดาวน์โหลดอัปเดต…": "Downloading update…",
+"ดาวน์โหลดเสร็จแล้ว — รีสตาร์ทเพื่อติดตั้ง": "Download complete — restart to install",
+"รีสตาร์ทเลย": "Restart now",
+"ปิดแบนเนอร์": "Dismiss banner",
+"แอป Vibe Studio": "Vibe Studio app",
+"เวอร์ชันเดสก์ท็อป — ทำงานเบื้องหลังเงียบๆ": "Desktop build — quietly runs in the background",
+"เวอร์ชัน": "Version",
+"ตรวจหาอัปเดต": "Check for updates",
+"กำลังตรวจหา…": "Checking…",
+"เป็นเวอร์ชันล่าสุดแล้ว": "You're on the latest version",
+"ตรวจหาอัปเดตไม่สำเร็จ": "Couldn't check for updates",
+"ดาวน์โหลดอัปเดตไม่สำเร็จ": "Update download failed",
+"เปิดพร้อมระบบ": "Launch at startup",
+"เปิดแอปแบบซ่อนทุกครั้งที่ล็อกอิน": "Start hidden at every login",
+"ปิดหน้าต่างแล้วแอปยังทำงานต่อในถาดระบบ — คลิกขวาที่ไอคอนเพื่อออกจริง": "Closing the window keeps the app running in the tray — right-click the icon to quit for real",
 };
 
 /* innerHTML replacements for elements carrying data-i18n-html (Thai source kept inline) */
@@ -1081,6 +1123,7 @@ function setLanguage(lang, opts) {
     renderSecretsStatus();
     reemitSaveState();
     reemitToast();
+    if (typeof window.__vibeElectronRelocalize === 'function') window.__vibeElectronRelocalize();
   } catch (e) { /* renderers may not be ready during very early init */ }
 }
 
@@ -3190,6 +3233,138 @@ function reemitToast() {
       setInterval(() => { if (!document.hidden) void pollState(); }, 500);
       document.addEventListener('visibilitychange', () => { if (!document.hidden) void pollState(); });
 
+      // Electron desktop shell integration — no-op in a plain browser.
+      // - update banner driven by main-process electron-updater events
+      // - "แอป Vibe Studio" settings card: version, check-for-updates,
+      //   launch-at-login toggle (supersedes the legacy Windows-shortcut row)
+      function initElectronShell() {
+        const vibe = window.vibeStudio;
+        if (!vibe || !vibe.isElectron) return;
+        const banner = document.querySelector('#updateBanner');
+        const bannerCopy = document.querySelector('#updateBannerCopy');
+        const bannerVersion = document.querySelector('#updateBannerVersion');
+        const actionButton = document.querySelector('#updateActionButton');
+        const dismissButton = document.querySelector('#updateDismissButton');
+        let dismissedVersion = null;
+        let lastState = null;
+        let bannerMode = null; // 'available' | 'downloading' | 'downloaded'
+
+        function renderBanner() {
+          const state = lastState;
+          if (!state) { banner.hidden = true; bannerMode = null; return; }
+          if (state.downloaded) {
+            bannerMode = 'downloaded';
+            banner.hidden = false;
+            bannerCopy.textContent = t('ดาวน์โหลดเสร็จแล้ว — รีสตาร์ทเพื่อติดตั้ง');
+            bannerVersion.textContent = '';
+            actionButton.textContent = t('รีสตาร์ทเลย');
+            actionButton.disabled = false;
+            actionButton.hidden = false;
+            return;
+          }
+          if (state.available && dismissedVersion !== state.available) {
+            banner.hidden = false;
+            bannerVersion.textContent = state.available ? '(v' + state.available + ')' : '';
+            if (state.downloading) {
+              bannerMode = 'downloading';
+              bannerCopy.textContent = t('กำลังดาวน์โหลดอัปเดต…') + ' ' + (state.progress || 0) + '%';
+              actionButton.hidden = true;
+            } else {
+              bannerMode = 'available';
+              bannerCopy.textContent = t('มีเวอร์ชันใหม่ของ Vibe Studio แล้ว');
+              actionButton.textContent = t('อัปเดตเลย');
+              actionButton.disabled = false;
+              actionButton.hidden = false;
+            }
+            return;
+          }
+          banner.hidden = true;
+          bannerMode = null;
+        }
+
+        window.__vibeElectronRelocalize = () => renderBanner();
+
+        actionButton.addEventListener('click', async () => {
+          if (bannerMode === 'downloaded') {
+            vibe.quitAndInstall();
+            return;
+          }
+          actionButton.disabled = true;
+          try {
+            bannerMode = 'downloading';
+            bannerCopy.textContent = t('กำลังดาวน์โหลดอัปเดต…');
+            actionButton.hidden = true;
+            const result = await vibe.downloadUpdate();
+            if (result && result.ok === false) {
+              // Dev mode / updater unavailable — restore the banner.
+              bannerMode = 'available';
+              renderBanner();
+            }
+          } catch (error) {
+            bannerMode = 'available';
+            renderBanner();
+            showMessage(t('ดาวน์โหลดอัปเดตไม่สำเร็จ'), 'error');
+          }
+        });
+        dismissButton.addEventListener('click', () => {
+          dismissedVersion = lastState && lastState.available;
+          banner.hidden = true;
+          bannerMode = null;
+        });
+        vibe.onUpdateState((state) => {
+          lastState = state;
+          renderBanner();
+        });
+        vibe.getUpdateState().then((state) => {
+          lastState = state;
+          renderBanner();
+        }).catch(() => {});
+
+        // Settings → "แอป Vibe Studio" card (desktop only).
+        const appCard = document.querySelector('#electronAppCard');
+        if (appCard) appCard.hidden = false;
+        const legacyRow = document.querySelector('#legacyAutostartRow');
+        if (legacyRow) legacyRow.hidden = true;
+        vibe.getVersion().then((version) => {
+          document.querySelector('#appVersionValue').textContent = 'v' + version;
+        }).catch(() => {});
+        const loginToggle = document.querySelector('#launchAtLoginToggle');
+        vibe.getOpenAtLogin().then((enabled) => {
+          loginToggle.checked = Boolean(enabled);
+        }).catch(() => {});
+        loginToggle.addEventListener('change', async () => {
+          loginToggle.disabled = true;
+          try {
+            loginToggle.checked = await vibe.setOpenAtLogin(loginToggle.checked);
+          } catch (error) {
+            loginToggle.checked = !loginToggle.checked;
+            showMessage(error && error.message ? error.message : t('ตรวจหาอัปเดตไม่สำเร็จ'), 'error');
+          } finally {
+            loginToggle.disabled = false;
+          }
+        });
+        const checkButton = document.querySelector('#checkUpdatesButton');
+        checkButton.addEventListener('click', async () => {
+          checkButton.disabled = true;
+          const original = checkButton.textContent;
+          checkButton.textContent = t('กำลังตรวจหา…');
+          try {
+            await vibe.checkForUpdates();
+            const state = await vibe.getUpdateState();
+            lastState = state;
+            renderBanner();
+            if (!state.available && !state.downloaded) {
+              showMessage(t('เป็นเวอร์ชันล่าสุดแล้ว'), 'success');
+            }
+          } catch (error) {
+            showMessage(t('ตรวจหาอัปเดตไม่สำเร็จ'), 'error');
+          } finally {
+            checkButton.disabled = false;
+            checkButton.textContent = original;
+          }
+        });
+      }
+
       // First-run onboarding — frontend only, fail-open: if storage is
       // unavailable the Studio still works and the overlay simply won't show.
       const onboardingOverlay = document.querySelector('#onboardingOverlay');
@@ -3216,6 +3391,7 @@ function reemitToast() {
       // to the persisted language before the first data render.
       wireLangThemeToggles();
       applyI18n();
+      initElectronShell();
 
       void initialize();
     </script>
