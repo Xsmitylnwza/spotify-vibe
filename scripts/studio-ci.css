@@ -465,8 +465,8 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   color: var(--vs-ink2); font-size: 18px; font-weight: 600;
 }
 .vs-scene-meta { min-width: 0; flex: 1; }
-.vs-scene-name { font-size: 14px; font-weight: 500; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vs-scene-sub { font-size: 12px; color: var(--vs-ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vs-scene-name { display: block; font-size: 14px; font-weight: 500; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vs-scene-sub { display: block; font-size: 12px; color: var(--vs-ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #sceneList .vs-scene-row .vs-pill { flex: 0 0 auto; }
 .vs-toolbar { display: flex; gap: 8px; margin-top: var(--vs-s4); flex-wrap: wrap; }
 

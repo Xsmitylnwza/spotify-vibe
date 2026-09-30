@@ -89,28 +89,74 @@
           </div>
         </section>
         <section class="app-screen" id="screen-scenes" data-screen="scenes" hidden>
-          <aside class="side-panel scene-panel" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
-        <div class="panel-heading">
-          <div><span class="kicker">Scene library</span><h2 id="sceneLibraryTitle">Scenes</h2></div>
-        </div>
-        <p class="subcopy">Choose the Presence you want to personalize. The live Scene is marked separately.</p>
-        <div class="scene-list" id="sceneList"></div>
-        <div class="scene-tools">
-          <button class="button small" id="addSceneButton" type="button">+ Add</button>
-          <button class="button small" id="duplicateSceneButton" type="button">Duplicate</button>
-          <button class="button small danger" id="deleteSceneButton" type="button">Delete Scene</button>
-        </div>
-      </aside>
-          <section class="application-manager" aria-labelledby="appsTitle">
-          <div class="apps-heading"><div><h1 id="appsTitle">แอปของคุณ</h1></div><button class="button" type="button" id="refreshApps">รีเฟรช</button></div>
-          <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
-          <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกหลายแอปได้</span></div><div id="applicationTiles" class="application-tiles" aria-label="แอปที่เปิดอยู่"></div><select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select><div class="app-add-row pairing-bar"><div class="visual-presets"><span>ใช้ Scene</span><div id="presetTiles" class="preset-tiles"></div><select id="appPresetSelect" hidden aria-label="Scene ที่เลือก"></select></div><button type="button" class="button primary" id="addAppMapping">ใช้ Scene นี้</button><button type="button" class="button" id="createPresetFromSetup">+ Scene ใหม่</button></div>
-          <details><summary>ระบุไฟล์โปรแกรมเอง</summary><label>ตำแหน่งไฟล์ .exe<input id="manualExecutable" placeholder="C:\Apps\MyApp\MyApp.exe" /></label><p class="field-hint">สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้</p></details>
-          <details class="codex-session-options"><summary>ข้อความ Codex แบบตั้งเอง</summary><p class="field-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p><label for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /><button type="button" class="button" id="shareCodexSession">ใช้ข้อความนี้และเริ่มจับเวลา</button><p id="codexSessionStatus" role="status"></p></details><h2 class="mapping-title">แอปที่จับคู่แล้ว</h2><div id="appMappingList" class="app-mapping-list"></div>
-          <div class="app-mode-row"><details class="auto-options"><summary>ตัวเลือก Auto</summary><label>เลือก Presence ตาม<select id="selectionMode"><option value="apps">แอปที่เปิดอยู่</option><option value="schedule">ตารางเวลาเดิม</option></select></label><p class="field-hint">เปิดทิ้งไว้ก็แสดงได้ · ถ้าเปิดหลายแอป ใช้แอปที่ใช้งานล่าสุด</p></details><button type="button" class="button primary" id="saveAppMappings" hidden>บันทึกการแก้ไข</button></div>
-          
-          <p id="appMappingMessage" role="status"></p>
-        </section>
+          <div class="vs-page">
+            <div class="vs-page-head">
+              <span class="vs-kicker">เลือกและจับคู่</span>
+              <h1 class="vs-title">Scene ทั้งหมด</h1>
+              <p class="vs-subcopy">Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord ของคุณ — เลือกอันที่ต้องการแก้ไข หรือจับคู่กับแอปด้านล่าง</p>
+            </div>
+            <section class="vs-card vs-library" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
+              <div class="vs-card-head">
+                <span class="vs-kicker">คลัง Scene</span>
+                <h2 id="sceneLibraryTitle">Scene ทั้งหมด</h2>
+                <p class="vs-subcopy">เลือก Scene ที่ต้องการแก้ไข — Scene ที่มีป้าย "กำลังแสดง" คือ Scene ที่อยู่บน Discord ตอนนี้</p>
+              </div>
+              <div id="sceneList"></div>
+              <div class="vs-toolbar">
+                <button class="vs-btn vs-btn-sm vs-btn-primary" id="addSceneButton" type="button">+ เพิ่ม Scene</button>
+                <button class="vs-btn vs-btn-sm vs-btn-ghost" id="duplicateSceneButton" type="button">ทำสำเนา</button>
+                <button class="vs-btn vs-btn-sm vs-btn-ghost vs-btn-danger" id="deleteSceneButton" type="button">ลบ Scene</button>
+              </div>
+            </section>
+            <section class="vs-card vs-pairing" aria-labelledby="appsTitle">
+              <div class="vs-card-head">
+                <div class="apps-heading">
+                  <div>
+                    <span class="vs-kicker">การจับคู่แอป</span>
+                    <h2 id="appsTitle">แอปของคุณ</h2>
+                  </div>
+                  <button class="vs-btn vs-btn-sm vs-btn-ghost" type="button" id="refreshApps">รีเฟรช</button>
+                </div>
+                <p class="vs-subcopy">เปิดแอปที่จับคู่ไว้ Scene จะเปลี่ยนให้เอง — ไม่ต้องกดอะไรเพิ่ม</p>
+              </div>
+              <ol class="vs-steps">
+                <li class="vs-step"><span class="vs-step-n">1</span>เลือกแอป</li>
+                <li class="vs-step"><span class="vs-step-n">2</span>เลือก Scene</li>
+                <li class="vs-step"><span class="vs-step-n">3</span>กดจับคู่</li>
+              </ol>
+              <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
+              <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกได้หลายแอป</span></div>
+              <div id="applicationTiles" aria-label="แอปที่เปิดอยู่"></div>
+              <select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select>
+              <div class="vs-pair-bar">
+                <select id="appPresetSelect" class="vs-select" aria-label="Scene ที่เลือก"></select>
+                <div id="presetTiles" hidden></div>
+                <button type="button" class="vs-btn vs-btn-primary" id="addAppMapping">จับคู่เลย</button>
+                <button type="button" class="vs-btn vs-btn-ghost" id="createPresetFromSetup">+ สร้าง Scene ใหม่</button>
+              </div>
+              <details class="vs-disclosure"><summary>ระบุไฟล์โปรแกรมเอง</summary><div class="vs-disclosure-body">
+                <div class="vs-field"><label class="vs-label" for="manualExecutable">ตำแหน่งไฟล์ .exe</label><input class="vs-input" id="manualExecutable" placeholder="C:\Apps\MyApp\MyApp.exe (ตัวอย่าง)" /></div>
+                <p class="vs-hint">สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้</p>
+              </div></details>
+              <details class="vs-disclosure"><summary>ข้อความ Codex แบบตั้งเอง</summary><div class="vs-disclosure-body">
+                <p class="vs-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p>
+                <div class="vs-field"><label class="vs-label" for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input class="vs-input" id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /></div>
+                <button type="button" class="vs-btn vs-btn-sm" id="shareCodexSession">ใช้ข้อความนี้และเริ่มจับเวลา</button>
+                <p id="codexSessionStatus" class="vs-hint" role="status"></p>
+              </div></details>
+              <h3 class="vs-section-label">แอปที่จับคู่แล้ว</h3>
+              <div id="appMappingList" class="vs-mapping-list"></div>
+              <h3 class="vs-section-label">สลับ Scene อัตโนมัติตาม</h3>
+              <div class="vs-segmented" role="group" aria-label="สลับ Scene อัตโนมัติตาม" id="modeSegmented">
+                <button type="button" data-mode="apps">โหมดแอป</button>
+                <button type="button" data-mode="schedule">โหมดตารางเวลา</button>
+              </div>
+              <select id="selectionMode" class="vs-visually-hidden" aria-label="สลับ Scene อัตโนมัติตาม"><option value="apps">โหมดแอป</option><option value="schedule">โหมดตารางเวลา</option></select>
+              <p class="vs-mode-hint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด · อยู่ในโหมดตารางเวลาเมื่อไหร่ ตั้งช่วงเวลาได้ที่หน้า <a href="#/dayline">Dayline</a></p>
+              <button type="button" class="vs-btn vs-btn-sm vs-btn-primary" id="saveAppMappings" hidden>บันทึกการแก้ไข</button>
+              <p id="appMappingMessage" class="message" role="status"></p>
+            </section>
+          </div>
         </section>
         <section class="app-screen" id="screen-editor" data-screen="editor" hidden>
           <section class="editor">
@@ -866,6 +912,8 @@
         setText(buttonsStatus, optionCountLabel(buttonCount, 'ปุ่ม'));
       }
 
+      const ACTIVITY_LABEL = { playing: 'กำลังเล่น', listening: 'กำลังฟัง', watching: 'กำลังดู', competing: 'กำลังแข่ง' };
+
       function renderSceneList() {
         if (!config) return;
         // The 500ms state poll calls this on every tick; skip the rebuild when
@@ -874,50 +922,62 @@
           selectedSceneId,
           runtime?.currentSceneId,
           runtime?.manualOverride?.sceneId,
-          config.scenes.map((scene) => [scene.id, scene.sceneName, scene.activityType]),
+          runtime?.selectionMode,
+          config.scenes.map((scene) => [scene.id, scene.sceneName, scene.activityType, scene.activityName]),
         ]);
         if (signature === lastSceneListSignature) return;
         lastSceneListSignature = signature;
-        const focusedSceneId = document.activeElement?.closest?.('.scene-item')?.dataset.sceneId || null;
+        const focusedSceneId = document.activeElement?.closest?.('.vs-scene-row')?.dataset.sceneId || null;
         let focusRestoreTarget = null;
         sceneList.innerHTML = '';
-        config.scenes.forEach((scene, index) => {
+        config.scenes.forEach((scene) => {
+          const isLiveRow = scene.id === runtime?.currentSceneId;
+          const isEditingRow = scene.id === selectedSceneId;
+          const isPinned = isLiveRow && scene.id === runtime?.manualOverride?.sceneId;
           const button = document.createElement('button');
           button.type = 'button';
           button.dataset.sceneId = scene.id;
-          button.className = 'scene-item'
-            + (scene.id === selectedSceneId ? ' is-selected' : '')
-            + (scene.id === runtime?.currentSceneId ? ' is-live' : '');
-          button.style.animationDelay = Math.min(index, 9) * 28 + 'ms';
-          button.setAttribute('aria-pressed', String(scene.id === selectedSceneId));
+          button.className = 'vs-scene-row'
+            + (isEditingRow ? ' is-selected' : '')
+            + (isLiveRow ? ' is-live' : '');
+          button.setAttribute('aria-pressed', String(isEditingRow));
           button.setAttribute('aria-label', 'แก้ไข ' + (scene.sceneName || 'Scene ไร้ชื่อ')
-            + (scene.id === runtime?.currentSceneId ? ' · กำลังแสดงบน Discord' : ''));
+            + (isLiveRow ? ' · กำลังแสดงบน Discord' : ''));
           const icon = document.createElement('span');
-          icon.className = 'scene-icon';
+          icon.className = 'vs-scene-icon';
+          icon.setAttribute('aria-hidden', 'true');
           icon.textContent = sceneIcon(scene);
-          const copy = document.createElement('span');
-          copy.className = 'scene-copy';
-          const title = document.createElement('strong');
+          const meta = document.createElement('span');
+          meta.className = 'vs-scene-meta';
+          const title = document.createElement('span');
+          title.className = 'vs-scene-name';
           title.textContent = scene.sceneName || 'Scene ไร้ชื่อ';
-          const type = document.createElement('small');
-          type.className = 'scene-activity';
-          type.textContent = scene.activityType || 'playing';
+          const sub = document.createElement('span');
+          sub.className = 'vs-scene-sub';
+          const activity = ACTIVITY_LABEL[scene.activityType] || scene.activityType || '';
+          sub.textContent = activity + (scene.activityName ? ' · ' + scene.activityName : '');
+          meta.append(title, sub);
           const badge = document.createElement('span');
-          const isLiveRow = scene.id === runtime?.currentSceneId;
-          const isEditingRow = scene.id === selectedSceneId;
-          badge.className = isLiveRow ? 'live-badge' : 'draft-badge';
-          badge.textContent = isLiveRow
-            ? (scene.id === runtime?.manualOverride?.sceneId ? 'กำลังแสดง · ปักหมุดเอง' : 'กำลังแสดง')
-            : isEditingRow ? 'กำลังแก้ไข · ร่าง' : 'ร่าง';
-          copy.append(title, type, badge);
-          button.append(icon, copy);
+          if (isPinned) {
+            badge.className = 'vs-pill vs-pill-accent';
+            badge.textContent = runtime?.selectionMode === 'apps' ? 'ปักหมุดไว้ 1 ชม.' : 'ปักหมุดจนถึงรอบถัดไป';
+          } else if (isLiveRow) {
+            badge.className = 'vs-pill vs-pill-accent';
+            badge.textContent = 'กำลังแสดง';
+          } else if (isEditingRow) {
+            badge.className = 'vs-pill vs-pill-neutral';
+            badge.textContent = 'กำลังแก้ไข';
+          } else {
+            badge.className = 'vs-pill vs-pill-neutral';
+            badge.textContent = 'ร่าง';
+          }
+          button.append(icon, meta, badge);
           button.addEventListener('click', () => selectScene(scene.id));
           sceneList.append(button);
           if (focusedSceneId === scene.id) focusRestoreTarget = button;
         });
         deleteSceneButton.disabled = config.scenes.length <= 1;
         focusRestoreTarget?.focus({ preventScroll: true });
-        sceneList.classList.add('is-mounted');
       }
 
       function fillForm(scene) {
@@ -1974,12 +2034,13 @@
         syncFormToScene();
         const scene = clone(currentScene());
         scene.id = identifier('scene');
-        scene.sceneName = ('Custom ' + (config.scenes.length + 1)).slice(0, 40);
+        scene.sceneName = ('Scene ใหม่ ' + (config.scenes.length + 1)).slice(0, 40);
         config.scenes.push(scene);
         selectedSceneId = scene.id;
         fillForm(scene);
         renderAll();
         scheduleSave();
+        showMessage('เพิ่ม Scene "' + scene.sceneName + '" แล้ว', 'success');
       });
 
       document.querySelector('#duplicateSceneButton').addEventListener('click', () => {
@@ -1987,13 +2048,14 @@
         syncFormToScene();
         const scene = clone(currentScene());
         scene.id = identifier('scene');
-        scene.sceneName = (scene.sceneName + ' Copy').slice(0, 40);
+        scene.sceneName = (scene.sceneName + ' (สำเนา)').slice(0, 40);
         const index = config.scenes.findIndex((item) => item.id === selectedSceneId);
         config.scenes.splice(index + 1, 0, scene);
         selectedSceneId = scene.id;
         fillForm(scene);
         renderAll();
         scheduleSave();
+        showMessage('ทำสำเนา "' + scene.sceneName + '" แล้ว', 'success');
       });
 
       deleteSceneButton.addEventListener('click', () => {
@@ -2001,12 +2063,13 @@
         const scene = currentScene();
         if (!confirm(runtime.selectionMode === 'apps'
           ? 'ลบ Scene "' + scene.sceneName + '"?'
-          : 'ลบ Scene "' + scene.sceneName + '" พร้อมช่วงเวลาทั้งหมด?')) return;
+          : 'ลบ Scene "' + scene.sceneName + '" พร้อมช่วงเวลาทั้งหมดที่ผูกไว้?')) return;
         config.scenes = config.scenes.filter((item) => item.id !== scene.id);
         config.slots = config.slots.filter((slot) => slot.sceneId !== scene.id);
         selectedSceneId = config.scenes[0].id;
         renderAll();
         scheduleSave();
+        showMessage('ลบ Scene "' + scene.sceneName + '" แล้ว', 'success');
       });
 
       document.querySelector('#daylineGoStatusButton').addEventListener('click', () => {
@@ -2243,22 +2306,22 @@
         const seen=new Set();
         for(const app of [...discoveredApps, ...mappingDraft]) {
           const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);
-          const button=document.createElement('button');button.type='button';button.className='application-tile';button.title=app.executable;button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));
+          const button=document.createElement('button');button.type='button';button.className='application-tile vs-tile';button.title=app.executable;button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));
           const name=document.createElement('strong');name.textContent=app.name;
           const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||'จับคู่แล้ว') : '';detail.hidden=!mapped;
           button.append(appIcon(app),name,detail);
-          button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent='เลือกแล้ว '+selectedApps.size+' แอป';};
+          button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent=selectedApps.size ? 'เลือกแล้ว '+selectedApps.size+' แอป' : 'เลือกได้หลายแอป';};
           grid.append(button);
         }
         if(!seen.size){const empty=document.createElement('p');empty.textContent='กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง';grid.append(empty);}
-        document.querySelector('#appSelectionCount').textContent='เลือกแล้ว '+selectedApps.size+' แอป';
+        document.querySelector('#appSelectionCount').textContent=selectedApps.size ? 'เลือกแล้ว '+selectedApps.size+' แอป' : 'เลือกได้หลายแอป';
       }
       let mappingDraft = [];
       let discoveredApps = [];
       const appMessage = document.querySelector('#appMappingMessage');
       function renderAppReason() {
         const mode = runtime?.selectionMode;
-        setText(document.querySelector('#appSelectionReason'), !runtime?.scheduleEnabled ? 'Auto หยุดอยู่' : runtime?.manualOverride ? 'กำลังใช้ Scene ที่ปักไว้ชั่วคราว' : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : 'รอเปิดแอปที่จับคู่ไว้') : 'ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้');
+        setText(document.querySelector('#appSelectionReason'), !runtime?.scheduleEnabled ? 'หยุดสลับอัตโนมัติอยู่' : runtime?.manualOverride ? 'กำลังใช้ Scene ที่ปักไว้ชั่วคราว' : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : 'รอเปิดแอปที่จับคู่ไว้') : 'ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้');
       }
       function renderPresetTiles() {
         const host=document.querySelector('#presetTiles');host.replaceChildren();
@@ -2283,11 +2346,11 @@
         const list = document.querySelector('#appMappingList'); list.replaceChildren();
         if (!mappingDraft.length) { const p=document.createElement('p');p.textContent='ยังไม่มีการจับคู่ เริ่มจากแอปที่ใช้บ่อย เช่น Codex หรือ Discord';list.append(p); }
         mappingDraft.forEach((mapping,index) => {
-          const row=document.createElement('div');row.className='app-mapping-row';
+          const row=document.createElement('div');row.className='vs-mapping';
           const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label','เปิดใช้ '+mapping.name);enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
-          const label=document.createElement('div'); const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent='ตำแหน่งไฟล์';info.append(summary,path);label.append(name);label.title=mapping.executable;
+          const label=document.createElement('div');label.className='vs-map-label';const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent='ตำแหน่งไฟล์';info.append(summary,path);label.append(name);label.title=mapping.executable;
           const select=document.createElement('select');select.setAttribute('aria-label','Scene ของ '+mapping.name);presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
-          const remove=document.createElement('button');remove.type='button';remove.className='button small';remove.textContent='ลบ';remove.setAttribute('aria-label','ลบการจับคู่ '+mapping.name);remove.onclick=()=>{mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
+          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.textContent='ลบ';remove.setAttribute('aria-label','ลบการจับคู่ '+mapping.name);remove.onclick=()=>{mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
           const icon=appIcon(discoveredApps.find(app=>applicationKey(app.executable)===applicationKey(mapping.executable))||mapping);label.prepend(icon);row.append(enabled,label,select,remove);list.append(row);
         });
       }
@@ -2295,17 +2358,35 @@
         try {
           const data=await requestJson('/api/apps');discoveredApps=data.apps || [];
           const select=document.querySelector('#runningAppSelect');select.replaceChildren(new Option('เลือกแอปที่เปิดอยู่',''));
-          const seen=new Set();for(const app of [...discoveredApps, ...mappingDraft]) { const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);select.add(new Option(app.name+(app.foreground?' · หน้าสุด':''),app.executable)); }
+          const seen=new Set();for(const app of [...discoveredApps, ...mappingDraft]) { const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);select.add(new Option(app.name+(app.foreground?' · แอปที่กำลังใช้':''),app.executable)); }
           presetOptions(document.querySelector('#appPresetSelect'),document.querySelector('#appPresetSelect').value||selectedSceneId);
           renderAppTiles(); renderMappings();
           if(data.error) appMessage.textContent=data.error;
         } catch(error) { appMessage.textContent=error.message; }
       }
       document.querySelector('#refreshApps').onclick=()=>void refreshApplications();
-      document.querySelector('#selectionMode').onchange=()=>{document.querySelector('#saveAppMappings').hidden=false;};
+      document.querySelector('#selectionMode').onchange=()=>{document.querySelector('#saveAppMappings').hidden=false;syncModeSegmented();};
+      // Segmented control: the visible switch drives the real select, which
+      // stays the single source of truth the save path reads.
+      const modeSegmented = document.querySelector('#modeSegmented');
+      function syncModeSegmented() {
+        const value = document.querySelector('#selectionMode').value;
+        modeSegmented?.querySelectorAll('button[data-mode]').forEach((button) => {
+          button.classList.toggle('is-on', button.dataset.mode === value);
+        });
+      }
+      modeSegmented?.querySelectorAll('button[data-mode]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const select = document.querySelector('#selectionMode');
+          if (select.value !== button.dataset.mode) {
+            select.value = button.dataset.mode;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
       document.querySelector('#addAppMapping').onclick=async()=>{
         const manual=document.querySelector('#manualExecutable');const paths=[...selectedApps];if(manual.value.trim()) paths.push(manual.value.trim());
-        if(!paths.length){appMessage.textContent='กดเลือกไอคอนแอปก่อน แล้วเลือก Scene ที่จะใช้';return;}
+        if(!paths.length){appMessage.textContent='เลือกแอปก่อน แล้วเลือก Scene ที่จะจับคู่';return;}
         for(const executable of paths) {
           const existing=mappingDraft.find(item=>applicationKey(item.executable)===applicationKey(executable));
           if(existing){existing.sceneId=document.querySelector('#appPresetSelect').value;existing.enabled=true;continue;}
@@ -2315,13 +2396,13 @@
         if (!await saveMappingDraft()) { document.querySelector('#saveAppMappings').hidden=false; return; }
         manual.value='';selectedApps.clear();renderMappings();renderAppTiles();
         if(!stillPreview()) document.querySelector('#appMappingList').animate([{transform:'translateY(-12px)',opacity:.4},{transform:'translateY(0)',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});
-        appMessage.textContent='ใช้แล้วกับ '+paths.length+' แอป';
+        appMessage.textContent='จับคู่แล้วกับ '+paths.length+' แอป';
       };
       document.querySelector('#saveAppMappings').onclick=()=>void saveMappingDraft();
       async function saveMappingDraft(){
         const button=document.querySelector('#saveAppMappings');const apply=document.querySelector('#addAppMapping');if(apply.disabled)return false;button.disabled=true;apply.disabled=true;appMessage.textContent='กำลังบันทึก…';
         try {
-          if (!await saveConfig(false)) { appMessage.textContent="บันทึก Scene ไม่สำเร็จ ตรวจหน้าแก้ไข Scene"; return false; }
+          if (!await saveConfig(false)) { appMessage.textContent='บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'; return false; }
           const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
           config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
         } catch(error) { appMessage.textContent=error.message;return false; } finally {button.disabled=false;apply.disabled=false;}
@@ -2349,6 +2430,7 @@
           document.querySelector("#codexSessionTitle").value=config.codexSession?.title || "";
           mappingDraft = clone(config.appMappings || []);
           document.querySelector("#selectionMode").value=config.settings.selectionMode || "schedule";
+          syncModeSegmented();
           renderMappings();
           void refreshApplications();
           setTimeout(()=>void refreshApplications(),2500);
