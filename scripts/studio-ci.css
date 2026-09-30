@@ -208,20 +208,26 @@ body.gif-picker-open { overflow: hidden; }
   position: sticky; top: 0; height: 100vh;
   z-index: 30;
 }
-.vs-brand { display: flex; align-items: center; gap: 10px; padding: 20px 20px 16px; }
+/* Brand — custom pulse wordmark */
+.vs-brand { display: flex; align-items: center; gap: 12px; padding: 20px 20px 14px; }
 .vs-brand-mark {
-  width: 32px; height: 32px; flex: 0 0 32px;
-  border-radius: 10px;
+  width: 34px; height: 34px; flex: 0 0 34px;
+  border-radius: 12px;
   background: var(--vs-accent-soft);
   border: 1px solid var(--vs-accent-line);
   display: flex; align-items: center; justify-content: center;
   color: var(--vs-accent-deep);
-  overflow: hidden;
 }
-.vs-brand-mark img { width: 32px; height: 32px; border-radius: 10px; object-fit: cover; display: block; }
-.vs-brand-name { font-weight: 600; font-size: 14px; line-height: 1.3; display: block; }
-.vs-brand-sub { font-size: 12px; color: var(--vs-ink3); line-height: 1.3; display: block; }
-.vs-nav { display: flex; flex-direction: column; gap: 4px; padding: 4px 12px; }
+.vs-brand-mark svg { width: 20px; height: 20px; display: block; }
+.vs-brand-name { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; line-height: 1.3; display: block; }
+.vs-brand-sub { font-size: 12px; color: var(--vs-ink3); line-height: 1.4; display: block; margin-top: 1px; }
+/* Nav — one section, quiet micro-label, single-signal active pill */
+.vs-nav-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  color: var(--vs-ink3);
+  padding: 10px 24px 6px; margin: 0;
+}
+.vs-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
 .vs-nav-link {
   display: flex; align-items: center; gap: 12px;
   min-height: 40px; padding: 0 12px;
@@ -229,31 +235,36 @@ body.gif-picker-open { overflow: hidden; }
   color: var(--vs-ink2); text-decoration: none; font-size: 14px;
   transition: background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease);
 }
-.vs-nav-link svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.vs-nav-link svg { width: 20px; height: 20px; flex: 0 0 20px; }
 .vs-nav-link:hover { background: var(--vs-tint); color: var(--vs-ink); }
 .vs-nav-link[aria-current="page"] { background: var(--vs-accent-soft); color: var(--vs-ink); font-weight: 500; }
-.vs-nav-link[aria-current="page"] svg { color: var(--vs-accent-deep); }
+/* Footer */
 .vs-side-foot {
-  margin-top: auto; padding: 16px 20px;
+  margin-top: auto; padding: 14px 16px;
   border-top: 1px solid var(--vs-hairline);
-  font-size: 12px; color: var(--vs-ink3);
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
+.vs-foot-note { font-size: 12px; color: var(--vs-ink3); line-height: 1.4; }
 .sidebar-collapse {
   border: 1px solid transparent; background: transparent;
   color: var(--vs-ink3); border-radius: var(--vs-r-sm);
   width: 32px; height: 32px; flex: 0 0 32px;
   display: inline-flex; align-items: center; justify-content: center;
+  transition: background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease), border-color var(--vs-dur) var(--vs-ease);
 }
-.sidebar-collapse:hover { background: var(--vs-tint); color: var(--vs-ink); }
+.sidebar-collapse:hover { background: var(--vs-tint); color: var(--vs-ink); border-color: var(--vs-hairline); }
 .sidebar-collapse svg { width: 16px; height: 16px; }
-body.sidebar-collapsed .vs-sidebar { width: 76px; flex-basis: 76px; }
+/* Collapsed rail — 60px, icon-only, everything centered and intentional */
+body.sidebar-collapsed .vs-sidebar { width: 60px; flex-basis: 60px; }
+body.sidebar-collapsed .vs-brand { justify-content: center; padding: 20px 0 14px; }
 body.sidebar-collapsed .vs-brand-name,
 body.sidebar-collapsed .vs-brand-sub,
+body.sidebar-collapsed .vs-nav-label,
 body.sidebar-collapsed .vs-nav-link span:last-child,
 body.sidebar-collapsed .vs-side-foot .vs-foot-note { display: none; }
-body.sidebar-collapsed .vs-nav-link { justify-content: center; padding: 0; }
-body.sidebar-collapsed .vs-brand { justify-content: center; padding: 20px 12px 16px; }
+body.sidebar-collapsed .vs-nav { padding: 0 10px; align-items: center; }
+body.sidebar-collapsed .vs-nav-link { justify-content: center; padding: 0; width: 40px; }
+body.sidebar-collapsed .vs-side-foot { justify-content: center; padding: 14px 0; }
 body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 
 /* Main column + topbar */

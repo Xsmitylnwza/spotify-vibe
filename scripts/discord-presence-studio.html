@@ -48,21 +48,22 @@
     </div>
 
         <div class="app-shell vs-app" id="appShell">
-      <aside class="app-sidebar vs-sidebar" id="appSidebar">
+            <aside class="app-sidebar vs-sidebar" id="appSidebar">
         <div class="vs-brand">
-          <span class="vs-brand-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          <span class="vs-brand-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10h3.8l1.6-3.8 2.6 7.6 1.6-3.8h5"/></svg></span>
           <span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">มุม Discord ของคุณ</span></span>
         </div>
+        <p class="vs-nav-label" aria-hidden="true">เมนู</p>
         <nav class="vs-nav sidebar-nav" aria-label="หลัก">
-          <a class="vs-nav-link sidebar-link" href="#/status" data-screen="status" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>สถานะ</span></a>
-          <a class="vs-nav-link sidebar-link" href="#/scenes" data-screen="scenes" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Scenes</span></a>
-          <a class="vs-nav-link sidebar-link" href="#/editor" data-screen="editor" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><span>แต่ง Scene</span></a>
-          <a class="vs-nav-link sidebar-link" href="#/dayline" data-screen="dayline" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Dayline</span></a>
-          <a class="vs-nav-link sidebar-link" href="#/settings" data-screen="settings" aria-current="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>ตั้งค่า</span></a>
+          <a class="vs-nav-link sidebar-link" href="#/status" data-screen="status" aria-current="page" title="สถานะ"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10h4.2l1.7-4 2.4 8 1.7-4h5"/></svg><span>สถานะ</span></a>
+          <a class="vs-nav-link sidebar-link" href="#/scenes" data-screen="scenes" aria-current="false" title="Scenes"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.8l7.2 4.2L10 11.2 2.8 7 10 2.8Z"/><path d="M4.3 12.3L10 15.6l5.7-3.3"/></svg><span>Scenes</span></a>
+          <a class="vs-nav-link sidebar-link" href="#/editor" data-screen="editor" aria-current="false" title="แต่ง Scene"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5H9M15 5.5h2M3 10h1.5M10.5 10H17M3 14.5h6.5M15.5 14.5H17"/><circle cx="12" cy="5.5" r="2.1"/><circle cx="7.5" cy="10" r="2.1"/><circle cx="12.5" cy="14.5" r="2.1"/></svg><span>แต่ง Scene</span></a>
+          <a class="vs-nav-link sidebar-link" href="#/dayline" data-screen="dayline" aria-current="false" title="Dayline"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8.5" r="5.5"/><path d="M10 8.5V5.8M10 8.5l1.9 1.2"/><path d="M3.5 16.5h13"/><path d="M7 15.3v2.4M13 15.3v2.4"/></svg><span>Dayline</span></a>
+          <a class="vs-nav-link sidebar-link" href="#/settings" data-screen="settings" aria-current="false" title="ตั้งค่า"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="4.2"/><circle cx="10" cy="10" r="1.1" fill="currentColor" stroke="none"/><path d="M16.2 10h1.6M10 16.2v1.6M3.8 10H2.2M10 3.8V2.2M14.4 14.4l1.1 1.1M5.6 14.4l-1.1 1.1M5.6 5.6L4.5 4.5M14.4 5.6l1.1-1.1"/></svg><span>ตั้งค่า</span></a>
         </nav>
         <div class="vs-side-foot">
           <span class="vs-foot-note">companion ทำงานในเบื้องหลัง</span>
-          <button id="sidebarCollapse" class="sidebar-collapse" aria-label="ย่อ/ขยายเมนู" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button id="sidebarCollapse" class="sidebar-collapse" aria-label="ย่อ/ขยายเมนู" aria-expanded="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l-5 5 5 5"/></svg></button>
         </div>
       </aside>
       <div class="app-main vs-main" id="main">
@@ -523,6 +524,7 @@ const STR = {
 "companion ทำงานในเบื้องหลัง": "companion runs in the background",
 "หลัก": "Main",
 "ย่อ/ขยายเมนู": "Collapse/expand menu",
+"เมนู": "Menu",
 // ---------- status ----------
 "ภาพรวม": "Overview",
 "สถานะตอนนี้": "Right now",
@@ -1546,7 +1548,7 @@ function reemitToast() {
       }
 
       function overrideDurationCopy() {
-        return runtime?.selectionMode === 'apps' ? 'ปักหมุดไว้ 1 ชม.' : 'ปักหมุดจนถึงรอบถัดไป';
+        return runtime?.selectionMode === 'apps' ? t('ปักหมุดไว้ 1 ชม.') : t('ปักหมุดจนถึงรอบถัดไป');
       }
 
       function renderEditorJourney() {
@@ -2247,7 +2249,7 @@ function reemitToast() {
           : t('จำเป็น · ยังไม่ได้ตั้ง'));
         discordStatusLabel.className = 'vs-statuspill ' + (discordConfigured ? 'ok' : 'warn');
         setText(giphyStatusLabel, giphyConfigured
-          ? ('ตั้งค่าแล้ว' + (runtime?.gifSearch?.source ? ' · ' + runtime.gifSearch.source : ''))
+          ? (t('ตั้งค่าแล้ว') + (runtime?.gifSearch?.source ? ' · ' + runtime.gifSearch.source : ''))
           : t('ไม่บังคับ · ยังไม่ได้ตั้ง'));
         giphyStatusLabel.className = 'vs-statuspill ' + (giphyConfigured ? 'ok' : 'warn');
         setText(secretsPath, runtime?.secretsPath || secrets?.filePath || t('ไฟล์เก็บความลับ'));
