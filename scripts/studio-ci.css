@@ -103,13 +103,7 @@
   --vs-shadow-pop: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -16px rgb(0 0 0 / 0.6);
 }
 
-/* ---------- 1c. Topbar toggles: language segmented + theme button ---------- */
-.vs-topbar-toggles {
-  display: flex; align-items: center; gap: 8px;
-  margin-right: auto;
-}
-/* Mobile slot: empty on desktop, the toggle cluster moves here under 760px. */
-#mobileToggleSlot { display: none; }
+/* ---------- 1c. Sidebar footer: language segmented + theme button ---------- */
 .vs-seg {
   display: inline-flex; gap: 2px;
   padding: 2px;
@@ -209,9 +203,8 @@ body.gif-picker-open { overflow: hidden; }
   background: var(--vs-bg);
   border-right: 1px solid var(--vs-hairline);
   display: flex; flex-direction: column;
-  /* Sticky below the full-width topbar (~66px) so the rail never slides over
-     the language/theme toggles when the page is scrolled. */
-  position: sticky; top: 66px; height: calc(100vh - 66px);
+  /* No topbar anymore: the rail spans the full viewport height. */
+  position: sticky; top: 0; height: 100vh;
   z-index: 30;
   transition: width var(--vs-dur) var(--vs-ease), flex-basis var(--vs-dur) var(--vs-ease);
 }
@@ -264,6 +257,25 @@ body.gif-picker-open { overflow: hidden; }
 }
 .sidebar-collapse:hover { background: var(--vs-tint); color: var(--vs-ink); border-color: var(--vs-hairline); }
 .sidebar-collapse svg { width: 16px; height: 16px; transition: transform var(--vs-dur) var(--vs-ease); }
+/* Sidebar connection status (moved from the removed topbar): a quiet
+   full-width row — dot + text, no chrome. */
+.vs-side-status { min-width: 0; }
+#sideStatusSlot .connection-pill {
+  width: 100%; justify-content: flex-start;
+  border: 0; background: transparent; box-shadow: none;
+  padding: 8px 10px; border-radius: var(--vs-r-sm);
+  font-size: 12.5px;
+}
+#sideStatusSlot .connection-pill:hover { background: var(--vs-tint); }
+#sideStatusSlot #connectionText {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+body.sidebar-collapsed #sideStatusSlot #connectionText { display: none; }
+body.sidebar-collapsed #sideStatusSlot .connection-pill { justify-content: center; padding: 8px 0; }
+/* Mobile: a slim centered status strip (pill only) at the top of the content.
+   The language/theme cluster moves into the Settings screen instead. */
+.vs-mobile-status { display: none; }
+#settingsLangRow { display: none; }
 /* Collapsed rail — 60px, icon-only, everything centered and intentional */
 body.sidebar-collapsed .vs-sidebar { width: 60px; flex-basis: 60px; }
 body.sidebar-collapsed .vs-brand { justify-content: center; padding: 20px 0 14px; }
@@ -282,16 +294,8 @@ body.sidebar-collapsed #langSeg button { padding: 5px 0; min-width: 36px; }
 body.sidebar-collapsed .vs-side-foot-row { justify-content: center; }
 body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 
-/* Main column + topbar */
+/* Main column (no topbar — content breathes from the very top) */
 .vs-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.vs-topbar {
-  display: flex; align-items: center; justify-content: flex-end; gap: 12px;
-  padding: 14px 28px;
-  border-bottom: 1px solid var(--vs-hairline);
-  background: var(--vs-bg);
-  position: sticky; top: 0; z-index: 20;
-}
-.vs-clock { font-size: 14px; font-weight: 500; color: var(--vs-ink2); }
 .connection-pill {
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid var(--vs-hairline); background: var(--vs-surface);
@@ -954,19 +958,18 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   .vs-timeline { height: 720px; }
 }
 @media (max-width: 760px) {
-  #mobileToggleSlot { display: flex; }
+  .vs-mobile-status { display: flex; justify-content: center; padding: 12px 16px 0; }
+  .vs-mobile-status .connection-pill { max-width: 92vw; }
+  .vs-mobile-status #connectionText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #settingsLangRow { display: flex; }
   .vs-sidebar { display: none; }
   .vs-bottomnav { display: flex; }
   .vs-page { padding: 24px 16px 96px; }
-  .vs-topbar { padding: 12px 16px; gap: 8px; flex-wrap: wrap; row-gap: 8px; }
-  .vs-topbar > * { white-space: nowrap; }
-  .vs-clock { display: none; }
   .connection-pill { max-width: 60vw; }
   #connectionText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #mobileToggleSlot .vs-toggle-cluster { gap: 6px; }
-  #mobileToggleSlot .vs-seg button { min-height: 40px; padding: 8px 14px; }
-  #mobileToggleSlot .vs-icon-btn { width: 40px; height: 40px; }
-  #openSettingsButton { min-height: 40px; }
+  #settingsToggleSlot .vs-toggle-cluster { gap: 6px; }
+  #settingsToggleSlot .vs-seg button { min-height: 40px; padding: 8px 14px; }
+  #settingsToggleSlot .vs-icon-btn { width: 40px; height: 40px; }
   .vs-icon-btn-danger { width: 40px; height: 40px; }
   .vs-update-dismiss { width: 40px; height: 40px; }
   .vs-slot-time { min-height: 40px; }

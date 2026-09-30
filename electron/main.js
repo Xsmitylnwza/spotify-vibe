@@ -168,9 +168,14 @@ if (!app.requestSingleInstanceLock()) {
     updateState.error = null;
     if (manual) pushUpdateState();
     try {
-      await autoUpdater.checkForUpdates();
+      // Never leave `checking` stuck: a hung updater promise used to make
+      // every later manual check silently no-op (dead button).
+      await Promise.race([
+        autoUpdater.checkForUpdates(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('update check timed out')), 60_000)),
+      ]);
     } catch {
-      // No releases published yet, offline, etc. — stay quiet, retry later.
+      // No releases published yet, offline, timed out, etc. — stay quiet, retry later.
       updateState.error = 'unreachable';
     } finally {
       updateState.checking = false;

@@ -23,16 +23,6 @@
       } catch (e) {}
     </script>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
-    <header class="appbar vs-topbar">
-      <div class="vs-topbar-toggles" id="mobileToggleSlot" role="group" aria-label="ภาษาและธีม"></div>
-      <button class="vs-btn vs-btn-sm vs-btn-ghost" id="openSettingsButton" type="button">ตั้งค่า</button>
-      <span class="vs-clock" id="localClock">--:--</span>
-      <div class="connection-pill connecting" id="connectionPill">
-        <img class="vs-brand-ico" src="/art/apps/discord.svg" alt="">
-        <span class="connection-dot" aria-hidden="true"></span>
-        <span id="connectionText">กำลังเปิด companion…</span>
-      </div>
-    </header>
 
     <div class="vs-update-banner" id="updateBanner" role="status" hidden>
       <span class="vs-update-dot" aria-hidden="true"></span>
@@ -62,6 +52,12 @@
           <a class="vs-nav-link sidebar-link" href="#/settings" data-screen="settings" aria-current="false" title="ตั้งค่า"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="4.2"/><circle cx="10" cy="10" r="1.1" fill="currentColor" stroke="none"/><path d="M16.2 10h1.6M10 16.2v1.6M3.8 10H2.2M10 3.8V2.2M14.4 14.4l1.1 1.1M5.6 14.4l-1.1 1.1M5.6 5.6L4.5 4.5M14.4 5.6l1.1-1.1"/></svg><span>ตั้งค่า</span></a>
         </nav>
         <div class="vs-side-foot">
+          <div class="vs-side-status" id="sideStatusSlot" aria-label="สถานะการเชื่อมต่อ Discord">
+            <div class="connection-pill connecting" id="connectionPill">
+              <span class="connection-dot" aria-hidden="true"></span>
+              <span id="connectionText">กำลังเปิด companion…</span>
+            </div>
+          </div>
           <div class="vs-side-utils" id="sideToggleSlot">
             <div class="vs-toggle-cluster" id="toggleCluster">
               <div class="vs-seg" id="langSeg" role="group" aria-label="ภาษา">
@@ -81,6 +77,7 @@
         </div>
       </aside>
       <div class="app-main vs-main" id="main">
+        <div class="vs-mobile-status" id="mobileStatusSlot" aria-label="สถานะการเชื่อมต่อ Discord"></div>
         <section class="app-screen" id="screen-status" data-screen="status">
           <div class="vs-page">
             <div class="vs-page-head">
@@ -426,10 +423,15 @@
                 <h2>แอป Vibe Studio</h2>
                 <p class="vs-subcopy">เวอร์ชันเดสก์ท็อป — ทำงานเบื้องหลังเงียบๆ</p>
               </div>
+              <div class="vs-sysrow" id="settingsLangRow">
+                <div class="vs-sysrow-copy"><strong>ภาษา / ธีม</strong><small>Language / theme</small></div>
+                <div id="settingsToggleSlot"></div>
+              </div>
               <div class="vs-sysrow">
                 <div class="vs-sysrow-copy"><strong>เวอร์ชัน</strong><small id="appVersionValue">…</small></div>
                 <button class="vs-btn vs-btn-sm" id="checkUpdatesButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>ตรวจหาอัปเดต</button>
               </div>
+              <p class="vs-hint" id="updateCheckStatus" role="status" aria-live="polite" style="margin-top:4px"></p>
               <div class="vs-sysrow">
                 <div class="vs-sysrow-copy"><strong>เปิดพร้อมระบบ</strong><small>เปิดแอปแบบซ่อนทุกครั้งที่ล็อกอิน</small></div>
                 <label class="vs-switch"><input id="launchAtLoginToggle" type="checkbox" /><span></span></label>
@@ -946,9 +948,15 @@ const STR = {
 "แอป Vibe Studio": "Vibe Studio app",
 "เวอร์ชันเดสก์ท็อป — ทำงานเบื้องหลังเงียบๆ": "Desktop build — quietly runs in the background",
 "เวอร์ชัน": "Version",
+"ภาษา / ธีม": "Language / theme",
+"สถานะการเชื่อมต่อ Discord": "Discord connection status",
 "ตรวจหาอัปเดต": "Check for updates",
 "กำลังตรวจหา…": "Checking…",
+"กำลังตรวจหาอัปเดต…": "Checking for updates…",
 "เป็นเวอร์ชันล่าสุดแล้ว": "You're on the latest version",
+"เป็นเวอร์ชันล่าสุดแล้ว · ตรวจเมื่อ {t}": "You're on the latest version · checked at {t}",
+"พบเวอร์ชันใหม่ {v} — ดูแบนเนอร์ด้านบน": "New version {v} found — see the banner above",
+"ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง": "Couldn't check for updates — try again",
 "ตรวจหาอัปเดตไม่สำเร็จ": "Couldn't check for updates",
 "ดาวน์โหลดอัปเดตไม่สำเร็จ": "Update download failed",
 "เปิดพร้อมระบบ": "Launch at startup",
@@ -1132,20 +1140,27 @@ function wireLangThemeToggles() {
   });
   const themeBtn = document.querySelector('#themeToggle');
   if (themeBtn) themeBtn.addEventListener('click', () => setTheme(THEME === 'dark' ? 'light' : 'dark'));
-  // The language/theme cluster lives in the sidebar footer on desktop, but the
-  // sidebar is hidden on small screens — move the single cluster into the
-  // topbar slot there instead of duplicating controls.
+  // The language/theme cluster and the Discord status pill live in the
+  // sidebar footer on desktop. The sidebar is hidden on small screens, so
+  // move the single cluster into the Settings screen and the pill into a
+  // slim mobile status strip instead of duplicating controls.
   const toggleCluster = document.querySelector('#toggleCluster');
   const sideToggleSlot = document.querySelector('#sideToggleSlot');
-  const mobileToggleSlot = document.querySelector('#mobileToggleSlot');
-  const togglePlaceMq = window.matchMedia('(max-width: 760px)');
-  const placeToggleCluster = () => {
-    const target = togglePlaceMq.matches ? mobileToggleSlot : sideToggleSlot;
-    if (toggleCluster && target && toggleCluster.parentElement !== target) target.appendChild(toggleCluster);
+  const settingsToggleSlot = document.querySelector('#settingsToggleSlot');
+  const connectionPillEl = document.querySelector('#connectionPill');
+  const sideStatusSlot = document.querySelector('#sideStatusSlot');
+  const mobileStatusSlot = document.querySelector('#mobileStatusSlot');
+  const chromePlaceMq = window.matchMedia('(max-width: 760px)');
+  const placeChrome = () => {
+    const mobile = chromePlaceMq.matches;
+    const toggleTarget = mobile ? settingsToggleSlot : sideToggleSlot;
+    if (toggleCluster && toggleTarget && toggleCluster.parentElement !== toggleTarget) toggleTarget.appendChild(toggleCluster);
+    const pillTarget = mobile ? mobileStatusSlot : sideStatusSlot;
+    if (connectionPillEl && pillTarget && connectionPillEl.parentElement !== pillTarget) pillTarget.appendChild(connectionPillEl);
   };
-  if (togglePlaceMq.addEventListener) togglePlaceMq.addEventListener('change', placeToggleCluster);
-  else if (togglePlaceMq.addListener) togglePlaceMq.addListener(placeToggleCluster);
-  placeToggleCluster();
+  if (chromePlaceMq.addEventListener) chromePlaceMq.addEventListener('change', placeChrome);
+  else if (chromePlaceMq.addListener) chromePlaceMq.addListener(placeChrome);
+  placeChrome();
   updateLangToggle();
   updateThemeToggle();
 }
@@ -1211,7 +1226,6 @@ function reemitToast() {
       const gifUnavailableMessage = document.querySelector('#gifUnavailableMessage');
       const settingsForm = document.querySelector('#settingsForm');
       const settingsMessage = document.querySelector('#settingsMessage');
-      const openSettingsButton = document.querySelector('#openSettingsButton');
       const setupBanner = document.querySelector('#setupBanner');
       const setupBannerText = document.querySelector('#setupBannerText');
       const setupBannerButton = document.querySelector('#setupBannerButton');
@@ -2278,11 +2292,6 @@ function reemitToast() {
 
       function renderClock() {
         const now = new Date();
-        document.querySelector('#localClock').textContent = now.toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
         const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
         nowPin.style.top = (minute / 1440 * 100) + '%';
         const nowTag = nowPin.querySelector('.vs-nowline-tag');
@@ -3116,7 +3125,6 @@ function reemitToast() {
       // "ตั้งค่า" buttons jump to the Settings screen (the API-keys
       // form lives there instead of a modal).
       const goToSettingsScreen = () => { location.hash = '#/settings'; };
-      openSettingsButton.addEventListener('click', goToSettingsScreen);
       setupBannerButton.addEventListener('click', goToSettingsScreen);
       settingsForm.addEventListener('submit', (event) => void saveSettings(event));
       clearGiphyButton.addEventListener('click', () => {
@@ -3507,23 +3515,37 @@ function reemitToast() {
           }
         });
         const checkButton = document.querySelector('#checkUpdatesButton');
+        const updateCheckStatus = document.querySelector('#updateCheckStatus');
+        // Feedback lives right under the button: the old toast wrote into
+        // #message, which sits inside the hidden Scenes editor — so on the
+        // Settings screen a check with no update (or an error) showed
+        // nothing at all and the button looked dead.
+        const setUpdateCheckStatus = (text) => {
+          if (updateCheckStatus) updateCheckStatus.textContent = text || '';
+        };
+        const updateCheckTime = () => {
+          const now = new Date();
+          return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        };
         checkButton.addEventListener('click', async () => {
           checkButton.disabled = true;
-          const original = checkButton.textContent;
-          checkButton.textContent = t('กำลังตรวจหา…');
+          setUpdateCheckStatus(t('กำลังตรวจหาอัปเดต…'));
           try {
             await vibe.checkForUpdates();
             const state = await vibe.getUpdateState();
             lastState = state;
             renderBanner();
-            if (!state.available && !state.downloaded) {
-              showMessage(t('เป็นเวอร์ชันล่าสุดแล้ว'), 'success');
+            if (state && state.error) {
+              setUpdateCheckStatus(t('ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง'));
+            } else if (state && (state.available || state.downloaded)) {
+              setUpdateCheckStatus(t('พบเวอร์ชันใหม่ {v} — ดูแบนเนอร์ด้านบน', { v: state.available || '' }));
+            } else {
+              setUpdateCheckStatus(t('เป็นเวอร์ชันล่าสุดแล้ว · ตรวจเมื่อ {t}', { t: updateCheckTime() }));
             }
           } catch (error) {
-            showMessage(t('ตรวจหาอัปเดตไม่สำเร็จ'), 'error');
+            setUpdateCheckStatus(t('ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง'));
           } finally {
             checkButton.disabled = false;
-            checkButton.textContent = original;
           }
         });
       }
