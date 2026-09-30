@@ -2,9 +2,9 @@
 //   electron/assets/icon.png  (512, used by BrowserWindow / Linux)
 //   electron/assets/icon.ico  (256/48/32/16 PNG-compressed entries, Windows)
 //   electron/assets/icon.icns (1024..16 PNG entries, macOS)
-//   electron/assets/tray.png  (44px white pulse on transparent, tray template)
-// Design: Discord-blurple rounded square + warm-white pulse waveform,
-// echoing the sidebar brand mark.
+//   electron/assets/tray.png  (44px white ghost on transparent, tray template)
+// Design: Discord-blurple rounded square + white Rebel Ghost mascot,
+// echoing the sidebar brand mark (electron/assets/logo-ghost.svg).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -63,13 +63,92 @@ function hexLerp(a, b, f) {
   return pa.map((v, i) => Math.round(v + (pb[i] - v) * f));
 }
 
-// Pulse waveform polyline (unit space, y up positive around 0.5 baseline).
-function pulsePoints() {
-  const raw = [
-    [0.16, 0.5], [0.30, 0.5], [0.335, 0.5], [0.365, 0.34], [0.40, 0.66],
-    [0.435, 0.5], [0.52, 0.5], [0.55, 0.42], [0.58, 0.5], [0.84, 0.5],
-  ];
-  return raw.map(([x, y]) => [x, y]);
+// ---------------------------------------------------------------------------
+// Rebel Ghost logo (A2) — 64x64 unit space, mirrors logo-ghost.svg.
+// ---------------------------------------------------------------------------
+const GHOST_BODY = 'M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z';
+const GHOST_FILL_CUTS = [
+  'M22 27l8 1.5-1.5 7-8-1.5Z', // left eye
+  'M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z', // forehead bolt
+];
+const GHOST_STROKE_CUTS = [
+  { d: 'M39 30Q43 33.5 47 29.5', w: 3 }, // winking right eye
+  { d: 'M25 38.5Q32.5 44 40 37', w: 3 }, // smirk
+];
+
+// Minimal SVG path parser: M/m L/l H/h V/v C/c Q/q Z/z (single subpath each).
+function parsePath(d) {
+  const tokens = d.match(/[MmLlHhVvCcQqZz]|-?\d*\.?\d+(?:e[-+]?\d+)?/g) || [];
+  const subpaths = [];
+  let cur = null;
+  let cx = 0, cy = 0, sx = 0, sy = 0;
+  let i = 0, cmd = null;
+  const num = () => parseFloat(tokens[i++]);
+  const lineTo = (x, y) => { cx = x; cy = y; cur.push(['L', x, y]); };
+  while (i < tokens.length) {
+    if (/[MmLlHhVvCcQqZz]/.test(tokens[i])) cmd = tokens[i++];
+    switch (cmd) {
+      case 'M': cx = num(); cy = num(); sx = cx; sy = cy; cur = [['M', cx, cy]]; subpaths.push(cur); cmd = 'L'; break;
+      case 'm': cx += num(); cy += num(); sx = cx; sy = cy; cur = [['M', cx, cy]]; subpaths.push(cur); cmd = 'l'; break;
+      case 'L': lineTo(num(), num()); break;
+      case 'l': lineTo(cx + num(), cy + num()); break;
+      case 'H': lineTo(num(), cy); break;
+      case 'h': lineTo(cx + num(), cy); break;
+      case 'V': lineTo(cx, num()); break;
+      case 'v': lineTo(cx, cy + num()); break;
+      case 'C': { const x1 = num(), y1 = num(), x2 = num(), y2 = num(), x = num(), y = num(); cur.push(['C', x1, y1, x2, y2, x, y]); cx = x; cy = y; break; }
+      case 'c': { const x1 = cx + num(), y1 = cy + num(), x2 = cx + num(), y2 = cy + num(), x = cx + num(), y = cy + num(); cur.push(['C', x1, y1, x2, y2, x, y]); cx = x; cy = y; break; }
+      case 'Q': { const x1 = num(), y1 = num(), x = num(), y = num(); cur.push(['Q', x1, y1, x, y]); cx = x; cy = y; break; }
+      case 'q': { const x1 = cx + num(), y1 = cy + num(), x = cx + num(), y = cy + num(); cur.push(['Q', x1, y1, x, y]); cx = x; cy = y; break; }
+      case 'Z': case 'z': cur.push(['Z']); cx = sx; cy = sy; break;
+      default: throw new Error('unsupported path token near ' + tokens[i]);
+    }
+  }
+  return subpaths;
+}
+
+function flattenSubpath(ops) {
+  const pts = [];
+  let cx = 0, cy = 0;
+  for (const op of ops) {
+    if (op[0] === 'M' || op[0] === 'L') { cx = op[1]; cy = op[2]; pts.push([cx, cy]); }
+    else if (op[0] === 'Q') {
+      const [, x1, y1, x, y] = op, N = 16;
+      for (let k = 1; k <= N; k++) {
+        const t = k / N, mt = 1 - t;
+        pts.push([mt * mt * cx + 2 * mt * t * x1 + t * t * x, mt * mt * cy + 2 * mt * t * y1 + t * t * y]);
+      }
+      cx = x; cy = y;
+    } else if (op[0] === 'C') {
+      const [, x1, y1, x2, y2, x, y] = op, N = 24;
+      for (let k = 1; k <= N; k++) {
+        const t = k / N, mt = 1 - t;
+        pts.push([
+          mt * mt * mt * cx + 3 * mt * mt * t * x1 + 3 * mt * t * t * x2 + t * t * t * x,
+          mt * mt * mt * cy + 3 * mt * mt * t * y1 + 3 * mt * t * t * y2 + t * t * t * y,
+        ]);
+      }
+      cx = x; cy = y;
+    }
+  }
+  return pts;
+}
+
+const BODY_PTS = flattenSubpath(parsePath(GHOST_BODY)[0]);
+const FILL_CUT_PTS = GHOST_FILL_CUTS.map((d) => flattenSubpath(parsePath(d)[0]));
+const STROKE_CUT_PTS = GHOST_STROKE_CUTS.map((s) => ({ pts: flattenSubpath(parsePath(s.d)[0]), w: s.w }));
+const GHOST_BBOX = BODY_PTS.reduce(
+  (b, [x, y]) => [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)],
+  [Infinity, Infinity, -Infinity, -Infinity]
+);
+
+function pointInPoly(px, py, pts) {
+  let inside = false;
+  for (let a = 0, b = pts.length - 1; a < pts.length; b = a++) {
+    const [xi, yi] = pts[a], [xj, yj] = pts[b];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
 }
 
 function distToSegment(px, py, ax, ay, bx, by) {
@@ -83,24 +162,48 @@ function distToSegment(px, py, ax, ay, bx, by) {
   return Math.hypot(px - cx, py - cy);
 }
 
+function distToPoly(px, py, pts) {
+  let d = Infinity;
+  for (let s = 0; s < pts.length - 1; s++) {
+    d = Math.min(d, distToSegment(px, py, pts[s][0], pts[s][1], pts[s + 1][0], pts[s + 1][1]));
+  }
+  return d;
+}
+
+// Ghost coverage at a point in 64-unit space (0 or 1).
+function ghostAt(gx, gy) {
+  if (gx < GHOST_BBOX[0] || gx > GHOST_BBOX[2] || gy < GHOST_BBOX[1] || gy > GHOST_BBOX[3]) return 0;
+  if (!pointInPoly(gx, gy, BODY_PTS)) return 0;
+  for (const p of FILL_CUT_PTS) if (pointInPoly(gx, gy, p)) return 0;
+  for (const s of STROKE_CUT_PTS) if (distToPoly(gx, gy, s.pts) < s.w / 2) return 0;
+  return 1;
+}
+
+// 2x2 supersampled coverage for a pixel; go/gs map pixels -> 64-unit space.
+function ghostAA(x, y, go, gs) {
+  const k = 64 / gs;
+  let cov = 0;
+  for (const [ox, oy] of [[-0.25, -0.25], [0.25, -0.25], [-0.25, 0.25], [0.25, 0.25]]) {
+    cov += ghostAt((x + 0.5 + ox - go) * k, (y + 0.5 + oy - go) * k);
+  }
+  return cov / 4;
+}
+
+// ---------------------------------------------------------------------------
 function render(size, { transparent = false } = {}) {
   const rgba = Buffer.alloc(size * size * 4);
-  const pts = pulsePoints();
-  const stroke = size * 0.062;
   const radius = 0.225; // unit space (u/v are 0..1)
+  const gs = size * (transparent ? 0.88 : 0.68); // ghost pixel size
+  const go = (size - gs) / 2; // ghost offset
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const u = (x + 0.5) / size;
       const v = (y + 0.5) / size;
       const i = (y * size + x) * 4;
       if (transparent) {
-        let d = Infinity;
-        for (let s = 0; s < pts.length - 1; s++) {
-          d = Math.min(d, distToSegment(u, 1 - v, pts[s][0], pts[s][1], pts[s + 1][0], pts[s + 1][1]));
-        }
-        const a = d * size < stroke / 2 ? 255 : 0;
+        const cov = ghostAA(x, y, go, gs);
         rgba[i] = rgba[i + 1] = rgba[i + 2] = 255;
-        rgba[i + 3] = a;
+        rgba[i + 3] = Math.round(cov * 255);
         continue;
       }
       // rounded-rect mask (SDF)
@@ -112,15 +215,15 @@ function render(size, { transparent = false } = {}) {
       }
       // vertical blurple gradient
       const [r, g, b] = hexLerp('#6E78F2', '#454FBF', v);
-      let d = Infinity;
-      for (let s = 0; s < pts.length - 1; s++) {
-        d = Math.min(d, distToSegment(u, 1 - v, pts[s][0], pts[s][1], pts[s + 1][0], pts[s + 1][1]));
-      }
-      if (d * size < stroke / 2) {
-        rgba[i] = 250; rgba[i + 1] = 248; rgba[i + 2] = 245; rgba[i + 3] = 255;
+      const cov = ghostAA(x, y, go, gs);
+      if (cov > 0) {
+        rgba[i] = Math.round(r * (1 - cov) + 250 * cov);
+        rgba[i + 1] = Math.round(g * (1 - cov) + 248 * cov);
+        rgba[i + 2] = Math.round(b * (1 - cov) + 245 * cov);
       } else {
-        rgba[i] = r; rgba[i + 1] = g; rgba[i + 2] = b; rgba[i + 3] = 255;
+        rgba[i] = r; rgba[i + 1] = g; rgba[i + 2] = b;
       }
+      rgba[i + 3] = 255;
     }
   }
   return rgba;

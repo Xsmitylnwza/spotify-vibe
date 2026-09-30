@@ -218,7 +218,7 @@ body.gif-picker-open { overflow: hidden; }
   display: flex; align-items: center; justify-content: center;
   color: var(--vs-accent-deep);
 }
-.vs-brand-mark svg { width: 20px; height: 20px; display: block; }
+.vs-brand-mark svg { width: 24px; height: 24px; display: block; }
 .vs-brand-name { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; line-height: 1.3; display: block; }
 .vs-brand-sub { font-size: 12px; color: var(--vs-ink3); line-height: 1.4; display: block; margin-top: 1px; }
 /* Nav — one section, quiet micro-label, single-signal active pill */
