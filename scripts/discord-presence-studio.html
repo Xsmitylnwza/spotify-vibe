@@ -368,69 +368,67 @@
           </div>
         </section>
 <section class="app-screen" id="screen-settings" data-screen="settings" hidden>
-          <section class="settings-dialog" aria-labelledby="settingsTitle">
-            <header class="settings-head">
-              <div>
-                <span class="kicker">การตั้งค่าเสริม</span>
-                <h2 id="settingsTitle">ตั้งค่าขั้นสูง</h2>
-                <p class="subcopy" id="settingsDescription">Discord พร้อมเชื่อมต่ออัตโนมัติ เปลี่ยนค่าเฉพาะเมื่ออยากใช้แอปของคุณเอง</p>
+          <div class="vs-page vs-narrow">
+            <section class="vs-card" aria-labelledby="settingsTitle">
+              <div class="vs-card-head">
+                <span class="vs-kicker">การตั้งค่าเสริม</span>
+                <h2 id="settingsTitle">คีย์เชื่อมต่อ</h2>
+                <p class="vs-subcopy" id="settingsDescription">Discord พร้อมเชื่อมต่ออัตโนมัติ เปลี่ยนค่าเฉพาะเมื่ออยากใช้แอปของคุณเอง</p>
               </div>
-            </header>
-            <div class="settings-status" aria-live="polite">
-          <div class="settings-status-row">
-            <strong>Discord Application ID</strong>
-            <span id="discordStatusLabel" class="warn">ยังไม่ได้ตั้ง</span>
+              <p class="vs-steps-line">1 ใส่รหัสของคุณ · 2 กดบันทึก · 3 companion เชื่อมต่อให้เอง</p>
+              <div class="vs-keystatus" aria-live="polite">
+                <div class="vs-keystatus-row">
+                  <strong>รหัสแอปพลิเคชัน Discord</strong>
+                  <span id="discordStatusLabel" class="vs-statuspill warn">จำเป็น · ยังไม่ได้ตั้ง</span>
+                </div>
+                <div class="vs-keystatus-row">
+                  <strong>คีย์ GIPHY</strong>
+                  <span id="giphyStatusLabel" class="vs-statuspill warn">ไม่บังคับ · ยังไม่ได้ตั้ง</span>
+                </div>
+                <p class="vs-caption" id="secretsPath" title="">ไฟล์เก็บความลับ</p>
+              </div>
+              <form id="settingsForm">
+                <div class="vs-field">
+                  <label class="vs-label" for="discordClientIdInput">รหัสแอปพลิเคชัน Discord</label>
+                  <input class="vs-input" id="discordClientIdInput" name="discordClientId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="20" placeholder="รหัส 17–20 หลัก" />
+                  <small class="vs-hint">มีรหัสเริ่มต้นให้แล้ว ช่องนี้สำหรับเปลี่ยนเป็นรหัสของคุณเองเท่านั้น</small>
+                </div>
+                <div class="vs-field">
+                  <label class="vs-label" for="giphyApiKeyInput">คีย์ GIPHY (ไม่บังคับ)</label>
+                  <input class="vs-input" id="giphyApiKeyInput" name="giphyApiKey" type="password" autocomplete="off" spellcheck="false" maxlength="200" placeholder="วางคีย์ฟรี" />
+                  <small class="vs-hint">ใช้ค้นหา GIF เท่านั้น สร้างคีย์ฟรีที่ developers.giphy.com · เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยนคีย์เดิม</small>
+                </div>
+                <div class="vs-form-actions">
+                  <button class="vs-btn vs-btn-ghost" id="clearGiphyButton" type="button">ล้างคีย์ GIPHY</button>
+                  <button class="vs-btn vs-btn-primary" id="saveSettingsButton" type="submit">บันทึกคีย์</button>
+                </div>
+              </form>
+              <p class="message" id="settingsMessage" role="status" aria-live="polite"></p>
+              <p class="vs-card-foot" id="apiKeysSummary">คีย์ทั้งหมดเก็บไว้ในเครื่องนี้เท่านั้น</p>
+            </section>
+            <section class="vs-card">
+              <div class="vs-card-head">
+                <h2>Companion บนเครื่องนี้</h2>
+                <p class="vs-subcopy">สิ่งที่ทำงานอยู่เบื้องหลัง — ปกติไม่ต้องแตะ</p>
+              </div>
+              <div class="vs-sysrow">
+                <div class="vs-sysrow-copy"><strong>เปิดพร้อม Windows <span class="vs-platform-tag">เฉพาะ Windows</span></strong><small id="autostartHint">เปิดแบบซ่อนหลังล็อกอิน</small></div>
+                <label class="vs-switch"><input id="autostartToggle" type="checkbox" /><span></span></label>
+              </div>
+              <div class="vs-sysrow">
+                <div class="vs-sysrow-copy"><strong>หยุดและล้าง</strong><small>หยุดอัปเดตอัตโนมัติจนกว่าจะเปิดต่อ</small></div>
+                <button class="vs-btn vs-btn-sm vs-btn-danger" id="clearButton" type="button">ล้าง</button>
+              </div>
+              <div class="vs-sysrow">
+                <div class="vs-sysrow-copy"><strong>ออกจาก companion</strong><small>ล้าง Rich Presence ก่อนออก</small></div>
+                <button class="vs-btn vs-btn-sm" id="quitButton" type="button">ออก</button>
+              </div>
+              <p class="vs-card-foot vs-caption" id="configPath" title="">ไฟล์ตั้งค่าอยู่ในเครื่องนี้</p>
+              <button id="openSettingsButtonSide" type="button" hidden>ตั้งค่าขั้นสูง</button>
+            </section>
           </div>
-          <div class="settings-status-row">
-            <strong>GIPHY API key</strong>
-            <span id="giphyStatusLabel" class="warn">ไม่บังคับ · ยังไม่ได้ตั้ง</span>
-          </div>
-          <p class="path" id="secretsPath" title="">ไฟล์เก็บความลับ</p>
-        </div>
-            <form class="settings-form" id="settingsForm">
-          <div class="field">
-            <label for="discordClientIdInput">Discord Application ID</label>
-            <input id="discordClientIdInput" name="discordClientId" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="20" placeholder="17-20 digit Application ID" />
-            <small class="field-hint">มี Application ID เริ่มต้นให้แล้ว ช่องนี้ใช้เปลี่ยนเป็นของคุณเองเท่านั้น</small>
-          </div>
-          <div class="field">
-            <label for="giphyApiKeyInput">GIPHY API key (optional)</label>
-            <input id="giphyApiKeyInput" name="giphyApiKey" type="password" autocomplete="off" spellcheck="false" maxlength="200" placeholder="วางคีย์ฟรี" />
-            <small class="field-hint">ใช้สำหรับค้นหา GIF เท่านั้น สร้างคีย์ฟรีที่ developers.giphy.com เว้นว่างไว้ถ้าไม่เปลี่ยนคีย์เดิม</small>
-          </div>
-          <div class="settings-actions">
-            <button class="button" id="clearGiphyButton" type="button">ล้างคีย์ GIPHY</button>
-            <button class="button primary" id="saveSettingsButton" type="submit">บันทึกคีย์</button>
-          </div>
-        </form>
-            <p class="message" id="settingsMessage" role="status" aria-live="polite"></p>
-          </section>
-          <section class="card">
-          <div class="panel-heading"><div><span class="kicker">Companion</span><h2>Runs in the background</h2></div></div>
-          <div class="system-row">
-            <div class="system-copy"><strong>ตั้งค่าขั้นสูง</strong><small id="apiKeysSummary">Discord + GIPHY อยู่บนเครื่องนี้เท่านั้น</small></div>
-            <button class="button small" id="openSettingsButtonSide" type="button">ตั้งค่าขั้นสูง</button>
-          </div>
-          <!-- Windows-only hook: POST /api/autostart is backed by windows-autostart.mjs
-               (win32 only). On other platforms the toggle is disabled and the hint
-               below explains why — never a dead control. -->
-          <div class="system-row">
-            <div class="system-copy"><strong>Start with Windows <span class="platform-tag">Windows-only</span></strong><small id="autostartHint">เปิดแบบซ่อนหลังล็อกอิน</small></div>
-            <label class="switch"><input id="autostartToggle" type="checkbox" /><span></span></label>
-          </div>
-          <div class="system-row">
-            <div class="system-copy"><strong>หยุดและล้าง</strong><small>หยุดอัปเดตอัตโนมัติจนกว่าจะเปิดต่อ</small></div>
-            <button class="button small danger" id="clearButton" type="button">ล้าง</button>
-          </div>
-          <div class="system-row">
-            <div class="system-copy"><strong>ออกจาก companion</strong><small>ล้าง Rich Presence ก่อนออก</small></div>
-            <button class="button small" id="quitButton" type="button">ออก</button>
-          </div>
-          <p class="path" id="configPath" title="">ไฟล์ตั้งค่าในเครื่อง</p>
         </section>
-        </section>
-      </div>
-      <nav class="bottom-nav vs-bottomnav" aria-label="หลัก">
+<nav class="bottom-nav vs-bottomnav" aria-label="หลัก">
         <a class="bottom-link" href="#/status" data-screen="status" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>สถานะ</span></a>
         <a class="bottom-link" href="#/scenes" data-screen="scenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Scenes</span></a>
         <a class="bottom-link" href="#/editor" data-screen="editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><span>แต่ง Scene</span></a>
@@ -1394,7 +1392,7 @@
         setText(autostartHint, runtime.autostart?.supported
           ? 'เปิดแบบซ่อนหลังล็อกอิน'
           : 'เฉพาะ Windows · ระบบนี้ไม่รองรับการเปิดอัตโนมัติ');
-        setText(document.querySelector('#configPath'), runtime.configPath || 'ไฟล์ตั้งค่าในเครื่อง');
+        setText(document.querySelector('#configPath'), runtime.configPath || 'ไฟล์ตั้งค่าอยู่ในเครื่องนี้');
         document.querySelector('#configPath').title = runtime.configPath || '';
         renderSecretsStatus();
 
@@ -1578,16 +1576,13 @@
         setText(discordStatusLabel, discordConfigured
           ? ('ตั้งค่าแล้ว' + (runtime?.clientId ? ' · ' + runtime.clientId : ''))
           : 'จำเป็น · ยังไม่ได้ตั้ง');
-        discordStatusLabel.className = discordConfigured ? 'ok' : 'warn';
+        discordStatusLabel.className = 'vs-statuspill ' + (discordConfigured ? 'ok' : 'warn');
         setText(giphyStatusLabel, giphyConfigured
           ? ('ตั้งค่าแล้ว' + (runtime?.gifSearch?.source ? ' · ' + runtime.gifSearch.source : ''))
           : 'ไม่บังคับ · ยังไม่ได้ตั้ง');
-        giphyStatusLabel.className = giphyConfigured ? 'ok' : 'warn';
+        giphyStatusLabel.className = 'vs-statuspill ' + (giphyConfigured ? 'ok' : 'warn');
         setText(secretsPath, runtime?.secretsPath || secrets?.filePath || 'ไฟล์เก็บความลับ');
         secretsPath.title = runtime?.secretsPath || secrets?.filePath || '';
-        setText(apiKeysSummary, discordConfigured
-          ? (giphyConfigured ? 'Discord + GIPHY พร้อมใช้บนเครื่องนี้' : 'Discord พร้อม · GIPHY ไม่บังคับ')
-          : 'ต้องใส่ Discord Application ID');
         if (!discordClientIdInput.value && runtime?.clientId) {
           discordClientIdInput.value = runtime.clientId;
         }
@@ -1629,8 +1624,8 @@
           renderRuntime();
           renderSecretsStatus();
           const settingsNotice = runtime.setup?.needsDiscordApplicationId
-            ? 'อัปเดตคีย์แล้ว ยังต้องใส่ Discord Application ID'
-            : 'บันทึกตั้งค่าขั้นสูงลงเครื่องนี้แล้ว';
+            ? 'บันทึกคีย์แล้ว ยังต้องใส่รหัสแอปพลิเคชัน Discord'
+            : 'บันทึกการตั้งค่าลงเครื่องนี้แล้ว';
           showMessage(settingsNotice, 'success');
           if (settingsMessage) {
             settingsMessage.textContent = settingsNotice;
@@ -2207,7 +2202,7 @@
           config.manualOverride = null;
           renderRuntime();
           showMessage(runtime.selectionMode === 'apps'
-            ? 'ล้าง Rich Presence และหยุด Auto แล้ว'
+            ? 'ล้าง Rich Presence และหยุดการสลับอัตโนมัติแล้ว'
             : 'ล้าง Rich Presence และหยุดตารางเวลาแล้ว', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
@@ -2217,7 +2212,7 @@
       document.querySelector('#quitButton').addEventListener('click', async () => {
         const autostartOn = Boolean(runtime?.autostart?.enabled);
         if (!confirm(autostartOn
-          ? 'เปิดพร้อม Windows อยู่ — companion จะกลับมาทำงานเมื่อล็อกอิน Windows ครั้งถัดไป ปิดก่อนถ้าอยากหยุดถาวร ออกเลยไหม?'
+          ? 'เปิดพร้อม Windows อยู่ — companion จะกลับมาทำงานเมื่อล็อกอินครั้งถัดไป ปิดตัวเลือกนั้นก่อนถ้าอยากหยุดถาวร ออกเลยไหม?'
           : 'ออกจาก companion เบื้องหลังและล้าง Rich Presence? companion จะหยุดทำงาน')) return;
         try {
           await requestJson('/api/quit', { method: 'POST' });
@@ -2241,9 +2236,9 @@
         settingsFormDirty = true;
         giphyApiKeyInput.value = '';
         giphyApiKeyInput.placeholder = 'จะล้างเมื่อบันทึก';
-        showMessage('กด "บันทึกคีย์" เพื่อล้างคีย์ GIPHY ที่เก็บไว้', 'success');
+        showMessage('จะล้างคีย์ GIPHY ที่เก็บไว้เมื่อกด "บันทึกคีย์"', 'success');
         if (settingsMessage) {
-          settingsMessage.textContent = 'กด "บันทึกคีย์" เพื่อล้างคีย์ GIPHY ที่เก็บไว้';
+          settingsMessage.textContent = 'จะล้างคีย์ GIPHY ที่เก็บไว้เมื่อกด "บันทึกคีย์"';
           settingsMessage.className = 'message success';
         }
       });
