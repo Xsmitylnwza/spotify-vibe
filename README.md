@@ -2,7 +2,7 @@
 
 Personal Windows utility that schedules customized **Discord Rich Presence** scenes from recurring local-time slots.
 
-This is a local companion app, not a hosted website. Spotify showcase code under `src/` is a leftover visual prototype and is optional.
+This is a local companion app, not a hosted website.
 
 ## Features
 
@@ -187,9 +187,6 @@ The autostart launcher is created at:
 | `npm start` | Same as `presence:studio` |
 | `npm run presence:giphy-setup` | Save GIPHY key from clipboard or argument |
 | `npm test` | Run companion unit/integration tests |
-| `npm run build` | Build the optional React showcase under `src/` |
-| `npm run dev` | Run the optional React showcase |
-| `npm run lint` | ESLint |
 
 ## Security notes
 
@@ -197,24 +194,11 @@ The autostart launcher is created at:
 - Secrets live only in the local `app-secrets.json` file on this PC; they are never uploaded anywhere.
 - Studio binds to `127.0.0.1` only.
 - GIPHY and Discord credentials are not returned by public config endpoints.
-- The React/Spotify demo should use your own `.env` values if you run it; the repository ships no live secrets.
-
-## Optional React / Spotify showcase
-
-`src/` is an earlier editorial UI prototype. It is **not** required for Discord presence.
-
-If you want to run it:
-
-1. Copy `.env.example` to `.env`
-2. Fill Spotify Client ID / Secret / Refresh Token for your own app
-3. Run `npm run dev`
 
 ## Development checks
 
 ```bash
 npm test
-npx eslint scripts
-npm run build
 ```
 
 ## Product docs
