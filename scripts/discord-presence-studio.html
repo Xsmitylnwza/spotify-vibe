@@ -269,7 +269,7 @@
                       <button class="vs-btn vs-btn-sm" id="saveButton" type="submit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>บันทึกเลย</span></button>
                       <span class="vs-publish-action">
                         <button class="vs-btn vs-btn-sm vs-btn-primary" id="useButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg><span id="useButtonLabel">แสดงบน Discord</span></button>
-                        <small id="applyHint">ปักหมุดไว้ 1 ชม.</small>
+                        <small id="applyHint">แสดงครั้งละ 1 ชม.</small>
                       </span>
                     </div>
                   </form>
@@ -494,6 +494,7 @@
         <div class="gif-unavailable" id="gifUnavailable" hidden>
           <strong>ยังเชื่อมต่อค้นหา GIF ไม่ได้</strong>
           <p id="gifUnavailableMessage">ใส่ GIPHY API key ที่ตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้</p>
+          <button class="vs-btn vs-btn-sm" id="gifGoSettingsButton" type="button">ไปหน้าตั้งค่า</button>
         </div>
 
         <div class="gif-search-panel" id="gifSearchPanel" hidden>
@@ -661,7 +662,6 @@ const STR = {
 "คุณกำลังแก้ไข Scene ที่แสดงบน Discord อยู่": "You're editing the Scene that's live on Discord",
 "Scene นี้กำลังแสดงบน Discord": "This Scene is live on Discord",
 "Discord กำลังเชื่อมต่อใหม่ Scene ที่เลือกไว้จะกลับมาแสดงอัตโนมัติ": "Discord is reconnecting — your chosen Scene will return automatically",
-"เลือก Scene": "Pick a Scene",
 "แต่งให้เป็นคุณ": "Make it yours",
 "ตรวจทานและแสดง": "Review & show",
 "ขั้นตอนแต่ง Scene": "Scene editing steps",
@@ -699,7 +699,6 @@ const STR = {
 "ภาพตัวละคร": "Character art",
 "เลือกภาพหลักก่อน แล้วค่อยเพิ่มไอคอนเล็กและลิงก์ทีหลังได้": "Pick the main artwork first — you can add the small icon and links later",
 "ลิงก์ภาพ / GIF": "Image / GIF link",
-"ค้นหา GIF": "Find a GIF",
 "เลือกตัวละครด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ": "Pick a character above, or use a Discord asset key / public HTTPS image URL",
 "ค้นหา GIPHY หรือวางคีย์ asset / URL แบบ HTTPS": "Search GIPHY or paste an asset key / HTTPS URL",
 "ไม่บังคับ · คีย์ asset หรือ URL แบบ HTTPS": "Optional · asset key or HTTPS URL",
@@ -736,7 +735,7 @@ const STR = {
 "บันทึกเลย": "Save now",
 "แสดงบน Discord": "Show on Discord",
 "อัปเดตบน Discord": "Update on Discord",
-"ปักหมุดไว้ 1 ชม.": "Pin for 1 hour",
+"แสดงครั้งละ 1 ชม.": "Shows for 1 hour at a time",
 "ตัวอย่าง": "Preview",
 "ตัวอย่าง Discord": "Discord preview",
 "ตัวอย่างการ์ด Rich Presence บน Discord": "Discord Rich Presence card preview",
@@ -798,9 +797,12 @@ const STR = {
 "ยังไม่มีช่วงเวลา — เพิ่มช่วงแรกของวัน แล้ว Scene จะสลับตามเวลาอัตโนมัติ": "No time slots yet — add the first one and Scenes will switch on their own",
 "+ เพิ่มช่วงเวลาแรก": "+ Add your first slot",
 "เวลาเริ่มต้นของช่วงเวลา": "Slot start time",
+"เวลาไม่ถูกต้อง — เปลี่ยนกลับเป็น {t} แล้ว": "Invalid time — reverted to {t}",
 "ปิดช่วงเวลา {t}": "Disable slot {t}",
 "เปิดช่วงเวลา {t}": "Enable slot {t}",
 "ลบ {t}": "Delete {t}",
+"ลบช่วงเวลา {t}?": ({t}) => `Delete the ${t} time slot?`,
+"ลบการจับคู่ {name}?": ({name}) => `Remove the pairing for ${name}?`,
 "ไม่มีเวลาเริ่มต้นที่ว่างแล้ว": "No free start times left",
 // ---------- settings ----------
 "การตั้งค่าเสริม": "Extra settings",
@@ -846,6 +848,7 @@ const STR = {
 "หยุด companion แล้ว จะเปิดอีกครั้งเมื่อล็อกอิน Windows": "Companion stopped — it will start again at Windows login",
 "หยุด companion แล้ว": "Companion stopped",
 "บันทึกคีย์แล้ว ยังต้องใส่รหัสแอปพลิเคชัน Discord": "Keys saved — you still need your Discord application ID",
+"จะลบรหัสแอปพลิเคชัน Discord ที่บันทึกไว้ใช่ไหม? การเชื่อมต่อ Discord จะหลุดจนกว่าจะใส่รหัสใหม่": "Delete the saved Discord application ID? The Discord connection will drop until you enter a new one",
 "บันทึกการตั้งค่าลงเครื่องนี้แล้ว": "Settings saved to this machine",
 // ---------- gif picker ----------
 "ภาพเคลื่อนไหว": "Motion",
@@ -907,6 +910,9 @@ const STR = {
 "แก้ช่องที่ไฮไลต์ไว้ แล้วบันทึกอีกครั้ง": "Fix the highlighted fields, then save again",
 "แก้ช่องที่ไฮไลต์ไว้ก่อนแสดง Scene นี้บน Discord": "Fix the highlighted fields before showing this Scene on Discord",
 "กำลังบันทึก…": "Saving…",
+"บันทึกการจับคู่แล้ว": "Pairings saved",
+"กลับไปเลือก Scene จากรายการ": "Back to the Scene list",
+"ไปหน้าตั้งค่า": "Go to Settings",
 "กำลังเก็บ Scene นี้ไว้ในเครื่อง": "Storing this Scene on your machine",
 "บันทึก Scene แล้ว แต่ Discord ยังไม่อัปเดต": "Scene saved, but Discord hasn't updated yet",
 "ดูข้อความที่แจ้งแล้วลองกดแสดงบน Discord อีกครั้ง": "Check the notice, then press \"Show on Discord\" again",
@@ -1359,26 +1365,29 @@ function reemitToast() {
         'detailsUrl', 'stateUrl', 'largeImageUrl', 'smallImageUrl', 'button1Url', 'button2Url',
       ]);
       const IMAGE_FIELDS = new Set(['largeImage', 'smallImage']);
-      const FIELD_LABELS = {
-        sceneName: t('ชื่อ Scene'),
-        activityType: t('ประเภทกิจกรรม'),
-        activityName: t('ชื่อกิจกรรม'),
-        details: t('ข้อความหลัก'),
-        detailsUrl: t('ลิงก์ HTTPS บรรทัดบน'),
-        state: t('ข้อความรอง'),
-        stateUrl: t('ลิงก์ HTTPS บรรทัดรอง'),
-        largeImage: t('ภาพหลัก'),
-        largeImageText: t('ข้อความกำกับภาพหลัก'),
-        largeImageUrl: t('ลิงก์ HTTPS ของภาพหลัก'),
-        smallImage: t('ภาพไอคอนเล็ก'),
-        smallImageText: t('ข้อความกำกับไอคอนเล็ก'),
-        smallImageUrl: t('ลิงก์ HTTPS ของไอคอนเล็ก'),
-        timerMinutes: t('ระยะเวลานับถอยหลัง'),
-        button1Label: t('ชื่อปุ่มที่ 1'),
-        button1Url: t('URL HTTPS ของปุ่มที่ 1'),
-        button2Label: t('ชื่อปุ่มที่ 2'),
-        button2Url: t('URL HTTPS ของปุ่มที่ 2'),
-      };
+      // Built lazily so TH↔EN switches re-translate (setLanguage re-renders).
+      function fieldLabels() {
+        return {
+          sceneName: t('ชื่อ Scene'),
+          activityType: t('ประเภทกิจกรรม'),
+          activityName: t('ชื่อกิจกรรม'),
+          details: t('ข้อความหลัก'),
+          detailsUrl: t('ลิงก์ HTTPS บรรทัดบน'),
+          state: t('ข้อความรอง'),
+          stateUrl: t('ลิงก์ HTTPS บรรทัดรอง'),
+          largeImage: t('ภาพหลัก'),
+          largeImageText: t('ข้อความกำกับภาพหลัก'),
+          largeImageUrl: t('ลิงก์ HTTPS ของภาพหลัก'),
+          smallImage: t('ภาพไอคอนเล็ก'),
+          smallImageText: t('ข้อความกำกับไอคอนเล็ก'),
+          smallImageUrl: t('ลิงก์ HTTPS ของไอคอนเล็ก'),
+          timerMinutes: t('ระยะเวลานับถอยหลัง'),
+          button1Label: t('ชื่อปุ่มที่ 1'),
+          button1Url: t('URL HTTPS ของปุ่มที่ 1'),
+          button2Label: t('ชื่อปุ่มที่ 2'),
+          button2Url: t('URL HTTPS ของปุ่มที่ 2'),
+        };
+      }
       const PREVIEW_TARGETS = {
         sceneName: 'previewSceneName',
         activityType: 'previewActivityLabel',
@@ -1453,7 +1462,7 @@ function reemitToast() {
       }
 
       function fieldLabel(field) {
-        return FIELD_LABELS[field.name] || field.name || 'this field';
+        return fieldLabels()[field.name] || field.name || 'this field';
       }
 
       function fieldValidationMessage(field) {
@@ -1676,13 +1685,17 @@ function reemitToast() {
         setText(buttonsStatus, optionCountLabel(buttonCount, 'ปุ่ม', 'button', 'buttons'));
       }
 
-      const ACTIVITY_LABEL = { playing: t('กำลังเล่น'), listening: t('กำลังฟัง'), watching: t('กำลังดู'), competing: t('กำลังแข่ง') };
+      // Built lazily so TH↔EN switches re-translate (setLanguage re-renders).
+      function activityLabel(type) {
+        return { playing: t('กำลังเล่น'), listening: t('กำลังฟัง'), watching: t('กำลังดู'), competing: t('กำลังแข่ง') }[type] || type || '';
+      }
 
       function renderSceneList() {
         if (!config) return;
         // The 500ms state poll calls this on every tick; skip the rebuild when
         // nothing the list shows has changed (also avoids replaying focus work).
         const signature = JSON.stringify([
+          LANG,
           selectedSceneId,
           runtime?.currentSceneId,
           runtime?.manualOverride?.sceneId,
@@ -1727,7 +1740,7 @@ function reemitToast() {
           title.textContent = scene.sceneName || t('Scene ไร้ชื่อ');
           const sub = document.createElement('span');
           sub.className = 'vs-scene-sub';
-          const activity = ACTIVITY_LABEL[scene.activityType] || scene.activityType || '';
+          const activity = activityLabel(scene.activityType);
           sub.textContent = activity + (scene.activityName ? ' · ' + scene.activityName : '');
           meta.append(title, sub);
           const willShow = [scene.details, scene.state].filter(Boolean).join(' · ');
@@ -2120,7 +2133,13 @@ function reemitToast() {
           time.value = slot.startTime;
           time.setAttribute('aria-label', t('เวลาเริ่มต้นของช่วงเวลา'));
           time.addEventListener('change', () => {
-            slot.startTime = time.value;
+            const next = time.value;
+            if (!/^\d{2}:\d{2}$/.test(next)) {
+              time.value = slot.startTime;
+              showMessage(t('เวลาไม่ถูกต้อง — เปลี่ยนกลับเป็น {t} แล้ว', { t: slot.startTime }), 'error');
+              return;
+            }
+            slot.startTime = next;
             renderSlots();
             scheduleSave();
           });
@@ -2160,10 +2179,11 @@ function reemitToast() {
 
           const remove = document.createElement('button');
           remove.type = 'button';
-          remove.className = 'vs-icon-btn';
+          remove.className = 'vs-icon-btn vs-icon-btn-danger';
           remove.setAttribute('aria-label', t('ลบ {t}', { t: slot.startTime }));
           remove.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/></svg>';
           remove.addEventListener('click', () => {
+            if (!confirm(t('ลบช่วงเวลา {t}?', { t: slot.startTime }))) return;
             config.slots = config.slots.filter((item) => item.id !== slot.id);
             renderSlots();
             scheduleSave();
@@ -2222,7 +2242,9 @@ function reemitToast() {
         overrideDuration.hidden = !overrideActive;
         if (overrideActive) setText(overrideDuration, overrideDurationCopy());
 
-        autostartToggle.checked = Boolean(runtime.autostart?.enabled);
+        // Don't clobber the toggle mid-request: the change handler disables it
+        // while the POST is in flight, and renderRuntime must not fight it.
+        if (!autostartToggle.disabled) autostartToggle.checked = Boolean(runtime.autostart?.enabled);
         autostartToggle.disabled = !runtime.autostart?.supported;
         // Windows-only: surface the degraded state honestly instead of a dead toggle.
         setText(autostartHint, runtime.autostart?.supported
@@ -2439,11 +2461,15 @@ function reemitToast() {
 
       async function saveSettings(event) {
         event.preventDefault();
+        const discordValue = discordClientIdInput.value.trim();
+        if (!discordValue && runtime?.clientId) {
+          const ok = confirm(t('จะลบรหัสแอปพลิเคชัน Discord ที่บันทึกไว้ใช่ไหม? การเชื่อมต่อ Discord จะหลุดจนกว่าจะใส่รหัสใหม่'));
+          if (!ok) return;
+        }
         saveSettingsButton.disabled = true;
         clearGiphyButton.disabled = true;
         try {
           const body = {};
-          const discordValue = discordClientIdInput.value.trim();
           body.discordClientId = discordValue;
           if (clearGiphyOnSave) body.giphyApiKey = '';
           else if (giphyApiKeyInput.value.trim()) body.giphyApiKey = giphyApiKeyInput.value.trim();
@@ -2735,6 +2761,8 @@ function reemitToast() {
 
       // Best-effort flush: closing/reloading the tab within the 650 ms debounce
       // window would otherwise silently drop the last edits (review M4).
+      // NOTE: sendBeacon always POSTs, but /api/config only accepts PUT —
+      // use fetch with keepalive so the flush actually persists.
       window.addEventListener('pagehide', () => {
         if (!saveTimer) return;
         clearTimeout(saveTimer);
@@ -2743,9 +2771,12 @@ function reemitToast() {
           if (!config || !validateForm()) return;
           syncFormToScene();
           const payload = JSON.stringify({ scenes: config.scenes, slots: config.slots });
-          if (navigator.sendBeacon) {
-            navigator.sendBeacon('/api/config', new Blob([payload], { type: 'application/json' }));
-          }
+          fetch('/api/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true,
+          }).catch(() => { /* unload path: nothing left to do */ });
         } catch (error) { /* unload path: nothing left to do */ }
       });
 
@@ -2845,6 +2876,10 @@ function reemitToast() {
       });
       gifCloseButton.addEventListener('click', closeGifPicker);
       document.querySelector('#gifPickerBackdrop').addEventListener('click', closeGifPicker);
+      document.querySelector('#gifGoSettingsButton').addEventListener('click', () => {
+        closeGifPicker();
+        location.hash = '#/settings';
+      });
       gifSearchForm.addEventListener('submit', (event) => {
         event.preventDefault();
         clearTimeout(gifSearchTimer);
@@ -3028,6 +3063,9 @@ function reemitToast() {
       cancelOverrideButton.addEventListener('click', () => void cancelOverride());
 
       autostartToggle.addEventListener('change', async () => {
+        // The browser already flipped `checked`; snapshot the pre-click value
+        // so the error path restores exactly, even if a poll ran mid-request.
+        const previous = !autostartToggle.checked;
         autostartToggle.disabled = true;
         try {
           const data = await requestJson('/api/autostart', {
@@ -3042,7 +3080,7 @@ function reemitToast() {
             ? 'companion จะเปิดพร้อม Windows'
             : 'ปิดการเปิดพร้อม Windows แล้ว', 'success');
         } catch (error) {
-          autostartToggle.checked = !autostartToggle.checked;
+          autostartToggle.checked = previous;
           showMessage(error.message, 'error');
         } finally {
           autostartToggle.disabled = !runtime.autostart?.supported;
@@ -3259,7 +3297,7 @@ function reemitToast() {
           const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label', t('เปิดใช้ {name}', { name: mapping.name }));enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
           const label=document.createElement('div');label.className='vs-map-label';const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent=t('ตำแหน่งไฟล์');info.append(summary,path);label.append(name);label.title=mapping.executable;
           const select=document.createElement('select');select.setAttribute('aria-label', t('Scene ของ {x}', { x: mapping.name }));presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
-          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'+escHtml(t('ลบ'));remove.setAttribute('aria-label', t('ลบการจับคู่ {name}', { name: mapping.name }));remove.onclick=()=>{mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
+          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'+escHtml(t('ลบ'));remove.setAttribute('aria-label', t('ลบการจับคู่ {name}', { name: mapping.name }));remove.onclick=()=>{if(!confirm(t('ลบการจับคู่ {name}?', { name: mapping.name })))return;mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
           const icon=appIcon(discoveredApps.find(app=>applicationKey(app.executable)===applicationKey(mapping.executable))||mapping);label.prepend(icon);row.append(enabled,label,select,remove);list.append(row);
         });
       }
@@ -3309,11 +3347,11 @@ function reemitToast() {
       };
       document.querySelector('#saveAppMappings').onclick=()=>void saveMappingDraft();
       async function saveMappingDraft(){
-        const button=document.querySelector('#saveAppMappings');const apply=document.querySelector('#addAppMapping');if(apply.disabled)return false;button.disabled=true;apply.disabled=true;appMessage.textContent='กำลังบันทึก…';
+        const button=document.querySelector('#saveAppMappings');const apply=document.querySelector('#addAppMapping');if(apply.disabled)return false;button.disabled=true;apply.disabled=true;appMessage.textContent=t('กำลังบันทึก…');
         try {
           if (!await saveConfig(false)) { appMessage.textContent=t('บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'); return false; }
           const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
-          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();renderSlots();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
+          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();renderSlots();button.hidden=true;appMessage.textContent=t('บันทึกการจับคู่แล้ว');return true;
         } catch(error) { appMessage.textContent=humanizeError(error.message).text;return false; } finally {button.disabled=false;apply.disabled=false;}
       };
       document.querySelector('#shareCodexSession').onclick=async()=>{

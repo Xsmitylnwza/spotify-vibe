@@ -47,7 +47,7 @@
   --vs-accent-soft:   rgba(79, 70, 229, 0.08);
   --vs-accent-line:   rgba(79, 70, 229, 0.28);
   /* Semantic — pastel fill + darker text pairs */
-  --vs-good-t:        #2F7D33;  --vs-good-bg:   #E9F4EA;
+  --vs-good-t:        #2F7D33;  --vs-good-bg:   #E9F4EA;  --vs-good-line: #A9D3AB;
   --vs-warn-t:        #B25E09;  --vs-warn-bg:   #FBF0DD;  --vs-warn-line: #EAC88A;
   --vs-bad-t:         #C43030;  --vs-bad-bg:    #FBEAEA;
   --vs-neutral-t:     #6B6B6B;  --vs-neutral-bg:#F0EEE9;
@@ -57,7 +57,7 @@
   --vs-r-lg: 16px;
   --vs-r-pill: 999px;
   /* Spacing — 4px grid */
-  --vs-s1: 4px;  --vs-s2: 8px;  --vs-s3: 12px;  --vs-s4: 16px;
+  --vs-s1: 4px;  --vs-s2: 8px;  --vs-s3: 12px;  --vs-s4: 16px;  --vs-s5: 20px;
   --vs-s6: 24px; --vs-s8: 32px; --vs-s12: 48px; --vs-s16: 64px;
   /* Type */
   --vs-font-sans: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -95,7 +95,7 @@
   --vs-accent-soft:   rgba(88, 101, 242, 0.16);
   --vs-accent-line:   rgba(88, 101, 242, 0.45);
   /* Semantic — tinted fills + bright text (never saturated fills) */
-  --vs-good-t:        #57f287;  --vs-good-bg:   rgba(87, 242, 135, 0.12);
+  --vs-good-t:        #57f287;  --vs-good-bg:   rgba(87, 242, 135, 0.12);  --vs-good-line: rgba(87, 242, 135, 0.35);
   --vs-warn-t:        #fee75c;  --vs-warn-bg:   rgba(254, 231, 92, 0.12);  --vs-warn-line: rgba(254, 231, 92, 0.35);
   --vs-bad-t:         #ed4245;  --vs-bad-bg:    rgba(237, 66, 69, 0.14);
   --vs-neutral-t:     #b5bac1;  --vs-neutral-bg:rgba(181, 186, 193, 0.12);
@@ -443,7 +443,7 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 .vs-switch input:checked + span::before { transform: translateX(16px); }
 .vs-switch input:focus-visible + span { outline: 2px solid var(--vs-accent); outline-offset: 2px; }
 
-.vs-icon-btn {
+.vs-icon-btn-danger {
   border: 1px solid transparent; background: transparent;
   color: var(--vs-ink3); border-radius: var(--vs-r-sm);
   width: 32px; height: 32px;
@@ -451,7 +451,7 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   cursor: pointer;
   transition: background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease);
 }
-.vs-icon-btn:hover { background: var(--vs-bad-bg); color: var(--vs-bad-t); }
+.vs-icon-btn-danger:hover { background: var(--vs-bad-bg); color: var(--vs-bad-t); }
 
 /* Quiet disclosures */
 .vs-disclosure { border-top: 1px solid var(--vs-hairline-soft); margin-top: var(--vs-s4); }
@@ -483,12 +483,12 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   transition: transform var(--vs-dur) var(--vs-ease), background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease);
 }
 .vs-disclosure > summary:hover::after, details.vs-disclosure summary:hover::after {
-  color: var(--vs-ink1);
+  color: var(--vs-ink);
   background: var(--vs-hairline-soft);
 }
 .vs-disclosure[open] > summary::after, details.vs-disclosure[open] summary::after {
   transform: rotate(270deg);
-  color: var(--vs-ink1);
+  color: var(--vs-ink);
 }
 /* Smooth open/close for every disclosure panel. */
 .vs-disclosure::details-content {
@@ -750,7 +750,7 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 /* Preview column — a faithful Discord mock (dark on purpose) */
 .vs-preview-col { position: sticky; top: 24px; min-width: 0; }
 .vs-preview-label { font-size: 12px; color: var(--vs-ink2); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.vs-discord-card { background: #1e1f22; color: #dbdee1; border-radius: var(--vs-r-md); padding: 16px; max-width: 340px; }
+.vs-discord-card { background: #1e1f22; color: #dbdee1; border: 1px solid var(--vs-hairline); border-radius: var(--vs-r-md); padding: 16px; max-width: 340px; }
 .vs-dc-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .vs-dc-avatar {
   width: 40px; height: 40px; border-radius: 50%; flex: 0 0 40px;
@@ -974,13 +974,27 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   .vs-sidebar { display: none; }
   .vs-bottomnav { display: flex; }
   .vs-page { padding: 24px 16px 96px; }
-  .vs-topbar { padding: 12px 16px; }
+  .vs-topbar { padding: 12px 16px; gap: 8px; flex-wrap: wrap; row-gap: 8px; }
+  .vs-topbar > * { white-space: nowrap; }
+  .vs-clock { display: none; }
+  .connection-pill { max-width: 60vw; }
+  #connectionText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #mobileToggleSlot .vs-toggle-cluster { gap: 6px; }
+  #mobileToggleSlot .vs-seg button { min-height: 40px; padding: 8px 14px; }
+  #mobileToggleSlot .vs-icon-btn { width: 40px; height: 40px; }
+  #openSettingsButton { min-height: 40px; }
+  .vs-icon-btn-danger { width: 40px; height: 40px; }
+  .vs-update-dismiss { width: 40px; height: 40px; }
+  .vs-slot-time { min-height: 40px; }
   .vs-setup { padding: 12px 16px; }
   .vs-facts { grid-template-columns: 1fr; gap: 12px; }
   .vs-fact + .vs-fact { border-left: 0; padding-left: 0; border-top: 1px solid var(--vs-hairline-soft); padding-top: 12px; }
   .vs-grid2 { grid-template-columns: 1fr; }
   .vs-savebar { bottom: 76px; flex-wrap: wrap; }
   #sceneList { margin: 0 calc(var(--vs-s4) * -1); padding: 0 var(--vs-s4); }
+  .vs-journey { overflow-x: auto; scrollbar-width: none; }
+  .vs-journey::-webkit-scrollbar { display: none; }
+  .vs-jstep { flex-shrink: 0; }
 }
 
 /* Settings: key status, system rows */
@@ -997,8 +1011,8 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   border: 1px solid var(--vs-hairline); color: var(--vs-ink2); background: var(--vs-surface);
   white-space: nowrap;
 }
-.vs-statuspill.ok { color: var(--vs-good-t); border-color: var(--vs-good-b); background: var(--vs-good-bg); }
-.vs-statuspill.warn { color: var(--vs-warn-t); border-color: var(--vs-warn-b); background: var(--vs-warn-bg); }
+.vs-statuspill.ok { color: var(--vs-good-t); border-color: var(--vs-good-line); background: var(--vs-good-bg); }
+.vs-statuspill.warn { color: var(--vs-warn-t); border-color: var(--vs-warn-line); background: var(--vs-warn-bg); }
 .vs-keystatus .vs-caption { margin: 2px 0 0; }
 .vs-card-foot { margin: var(--vs-s6) 0 0; padding-top: var(--vs-s4); border-top: 1px solid var(--vs-hairline-soft); font-size: 12px; color: var(--vs-ink3); }
 .vs-sysrow {
