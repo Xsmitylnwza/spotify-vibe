@@ -675,6 +675,7 @@ export async function startStudioServer(options = {}) {
     stopReconnectTimer();
 
     if (server?.listening) {
+      try { server.closeAllConnections(); } catch { /* older node */ }
       await new Promise((resolve) => server.close(resolve));
     }
     if (runtime.active) await clearDiscordPresence().catch(() => undefined);

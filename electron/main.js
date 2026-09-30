@@ -5,7 +5,8 @@
 // Closing the window hides to the tray — the companion keeps running.
 // Launch-at-login is on by default (toggle in Settings).
 import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import updaterPkg from 'electron-updater';
+const { autoUpdater } = updaterPkg;
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { existsSync, writeFileSync } from 'node:fs';
@@ -322,9 +323,19 @@ if (!app.requestSingleInstanceLock()) {
     } catch (error) {
       errors.push('bridge eval failed: ' + (error?.message || error));
     }
+    try {
+      const shot = await mainWindow.capturePage();
+      const shotPath = process.env.SMOKE_SHOT || '/tmp/electron-smoke.png';
+      writeFileSync(shotPath, shot.toPNG());
+      // eslint-disable-next-line no-console
+      console.log('SMOKE screenshot=' + shotPath);
+    } catch (error) {
+      errors.push('screenshot failed: ' + (error?.message || error));
+    }
     // eslint-disable-next-line no-console
     console.log(`SMOKE url=${studioHandle.url} bridge=${bridge} consoleErrors=${errors.length}`);
     errors.slice(0, 5).forEach((m) => console.log('SMOKE-ERR ' + m));
+    try { mainWindow.destroy(); } catch { /* ignore */ }
     await studioHandle?.stop().catch(() => {});
     app.exit(errors.length ? 1 : 0);
   }
