@@ -60,7 +60,7 @@
   --vs-s1: 4px;  --vs-s2: 8px;  --vs-s3: 12px;  --vs-s4: 16px;
   --vs-s6: 24px; --vs-s8: 32px; --vs-s12: 48px; --vs-s16: 64px;
   /* Type */
-  --vs-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  --vs-font-sans: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --vs-font-serif: "Fraunces", Georgia, "Noto Serif Thai", serif;
   /* Motion */
   --vs-ease: cubic-bezier(0, 0, 0, 1);
