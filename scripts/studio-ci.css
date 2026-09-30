@@ -205,7 +205,9 @@ body.gif-picker-open { overflow: hidden; }
   background: var(--vs-bg);
   border-right: 1px solid var(--vs-hairline);
   display: flex; flex-direction: column;
-  position: sticky; top: 0; height: 100vh;
+  /* Sticky below the full-width topbar (~66px) so the rail never slides over
+     the language/theme toggles when the page is scrolled. */
+  position: sticky; top: 66px; height: calc(100vh - 66px);
   z-index: 30;
 }
 /* Brand — custom pulse wordmark */
@@ -305,6 +307,10 @@ body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 .vs-page.vs-page-wide { max-width: 1180px; }
 .vs-page-head { margin-bottom: var(--vs-s8); }
 .vs-kicker { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; color: var(--vs-ink2); margin-bottom: 6px; }
+/* Brand icons next to famous-app mentions (uses the bundled /art/apps set) */
+.vs-brand-ico { width: 16px; height: 16px; border-radius: 4px; flex: 0 0 auto; }
+.vs-kicker.vs-kicker-ico { display: flex; align-items: center; gap: 6px; }
+.vs-fact-label.vs-label-ico { display: flex; align-items: center; gap: 6px; }
 .vs-title { font-size: 24px; margin-bottom: 6px; }
 .vs-subcopy { font-size: 13px; color: var(--vs-ink2); max-width: 60ch; }
 
@@ -677,8 +683,8 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 .vs-save-status { font-size: 13px; color: var(--vs-ink2); flex: 1; min-width: 0; }
 .vs-save-status small { display: block; font-size: 11px; color: var(--vs-ink3); }
 .vs-savebar .vs-btn { flex: 0 0 auto; }
-.vs-publish-action { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.vs-publish-action small { font-size: 11px; color: var(--vs-ink3); }
+.vs-publish-action { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+.vs-publish-action small { font-size: 11px; color: var(--vs-ink3); white-space: nowrap; }
 
 /* Preview column — a faithful Discord mock (dark on purpose) */
 .vs-preview-col { position: sticky; top: 24px; min-width: 0; }
@@ -860,6 +866,7 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   display: flex; align-items: center; justify-content: center;
   color: var(--vs-accent-deep); margin-bottom: 20px;
 }
+.vs-ob-mark svg { width: 33px; height: 33px; display: block; }
 .vs-ob-title {
   font-family: var(--vs-font-serif);
   font-size: 30px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3;

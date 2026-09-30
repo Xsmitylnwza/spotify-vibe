@@ -37,6 +37,7 @@
       <button class="vs-btn vs-btn-sm vs-btn-ghost" id="openSettingsButton" type="button">ตั้งค่า</button>
       <span class="vs-clock" id="localClock">--:--</span>
       <div class="connection-pill connecting" id="connectionPill">
+        <img class="vs-brand-ico" src="/art/apps/discord.svg" alt="">
         <span class="connection-dot" aria-hidden="true"></span>
         <span id="connectionText">กำลังเปิด companion…</span>
       </div>
@@ -85,13 +86,13 @@
             </div>
             <div class="error-box vs-alert" id="errorBox" role="alert" hidden></div>
             <section class="vs-now-hero" id="statusHero" aria-labelledby="nowScene">
-              <span class="vs-kicker" id="nowKicker">กำลังแสดงบน Discord</span>
+              <span class="vs-kicker vs-kicker-ico"><img class="vs-brand-ico" src="/art/apps/discord.svg" alt=""><span id="nowKicker">กำลังแสดงบน Discord</span></span>
               <h2 class="vs-now-scene" id="nowScene">กำลังโหลด…</h2>
               <p class="vs-now-sub" id="nowSub"></p>
               <div class="vs-facts">
                 <div class="vs-fact"><span class="vs-fact-label">แหล่งที่มา</span><span class="vs-fact-value" id="nowSource">…</span></div>
                 <div class="vs-fact"><span class="vs-fact-label">เปลี่ยนครั้งต่อไป</span><span class="vs-fact-value" id="nextChange">--:--</span></div>
-                <div class="vs-fact"><span class="vs-fact-label">Discord</span><span class="vs-fact-value" id="heroConnection">…</span></div>
+                <div class="vs-fact"><span class="vs-fact-label vs-label-ico"><img class="vs-brand-ico" src="/art/apps/discord.svg" alt="">Discord</span><span class="vs-fact-value" id="heroConnection">…</span></div>
               </div>
               <div class="vs-actions">
                 <button class="vs-btn vs-btn-sm" id="scheduleToggleButton" type="button">หยุดสลับอัตโนมัติ</button>
@@ -517,7 +518,7 @@
       <div class="vs-scrim" aria-hidden="true"></div>
       <section class="vs-onboard" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
         <div class="vs-ob-mark" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <svg viewBox="0 0 64 64" aria-hidden="true"><defs><mask id="vs-ghost-ob"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#vs-ghost-ob)"/></svg>
         </div>
         <h2 class="vs-ob-title" id="onboardingTitle">เริ่มใช้งาน Vibe Studio</h2>
         <p class="vs-ob-sub">เพื่อนร่วมทางบน Discord ของคุณ — ตั้งครั้งเดียว แล้วปิดไปได้เลย companion จะดูแลที่เหลือเอง</p>
