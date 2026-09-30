@@ -48,7 +48,7 @@
   --vs-accent-line:   rgba(79, 70, 229, 0.28);
   /* Semantic — pastel fill + darker text pairs */
   --vs-good-t:        #2F7D33;  --vs-good-bg:   #E9F4EA;
-  --vs-warn-t:        #B25E09;  --vs-warn-bg:   #FBF0DD;
+  --vs-warn-t:        #B25E09;  --vs-warn-bg:   #FBF0DD;  --vs-warn-line: #EAC88A;
   --vs-bad-t:         #C43030;  --vs-bad-bg:    #FBEAEA;
   --vs-neutral-t:     #6B6B6B;  --vs-neutral-bg:#F0EEE9;
   /* Radius */
@@ -96,7 +96,7 @@
   --vs-accent-line:   rgba(88, 101, 242, 0.45);
   /* Semantic — tinted fills + bright text (never saturated fills) */
   --vs-good-t:        #57f287;  --vs-good-bg:   rgba(87, 242, 135, 0.12);
-  --vs-warn-t:        #fee75c;  --vs-warn-bg:   rgba(254, 231, 92, 0.12);
+  --vs-warn-t:        #fee75c;  --vs-warn-bg:   rgba(254, 231, 92, 0.12);  --vs-warn-line: rgba(254, 231, 92, 0.35);
   --vs-bad-t:         #ed4245;  --vs-bad-bg:    rgba(237, 66, 69, 0.14);
   --vs-neutral-t:     #b5bac1;  --vs-neutral-bg:rgba(181, 186, 193, 0.12);
   /* Shadows: floating elements only */
@@ -108,6 +108,8 @@
   display: flex; align-items: center; gap: 8px;
   margin-right: auto;
 }
+/* Mobile slot: empty on desktop, the toggle cluster moves here under 760px. */
+#mobileToggleSlot { display: none; }
 .vs-seg {
   display: inline-flex; gap: 2px;
   padding: 2px;
@@ -247,8 +249,11 @@ body.gif-picker-open { overflow: hidden; }
 .vs-side-foot {
   margin-top: auto; padding: 14px 16px;
   border-top: 1px solid var(--vs-hairline);
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  display: flex; flex-direction: column; gap: 12px;
 }
+.vs-side-utils { display: flex; align-items: center; }
+.vs-toggle-cluster { display: flex; align-items: center; gap: 8px; }
+.vs-side-foot-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .vs-foot-note { font-size: 12px; color: var(--vs-ink3); line-height: 1.4; }
 .sidebar-collapse {
   border: 1px solid transparent; background: transparent;
@@ -270,7 +275,11 @@ body.sidebar-collapsed .vs-nav-link span:last-child,
 body.sidebar-collapsed .vs-side-foot .vs-foot-note { display: none; }
 body.sidebar-collapsed .vs-nav { padding: 0 10px; align-items: center; }
 body.sidebar-collapsed .vs-nav-link { justify-content: center; padding: 0; width: 40px; }
-body.sidebar-collapsed .vs-side-foot { justify-content: center; padding: 14px 0; }
+body.sidebar-collapsed .vs-side-foot { align-items: center; padding: 14px 0; }
+body.sidebar-collapsed .vs-toggle-cluster { flex-direction: column; gap: 8px; }
+body.sidebar-collapsed #langSeg { flex-direction: column; }
+body.sidebar-collapsed #langSeg button { padding: 5px 0; min-width: 36px; }
+body.sidebar-collapsed .vs-side-foot-row { justify-content: center; }
 body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 
 /* Main column + topbar */
@@ -344,6 +353,16 @@ body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 .vs-card + .vs-card { margin-top: var(--vs-s6); }
 .vs-card-head { margin-bottom: var(--vs-s4); }
 .vs-card-head h2 { font-size: 16px; }
+/* Inline editor card on the Scenes page (merged from the old Editor screen). */
+.vs-editor-card { scroll-margin-top: 80px; }
+/* The card is narrower than the old full-width editor page: stack the form
+   and the Discord preview the same way small viewports already do. */
+.vs-editor-card .vs-ed-grid { grid-template-columns: 1fr; }
+.vs-editor-card .vs-preview-col { position: static; }
+.vs-editor-card .vs-discord-card { max-width: 420px; }
+.vs-jstep-link { cursor: pointer; border-radius: var(--vs-r-sm); }
+.vs-jstep-link:hover { color: var(--vs-ink); }
+.vs-jstep-link:focus-visible { outline: 2px solid var(--vs-accent); outline-offset: 2px; }
 .vs-sec-head { margin-bottom: var(--vs-s4); }
 .vs-sec-head h2 { font-size: 15px; }
 .vs-sec-head p { font-size: 13px; color: var(--vs-ink2); margin-top: 2px; }
@@ -360,6 +379,7 @@ body.sidebar-collapsed .sidebar-collapse svg { transform: rotate(180deg); }
 .vs-btn:hover { background: var(--vs-tint); }
 .vs-btn:active { transform: scale(0.98); }
 .vs-btn-sm { padding: 7px 16px; font-size: 13px; }
+.vs-btn svg { flex: 0 0 auto; }
 .vs-btn-primary { background: var(--vs-accent); border-color: var(--vs-accent); color: #fff; }
 .vs-btn-primary:hover { background: var(--vs-accent-deep); border-color: var(--vs-accent-deep); }
 .vs-btn-ghost { border-color: transparent; background: transparent; color: var(--vs-ink2); }
@@ -767,6 +787,13 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 }
 .vs-dc-buttons a:hover { background: #5d5f67; }
 .vs-preview-foot { font-size: 12px; color: var(--vs-ink2); margin-top: 10px; }
+.vs-art-warn {
+  font-size: 12px; color: var(--vs-warn-t);
+  background: var(--vs-warn-bg);
+  border: 1px solid var(--vs-warn-line);
+  border-radius: var(--vs-r-sm);
+  padding: 8px 10px; margin-top: 8px;
+}
 .vs-preview-scene { font-size: 12px; color: var(--vs-ink2); margin-top: 8px; display: block; }
 .is-highlighted { outline: 2px solid var(--vs-accent); outline-offset: 3px; border-radius: 6px; }
 
@@ -944,6 +971,7 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   .vs-timeline { height: 720px; }
 }
 @media (max-width: 760px) {
+  #mobileToggleSlot { display: flex; }
   .vs-sidebar { display: none; }
   .vs-bottomnav { display: flex; }
   .vs-page { padding: 24px 16px 96px; }
