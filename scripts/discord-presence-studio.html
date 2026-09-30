@@ -128,12 +128,12 @@
                 <h2 id="sceneLibraryTitle">Scene ทั้งหมด</h2>
                 <p class="vs-subcopy">เลือก Scene ที่ต้องการแก้ไข — Scene ที่มีป้าย "กำลังแสดง" คือ Scene ที่อยู่บน Discord ตอนนี้</p>
               </div>
-              <div id="sceneList"></div>
-              <div class="vs-toolbar">
+              <div class="vs-toolbar vs-toolbar-top">
                 <button class="vs-btn vs-btn-sm vs-btn-primary" id="addSceneButton" type="button">+ เพิ่ม Scene</button>
-                <button class="vs-btn vs-btn-sm vs-btn-ghost" id="duplicateSceneButton" type="button">ทำสำเนา</button>
-                <button class="vs-btn vs-btn-sm vs-btn-ghost vs-btn-danger" id="deleteSceneButton" type="button">ลบ Scene</button>
+                <button class="vs-btn vs-btn-sm vs-btn-ghost" id="duplicateSceneButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>ทำสำเนา</button>
+                <button class="vs-btn vs-btn-sm vs-btn-ghost vs-btn-danger" id="deleteSceneButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>ลบ Scene</button>
               </div>
+              <div id="sceneList"></div>
             </section>
             <section class="vs-card vs-pairing" aria-labelledby="appsTitle">
               <div class="vs-card-head">
@@ -1659,7 +1659,7 @@ function reemitToast() {
           runtime?.currentSceneId,
           runtime?.manualOverride?.sceneId,
           runtime?.selectionMode,
-          config.scenes.map((scene) => [scene.id, scene.sceneName, scene.activityType, scene.activityName]),
+          config.scenes.map((scene) => [scene.id, scene.sceneName, scene.activityType, scene.activityName, scene.largeImage, scene.details, scene.state]),
         ]);
         if (signature === lastSceneListSignature) return;
         lastSceneListSignature = signature;
@@ -1683,7 +1683,15 @@ function reemitToast() {
           const icon = document.createElement('span');
           icon.className = 'vs-scene-icon';
           icon.setAttribute('aria-hidden', 'true');
-          icon.textContent = sceneIcon(scene);
+          const artSrc = characterPreviewSource(scene.largeImage);
+          if (artSrc) {
+            const art = document.createElement('img');
+            art.src = artSrc; art.alt = ''; art.loading = 'lazy'; art.decoding = 'async';
+            art.onerror = () => { icon.replaceChildren(document.createTextNode(sceneIcon(scene))); };
+            icon.append(art);
+          } else {
+            icon.textContent = sceneIcon(scene);
+          }
           const meta = document.createElement('span');
           meta.className = 'vs-scene-meta';
           const title = document.createElement('span');
@@ -1694,6 +1702,14 @@ function reemitToast() {
           const activity = ACTIVITY_LABEL[scene.activityType] || scene.activityType || '';
           sub.textContent = activity + (scene.activityName ? ' · ' + scene.activityName : '');
           meta.append(title, sub);
+          const willShow = [scene.details, scene.state].filter(Boolean).join(' · ');
+          if (willShow) {
+            const willShowLine = document.createElement('span');
+            willShowLine.className = 'vs-scene-willshow';
+            willShowLine.textContent = willShow;
+            willShowLine.title = willShow;
+            meta.append(willShowLine);
+          }
           const badge = document.createElement('span');
           if (isPinned) {
             badge.className = 'vs-pill vs-pill-accent';

@@ -65,6 +65,8 @@
   /* Motion */
   --vs-ease: cubic-bezier(0, 0, 0, 1);
   --vs-dur: 180ms;
+  /* Lets <details> panels animate open/closed (height 0 <-> auto). */
+  interpolate-size: allow-keywords;
   /* Shadows: floating elements only */
   --vs-shadow-pop: 0 1px 2px rgb(31 31 31 / 0.06), 0 16px 40px -16px rgb(31 31 31 / 0.22);
 }
@@ -209,6 +211,7 @@ body.gif-picker-open { overflow: hidden; }
      the language/theme toggles when the page is scrolled. */
   position: sticky; top: 66px; height: calc(100vh - 66px);
   z-index: 30;
+  transition: width var(--vs-dur) var(--vs-ease), flex-basis var(--vs-dur) var(--vs-ease);
 }
 /* Brand — custom pulse wordmark */
 .vs-brand { display: flex; align-items: center; gap: 12px; padding: 20px 20px 14px; }
@@ -255,10 +258,11 @@ body.gif-picker-open { overflow: hidden; }
   transition: background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease), border-color var(--vs-dur) var(--vs-ease);
 }
 .sidebar-collapse:hover { background: var(--vs-tint); color: var(--vs-ink); border-color: var(--vs-hairline); }
-.sidebar-collapse svg { width: 16px; height: 16px; }
+.sidebar-collapse svg { width: 16px; height: 16px; transition: transform var(--vs-dur) var(--vs-ease); }
 /* Collapsed rail — 60px, icon-only, everything centered and intentional */
 body.sidebar-collapsed .vs-sidebar { width: 60px; flex-basis: 60px; }
 body.sidebar-collapsed .vs-brand { justify-content: center; padding: 20px 0 14px; }
+body.sidebar-collapsed .vs-brand > span:last-child { display: none; }
 body.sidebar-collapsed .vs-brand-name,
 body.sidebar-collapsed .vs-brand-sub,
 body.sidebar-collapsed .vs-nav-label,
@@ -432,14 +436,49 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 /* Quiet disclosures */
 .vs-disclosure { border-top: 1px solid var(--vs-hairline-soft); margin-top: var(--vs-s4); }
 .vs-disclosure > summary, details.vs-disclosure summary {
-  cursor: pointer; padding: 12px 0;
+  cursor: pointer; padding: 12px 8px; margin: 0 -8px;
+  border-radius: var(--vs-r-sm);
   font-size: 14px; font-weight: 500;
   list-style: none;
   display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  transition: background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease);
+}
+.vs-disclosure > summary:hover, details.vs-disclosure summary:hover {
+  background: var(--vs-tint);
+}
+.vs-disclosure > summary:active, details.vs-disclosure summary:active {
+  background: var(--vs-hairline-soft);
+}
+.vs-disclosure > summary:focus-visible, details.vs-disclosure summary:focus-visible {
+  outline: 2px solid var(--vs-accent);
+  outline-offset: 2px;
 }
 .vs-disclosure summary::-webkit-details-marker { display: none; }
-.vs-disclosure summary::after { content: "›"; color: var(--vs-ink3); transform: rotate(90deg); font-size: 16px; flex: 0 0 auto; }
-.vs-disclosure-body { padding: 0 0 16px; }
+.vs-disclosure summary::after {
+  content: "›"; color: var(--vs-ink3);
+  transform: rotate(90deg);
+  font-size: 18px; line-height: 1; flex: 0 0 auto;
+  width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  transition: transform var(--vs-dur) var(--vs-ease), background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease);
+}
+.vs-disclosure > summary:hover::after, details.vs-disclosure summary:hover::after {
+  color: var(--vs-ink1);
+  background: var(--vs-hairline-soft);
+}
+.vs-disclosure[open] > summary::after, details.vs-disclosure[open] summary::after {
+  transform: rotate(270deg);
+  color: var(--vs-ink1);
+}
+/* Smooth open/close for every disclosure panel. */
+.vs-disclosure::details-content {
+  overflow: clip;
+  height: 0;
+  transition: height var(--vs-dur) var(--vs-ease), content-visibility var(--vs-dur) var(--vs-ease);
+  transition-behavior: allow-discrete;
+}
+.vs-disclosure[open]::details-content { height: auto; }
+.vs-disclosure-body { padding: 4px 0 16px; }
 .vs-disclosure .option-status { font-size: 12px; font-weight: 400; color: var(--vs-ink3); }
 
 /* Alert (only rendered when action is needed) */
@@ -555,6 +594,9 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 .vs-scene-sub { display: block; font-size: 12px; color: var(--vs-ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #sceneList .vs-scene-row .vs-pill { flex: 0 0 auto; }
 .vs-toolbar { display: flex; gap: 8px; margin-top: var(--vs-s4); flex-wrap: wrap; }
+.vs-toolbar-top { margin-top: 0; margin-bottom: var(--vs-s4); }
+.vs-scene-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+.vs-scene-willshow { display: block; font-size: 12px; color: var(--vs-ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Pairing */
 #applicationTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: var(--vs-s4); }
