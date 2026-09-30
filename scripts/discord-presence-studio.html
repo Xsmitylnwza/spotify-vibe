@@ -159,167 +159,180 @@
           </div>
         </section>
         <section class="app-screen" id="screen-editor" data-screen="editor" hidden>
-          <section class="editor">
-        <section class="character-stage" aria-labelledby="characterTitle">
-          <div class="portrait-frame"><img id="characterHero" src="/art/hinata/poster.png" alt="Hinata with orange hair, fists raised, ready for the next rally" width="192" height="192" /></div>
-          <div class="character-copy"><span class="character-tag">Your default look</span><h1 id="characterTitle">Hinata</h1><p>แต่งการ์ดให้เป็นคุณ แล้วค่อยไปลุยต่อ</p><div class="character-controls"><label for="motionPreference">ภาพเคลื่อนไหวตัวอย่าง</label><select id="motionPreference"><option value="system">ตามระบบ</option><option value="reduced">ภาพนิ่ง</option><option value="full">เคลื่อนไหว</option></select></div></div>
-        </section>
-        <div class="editor-head">
-          <div>
-            <span class="kicker">Scene editor</span>
-            <h1 id="editorTitle">กำลังโหลด…</h1>
-            <p class="subcopy">Start with the visible essentials. Optional Discord controls stay out of the way until you need them.</p>
-            <div class="editor-context" aria-live="polite">
-              <span class="context-pill"><span>กำลังแก้ไข</span><strong id="editingSceneName">กำลังโหลด…</strong></span>
-              <span class="context-divider" aria-hidden="true">→</span>
-              <span class="context-pill live" id="liveContextPill"><span>On Discord</span><strong id="liveSceneName">กำลังตรวจสอบ…</strong></span>
+          <div class="vs-page vs-page-wide">
+            <div class="vs-page-head">
+              <span class="vs-kicker">แต่ง Scene</span>
+              <h1 class="vs-title" id="editorTitle">กำลังโหลด…</h1>
+              <p class="vs-subcopy">เริ่มจากส่วนสำคัญที่เห็นได้ชัด — ส่วนเสริมของ Discord จะซ่อนไว้จนกว่าคุณต้องการ</p>
+              <div class="vs-context editor-context" aria-live="polite">
+                <span class="context-pill"><span>กำลังแก้ไข</span><strong id="editingSceneName">กำลังโหลด…</strong></span>
+                <span class="context-divider" aria-hidden="true">→</span>
+                <span class="context-pill live" id="liveContextPill"><span>บน Discord</span><strong id="liveSceneName">กำลังตรวจสอบ…</strong></span>
+              </div>
+            </div>
+            <div class="vs-ed-grid">
+              <div class="vs-ed-main">
+                <ol class="vs-journey" aria-label="ขั้นตอนแต่ง Scene">
+                  <li class="vs-jstep" id="journeySceneStep">
+                    <span class="vs-jstep-n" aria-hidden="true">1</span>
+                    <span><span>เลือก Scene</span><small id="journeySceneStatus"></small></span>
+                  </li>
+                  <li class="vs-jline" aria-hidden="true"></li>
+                  <li class="vs-jstep" id="journeyCustomizeStep">
+                    <span class="vs-jstep-n" aria-hidden="true">2</span>
+                    <span><span>แต่งให้เป็นคุณ</span><small id="journeyCustomizeStatus"></small></span>
+                  </li>
+                  <li class="vs-jline" aria-hidden="true"></li>
+                  <li class="vs-jstep" id="journeyPreviewStep">
+                    <span class="vs-jstep-n" aria-hidden="true">3</span>
+                    <span><span>ตรวจทานและแสดง</span><small id="journeyPreviewStatus"></small></span>
+                  </li>
+                </ol>
+                <section class="vs-card vs-character" aria-labelledby="characterTitle">
+                  <div class="vs-char">
+                    <span class="vs-char-face"><img id="characterHero" src="/art/hinata/poster.png" alt="Hinata ผมสีส้ม ชูกำปั้น พร้อมลุยแต้มต่อไป" width="192" height="192" /></span>
+                    <div>
+                      <span class="vs-kicker">ลุคเริ่มต้น</span>
+                      <h2 class="vs-char-name" id="characterTitle">Hinata</h2>
+                      <p class="vs-subcopy">แต่งการ์ดให้เป็นคุณ แล้วค่อยไปลุยต่อ</p>
+                      <div class="vs-looks" role="group" aria-label="ลุคตัวละคร">
+                        <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-idle" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>เคลื่อนไหว</span></button>
+                        <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-poster" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>ภาพนิ่ง</span></button>
+                        <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-gaming" aria-pressed="false"><img src="/art/hinata/gaming-poster.png" alt="" width="56" height="56" /><span>เล่นเกม</span></button>
+                        <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-chill" aria-pressed="false"><img src="/art/hinata/chill-poster.png" alt="" width="56" height="56" /><span>ชิลล์</span></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="vs-motion-row">
+                    <label class="vs-label" for="motionPreference">ภาพเคลื่อนไหวตัวอย่าง</label>
+                    <select class="vs-select" id="motionPreference"><option value="system">ตามระบบ</option><option value="reduced">ภาพนิ่ง</option><option value="full">เคลื่อนไหว</option></select>
+                  </div>
+                  <p class="vs-hint" id="characterAvailability">ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata</p>
+                </section>
+                <form id="presenceForm" novalidate>
+                  <section class="vs-card" id="essentialsSection">
+                    <div class="vs-sec-head"><h2>ชื่อ Scene</h2><p>ตั้งชื่อ Scene ไว้ดูเอง แล้วเลือกป้ายกิจกรรมที่ Discord จะแสดง</p></div>
+                    <div class="vs-grid2">
+                      <div class="vs-field"><label class="vs-label" for="sceneName">ชื่อ Scene</label><input class="vs-input" id="sceneName" name="sceneName" type="text" minlength="1" maxlength="40" required placeholder="เช่น เช้าวันจันทร์" /></div>
+                      <div class="vs-field"><label class="vs-label" for="activityType">ประเภทกิจกรรม</label><select class="vs-input" id="activityType" name="activityType"><option value="playing">กำลังเล่น</option><option value="listening">กำลังฟัง</option><option value="watching">กำลังดู</option><option value="competing">กำลังแข่ง</option></select></div>
+                    </div>
+                    <div class="vs-field"><label class="vs-label" for="activityName">ชื่อกิจกรรม</label><input class="vs-input" id="activityName" name="activityName" type="text" minlength="2" maxlength="128" required placeholder="เช่น Morning Vibe" /></div>
+                  </section>
+                  <section class="vs-card" id="visibleTextSection">
+                    <div class="vs-sec-head"><h2>ข้อความบน Discord</h2><p>สองบรรทัดนี้จะอยู่ข้างภาพบนการ์ดโปรไฟล์ Discord</p></div>
+                    <div class="vs-field"><label class="vs-label" for="details">ข้อความหลัก</label><input class="vs-input" id="details" name="details" type="text" minlength="2" maxlength="128" required placeholder="เช่น เริ่มวันช้าๆ ด้วยเพลงดีๆ" /></div>
+                    <div class="vs-field"><label class="vs-label" for="state">ข้อความรอง</label><input class="vs-input" id="state" name="state" type="text" minlength="2" maxlength="128" required placeholder="เช่น กาแฟ · อากาศดี · เพลงโปรด" /></div>
+                    <details class="vs-disclosure" id="textLinksDisclosure">
+                      <summary><span>ลิงก์ข้อความ</span><span class="option-status" id="textLinksStatus">ปิด</span></summary>
+                      <div class="vs-disclosure-body vs-grid2">
+                        <div class="vs-field"><label class="vs-label" for="detailsUrl">ลิงก์ HTTPS บรรทัดบน</label><input class="vs-input" id="detailsUrl" name="detailsUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                        <div class="vs-field"><label class="vs-label" for="stateUrl">ลิงก์ HTTPS บรรทัดรอง</label><input class="vs-input" id="stateUrl" name="stateUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                      </div>
+                    </details>
+                  </section>
+                  <section class="vs-card" id="artworkSection">
+                    <div class="vs-sec-head"><h2>ภาพตัวละคร</h2><p>เลือกภาพหลักก่อน แล้วค่อยเพิ่มไอคอนเล็กและลิงก์ทีหลังได้</p></div>
+                    <div class="vs-field">
+                      <label class="vs-label" for="largeImage">ลิงก์ภาพ / GIF</label>
+                      <div style="display:flex;gap:8px"><input class="vs-input" id="largeImage" name="largeImage" type="text" maxlength="512" placeholder="ค้นหา GIPHY หรือวางคีย์ asset / URL แบบ HTTPS" aria-describedby="largeImageHint" style="flex:1" /><button class="vs-btn vs-btn-sm field-action" data-gif-target="largeImage" type="button" style="flex:0 0 auto">ค้นหา GIF</button></div>
+                      <p class="vs-hint" id="largeImageHint">เลือกตัวละครด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ</p>
+                    </div>
+                    <details class="vs-disclosure" id="artworkOptionsDisclosure">
+                      <summary><span>ไอคอนเล็กและลิงก์</span><span class="option-status" id="artworkOptionsStatus">เสริมได้</span></summary>
+                      <div class="vs-disclosure-body">
+                        <div class="vs-grid2">
+                          <div class="vs-field"><label class="vs-label" for="largeImageText">ข้อความกำกับภาพหลัก</label><input class="vs-input" id="largeImageText" name="largeImageText" type="text" minlength="2" maxlength="128" /></div>
+                          <div class="vs-field"><label class="vs-label" for="largeImageUrl">ลิงก์ HTTPS ของภาพหลัก</label><input class="vs-input" id="largeImageUrl" name="largeImageUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                        </div>
+                        <div class="vs-field">
+                          <label class="vs-label" for="smallImage">ภาพไอคอนเล็ก / GIF</label>
+                          <div style="display:flex;gap:8px"><input class="vs-input" id="smallImage" name="smallImage" type="text" maxlength="512" placeholder="ไม่บังคับ · คีย์ asset หรือ URL แบบ HTTPS" style="flex:1" /><button class="vs-btn vs-btn-sm field-action" data-gif-target="smallImage" type="button" style="flex:0 0 auto">ค้นหา GIF</button></div>
+                        </div>
+                        <div class="vs-grid2">
+                          <div class="vs-field"><label class="vs-label" for="smallImageText">ข้อความกำกับไอคอนเล็ก</label><input class="vs-input" id="smallImageText" name="smallImageText" type="text" minlength="2" maxlength="128" /></div>
+                          <div class="vs-field"><label class="vs-label" for="smallImageUrl">ลิงก์ HTTPS ของไอคอนเล็ก</label><input class="vs-input" id="smallImageUrl" name="smallImageUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                        </div>
+                      </div>
+                    </details>
+                  </section>
+                  <h3 class="vs-section-label">เพิ่มเติม</h3>
+                  <p class="vs-subcopy" style="margin-bottom:16px">ไม่บังคับ — ข้ามได้เลยถ้ายังไม่ต้องการ</p>
+                  <section class="vs-card" aria-label="รายละเอียดเพิ่มเติม">
+                    <details class="vs-disclosure" id="timerDisclosure" style="border-top:0;margin-top:0">
+                      <summary><span>เวลา</span><span class="option-status" id="timerStatus">ปิด</span></summary>
+                      <div class="vs-disclosure-body">
+                        <p class="vs-hint" style="margin-bottom:12px">นับขึ้นหรือนับลง โดยไม่อัปเดต Presence ถี่เกินไป</p>
+                        <div class="vs-grid2">
+                          <div class="vs-field"><label class="vs-label" for="timerMode">รูปแบบตัวจับเวลา</label><select class="vs-input" id="timerMode" name="timerMode"><option value="none">ไม่ใช้ตัวจับเวลา</option><option value="elapsed">นับขึ้น</option><option value="remaining">นับถอยหลัง</option></select></div>
+                          <div class="vs-field"><label class="vs-label" for="timerMinutes">ระยะเวลานับถอยหลัง (นาที)</label><input class="vs-input" id="timerMinutes" name="timerMinutes" type="number" min="1" max="1440" value="30" /></div>
+                        </div>
+                      </div>
+                    </details>
+                    <details class="vs-disclosure" id="buttonsDisclosure">
+                      <summary><span>ปุ่มลิงก์</span><span class="option-status" id="buttonsStatus">ปิด</span></summary>
+                      <div class="vs-disclosure-body">
+                        <p class="vs-hint" style="margin-bottom:12px">ให้คนอื่นบน Discord เปิดลิงก์ HTTPS ได้สูงสุด 2 ลิงก์</p>
+                        <div class="vs-grid2">
+                          <div class="vs-field"><label class="vs-label" for="button1Label">ชื่อปุ่มที่ 1</label><input class="vs-input" id="button1Label" name="button1Label" type="text" minlength="1" maxlength="32" placeholder="เปิดลิงก์" /></div>
+                          <div class="vs-field"><label class="vs-label" for="button1Url">URL HTTPS ของปุ่มที่ 1</label><input class="vs-input" id="button1Url" name="button1Url" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                          <div class="vs-field"><label class="vs-label" for="button2Label">ชื่อปุ่มที่ 2</label><input class="vs-input" id="button2Label" name="button2Label" type="text" minlength="1" maxlength="32" placeholder="เปิดลิงก์" /></div>
+                          <div class="vs-field"><label class="vs-label" for="button2Url">URL HTTPS ของปุ่มที่ 2</label><input class="vs-input" id="button2Url" name="button2Url" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
+                        </div>
+                      </div>
+                    </details>
+                  </section>
+                  <p class="message" id="message" role="status" aria-live="polite"></p>
+                  <div class="vs-savebar form-actions">
+                    <div class="vs-save-status" id="saveFeedback" data-state="saved" role="status" aria-live="polite">
+                      <span class="save-status" id="saveStatus">บันทึกทุกอย่างแล้ว</span>
+                      <small id="saveHint">เก็บไว้ในเครื่องนี้</small>
+                    </div>
+                    <button class="vs-btn vs-btn-sm" id="saveButton" type="submit">บันทึกเลย</button>
+                    <span class="vs-publish-action">
+                      <button class="vs-btn vs-btn-sm vs-btn-primary" id="useButton" type="button">แสดงบน Discord</button>
+                      <small id="applyHint">ปักหมุดไว้ 1 ชม.</small>
+                    </span>
+                  </div>
+                </form>
+              </div>
+              <aside class="vs-preview-col" aria-label="ตัวอย่าง Discord">
+                <section id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
+                  <h2 id="previewDockTitle" class="vs-visually-hidden">ตัวอย่าง</h2>
+                  <div class="vs-preview-label">
+                    <span><span class="vs-kicker" style="margin-bottom:2px">ตัวอย่าง Discord</span><span style="font-size:12px">อัปเดตตามที่พิมพ์</span></span>
+                    <span><span class="vs-pill vs-pill-neutral" id="draftBadge">ร่าง — ยังไม่ขึ้น Discord</span><span class="vs-pill vs-pill-accent" id="liveBadge" hidden>กำลังแสดงบน Discord</span></span>
+                  </div>
+                  <div class="vs-discord-card" role="img" aria-label="ตัวอย่างการ์ด Rich Presence บน Discord">
+                    <div class="vs-dc-user">
+                      <span class="vs-dc-avatar" aria-hidden="true">G</span>
+                      <span><span class="vs-dc-name">golf.wav</span><span class="vs-dc-sub">Discord profile inspection</span></span>
+                    </div>
+                    <div class="vs-dc-activity preview-target" id="previewActivityLabel">Playing Vibe Presence</div>
+                    <div class="vs-dc-body">
+                      <span class="vs-dc-art preview-target" id="previewArtwork">
+                        <img id="previewLargeImage" alt="ภาพหลักของ Rich Presence" hidden />
+                        <span class="asset-placeholder" id="largePlaceholder" aria-hidden="true">V</span>
+                        <span class="vs-dc-badge" id="previewBadge">
+                          <img id="previewSmallImage" alt="ภาพไอคอนเล็กของ Rich Presence" hidden />
+                          <span id="smallPlaceholder" hidden></span>
+                        </span>
+                      </span>
+                      <span class="vs-dc-lines preview-target" id="previewCopy">
+                        <span class="vs-dc-line1 preview-target" id="previewDetails">กำลังโหลด…</span>
+                        <span class="vs-dc-line2 preview-target" id="previewState"></span>
+                        <span class="vs-dc-time preview-target" id="previewTimer" hidden></span>
+                      </span>
+                    </div>
+                    <div class="vs-dc-buttons preview-target" id="previewButtons"></div>
+                  </div>
+                  <p class="vs-preview-foot" id="previewPublishHint">ตัวอย่างเท่านั้น · พร้อมแล้วค่อยแสดงบน Discord</p>
+                  <span class="vs-preview-scene preview-target" id="previewSceneName">Scene ที่เลือก</span>
+                </section>
+              </aside>
             </div>
           </div>
-        </div>
-
-        <nav class="customization-journey journey-stepper" aria-label="Scene customization journey">
-          <a class="journey-step is-complete is-done" id="journeySceneStep" href="#sceneLibrary">
-            <span class="journey-number" aria-hidden="true">1</span>
-            <span class="journey-copy"><strong>Choose a Scene</strong><small id="journeySceneStatus">Selected</small></span>
-          </a>
-          <a class="journey-step is-current" id="journeyCustomizeStep" href="#essentialsSection" aria-current="step">
-            <span class="journey-number" aria-hidden="true">2</span>
-            <span class="journey-copy"><strong>Personalize</strong><small id="journeyCustomizeStatus">Edit what people see</small></span>
-          </a>
-          <a class="journey-step" id="journeyPreviewStep" href="#previewDock">
-            <span class="journey-number" aria-hidden="true">3</span>
-            <span class="journey-copy"><strong>Review &amp; show</strong><small id="journeyPreviewStatus">Preview before Discord</small></span>
-          </a>
-        </nav>
-
-        <form id="presenceForm" novalidate>
-          <section class="form-section" id="essentialsSection">
-            <div class="section-title"><strong>ชื่อ Scene</strong><small>Name this Scene for yourself, then choose the activity label Discord will display.</small></div>
-            <div class="field-grid three">
-              <div class="field"><label for="sceneName">ชื่อ Scene</label><input id="sceneName" name="sceneName" type="text" minlength="1" maxlength="40" required /></div>
-              <div class="field"><label for="activityType">ประเภทกิจกรรม</label><select id="activityType" name="activityType"><option value="playing">Playing</option><option value="listening">Listening</option><option value="watching">Watching</option><option value="competing">Competing</option></select></div>
-              <div class="field"><label for="activityName">ชื่อกิจกรรม</label><input id="activityName" name="activityName" type="text" minlength="2" maxlength="128" required /></div>
-            </div>
-          </section>
-
-          <section class="form-section" id="visibleTextSection">
-            <div class="section-title"><strong>ข้อความบน Discord</strong><small>These two lines appear beside your artwork on the Discord profile card.</small></div>
-            <div class="field-grid">
-              <div class="field"><label for="details">ข้อความหลัก</label><input id="details" name="details" type="text" minlength="2" maxlength="128" required /></div>
-              <div class="field"><label for="state">ข้อความรอง</label><input id="state" name="state" type="text" minlength="2" maxlength="128" required /></div>
-            </div>
-            <details class="inline-disclosure" id="textLinksDisclosure">
-              <summary><span>ลิงก์ข้อความ</span><span class="option-status" id="textLinksStatus">ปิด</span></summary>
-              <div class="inline-disclosure-body field-grid">
-                <div class="field"><label for="detailsUrl">Top-line HTTPS link</label><input id="detailsUrl" name="detailsUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
-                <div class="field"><label for="stateUrl">Second-line HTTPS link</label><input id="stateUrl" name="stateUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
-              </div>
-            </details>
-          </section>
-
-          <section class="form-section" id="artworkSection">
-            <div class="look-library" aria-label="Character looks"><div><strong>ตัวละคร</strong><p>Hinata · Court idle</p></div><button type="button" class="look-option" data-character-art="builtin:hinata-idle" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>Animated idle</span></button><button type="button" class="look-option" data-character-art="builtin:hinata-poster" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>Still portrait</span></button><button type="button" class="look-option" data-character-art="builtin:hinata-gaming" aria-pressed="false"><img src="/art/hinata/gaming-poster.png" alt="" width="56" height="56" /><span>Gaming</span></button><button type="button" class="look-option" data-character-art="builtin:hinata-chill" aria-pressed="false"><img src="/art/hinata/chill-poster.png" alt="" width="56" height="56" /><span>Chill</span></button><p id="characterAvailability" class="field-hint">ภาพที่แถมมาพร้อมดูตัวอย่าง Discord ต้องการ URL รูปภาพสาธารณะ</p></div>
-            <div class="section-title"><strong>ภาพตัวละคร</strong><small>Pick the main visual first. You can add a small badge and link details afterward.</small></div>
-            <div class="field">
-              <div class="field-label-row"><label for="largeImage">ลิงก์ภาพ / GIF</label><button class="field-action" data-gif-target="largeImage" type="button">Find a GIF</button></div>
-              <input id="largeImage" name="largeImage" type="text" maxlength="512" placeholder="Search GIPHY or paste an asset key / HTTPS URL" aria-describedby="largeImageHint" />
-              <small class="field-hint" id="largeImageHint">Choose your character above, or use a Discord asset key / public HTTPS image URL.</small>
-            </div>
-            <details class="inline-disclosure" id="artworkOptionsDisclosure">
-              <summary><span>ไอคอนเล็กและลิงก์</span><span class="option-status" id="artworkOptionsStatus">เสริมได้</span></summary>
-              <div class="inline-disclosure-body">
-                <div class="field-grid">
-                  <div class="field"><label for="largeImageText">Main artwork hover text</label><input id="largeImageText" name="largeImageText" type="text" minlength="2" maxlength="128" /></div>
-                  <div class="field"><label for="largeImageUrl">Main artwork HTTPS link</label><input id="largeImageUrl" name="largeImageUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
-                </div>
-                <div class="field">
-                  <div class="field-label-row"><label for="smallImage">Small badge image or GIF</label><button class="field-action" data-gif-target="smallImage" type="button">Find a GIF</button></div>
-                  <input id="smallImage" name="smallImage" type="text" maxlength="512" placeholder="Optional asset key or HTTPS URL" />
-                </div>
-                <div class="field-grid">
-                  <div class="field"><label for="smallImageText">Small badge hover text</label><input id="smallImageText" name="smallImageText" type="text" minlength="2" maxlength="128" /></div>
-                  <div class="field"><label for="smallImageUrl">Small badge HTTPS link</label><input id="smallImageUrl" name="smallImageUrl" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
-                </div>
-              </div>
-            </details>
-          </section>
-
-          <p class="advanced-intro">เพิ่มเติม</p>
-
-          <details class="form-section disclosure" id="timerDisclosure">
-            <summary>
-              <span><strong>เวลา</strong><small>Count up or down without rapid Presence updates.</small></span>
-              <span class="option-status" id="timerStatus">ปิด</span>
-            </summary>
-            <div class="disclosure-body field-grid">
-              <div class="field"><label for="timerMode">Timer style</label><select id="timerMode" name="timerMode"><option value="none">No timer</option><option value="elapsed">Count up</option><option value="remaining">Count down</option></select></div>
-              <div class="field"><label for="timerMinutes">Countdown length in minutes</label><input id="timerMinutes" name="timerMinutes" type="number" min="1" max="1440" value="30" /></div>
-            </div>
-          </details>
-
-          <details class="form-section disclosure" id="buttonsDisclosure">
-            <summary>
-              <span><strong>ปุ่มลิงก์</strong><small>Other Discord users can open up to two HTTPS links.</small></span>
-              <span class="option-status" id="buttonsStatus">ปิด</span>
-            </summary>
-            <div class="disclosure-body field-grid">
-              <div class="field"><label for="button1Label">First button label</label><input id="button1Label" name="button1Label" type="text" minlength="1" maxlength="32" placeholder="Open link" /></div>
-              <div class="field"><label for="button1Url">First button HTTPS URL</label><input id="button1Url" name="button1Url" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
-              <div class="field"><label for="button2Label">Second button label</label><input id="button2Label" name="button2Label" type="text" minlength="1" maxlength="32" /></div>
-              <div class="field"><label for="button2Url">Second button HTTPS URL</label><input id="button2Url" name="button2Url" type="url" inputmode="url" maxlength="512" placeholder="https://…" /></div>
-            </div>
-          </details>
-
-          <p class="message" id="message" role="status" aria-live="polite"></p>
-          <div class="form-actions">
-            <div class="save-feedback" id="saveFeedback" data-state="saved" role="status" aria-live="polite">
-              <span class="save-indicator" aria-hidden="true"></span>
-              <span class="save-copy"><span class="save-status" id="saveStatus">บันทึกทุกอย่างแล้ว</span><small id="saveHint">เก็บไว้ในเครื่องนี้</small></span>
-            </div>
-            <button class="button" id="saveButton" type="submit">บันทึกเลย</button>
-            <span class="publish-action">
-              <button class="button primary" id="useButton" type="button">แสดงบน Discord</button>
-              <small id="applyHint">ปักหมุด 1 ชม.</small>
-            </span>
-          </div>
-        </form>
-      </section>
-          <section class="preview-dock" id="previewDock" aria-labelledby="previewDockTitle" tabindex="-1">
-          <header class="preview-dock-head">
-            <div><span class="kicker">Discord preview</span><h2 id="previewDockTitle">ตัวอย่าง</h2></div>
-            <span class="preview-live-badge"><span class="preview-live-dot" aria-hidden="true"></span>Updates as you type</span>
-            <span class="draft-badge" id="draftBadge">ร่าง — ยังไม่ขึ้น Discord</span>
-            <span class="live-badge" id="liveBadge" hidden>Live บน Discord</span>
-          </header>
-          <section class="card preview-card" aria-label="Editing preview of the Discord Rich Presence card">
-            <div class="preview-banner"></div>
-            <div class="preview-body">
-              <div class="preview-user"><span class="avatar">G</span><div><strong>golf.wav</strong><small>Discord profile inspection</small></div></div>
-              <div class="activity-label preview-target" id="previewActivityLabel">Playing Vibe Presence</div>
-              <div class="activity">
-                <div class="asset-wrap preview-target" id="previewArtwork">
-                  <img class="large-asset" id="previewLargeImage" alt="Large Rich Presence artwork" hidden />
-                  <span class="asset-placeholder" id="largePlaceholder">V</span>
-                  <img class="small-asset" id="previewSmallImage" alt="Small Rich Presence artwork" hidden />
-                  <span class="small-placeholder" id="smallPlaceholder">●</span>
-                </div>
-                <div class="activity-copy preview-target" id="previewCopy">
-                  <strong class="preview-target" id="previewDetails">Loading…</strong>
-                  <span class="preview-target" id="previewState"></span>
-                  <small class="preview-target" id="previewTimer" hidden></small>
-                </div>
-              </div>
-              <div class="preview-buttons preview-target" id="previewButtons"></div>
-            </div>
-          </section>
-          <p class="editing-disclaimer">ร่าง — ยังไม่ขึ้น Discord</p>
-          <footer class="preview-dock-footer">
-            <span class="preview-scene-name preview-target" id="previewSceneName">Selected Scene</span>
-            <span id="previewPublishHint">ตัวอย่างเท่านั้น · พร้อมแล้วค่อยแสดงบน Discord</span>
-          </footer>
         </section>
-        </section>
-        <section class="app-screen" id="screen-dayline" data-screen="dayline" hidden>
+<section class="app-screen" id="screen-dayline" data-screen="dayline" hidden>
           <section class="card" id="legacyScheduleCard">
           <div class="panel-heading">
             <div><span class="kicker">Daily Time Slots</span><h2>Repeats every day</h2></div>
@@ -615,20 +628,20 @@
         activityType: 'ประเภทกิจกรรม',
         activityName: 'ชื่อกิจกรรม',
         details: 'ข้อความหลัก',
-        detailsUrl: 'ลิงก์บรรทัดบน',
+        detailsUrl: 'ลิงก์ HTTPS บรรทัดบน',
         state: 'ข้อความรอง',
-        stateUrl: 'ลิงก์บรรทัดรอง',
+        stateUrl: 'ลิงก์ HTTPS บรรทัดรอง',
         largeImage: 'ภาพหลัก',
-        largeImageText: 'ข้อความ hover ของภาพหลัก',
-        largeImageUrl: 'ลิงก์ภาพหลัก',
+        largeImageText: 'ข้อความกำกับภาพหลัก',
+        largeImageUrl: 'ลิงก์ HTTPS ของภาพหลัก',
         smallImage: 'ภาพไอคอนเล็ก',
-        smallImageText: 'ข้อความ hover ของไอคอนเล็ก',
-        smallImageUrl: 'ลิงก์ไอคอนเล็ก',
-        timerMinutes: 'ความยาวนับถอยหลัง',
-        button1Label: 'ป้ายปุ่มที่ 1',
-        button1Url: 'URL ปุ่มที่ 1',
-        button2Label: 'ป้ายปุ่มที่ 2',
-        button2Url: 'URL ปุ่มที่ 2',
+        smallImageText: 'ข้อความกำกับไอคอนเล็ก',
+        smallImageUrl: 'ลิงก์ HTTPS ของไอคอนเล็ก',
+        timerMinutes: 'ระยะเวลานับถอยหลัง',
+        button1Label: 'ชื่อปุ่มที่ 1',
+        button1Url: 'URL HTTPS ของปุ่มที่ 1',
+        button2Label: 'ชื่อปุ่มที่ 2',
+        button2Url: 'URL HTTPS ของปุ่มที่ 2',
       };
       const PREVIEW_TARGETS = {
         sceneName: 'previewSceneName',
@@ -699,7 +712,7 @@
 
         if (field.required && !value) return 'กรอก' + label + 'ด้วย';
         if (value && field.minLength > 0 && value.length < field.minLength) {
-          return label + 'ต้องมีอย่างน้อย ' + field.minLength + ' ตัวอักษร';
+          return label + ' ต้องมีอย่างน้อย ' + field.minLength + ' ตัวอักษร';
         }
 
         if (HTTPS_FIELDS.has(field.name) && value) {
@@ -731,10 +744,10 @@
         if (buttonPair) {
           const [labelName, urlName] = buttonPair;
           if (field.name === labelName && !value && fieldValue(urlName)) {
-            return 'ใส่ป้ายชื่อให้ปุ่มนี้ หรือลบ URL ออก';
+            return 'ใส่ชื่อให้ปุ่มนี้ หรือลบ URL ออก';
           }
           if (field.name === urlName && !value && fieldValue(labelName)) {
-            return 'ใส่ URL แบบ HTTPS ให้ปุ่มนี้ หรือลบป้ายชื่อออก';
+            return 'ใส่ URL แบบ HTTPS ให้ปุ่มนี้ หรือลบชื่อปุ่มออก';
           }
         }
 
@@ -1029,7 +1042,7 @@
         if (!config || !currentScene()) return;
         const index = config.scenes.findIndex((scene) => scene.id === selectedSceneId);
         config.scenes[index] = formScene();
-        editorTitle.textContent = config.scenes[index].sceneName || 'Untitled Scene';
+        editorTitle.textContent = config.scenes[index].sceneName || 'Scene ไร้ชื่อ';
       }
 
       function selectScene(sceneId) {
@@ -1086,7 +1099,7 @@
       document.addEventListener('visibilitychange', refreshCharacterMotion);
       document.querySelectorAll('[data-character-art]').forEach(button => button.addEventListener('click', () => {
         form.elements.largeImage.value = button.dataset.characterArt;
-        form.elements.largeImageText.value = 'Hinata · Ready for the next rally';
+        form.elements.largeImageText.value = 'Hinata · พร้อมสำหรับแต้มต่อไป';
         syncFormToScene(); renderPreview(); renderEditorJourney(); scheduleSave();
       }));
       queueMicrotask(refreshCharacterMotion);
@@ -1124,8 +1137,8 @@
         }
         document.querySelectorAll('[data-character-art]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.characterArt === scene.largeImage)));
         document.querySelector('#characterAvailability').textContent = runtime?.characterArt?.publicUrlConfigured
-          ? 'ตั้งค่า URL รูปภาพสาธารณะแล้ว ดูสถานะการเชื่อมต่อว่าส่งถึง Discord ไหม'
-          : 'พร้อมดูตัวอย่าง ใส่ URL รูปภาพสาธารณะก่อนแสดง Hinata ให้เพื่อนบน Discord';
+          ? 'ตั้งค่า URL รูปภาพสาธารณะแล้ว · ตรวจสถานะการเชื่อมต่อว่า Discord ได้รับภาพหรือไม่'
+          : 'ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata';
         const verb = {
           playing: 'Playing',
           listening: 'Listening to',
@@ -1134,8 +1147,8 @@
         }[scene.activityType] || 'Playing';
         previewSceneName.textContent = scene.sceneName || 'Scene ไร้ชื่อ';
         document.querySelector('#previewActivityLabel').textContent = verb + ' ' + (scene.activityName || 'Vibe Presence');
-        document.querySelector('#previewDetails').textContent = scene.details || 'Untitled activity';
-        document.querySelector('#previewState').textContent = scene.state || 'No secondary text';
+        document.querySelector('#previewDetails').textContent = scene.details || 'กิจกรรมไร้ชื่อ';
+        document.querySelector('#previewState').textContent = scene.state || 'ไม่มีข้อความรอง';
         largePlaceholder.textContent = (scene.activityName || 'V').charAt(0).toUpperCase();
         previewLargeImage.title = scene.largeImageText || '';
         largePlaceholder.title = scene.largeImageText || '';
@@ -1178,8 +1191,8 @@
         timer.hidden = false;
         const elapsed = (Date.now() - previewStartedAt) / 1000;
         timer.textContent = scene.timerMode === 'remaining'
-          ? formatDuration(scene.timerMinutes * 60 - elapsed) + ' remaining'
-          : formatDuration(elapsed) + ' elapsed';
+          ? formatDuration(scene.timerMinutes * 60 - elapsed) + ' ที่เหลือ'
+          : formatDuration(elapsed) + ' ที่ผ่านมา';
       }
 
       function minutesFromTime(value) {
@@ -1405,7 +1418,7 @@
         renderSlots();
         renderRuntime();
         fillForm(currentScene());
-        editorTitle.textContent = currentScene()?.sceneName || 'ไม่มี Scene';
+        editorTitle.textContent = currentScene()?.sceneName || 'Scene ไร้ชื่อ';
         renderPreview();
         renderEditorJourney();
       }
@@ -1869,7 +1882,7 @@
           previewStartedAt = Date.now();
           renderRuntime();
           showMessage(data.applied
-            ? sceneName + (runtime.selectionMode === 'apps' ? ' ปักหมุด 1 ชม. แล้ว' : ' แสดงจนถึงรอบถัดไปแล้ว')
+            ? sceneName + (runtime.selectionMode === 'apps' ? ' ปักหมุดไว้ 1 ชม. แล้ว' : ' จะแสดงจนถึงรอบถัดไป')
             : sceneName + ' บันทึกแล้ว จะแสดงเมื่อ Discord เชื่อมต่อใหม่', 'success');
         } catch (error) {
           setSaveState('warning', 'บันทึก Scene แล้ว แต่ Discord ยังไม่อัปเดต', 'ดูข้อความที่แจ้งแล้วลองกดแสดงบน Discord อีกครั้ง');
@@ -2407,15 +2420,6 @@
           config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
         } catch(error) { appMessage.textContent=error.message;return false; } finally {button.disabled=false;apply.disabled=false;}
       };
-      function simplifyEditor() {
-        const field=document.querySelector('#largeImage').closest('.field');
-        const disclosure=document.createElement('details');disclosure.className='inline-disclosure';
-        const summary=document.createElement('summary');summary.textContent='ใช้ภาพอื่น';field.before(disclosure);disclosure.append(summary,field);
-        const system=document.querySelector('#configPath').closest('section');
-        const settings=document.createElement('details');settings.className='system-disclosure';
-        const title=document.createElement('summary');title.textContent='การตั้งค่าระบบ';system.before(settings);settings.append(title,system);
-      }
-      simplifyEditor();
       document.querySelector('#shareCodexSession').onclick=async()=>{
         const button=document.querySelector('#shareCodexSession');button.disabled=true;
         try{const result=await requestJson('/api/codex-session',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.querySelector('#codexSessionTitle').value,restart:true})});runtime=result.runtime;config.codexSession=result.session;renderRuntime();document.querySelector('#codexSessionStatus').textContent=result.session?'ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex':'ใช้สถานะ Codex ทั่วไปแล้ว';}catch(error){document.querySelector('#codexSessionStatus').textContent=error.message;}finally{button.disabled=false;}
