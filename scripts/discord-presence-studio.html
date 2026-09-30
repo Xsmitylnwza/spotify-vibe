@@ -15,9 +15,25 @@
       // Pre-apply the persisted sidebar state before first paint so returning
       // users never see the expanded sidebar flash before it snaps to the rail.
       try { if (localStorage.getItem('vibe.sidebarCollapsed') === 'true') document.body.classList.add('sidebar-collapsed'); } catch (e) {}
+      // Pre-apply theme before first paint (persisted choice, else OS preference).
+      try {
+        var __th = localStorage.getItem('vibe.theme');
+        if (!__th) __th = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        document.documentElement.dataset.theme = __th;
+      } catch (e) {}
     </script>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
     <header class="appbar vs-topbar">
+      <div class="vs-topbar-toggles" role="group" aria-label="ภาษาและธีม">
+        <div class="vs-seg" id="langSeg" role="group" aria-label="ภาษา">
+          <button type="button" data-lang="th" aria-pressed="true">TH</button>
+          <button type="button" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <button type="button" class="vs-icon-btn" id="themeToggle" aria-label="สลับธีมสว่าง/มืด" aria-pressed="false">
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+      </div>
       <button class="vs-btn vs-btn-sm vs-btn-ghost" id="openSettingsButton" type="button">ตั้งค่า</button>
       <span class="vs-clock" id="localClock">--:--</span>
       <div class="connection-pill connecting" id="connectionPill">
@@ -152,7 +168,7 @@
                 <button type="button" data-mode="schedule">โหมดตารางเวลา</button>
               </div>
               <select id="selectionMode" class="vs-visually-hidden" aria-label="สลับ Scene อัตโนมัติตาม"><option value="apps">โหมดแอป</option><option value="schedule">โหมดตารางเวลา</option></select>
-              <p class="vs-mode-hint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด · อยู่ในโหมดตารางเวลาเมื่อไหร่ ตั้งช่วงเวลาได้ที่หน้า <a href="#/dayline">Dayline</a></p>
+              <p class="vs-mode-hint" data-i18n-html="modeHint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด · อยู่ในโหมดตารางเวลาเมื่อไหร่ ตั้งช่วงเวลาได้ที่หน้า <a href="#/dayline">Dayline</a></p>
               <button type="button" class="vs-btn vs-btn-sm vs-btn-primary" id="saveAppMappings" hidden>บันทึกการแก้ไข</button>
               <p id="appMappingMessage" class="message" role="status"></p>
             </section>
@@ -494,6 +510,602 @@
     </div>
 
     <script>
+/* Vibe Studio i18n dictionary — TH source -> EN. TH is the identity language. */
+const STR = {
+// ---------- chrome ----------
+"ข้ามไปยังเนื้อหา": "Skip to content",
+"ตั้งค่า": "Settings",
+"กำลังเปิด companion…": "Starting companion…",
+"ยังไม่ได้เชื่อมต่อ Discord — ใส่รหัสแอปพลิเคชันเพื่อเริ่มใช้งาน": "Discord isn't connected — add your application ID to get started",
+"มุม Discord ของคุณ": "Your Discord corner",
+"สถานะ": "Status",
+"แต่ง Scene": "Edit Scene",
+"companion ทำงานในเบื้องหลัง": "companion runs in the background",
+"หลัก": "Main",
+"ย่อ/ขยายเมนู": "Collapse/expand menu",
+// ---------- status ----------
+"ภาพรวม": "Overview",
+"สถานะตอนนี้": "Right now",
+"ทุกอย่างที่กำลังเกิดขึ้นกับ Presence ของคุณ — ถ้าหน้านี้ดูเงียบ แปลว่าทุกอย่างปกติดี": "Everything happening with your Presence — if this page looks quiet, everything is fine",
+"กำลังแสดงบน Discord": "Live on Discord",
+"กำลังโหลด…": "Loading…",
+"แหล่งที่มา": "Source",
+"เปลี่ยนครั้งต่อไป": "Next change",
+"หยุดสลับอัตโนมัติ": "Pause auto-switch",
+"ยกเลิกปักหมุด": "Unpin",
+"แสดง Scene อื่น": "Show another Scene",
+"ปิดหน้านี้ได้เลย — companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกครั้งเมื่ออยากเปลี่ยนการตั้งค่าเท่านั้น": "You can close this page — the companion keeps running in the background. Reopen Studio only when you want to change something.",
+"ดูวิธีใช้งานอีกครั้ง": "Show the walkthrough again",
+"ยังไม่มี Scene ที่กำลังแสดง": "No Scene is live right now",
+"ไม่มี Scene ที่กำลังแสดง": "No Scene is live",
+"เลือก Scene สักอัน แล้วกด \"แสดงบน Discord\" — ใช้เวลาไม่ถึงนาที": "Pick a Scene and hit \"Show on Discord\" — takes under a minute",
+"ไปเลือก Scene": "Pick a Scene",
+"เชื่อมต่อ Discord แล้ว": "Discord connected",
+"กำลังเชื่อมต่อ Discord…": "Connecting to Discord…",
+"Discord ออฟไลน์ · กำลังลองใหม่": "Discord offline · retrying",
+"ไม่มีแอปที่ตรงกัน": "No matching app",
+"ปักหมุดเอง": "Pinned manually",
+"สลับตามแอป ({app})": "Following app ({app})",
+"ไม่ตรงกัน": "no match",
+"ตารางเวลา": "Schedule",
+"หยุดสลับอัตโนมัติอยู่": "Auto-switch is paused",
+"หยุดสลับอัตโนมัติทั้งหมด": "Pause all auto-switching",
+"เริ่มสลับอัตโนมัติ": "Resume auto-switch",
+"ปักหมุดไว้ชั่วคราว": "Temporarily pinned",
+"สลับตามแอป · ตอนนี้ {app} เปิดอยู่": "Following app · {app} is open now",
+"สลับตามแอป · ยังไม่มีแอปที่ตรงกัน · <a href=\"#/scenes\">ไปจับคู่แอป</a>": "Following app · no matching app yet · <a href=\"#/scenes\">Pair an app</a>",
+"สลับตามตารางเวลา · หยุดชั่วคราวอยู่": "Following the schedule · paused",
+"สลับตามตารางเวลา · เปลี่ยนอีกที {t}": "Following the schedule · next change {t}",
+"ขณะแอปของคุณเปิดอยู่": "While your app is open",
+"หยุดชั่วคราว": "Paused",
+"ไม่มีช่วงเวลาที่เปิดอยู่": "No enabled time slots",
+"ตอนนี้ {t}": "Now {t}",
+// ---------- scenes ----------
+"เลือกและจับคู่": "Pick & pair",
+"Scene ทั้งหมด": "All Scenes",
+"Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord ของคุณ — เลือกอันที่ต้องการแก้ไข หรือจับคู่กับแอปด้านล่าง": "A Scene is the text-and-image set shown on your Discord — pick one to edit, or pair it with an app below",
+"คลัง Scene": "Scene library",
+"เลือก Scene ที่ต้องการแก้ไข — Scene ที่มีป้าย \"กำลังแสดง\" คือ Scene ที่อยู่บน Discord ตอนนี้": "Pick a Scene to edit — the one tagged \"Live\" is what's on Discord right now",
+"+ เพิ่ม Scene": "+ Add Scene",
+"ทำสำเนา": "Duplicate",
+"ลบ Scene": "Delete Scene",
+"การจับคู่แอป": "App pairing",
+"แอปของคุณ": "Your apps",
+"แอปที่เปิดอยู่": "Running apps",
+"รีเฟรช": "Refresh",
+"เปิดแอปที่จับคู่ไว้ Scene จะเปลี่ยนให้เอง — ไม่ต้องกดอะไรเพิ่ม": "Open a paired app and the Scene switches on its own — nothing to press",
+"เลือกแอป": "Choose app",
+"เลือก Scene": "Choose Scene",
+"กดจับคู่": "Pair",
+"กำลังอ่านแอปที่เปิดอยู่…": "Reading open apps…",
+"เลือกแอปของคุณ": "Choose your app",
+"เลือกได้หลายแอป": "You can select multiple apps",
+"จับคู่เลย": "Pair now",
+"+ สร้าง Scene ใหม่": "+ New Scene",
+"ระบุไฟล์โปรแกรมเอง": "Specify the program file yourself",
+"ตำแหน่งไฟล์ .exe": ".exe file location",
+"สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้": "For apps that aren't open, or when the file path can't be read",
+"ข้อความ Codex แบบตั้งเอง": "Custom Codex text",
+"ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป": "This text won't follow Codex tabs · leave empty for the general status",
+"ข้อความที่ต้องการแสดง": "Text to display",
+"ใช้ข้อความนี้และเริ่มจับเวลา": "Use this text and start the timer",
+"แอปที่จับคู่แล้ว": "Paired apps",
+"สลับ Scene อัตโนมัติตาม": "Auto-switch Scene by",
+"โหมดแอป": "App mode",
+"โหมดตารางเวลา": "Schedule mode",
+"ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด · อยู่ในโหมดตารางเวลาเมื่อไหร่ ตั้งช่วงเวลาได้ที่หน้า": "Leave it and it switches on its own · with several apps open, the most recently used wins · in schedule mode, set time slots on the",
+"บันทึกการแก้ไข": "Save changes",
+"+ Scene ใหม่": "+ New Scene",
+"Scene ใหม่ {n}": "New Scene {n}",
+"เพิ่ม Scene \"{name}\" แล้ว": ({name}) => `Added Scene "${name}"`,
+"ทำสำเนา \"{name}\" แล้ว": ({name}) => `Duplicated "${name}"`,
+"ลบ Scene \"{name}\"?": ({name}) => `Delete Scene "${name}"?`,
+"ลบ Scene \"{name}\" พร้อมช่วงเวลาทั้งหมดที่ผูกไว้?": ({name}) => `Delete Scene "${name}" along with all its time slots?`,
+"ลบ Scene \"{name}\" แล้ว": ({name}) => `Deleted Scene "${name}"`,
+" (สำเนา)": " (copy)",
+"จับคู่แล้ว": "Paired",
+"เลือกแล้ว {n} แอป": ({n}) => n === 1 ? "1 app selected" : `${n} apps selected`,
+"กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง": "Waiting for apps with windows — open an app and hit refresh, or specify the file below",
+"กำลังใช้ Scene ที่ปักไว้ชั่วคราว": "Using a temporarily pinned Scene",
+"รอเปิดแอปที่จับคู่ไว้": "Waiting for a paired app to open",
+"ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้": "On a schedule right now — switch to app mode, then save and enable",
+"ยังไม่มีการจับคู่ เริ่มจากแอปที่ใช้บ่อย เช่น Codex หรือ Discord": "No pairings yet — start with apps you use often, like Codex or Discord",
+"เปิดใช้": "Enable",
+"เปิดใช้ {name}": "Enable {name}",
+"ตำแหน่งไฟล์": "File location",
+"ลบ": "Delete",
+"ลบการจับคู่ {name}": "Unpair {name}",
+"Scene ของ {x}": "Scene for {x}",
+"เลือกแอปที่เปิดอยู่": "Choose an open app",
+" · แอปที่กำลังใช้": " · app in use",
+"เลือกแอปก่อน แล้วเลือก Scene ที่จะจับคู่": "Choose an app first, then the Scene to pair",
+"จับคู่แล้วกับ {n} แอป": ({n}) => `Paired with ${n} ${n === 1 ? "app" : "apps"}`,
+"บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene": "Couldn't save the Scene — check the required fields on the Edit Scene page",
+"ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex": "Using your custom text · not following Codex tabs",
+"ใช้สถานะ Codex ทั่วไปแล้ว": "Using the general Codex status",
+// ---------- editor ----------
+"กำลังแก้ไข": "Editing",
+"บน Discord": "on Discord",
+"รอขึ้น Discord": "Waiting for Discord",
+"กำลังตรวจสอบ…": "Checking…",
+"เริ่มจากส่วนสำคัญที่เห็นได้ชัด — ส่วนเสริมของ Discord จะซ่อนไว้จนกว่าคุณต้องการ": "Start with what matters most — Discord extras stay hidden until you need them",
+"กำลังแก้ไข {name} · บน Discord {live}": "Editing {name} · live on Discord: {live}",
+"คุณกำลังแก้ไข Scene ที่แสดงบน Discord อยู่": "You're editing the Scene that's live on Discord",
+"Scene นี้กำลังแสดงบน Discord": "This Scene is live on Discord",
+"Discord กำลังเชื่อมต่อใหม่ Scene ที่เลือกไว้จะกลับมาแสดงอัตโนมัติ": "Discord is reconnecting — your chosen Scene will return automatically",
+"เลือก Scene": "Pick a Scene",
+"แต่งให้เป็นคุณ": "Make it yours",
+"ตรวจทานและแสดง": "Review & show",
+"ขั้นตอนแต่ง Scene": "Scene editing steps",
+"ลุคเริ่มต้น": "Starter look",
+"แต่งการ์ดให้เป็นคุณ แล้วค่อยไปลุยต่อ": "Style the card your way, then carry on",
+"เคลื่อนไหว": "Animated",
+"ภาพนิ่ง": "Still image",
+"เล่นเกม": "Gaming",
+"ชิลล์": "Chill",
+"ภาพเคลื่อนไหวตัวอย่าง": "Preview animation",
+"ตามระบบ": "System",
+"ลุคตัวละคร": "Character look",
+"ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata": "Preview it here · add a public image URL first so friends on Discord can see the Hinata artwork",
+"ตั้งค่า URL รูปภาพสาธารณะแล้ว · ตรวจสถานะการเชื่อมต่อว่า Discord ได้รับภาพหรือไม่": "Public image URL is set · check the connection status to confirm Discord received it",
+"ชื่อ Scene": "Scene name",
+"ตั้งชื่อ Scene ไว้ดูเอง แล้วเลือกป้ายกิจกรรมที่ Discord จะแสดง": "Name the Scene for yourself, then pick the activity label Discord will show",
+"เช่น เช้าวันจันทร์": "e.g. Monday morning",
+"ประเภทกิจกรรม": "Activity type",
+"กำลังเล่น": "Playing",
+"กำลังฟัง": "Listening",
+"กำลังดู": "Watching",
+"กำลังแข่ง": "Competing",
+"ชื่อกิจกรรม": "Activity name",
+"เช่น Morning Vibe": "e.g. Morning Vibe",
+"ข้อความบน Discord": "Discord text",
+"สองบรรทัดนี้จะอยู่ข้างภาพบนการ์ดโปรไฟล์ Discord": "These two lines sit beside the artwork on your Discord profile card",
+"ข้อความหลัก": "Main line",
+"เช่น เริ่มวันช้าๆ ด้วยเพลงดีๆ": "e.g. slow mornings with good music",
+"ข้อความรอง": "Second line",
+"เช่น กาแฟ · อากาศดี · เพลงโปรด": "e.g. coffee · fresh air · favorite songs",
+"ลิงก์ข้อความ": "Text link",
+"ปิด": "Off",
+"ลิงก์ HTTPS บรรทัดบน": "Top-line HTTPS link",
+"ลิงก์ HTTPS บรรทัดรอง": "Second-line HTTPS link",
+"ภาพตัวละคร": "Character art",
+"เลือกภาพหลักก่อน แล้วค่อยเพิ่มไอคอนเล็กและลิงก์ทีหลังได้": "Pick the main artwork first — you can add the small icon and links later",
+"ลิงก์ภาพ / GIF": "Image / GIF link",
+"ค้นหา GIF": "Find a GIF",
+"เลือกตัวละครด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ": "Pick a character above, or use a Discord asset key / public HTTPS image URL",
+"ค้นหา GIPHY หรือวางคีย์ asset / URL แบบ HTTPS": "Search GIPHY or paste an asset key / HTTPS URL",
+"ไม่บังคับ · คีย์ asset หรือ URL แบบ HTTPS": "Optional · asset key or HTTPS URL",
+"ไอคอนเล็กและลิงก์": "Small icon & links",
+"เสริมได้": "Optional",
+"รายละเอียดเพิ่มเติม": "More details",
+"ข้อความกำกับภาพหลัก": "Main artwork caption",
+"ลิงก์ HTTPS ของภาพหลัก": "Main artwork HTTPS link",
+"ภาพไอคอนเล็ก / GIF": "Small icon / GIF",
+"ข้อความกำกับไอคอนเล็ก": "Small icon caption",
+"ลิงก์ HTTPS ของไอคอนเล็ก": "Small icon HTTPS link",
+"เพิ่มเติม": "More",
+"ไม่บังคับ — ข้ามได้เลยถ้ายังไม่ต้องการ": "Optional — skip for now if you don't need it",
+"เวลา": "Time",
+"นับขึ้นหรือนับลง โดยไม่อัปเดต Presence ถี่เกินไป": "Count up or down, without updating Presence too often",
+"รูปแบบตัวจับเวลา": "Timer style",
+"ไม่ใช้ตัวจับเวลา": "No timer",
+"นับขึ้น": "Count up",
+"นับถอยหลัง": "Count down",
+"ระยะเวลานับถอยหลัง (นาที)": "Countdown length (minutes)",
+"{n} นาทีนับถอยหลัง": ({n}) => `${n}-minute countdown`,
+"ปุ่มลิงก์": "Link buttons",
+"ให้คนอื่นบน Discord เปิดลิงก์ HTTPS ได้สูงสุด 2 ลิงก์": "Let others on Discord open up to 2 HTTPS links",
+"เปิดลิงก์": "Open link",
+"ชื่อปุ่มที่ 1": "Button 1 label",
+"URL HTTPS ของปุ่มที่ 1": "Button 1 HTTPS URL",
+"ชื่อปุ่มที่ 2": "Button 2 label",
+"URL HTTPS ของปุ่มที่ 2": "Button 2 HTTPS URL",
+"บันทึกทุกอย่างแล้ว": "Everything saved",
+"เก็บไว้ในเครื่องนี้": "Saved on this machine",
+"บันทึกเลย": "Save now",
+"แสดงบน Discord": "Show on Discord",
+"อัปเดตบน Discord": "Update on Discord",
+"ปักหมุดไว้ 1 ชม.": "Pin for 1 hour",
+"ตัวอย่าง": "Preview",
+"ตัวอย่าง Discord": "Discord preview",
+"ตัวอย่างการ์ด Rich Presence บน Discord": "Discord Rich Presence card preview",
+"อัปเดตตามที่พิมพ์": "Updates as you type",
+"ร่าง — ยังไม่ขึ้น Discord": "Draft — not on Discord yet",
+"ตัวอย่างเท่านั้น · พร้อมแล้วค่อยแสดงบน Discord": "Preview only · show it on Discord when ready",
+"Scene ที่เลือก": "Selected Scene",
+"Scene ไร้ชื่อ": "Untitled Scene",
+"กิจกรรมไร้ชื่อ": "Untitled activity",
+"ไม่มีข้อความรอง": "No secondary text",
+" ที่เหลือ": " left",
+" ที่ผ่านมา": " elapsed",
+"Scene หายไป": "Missing Scene",
+"กรอกข้อมูลหลักครบแล้ว": "Essentials complete",
+"กรอกช่องที่จำเป็นให้ครบ": "Fill in the required fields",
+"กำลังแสดง · ตรวจทานก่อนแก้": "Live · review before editing",
+"พร้อมแสดงบน Discord": "Ready for Discord",
+"Scene นี้กำลังแสดง · บันทึกแล้วจะอัปเดตอัตโนมัติ": "This Scene is live · saving updates it automatically",
+"เลือกไว้สำหรับ Discord · กำลังเชื่อมต่อใหม่อัตโนมัติ": "Queued for Discord · reconnecting automatically",
+"ตัวอย่างขณะแก้ไข · พร้อมแล้วค่อยแสดงบน Discord": "Editing preview · show it on Discord when ready",
+"แก้ไข {name}": "Edit {name}",
+" · กำลังแสดงบน Discord": " · live on Discord",
+"กำลังแสดง": "Live",
+"ร่าง": "Draft",
+"ปักหมุดไว้ 1 ชม.": "Pinned for 1 hour",
+"ปักหมุดจนถึงรอบถัดไป": "Pinned until next rotation",
+"ภาพหลักของ Rich Presence": "Rich Presence main artwork",
+"ภาพไอคอนเล็กของ Rich Presence": "Rich Presence small icon",
+"Hinata ผมสีส้ม ชูกำปั้น พร้อมลุยแต้มต่อไป": "Hinata, orange hair, fist raised, ready for the next point",
+"กำลังทำอะไรอยู่": "What are you up to",
+// validation
+"กรอก{label}ด้วย": "Please enter {label}",
+"{label} ต้องมีอย่างน้อย {min} ตัวอักษร": "{label} needs at least {min} characters",
+"ใช้ลิงก์ HTTPS ที่ขึ้นต้นด้วย https://": "Use an HTTPS link starting with https://",
+"กรอกลิงก์ HTTPS ให้ครบ เช่น https://example.com": "Enter a complete HTTPS link, e.g. https://example.com",
+"ใช้ asset key ของ Discord หรือ URL มีเดีย HTTPS สาธารณะ": "Use a Discord asset key or a public HTTPS media URL",
+"ใช้ asset key ของ Discord หรือ URL มีเดีย HTTPS สาธารณะแบบเต็ม": "Use a Discord asset key or a full public HTTPS media URL",
+"ใส่ชื่อให้ปุ่มนี้ หรือลบ URL ออก": "Name this button, or remove the URL",
+"ใส่ URL แบบ HTTPS ให้ปุ่มนี้ หรือลบชื่อปุ่มออก": "Give this button an HTTPS URL, or remove its label",
+"กรอกเวลานับถอยหลัง 1–1440 นาที": "Enter a countdown of 1–1440 minutes",
+"เลือกเวลานับถอยหลัง 1–1440 นาที": "Choose a countdown of 1–1440 minutes",
+"เลือกค่าระหว่าง {min} ถึง {max}": "Choose a value between {min} and {max}",
+"กรอกตัวเลขที่ถูกต้อง": "Enter a valid number",
+"ภาพหลัก": "Main artwork",
+"ภาพไอคอนเล็ก": "Small icon",
+"ระยะเวลานับถอยหลัง": "Countdown length",
+// ---------- dayline ----------
+"ช่วงเวลารายวัน": "Daily time slots",
+"แต่ละเวลาเริ่มต้นจะใช้ไปจนกว่าจะถึงช่วงเวลาถัดไปที่เปิดไว้ — ไม่ใช่ปฏิทินรายวัน ทำซ้ำทุกวัน": "Each start time lasts until the next enabled slot — not a daily calendar, it repeats every day",
+"+ เพิ่มช่วงเวลา": "+ Add time slot",
+"ตอนนี้ --:--": "Now --:--",
+"ตารางเวลาถูกซ่อนไว้": "Schedule hidden",
+"ตอนนี้อยู่ในโหมดแอป — ตารางเวลารายวันจึงถูกซ่อนไว้ เปลี่ยนเป็นโหมดตารางเวลาได้ที่หน้า Scenes หัวข้อ \"การจับคู่แอป\"": "You're in app mode, so the daily schedule is hidden. Switch to schedule mode under Scenes › \"App pairing\"",
+"ไปหน้า Scenes": "Go to Scenes",
+"ไทม์ไลน์ 24 ชั่วโมง": "24-hour timeline",
+"ไทม์ไลน์ 24 ชั่วโมง: {items}": "24-hour timeline: {items}",
+"ช่วงเวลา": "Time slot",
+"เริ่มวันของคุณ": "Start your day",
+"ยังไม่มีช่วงเวลา — เพิ่มช่วงแรกของวัน แล้ว Scene จะสลับตามเวลาอัตโนมัติ": "No time slots yet — add the first one and Scenes will switch on their own",
+"+ เพิ่มช่วงเวลาแรก": "+ Add your first slot",
+"เวลาเริ่มต้นของช่วงเวลา": "Slot start time",
+"ปิดช่วงเวลา {t}": "Disable slot {t}",
+"เปิดช่วงเวลา {t}": "Enable slot {t}",
+"ลบ {t}": "Delete {t}",
+"ไม่มีเวลาเริ่มต้นที่ว่างแล้ว": "No free start times left",
+// ---------- settings ----------
+"การตั้งค่าเสริม": "Extra settings",
+"คีย์เชื่อมต่อ": "Connection keys",
+"Discord พร้อมเชื่อมต่ออัตโนมัติ เปลี่ยนค่าเฉพาะเมื่ออยากใช้แอปของคุณเอง": "Discord connects automatically — change these only to use your own app",
+"1 ใส่รหัสของคุณ · 2 กดบันทึก · 3 companion เชื่อมต่อให้เอง": "1 Enter your ID · 2 hit save · 3 the companion connects itself",
+"รหัสแอปพลิเคชัน Discord": "Discord application ID",
+"จำเป็น · ยังไม่ได้ตั้ง": "Required · not set yet",
+"ตั้งค่าแล้ว": "Set",
+"คีย์ GIPHY": "GIPHY key",
+"ไม่บังคับ · ยังไม่ได้ตั้ง": "Optional · not set yet",
+"ไฟล์เก็บความลับ": "Secrets file",
+"มีรหัสเริ่มต้นให้แล้ว ช่องนี้สำหรับเปลี่ยนเป็นรหัสของคุณเองเท่านั้น": "A starter ID is already filled in — this field is only for switching to your own",
+"คีย์ GIPHY (ไม่บังคับ)": "GIPHY key (optional)",
+"ใช้ค้นหา GIF เท่านั้น สร้างคีย์ฟรีที่ developers.giphy.com · เว้นว่างไว้ถ้าไม่ต้องการเปลี่ยนคีย์เดิม": "Only used for GIF search — get a free key at developers.giphy.com · leave empty to keep the current key",
+"รหัส 17–20 หลัก": "17–20 digit ID",
+"วางคีย์ฟรี": "Paste a free key",
+"เว้นว่างไว้ถ้าไม่เปลี่ยนคีย์เดิม": "Leave empty to keep the current key",
+"ล้างคีย์ GIPHY": "Clear GIPHY key",
+"จะล้างเมื่อบันทึก": "Will clear on save",
+"บันทึกคีย์": "Save keys",
+"คีย์ทั้งหมดเก็บไว้ในเครื่องนี้เท่านั้น": "All keys stay on this machine only",
+"จะล้างคีย์ GIPHY ที่เก็บไว้เมื่อกด \"บันทึกคีย์\"": "The stored GIPHY key will be cleared when you hit \"Save keys\"",
+"Companion บนเครื่องนี้": "Companion on this machine",
+"สิ่งที่ทำงานอยู่เบื้องหลัง — ปกติไม่ต้องแตะ": "What's running behind the scenes — usually nothing to touch",
+"เปิดพร้อม Windows": "Start with Windows",
+"เฉพาะ Windows": "Windows only",
+"เปิดแบบซ่อนหลังล็อกอิน": "Launch hidden after login",
+"เฉพาะ Windows · ระบบนี้ไม่รองรับการเปิดอัตโนมัติ": "Windows only · auto-start isn't supported on this system",
+"หยุดและล้าง": "Stop & clear",
+"หยุดอัปเดตอัตโนมัติจนกว่าจะเปิดต่อ": "Pause auto-updates until resumed",
+"ล้าง": "Clear",
+"ออกจาก companion": "Quit companion",
+"ล้าง Rich Presence ก่อนออก": "Clear Rich Presence before quitting",
+"ออก": "Quit",
+"ไฟล์ตั้งค่าอยู่ในเครื่องนี้": "The config file lives on this machine",
+"ตั้งค่าขั้นสูง": "Advanced settings",
+"companion จะเปิดพร้อม Windows": "The companion will start with Windows",
+"ปิดการเปิดพร้อม Windows แล้ว": "Windows startup disabled",
+"ล้าง Rich Presence และหยุดการสลับอัตโนมัติแล้ว": "Rich Presence cleared and auto-switching stopped",
+"ล้าง Rich Presence และหยุดตารางเวลาแล้ว": "Rich Presence cleared and the schedule stopped",
+"เปิดพร้อม Windows อยู่ — companion จะกลับมาทำงานเมื่อล็อกอินครั้งถัดไป ปิดตัวเลือกนั้นก่อนถ้าอยากหยุดถาวร ออกเลยไหม?": "Windows startup is on — the companion will return at your next login. Turn that off first for a permanent stop. Quit now?",
+"ออกจาก companion เบื้องหลังและล้าง Rich Presence? companion จะหยุดทำงาน": "Quit the background companion and clear Rich Presence? The companion will stop running.",
+"หยุด companion แล้ว จะเปิดอีกครั้งเมื่อล็อกอิน Windows": "Companion stopped — it will start again at Windows login",
+"หยุด companion แล้ว": "Companion stopped",
+"บันทึกคีย์แล้ว ยังต้องใส่รหัสแอปพลิเคชัน Discord": "Keys saved — you still need your Discord application ID",
+"บันทึกการตั้งค่าลงเครื่องนี้แล้ว": "Settings saved to this machine",
+// ---------- gif picker ----------
+"ภาพเคลื่อนไหว": "Motion",
+"ค้นหา GIF": "Search GIPHY",
+"ค้นหา GIPHY": "Search GIPHY",
+"ดู GIF กำลังฮิตหรือค้นหา แล้วเลือกเพื่อใส่ลิงก์ภาพเคลื่อนไหวลง Scene นี้": "Browse trending GIFs or search, then pick one to add its animated link to this Scene",
+"ปิดหน้าค้นหา GIF": "Close GIF search",
+"ยังเชื่อมต่อค้นหา GIF ไม่ได้": "GIF search isn't connected yet",
+"ใส่ GIPHY API key ที่ตั้งค่าขั้นสูงเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้": "Add a GIPHY API key under advanced settings to search GIFs — or paste your own HTTPS GIF link",
+"ใส่คีย์ GIPHY ที่หน้าตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้": "Add a GIPHY key in settings to search GIFs — or paste your own HTTPS GIF link",
+"กำลังโหลด GIF กำลังฮิต…": "Loading trending GIFs…",
+"โหลด GIF เพิ่ม": "Load more GIFs",
+"กำลังโหลด GIF เพิ่ม…": "Loading more GIFs…",
+"ลองโหลดเพิ่มอีกครั้ง": "Try loading more again",
+"เว้นว่างเพื่อดู GIF กำลังฮิต · พิมพ์แล้วค้นหาทันที ·": "Leave empty for trending GIFs · type to search instantly ·",
+"ขับเคลื่อนโดย GIPHY": "Powered by GIPHY",
+"ค้นหา เช่น pixel rain, night city…": "Search, e.g. pixel rain, night city…",
+"พิมพ์อีก 1 ตัวอักษรเพื่อค้นหา GIPHY": "Type one more character to search GIPHY",
+"พิมพ์อย่างน้อย 2 ตัวอักษร ผลลัพธ์จะอัปเดตอัตโนมัติ": "Type at least 2 characters — results update automatically",
+"พร้อมค้นหา \"{q}\"…": "Ready to search \"{q}\"…",
+"ค้นหา GIF ภาพหลัก": "Find a GIF for the main artwork",
+"ค้นหา GIF ไอคอนเล็ก": "Find a GIF for the small icon",
+"เลือก GIF สำหรับภาพหลักแล้ว กำลังบันทึก Scene…": "Picked a GIF for the main artwork — saving the Scene…",
+"เลือก GIF สำหรับไอคอนเล็กแล้ว กำลังบันทึก Scene…": "Picked a GIF for the small icon — saving the Scene…",
+"ใช้ GIF: {t}": "Use GIF: {t}",
+"ไม่เจอ GIF ที่ตรงกับการค้นหา ลองคำอื่นดู": "No GIFs matched your search — try another term",
+"ตอนนี้ไม่มี GIF กำลังฮิต ลองค้นหาแทน": "No trending GIFs right now — try searching instead",
+"โหลด GIF ไม่ได้ ลองค้นหาอีกครั้ง": "Couldn't load GIFs — try searching again",
+"ค้นหา GIF ต้องใช้คีย์ GIPHY ที่ถูกต้องในหน้าตั้งค่า": "GIF search needs a valid GIPHY key in settings",
+"กำลังโหลดผลค้นหา…": "Loading search results…",
+"กำลังโหลดผลเพิ่มของ \"{q}\"…": "Loading more results for \"{q}\"…",
+"กำลังโหลด GIF กำลังฮิตเพิ่ม…": "Loading more trending GIFs…",
+"กำลังค้นหา GIPHY ว่า \"{q}\"…": "Searching GIPHY for \"{q}\"…",
+"โหลด GIF ของ \"{q}\" แล้ว": "Loaded GIFs for \"{q}\"",
+"โหลด GIF กำลังฮิตแล้ว": "Loaded trending GIFs",
+"เลื่อนเพื่อโหลดเพิ่ม": "Scroll to load more",
+"หมดแล้ว": "That's all",
+"{n} รายการ": ({n}) => n === 1 ? "1 item" : `${n} items`,
+// ---------- onboarding ----------
+"เริ่มใช้งาน Vibe Studio": "Get started with Vibe Studio",
+"เพื่อนร่วมทางบน Discord ของคุณ — ตั้งครั้งเดียว แล้วปิดไปได้เลย companion จะดูแลที่เหลือเอง": "Your Discord companion — set it once, then close it; the companion handles the rest",
+"เชื่อมต่อ Discord": "Connect Discord",
+"รหัสแอปพลิเคชันใส่ไว้ให้แล้ว กดปุ่มเดียวก็พร้อม": "The application ID is already filled in — one click and you're ready",
+"เลือก Scene แรก": "Pick your first Scene",
+"มี Scene ตัวอย่างให้ 4 แบบ แก้ไขได้ทุกอย่างทีหลัง": "4 sample Scenes included — everything is editable later",
+"เปิดทิ้งไว้ได้เลย": "Leave it running",
+"companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกครั้งเมื่ออยากเปลี่ยนเท่านั้น": "The companion keeps working in the background — reopen Studio only when you want to change something",
+"เริ่มใช้งาน": "Get started",
+"ข้ามไปดูก่อน": "Skip for now",
+"ใช้เวลาไม่ถึง 1 นาที · ข้ามได้ตลอด กลับมาดูใหม่ได้ที่หน้าแรก": "Takes under a minute · you can skip anytime and replay it from the home page",
+// ---------- save states / toasts ----------
+"บันทึก Scene ลงเครื่องนี้แล้ว": "Scene saved to this machine",
+"บันทึกไม่สำเร็จ": "Save failed",
+"สิ่งที่แก้ยังอยู่ ลองอีกครั้ง": "Your edits are safe — try again",
+"มีการแก้ไขที่ยังไม่บันทึก": "You have unsaved changes",
+"กำลังจะบันทึกอัตโนมัติ…": "Autosaving soon…",
+"แก้ข้อความที่แจ้งไว้เพื่อกลับมาบันทึกอัตโนมัติ": "Fix the flagged fields to resume autosave",
+"แก้ข้อความที่แจ้งไว้ก่อนแสดง Scene นี้": "Fix the flagged fields before showing this Scene",
+"แก้ช่องที่ไฮไลต์ไว้ แล้วบันทึกอีกครั้ง": "Fix the highlighted fields, then save again",
+"แก้ช่องที่ไฮไลต์ไว้ก่อนแสดง Scene นี้บน Discord": "Fix the highlighted fields before showing this Scene on Discord",
+"กำลังบันทึก…": "Saving…",
+"กำลังเก็บ Scene นี้ไว้ในเครื่อง": "Storing this Scene on your machine",
+"บันทึก Scene แล้ว แต่ Discord ยังไม่อัปเดต": "Scene saved, but Discord hasn't updated yet",
+"ดูข้อความที่แจ้งแล้วลองกดแสดงบน Discord อีกครั้ง": "Check the notice, then press \"Show on Discord\" again",
+"กำลังอัปเดต Discord…": "Updating Discord…",
+"กำลังแสดง {name} บน Discord…": "Showing {name} on Discord…",
+"กำลังอัปเดต {name} บน Discord…": "Updating {name} on Discord…",
+"{name} ปักหมุดไว้ 1 ชม. แล้ว": ({name}) => `${name} pinned for 1 hour`,
+"{name} จะแสดงจนถึงรอบถัดไป": ({name}) => `${name} will show until the next rotation`,
+"{name} บันทึกแล้ว จะแสดงเมื่อ Discord เชื่อมต่อใหม่": ({name}) => `${name} saved — it will appear when Discord reconnects`,
+"เริ่มสลับอัตโนมัติแล้ว": "Auto-switch resumed",
+"หยุดสลับอัตโนมัติแล้ว": "Auto-switch paused",
+"กลับไปสลับตามแอปแล้ว": "Back to following apps",
+"กลับไปใช้ตารางเวลาแล้ว": "Back to the schedule",
+"ลองแต่งลุคตรงนี้ก่อนได้เลย พร้อมเมื่อไหร่ค่อยใส่ Discord Application ID": "Style the look here first — add your Discord Application ID whenever you're ready",
+"เลือก Scene แต่งให้เป็นคุณ ตรวจทาน แล้วแสดงบน Discord": "Pick a Scene, make it yours, review it, then show it on Discord",
+"Studio พร้อมแล้ว Discord จะเชื่อมต่อใหม่อัตโนมัติ": "Studio is ready — Discord will reconnect automatically",
+"companion ไม่พร้อมใช้งาน": "Companion unavailable",
+// ---------- humanized errors ----------
+"Discord บนเดสก์ท็อปไม่พร้อมใช้งาน กำลังลองเชื่อมต่อใหม่อัตโนมัติ Scene ที่เลือกไว้จะกลับมาแสดงเอง": "Discord desktop isn't available — retrying automatically; your chosen Scene will return on its own",
+"Presence ทำงานอยู่ แต่ไม่มีภาพตัวละคร — ใส่ URL รูปภาพสาธารณะของ Hinata เพื่อให้เพื่อนเห็นภาพ": "Presence is live but the character art is missing — add a public Hinata image URL so friends can see it",
+"Discord ปฏิเสธการอัปเดต Presence": "Discord rejected the Presence update",
+"ล้าง Discord Presence ไม่ได้": "Couldn't clear Discord Presence",
+"เปิดพร้อม Windows ไม่ได้": "Couldn't enable Windows startup",
+"ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ": "Add your Discord application ID in settings to connect",
+"ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ · <a href=\"#/settings\">ไปหน้าตั้งค่า</a>": "Add your Discord application ID in settings to connect · <a href=\"#/settings\">Go to settings</a>",
+"ใส่รหัสแอปพลิเคชัน Discord หรือคีย์ GIPHY ก่อนบันทึก": "Add a Discord application ID or GIPHY key before saving",
+"เลือก Scene ที่มีอยู่ก่อนแสดงบน Discord": "Pick an existing Scene before showing it on Discord",
+"เพิ่มช่วงเวลาที่เปิดไว้อย่างน้อย 1 ช่วงก่อน": "Add at least one enabled time slot first",
+"เลือกโหมดแอปหรือตารางเวลา": "Choose app mode or schedule mode",
+"companion ในเครื่องไม่ตอบสนอง": "The local companion is not responding",
+"C:\\Apps\\MyApp\\MyApp.exe (ตัวอย่าง)": "C:\\Apps\\MyApp\\MyApp.exe (example)",
+"ภาษาและธีม": "Language and theme",
+"ภาษา": "Language",
+"สลับธีมสว่าง/มืด": "Toggle light/dark theme",
+};
+
+/* innerHTML replacements for elements carrying data-i18n-html (Thai source kept inline) */
+const STR_HTML = {
+"modeHint": "Leave it and it switches on its own · with several apps open, the most recently used wins · in schedule mode, set time slots on the <a href=\"#/dayline\">Dayline</a> page",
+};
+
+/* ==========================================================================
+   Vibe Studio — i18n (TH/EN) + theme (light/dark) runtime
+   --------------------------------------------------------------------------
+   STR is keyed on the Thai source string (TH is the identity language).
+   - Static HTML: applyI18n() walks text nodes + i18n attributes and swaps
+     them via STR. Originals are kept in WeakMaps so switching back to TH
+     restores exactly.
+   - JS-rendered strings: t(key, vars) at the call site. Placeholders use
+     {name} syntax; a dict value may also be a function receiving vars
+     (used for plurals).
+   Language persists in localStorage (vibe.lang, default 'th').
+   Theme persists in localStorage (vibe.theme); first run falls back to
+   prefers-color-scheme. Applied via [data-theme] on <html>.
+   ========================================================================== */
+let LANG = 'th';
+try { LANG = localStorage.getItem('vibe.lang') || 'th'; } catch (e) {}
+if (LANG !== 'en') LANG = 'th';
+
+function _strLookup(key) {
+  if (Object.prototype.hasOwnProperty.call(STR, key)) {
+    const v = STR[key];
+    return typeof v === 'string' ? v : v; // functions handled by caller
+  }
+  return undefined;
+}
+function t(key, vars) {
+  const raw = String(key == null ? '' : key);
+  let v;
+  if (LANG === 'en') {
+    v = _strLookup(raw.trim());
+    if (v === undefined) v = _strLookup(raw);
+  }
+  if (v === undefined) v = raw;
+  if (typeof v === 'function') v = v(vars || {});
+  if (typeof v !== 'string') v = raw;
+  if (vars) v = v.replace(/\{(\w+)\}/g, (m, n) => (vars[n] == null ? m : String(vars[n])));
+  return v;
+}
+
+const I18N_ATTRS = ['placeholder', 'aria-label', 'title', 'alt'];
+const _i18nOrigText = new WeakMap();
+const _i18nOrigAttr = new WeakMap();
+const _i18nOrigHtml = new WeakMap();
+
+function _i18nWalk(root, what, cb) {
+  const walker = document.createTreeWalker(root, what, {
+    acceptNode(node) {
+      if (what === NodeFilter.SHOW_TEXT) {
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = node.parentElement;
+        if (p && p.closest('script, style')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(cb);
+}
+
+function _i18nSwapText(toEn) {
+  _i18nWalk(document.body, NodeFilter.SHOW_TEXT, (node) => {
+    let orig = _i18nOrigText.get(node);
+    if (orig === undefined) { orig = node.nodeValue; _i18nOrigText.set(node, orig); }
+    let v;
+    if (toEn) { v = _strLookup(orig.trim()); if (v === undefined) v = _strLookup(orig); }
+    node.nodeValue = typeof v === 'string' ? v : orig;
+  });
+}
+
+function _i18nHasThai(s) { return /[\u0E00-\u0E7F]/.test(s); }
+
+function _i18nSwapAttrs(toEn) {
+  _i18nWalk(document.body, NodeFilter.SHOW_ELEMENT, (el) => {
+    let saved = _i18nOrigAttr.get(el);
+    I18N_ATTRS.forEach((attr) => {
+      const cur = el.getAttribute(attr);
+      if (cur == null) return;
+      if (saved === undefined) saved = {};
+      if (!(attr in saved)) {
+        // Only track attributes that actually carry Thai copy; dynamic values
+        // (paths, names) are left alone.
+        if (!_i18nHasThai(cur)) return;
+        saved[attr] = cur;
+        _i18nOrigAttr.set(el, saved);
+      }
+      const orig = saved[attr];
+      let v;
+      if (toEn) { v = _strLookup(String(orig).trim()); if (v === undefined) v = _strLookup(orig); }
+      el.setAttribute(attr, typeof v === 'string' ? v : orig);
+    });
+  });
+}
+
+function _i18nSwapHtml(toEn) {
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    let orig = _i18nOrigHtml.get(el);
+    if (orig === undefined) { orig = el.innerHTML; _i18nOrigHtml.set(el, orig); }
+    const key = el.getAttribute('data-i18n-html');
+    el.innerHTML = toEn && STR_HTML[key] ? STR_HTML[key] : orig;
+  });
+}
+
+function applyI18n() {
+  const toEn = LANG === 'en';
+  _i18nSwapText(toEn);
+  _i18nSwapAttrs(toEn);
+  _i18nSwapHtml(toEn);
+}
+
+/* ---------- theme ---------- */
+let THEME = 'light';
+try {
+  THEME = localStorage.getItem('vibe.theme')
+    || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+} catch (e) {}
+if (THEME !== 'dark') THEME = 'light';
+
+function setTheme(theme, opts) {
+  THEME = theme === 'dark' ? 'dark' : 'light';
+  try { localStorage.setItem('vibe.theme', THEME); } catch (e) {}
+  document.documentElement.dataset.theme = THEME;
+  updateThemeToggle();
+  if (opts && typeof opts.onChange === 'function') opts.onChange(THEME);
+}
+
+function updateThemeToggle() {
+  const btn = document.querySelector('#themeToggle');
+  if (!btn) return;
+  const dark = THEME === 'dark';
+  btn.setAttribute('aria-pressed', String(dark));
+  const moon = btn.querySelector('.icon-moon');
+  const sun = btn.querySelector('.icon-sun');
+  if (moon) moon.hidden = dark;
+  if (sun) sun.hidden = !dark;
+}
+
+/* ---------- language ---------- */
+function updateLangToggle() {
+  document.querySelectorAll('#langSeg button').forEach((b) => {
+    b.setAttribute('aria-pressed', String(b.dataset.lang === LANG));
+  });
+}
+
+function setLanguage(lang, opts) {
+  LANG = lang === 'en' ? 'en' : 'th';
+  try { localStorage.setItem('vibe.lang', LANG); } catch (e) {}
+  document.documentElement.setAttribute('lang', LANG);
+  applyI18n();
+  updateLangToggle();
+  if (opts && opts.skipRender) return;
+  // Re-render every JS-driven string in the new language.
+  try {
+    renderAll();
+    renderAppTiles();
+    renderMappings();
+    renderSetupBanner();
+    renderSecretsStatus();
+    reemitSaveState();
+    reemitToast();
+  } catch (e) { /* renderers may not be ready during very early init */ }
+}
+
+function wireLangThemeToggles() {
+  document.querySelectorAll('#langSeg button').forEach((b) => {
+    b.addEventListener('click', () => setLanguage(b.dataset.lang));
+  });
+  const themeBtn = document.querySelector('#themeToggle');
+  if (themeBtn) themeBtn.addEventListener('click', () => setTheme(THEME === 'dark' ? 'light' : 'dark'));
+  updateLangToggle();
+  updateThemeToggle();
+}
+
+/* Re-emit helpers (defined here, used by setSaveState/showMessage below) */
+let _lastSave = null;
+let _lastToast = null;
+function reemitSaveState() {
+  if (!_lastSave) return;
+  const s = _lastSave; _lastSave = null;
+  setSaveState(s.state, s.label, s.detail);
+}
+function reemitToast() {
+  if (!_lastToast) return;
+  const x = _lastToast; _lastToast = null;
+  showMessage(x.text, x.type, x.vars);
+}
+
       const form = document.querySelector('#presenceForm');
       const sceneList = document.querySelector('#sceneList');
       const slotList = document.querySelector('#slotList');
@@ -654,17 +1266,17 @@
             'เลือกโหมดแอปหรือตารางเวลา'],
         ];
         for (const [prefix, copy] of cases) {
-          if (text.startsWith(prefix)) return { text: copy, title: text };
+          if (text.startsWith(prefix)) return { text: t(copy), title: text };
         }
         if (text.startsWith('ใส่ Discord Application ID') || text.startsWith('Add your Discord Application ID')) {
           return {
-            html: 'ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ · <a href="#/settings">ไปหน้าตั้งค่า</a>',
-            text: 'ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ',
+            html: t('ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ · <a href="#/settings">ไปหน้าตั้งค่า</a>'),
+            text: t('ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ'),
             title: text,
           };
         }
         if (/failed to fetch|load failed|networkerror|network request failed/i.test(text)) {
-          return { text: 'companion ในเครื่องไม่ตอบสนอง', title: text };
+          return { text: t('companion ในเครื่องไม่ตอบสนอง'), title: text };
         }
         return { text, title: '' };
       }
@@ -674,24 +1286,24 @@
       ]);
       const IMAGE_FIELDS = new Set(['largeImage', 'smallImage']);
       const FIELD_LABELS = {
-        sceneName: 'ชื่อ Scene',
-        activityType: 'ประเภทกิจกรรม',
-        activityName: 'ชื่อกิจกรรม',
-        details: 'ข้อความหลัก',
-        detailsUrl: 'ลิงก์ HTTPS บรรทัดบน',
-        state: 'ข้อความรอง',
-        stateUrl: 'ลิงก์ HTTPS บรรทัดรอง',
-        largeImage: 'ภาพหลัก',
-        largeImageText: 'ข้อความกำกับภาพหลัก',
-        largeImageUrl: 'ลิงก์ HTTPS ของภาพหลัก',
-        smallImage: 'ภาพไอคอนเล็ก',
-        smallImageText: 'ข้อความกำกับไอคอนเล็ก',
-        smallImageUrl: 'ลิงก์ HTTPS ของไอคอนเล็ก',
-        timerMinutes: 'ระยะเวลานับถอยหลัง',
-        button1Label: 'ชื่อปุ่มที่ 1',
-        button1Url: 'URL HTTPS ของปุ่มที่ 1',
-        button2Label: 'ชื่อปุ่มที่ 2',
-        button2Url: 'URL HTTPS ของปุ่มที่ 2',
+        sceneName: t('ชื่อ Scene'),
+        activityType: t('ประเภทกิจกรรม'),
+        activityName: t('ชื่อกิจกรรม'),
+        details: t('ข้อความหลัก'),
+        detailsUrl: t('ลิงก์ HTTPS บรรทัดบน'),
+        state: t('ข้อความรอง'),
+        stateUrl: t('ลิงก์ HTTPS บรรทัดรอง'),
+        largeImage: t('ภาพหลัก'),
+        largeImageText: t('ข้อความกำกับภาพหลัก'),
+        largeImageUrl: t('ลิงก์ HTTPS ของภาพหลัก'),
+        smallImage: t('ภาพไอคอนเล็ก'),
+        smallImageText: t('ข้อความกำกับไอคอนเล็ก'),
+        smallImageUrl: t('ลิงก์ HTTPS ของไอคอนเล็ก'),
+        timerMinutes: t('ระยะเวลานับถอยหลัง'),
+        button1Label: t('ชื่อปุ่มที่ 1'),
+        button1Url: t('URL HTTPS ของปุ่มที่ 1'),
+        button2Label: t('ชื่อปุ่มที่ 2'),
+        button2Url: t('URL HTTPS ของปุ่มที่ 2'),
       };
       const PREVIEW_TARGETS = {
         sceneName: 'previewSceneName',
@@ -726,7 +1338,8 @@
         return prefix + '-' + suffix;
       }
 
-      function showMessage(text, type) {
+      function showMessage(text, type, vars) {
+        _lastToast = text ? { text, type, vars } : null;
         if (type === 'error') {
           // Humanize backend/English errors: Thai copy in the UI, raw detail in title.
           const mapped = humanizeError(text);
@@ -738,23 +1351,24 @@
           if (mapped.title) message.title = mapped.title;
           else message.removeAttribute('title');
         } else {
-          message.textContent = text || '';
+          message.textContent = t(text, vars) || '';
           message.removeAttribute('title');
         }
         message.className = 'message' + (type ? ' ' + type : '');
       }
 
       function setSaveState(state, label, detail) {
+        _lastSave = { state, label, detail };
         saveFeedback.dataset.state = state;
-        saveStatus.textContent = label;
-        saveHint.textContent = detail;
+        saveStatus.textContent = t(label);
+        saveHint.textContent = t(detail);
       }
 
       function setApplyBusy(busy) {
         applyBusy = busy;
         useButton.disabled = busy;
         if (busy) {
-          useButton.textContent = 'กำลังอัปเดต Discord…';
+          useButton.textContent = t('กำลังอัปเดต Discord…');
         } else {
           renderEditorJourney();
         }
@@ -773,17 +1387,17 @@
         const value = String(field.value || '').trim();
         const label = fieldLabel(field);
 
-        if (field.required && !value) return 'กรอก' + label + 'ด้วย';
+        if (field.required && !value) return t('กรอก{label}ด้วย', { label: t(label) });
         if (value && field.minLength > 0 && value.length < field.minLength) {
-          return label + ' ต้องมีอย่างน้อย ' + field.minLength + ' ตัวอักษร';
+          return t('{label} ต้องมีอย่างน้อย {min} ตัวอักษร', { label: t(label), min: field.minLength });
         }
 
         if (HTTPS_FIELDS.has(field.name) && value) {
           try {
             const parsed = new URL(value);
-            if (parsed.protocol !== 'https:') return 'ใช้ลิงก์ HTTPS ที่ขึ้นต้นด้วย https://';
+            if (parsed.protocol !== 'https:') return t('ใช้ลิงก์ HTTPS ที่ขึ้นต้นด้วย https://');
           } catch {
-            return 'กรอกลิงก์ HTTPS ให้ครบ เช่น https://example.com';
+            return t('กรอกลิงก์ HTTPS ให้ครบ เช่น https://example.com');
           }
         }
 
@@ -791,10 +1405,10 @@
           try {
             const parsed = new URL(value);
             if (parsed.protocol !== 'https:') {
-              return 'ใช้ asset key ของ Discord หรือ URL มีเดีย HTTPS สาธารณะ';
+              return t('ใช้ asset key ของ Discord หรือ URL มีเดีย HTTPS สาธารณะ');
             }
           } catch {
-            return 'ใช้ asset key ของ Discord หรือ URL มีเดีย HTTPS สาธารณะแบบเต็ม';
+            return t('ใช้ asset key ของ Discord หรือ URL มีเดีย HTTPS สาธารณะแบบเต็ม');
           }
         }
 
@@ -807,26 +1421,26 @@
         if (buttonPair) {
           const [labelName, urlName] = buttonPair;
           if (field.name === labelName && !value && fieldValue(urlName)) {
-            return 'ใส่ชื่อให้ปุ่มนี้ หรือลบ URL ออก';
+            return t('ใส่ชื่อให้ปุ่มนี้ หรือลบ URL ออก');
           }
           if (field.name === urlName && !value && fieldValue(labelName)) {
-            return 'ใส่ URL แบบ HTTPS ให้ปุ่มนี้ หรือลบชื่อปุ่มออก';
+            return t('ใส่ URL แบบ HTTPS ให้ปุ่มนี้ หรือลบชื่อปุ่มออก');
           }
         }
 
         if (field.name === 'timerMinutes' && form.elements.timerMode.value === 'remaining') {
           const minutes = Number(value);
-          if (!value || !Number.isFinite(minutes)) return 'กรอกเวลานับถอยหลัง 1–1440 นาที';
-          if (minutes < 1 || minutes > 1440) return 'เลือกเวลานับถอยหลัง 1–1440 นาที';
+          if (!value || !Number.isFinite(minutes)) return t('กรอกเวลานับถอยหลัง 1–1440 นาที');
+          if (minutes < 1 || minutes > 1440) return t('เลือกเวลานับถอยหลัง 1–1440 นาที');
         }
 
         if (field.validity.typeMismatch) {
-          return 'กรอกลิงก์ HTTPS ให้ครบ เช่น https://example.com';
+          return t('กรอกลิงก์ HTTPS ให้ครบ เช่น https://example.com');
         }
         if (field.validity.rangeUnderflow || field.validity.rangeOverflow) {
-          return 'เลือกค่าระหว่าง ' + field.min + ' ถึง ' + field.max;
+          return t('เลือกค่าระหว่าง {min} ถึง {max}', { min: field.min, max: field.max });
         }
-        if (field.validity.badInput) return 'กรอกตัวเลขที่ถูกต้อง';
+        if (field.validity.badInput) return t('กรอกตัวเลขที่ถูกต้อง');
         return '';
       }
 
@@ -925,8 +1539,9 @@
         else step.removeAttribute('aria-current');
       }
 
-      function optionCountLabel(count, noun) {
-        if (!count) return 'ปิด';
+      function optionCountLabel(count, noun, enSingular, enPlural) {
+        if (!count) return t('ปิด');
+        if (LANG === 'en') return count + ' ' + (count === 1 ? enSingular : enPlural);
         return count + ' ' + noun;
       }
 
@@ -937,7 +1552,7 @@
       function renderEditorJourney() {
         const scene = currentScene();
         if (!scene) return;
-        const liveName = runtime?.currentSceneName || runtime?.scheduledSceneName || 'ไม่มี Scene ที่กำลังแสดง';
+        const liveName = runtime?.currentSceneName || runtime?.scheduledSceneName || t('ไม่มี Scene ที่กำลังแสดง');
         const selectedIsLive = scene.id === runtime?.currentSceneId;
         const connected = runtime?.connectionState
           ? runtime.connectionState === 'connected'
@@ -945,32 +1560,31 @@
         const essentialsReady = ['sceneName', 'activityName', 'details', 'state']
           .every((name) => !fieldValidationMessage(form.elements[name]));
 
-        setText(editingSceneName, scene.sceneName || 'Scene ไร้ชื่อ');
+        setText(editingSceneName, scene.sceneName || t('Scene ไร้ชื่อ'));
         setText(liveSceneName, liveName);
-        setText(heroSceneCompare, 'กำลังแก้ไข ' + (scene.sceneName || 'Scene ไร้ชื่อ')
-          + ' · บน Discord ' + liveName);
+        setText(heroSceneCompare, t('กำลังแก้ไข {name} · บน Discord {live}', { name: scene.sceneName || t('Scene ไร้ชื่อ'), live: liveName }));
         draftBadge.hidden = selectedIsLive;
         liveBadge.hidden = !selectedIsLive;
         liveContextPill.classList.toggle('is-same', selectedIsLive);
-        setText(liveContextPill.querySelector('span'), connected ? 'บน Discord' : 'รอขึ้น Discord');
+        setText(liveContextPill.querySelector('span'), connected ? t('บน Discord') : t('รอขึ้น Discord'));
         liveContextPill.title = connected
-          ? (selectedIsLive ? 'คุณกำลังแก้ไข Scene ที่แสดงบน Discord อยู่' : 'Scene นี้กำลังแสดงบน Discord')
-          : 'Discord กำลังเชื่อมต่อใหม่ Scene ที่เลือกไว้จะกลับมาแสดงอัตโนมัติ';
+          ? (selectedIsLive ? t('คุณกำลังแก้ไข Scene ที่แสดงบน Discord อยู่') : t('Scene นี้กำลังแสดงบน Discord'))
+          : t('Discord กำลังเชื่อมต่อใหม่ Scene ที่เลือกไว้จะกลับมาแสดงอัตโนมัติ');
 
-        setText(journeySceneStatus, scene.sceneName || 'Scene ไร้ชื่อ');
-        setText(journeyCustomizeStatus, essentialsReady ? 'กรอกข้อมูลหลักครบแล้ว' : 'กรอกช่องที่จำเป็นให้ครบ');
-        setText(journeyPreviewStatus, selectedIsLive ? 'กำลังแสดง · ตรวจทานก่อนแก้' : 'พร้อมแสดงบน Discord');
+        setText(journeySceneStatus, scene.sceneName || t('Scene ไร้ชื่อ'));
+        setText(journeyCustomizeStatus, essentialsReady ? t('กรอกข้อมูลหลักครบแล้ว') : t('กรอกช่องที่จำเป็นให้ครบ'));
+        setText(journeyPreviewStatus, selectedIsLive ? t('กำลังแสดง · ตรวจทานก่อนแก้') : t('พร้อมแสดงบน Discord'));
         setJourneyStepState(journeySceneStep, { complete: true });
         setJourneyStepState(journeyCustomizeStep, { complete: essentialsReady, current: !essentialsReady });
         setJourneyStepState(journeyPreviewStep, { complete: selectedIsLive, current: essentialsReady });
 
-        if (!applyBusy) setText(useButton, selectedIsLive ? 'อัปเดตบน Discord' : 'แสดงบน Discord');
+        if (!applyBusy) setText(useButton, selectedIsLive ? t('อัปเดตบน Discord') : t('แสดงบน Discord'));
         setText(applyHint, overrideDurationCopy());
         setText(previewPublishHint, selectedIsLive
           ? (connected
-            ? 'Scene นี้กำลังแสดง · บันทึกแล้วจะอัปเดตอัตโนมัติ'
-            : 'เลือกไว้สำหรับ Discord · กำลังเชื่อมต่อใหม่อัตโนมัติ')
-          : 'ตัวอย่างขณะแก้ไข · พร้อมแล้วค่อยแสดงบน Discord');
+            ? t('Scene นี้กำลังแสดง · บันทึกแล้วจะอัปเดตอัตโนมัติ')
+            : t('เลือกไว้สำหรับ Discord · กำลังเชื่อมต่อใหม่อัตโนมัติ'))
+          : t('ตัวอย่างขณะแก้ไข · พร้อมแล้วค่อยแสดงบน Discord'));
 
         const textLinkCount = ['detailsUrl', 'stateUrl'].filter((name) => fieldValue(name)).length;
         const artworkOptionCount = [
@@ -980,15 +1594,15 @@
         const buttonCount = [1, 2].filter((index) => (
           fieldValue('button' + index + 'Label') || fieldValue('button' + index + 'Url')
         )).length;
-        setText(textLinksStatus, optionCountLabel(textLinkCount, 'ลิงก์'));
-        setText(artworkOptionsStatus, artworkOptionCount ? artworkOptionCount + ' อย่าง' : 'เสริมได้');
+        setText(textLinksStatus, optionCountLabel(textLinkCount, 'ลิงก์', 'link', 'links'));
+        setText(artworkOptionsStatus, artworkOptionCount ? t('{n} รายการ', { n: artworkOptionCount }) : t('เสริมได้'));
         setText(timerStatus, timerMode === 'remaining'
-          ? fieldValue('timerMinutes') + ' นาทีนับถอยหลัง'
-          : timerMode === 'elapsed' ? 'นับขึ้น' : 'ปิด');
-        setText(buttonsStatus, optionCountLabel(buttonCount, 'ปุ่ม'));
+          ? t('{n} นาทีนับถอยหลัง', { n: fieldValue('timerMinutes') })
+          : timerMode === 'elapsed' ? t('นับขึ้น') : t('ปิด'));
+        setText(buttonsStatus, optionCountLabel(buttonCount, 'ปุ่ม', 'button', 'buttons'));
       }
 
-      const ACTIVITY_LABEL = { playing: 'กำลังเล่น', listening: 'กำลังฟัง', watching: 'กำลังดู', competing: 'กำลังแข่ง' };
+      const ACTIVITY_LABEL = { playing: t('กำลังเล่น'), listening: t('กำลังฟัง'), watching: t('กำลังดู'), competing: t('กำลังแข่ง') };
 
       function renderSceneList() {
         if (!config) return;
@@ -1017,8 +1631,9 @@
             + (isEditingRow ? ' is-selected' : '')
             + (isLiveRow ? ' is-live' : '');
           button.setAttribute('aria-pressed', String(isEditingRow));
-          button.setAttribute('aria-label', 'แก้ไข ' + (scene.sceneName || 'Scene ไร้ชื่อ')
-            + (isLiveRow ? ' · กำลังแสดงบน Discord' : ''));
+          const __nm = scene.sceneName || t('Scene ไร้ชื่อ');
+          button.setAttribute('aria-label', t('แก้ไข {name}', { name: __nm })
+            + (isLiveRow ? t(' · กำลังแสดงบน Discord') : ''));
           const icon = document.createElement('span');
           icon.className = 'vs-scene-icon';
           icon.setAttribute('aria-hidden', 'true');
@@ -1027,7 +1642,7 @@
           meta.className = 'vs-scene-meta';
           const title = document.createElement('span');
           title.className = 'vs-scene-name';
-          title.textContent = scene.sceneName || 'Scene ไร้ชื่อ';
+          title.textContent = scene.sceneName || t('Scene ไร้ชื่อ');
           const sub = document.createElement('span');
           sub.className = 'vs-scene-sub';
           const activity = ACTIVITY_LABEL[scene.activityType] || scene.activityType || '';
@@ -1036,16 +1651,16 @@
           const badge = document.createElement('span');
           if (isPinned) {
             badge.className = 'vs-pill vs-pill-accent';
-            badge.textContent = runtime?.selectionMode === 'apps' ? 'ปักหมุดไว้ 1 ชม.' : 'ปักหมุดจนถึงรอบถัดไป';
+            badge.textContent = runtime?.selectionMode === 'apps' ? t('ปักหมุดไว้ 1 ชม.') : t('ปักหมุดจนถึงรอบถัดไป');
           } else if (isLiveRow) {
             badge.className = 'vs-pill vs-pill-accent';
-            badge.textContent = 'กำลังแสดง';
+            badge.textContent = t('กำลังแสดง');
           } else if (isEditingRow) {
             badge.className = 'vs-pill vs-pill-neutral';
-            badge.textContent = 'กำลังแก้ไข';
+            badge.textContent = t('กำลังแก้ไข');
           } else {
             badge.className = 'vs-pill vs-pill-neutral';
-            badge.textContent = 'ร่าง';
+            badge.textContent = t('ร่าง');
           }
           button.append(icon, meta, badge);
           button.addEventListener('click', () => selectScene(scene.id));
@@ -1105,7 +1720,7 @@
         if (!config || !currentScene()) return;
         const index = config.scenes.findIndex((scene) => scene.id === selectedSceneId);
         config.scenes[index] = formScene();
-        editorTitle.textContent = config.scenes[index].sceneName || 'Scene ไร้ชื่อ';
+        editorTitle.textContent = config.scenes[index].sceneName || t('Scene ไร้ชื่อ');
       }
 
       function selectScene(sceneId) {
@@ -1200,18 +1815,18 @@
         }
         document.querySelectorAll('[data-character-art]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.characterArt === scene.largeImage)));
         document.querySelector('#characterAvailability').textContent = runtime?.characterArt?.publicUrlConfigured
-          ? 'ตั้งค่า URL รูปภาพสาธารณะแล้ว · ตรวจสถานะการเชื่อมต่อว่า Discord ได้รับภาพหรือไม่'
-          : 'ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata';
+          ? t('ตั้งค่า URL รูปภาพสาธารณะแล้ว · ตรวจสถานะการเชื่อมต่อว่า Discord ได้รับภาพหรือไม่')
+          : t('ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata');
         const verb = {
           playing: 'Playing',
           listening: 'Listening to',
           watching: 'Watching',
           competing: 'Competing in',
         }[scene.activityType] || 'Playing';
-        previewSceneName.textContent = scene.sceneName || 'Scene ไร้ชื่อ';
+        previewSceneName.textContent = scene.sceneName || t('Scene ไร้ชื่อ');
         document.querySelector('#previewActivityLabel').textContent = verb + ' ' + (scene.activityName || 'Vibe Presence');
-        document.querySelector('#previewDetails').textContent = scene.details || 'กิจกรรมไร้ชื่อ';
-        document.querySelector('#previewState').textContent = scene.state || 'ไม่มีข้อความรอง';
+        document.querySelector('#previewDetails').textContent = scene.details || t('กิจกรรมไร้ชื่อ');
+        document.querySelector('#previewState').textContent = scene.state || t('ไม่มีข้อความรอง');
         largePlaceholder.textContent = (scene.activityName || 'V').charAt(0).toUpperCase();
         previewLargeImage.title = scene.largeImageText || '';
         largePlaceholder.title = scene.largeImageText || '';
@@ -1254,8 +1869,8 @@
         timer.hidden = false;
         const elapsed = (Date.now() - previewStartedAt) / 1000;
         timer.textContent = scene.timerMode === 'remaining'
-          ? formatDuration(scene.timerMinutes * 60 - elapsed) + ' ที่เหลือ'
-          : formatDuration(elapsed) + ' ที่ผ่านมา';
+          ? formatDuration(scene.timerMinutes * 60 - elapsed) + t(' ที่เหลือ')
+          : formatDuration(elapsed) + t(' ที่ผ่านมา');
       }
 
       function minutesFromTime(value) {
@@ -1281,7 +1896,7 @@
             ? minutesFromTime(enabled[i + 1].startTime)
             : minutesFromTime(enabled[0].startTime) + 1440;
           const scene = config.scenes.find((item) => item.id === slot.sceneId);
-          const name = scene?.sceneName || 'Scene หายไป';
+          const name = scene?.sceneName || t('Scene หายไป');
           const block = document.createElement('div');
           block.className = 'vs-block';
           block.style.top = (start / 1440 * 100) + '%';
@@ -1303,10 +1918,12 @@
           dayStrip.append(block);
         });
         dayStrip.append(nowPin);
-        dayStrip.setAttribute('aria-label', 'ไทม์ไลน์ 24 ชั่วโมง: ' + enabled.map((s) => {
-          const scene = config.scenes.find((item) => item.id === s.sceneId);
-          return s.startTime + ' ' + (scene?.sceneName || 'Scene หายไป');
-        }).join(', '));
+        dayStrip.setAttribute('aria-label', t('ไทม์ไลน์ 24 ชั่วโมง: {items}', {
+          items: enabled.map((s) => {
+            const scene = config.scenes.find((item) => item.id === s.sceneId);
+            return s.startTime + ' ' + (scene?.sceneName || t('Scene หายไป'));
+          }).join(', '),
+        }));
       }
 
       function renderSlots() {
@@ -1318,13 +1935,13 @@
           empty.className = 'vs-empty';
           const emptyTitle = document.createElement('h3');
           emptyTitle.className = 'vs-empty-title';
-          emptyTitle.textContent = 'เริ่มวันของคุณ';
+          emptyTitle.textContent = t('เริ่มวันของคุณ');
           const emptyText = document.createElement('p');
-          emptyText.textContent = 'ยังไม่มีช่วงเวลา — เพิ่มช่วงแรกของวัน แล้ว Scene จะสลับตามเวลาอัตโนมัติ';
+          emptyText.textContent = t('ยังไม่มีช่วงเวลา — เพิ่มช่วงแรกของวัน แล้ว Scene จะสลับตามเวลาอัตโนมัติ');
           const cta = document.createElement('button');
           cta.type = 'button';
           cta.className = 'vs-btn vs-btn-primary';
-          cta.textContent = '+ เพิ่มช่วงเวลาแรก';
+          cta.textContent = t('+ เพิ่มช่วงเวลาแรก');
           cta.addEventListener('click', () => document.querySelector('#addSlotButton').click());
           empty.append(emptyTitle, emptyText, cta);
           slotList.append(empty);
@@ -1337,7 +1954,7 @@
           time.type = 'time';
           time.className = 'vs-slot-time';
           time.value = slot.startTime;
-          time.setAttribute('aria-label', 'เวลาเริ่มต้นของช่วงเวลา');
+          time.setAttribute('aria-label', t('เวลาเริ่มต้นของช่วงเวลา'));
           time.addEventListener('change', () => {
             slot.startTime = time.value;
             renderSlots();
@@ -1346,7 +1963,7 @@
 
           const sceneSelect = document.createElement('select');
           sceneSelect.className = 'vs-slot-scene';
-          sceneSelect.setAttribute('aria-label', 'Scene ของ ' + slot.startTime);
+          sceneSelect.setAttribute('aria-label', t('Scene ของ {x}', { x: slot.startTime }));
           config.scenes.forEach((scene) => {
             const option = document.createElement('option');
             option.value = scene.id;
@@ -1368,7 +1985,7 @@
           const toggle = document.createElement('input');
           toggle.type = 'checkbox';
           toggle.checked = slot.enabled;
-          toggle.setAttribute('aria-label', (slot.enabled ? 'ปิดช่วงเวลา ' : 'เปิดช่วงเวลา ') + slot.startTime);
+          toggle.setAttribute('aria-label', slot.enabled ? t('ปิดช่วงเวลา {t}', { t: slot.startTime }) : t('เปิดช่วงเวลา {t}', { t: slot.startTime }));
           toggle.addEventListener('change', () => {
             slot.enabled = toggle.checked;
             renderSlots();
@@ -1380,7 +1997,7 @@
           const remove = document.createElement('button');
           remove.type = 'button';
           remove.className = 'vs-icon-btn';
-          remove.setAttribute('aria-label', 'ลบ ' + slot.startTime);
+          remove.setAttribute('aria-label', t('ลบ {t}', { t: slot.startTime }));
           remove.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/></svg>';
           remove.addEventListener('click', () => {
             config.slots = config.slots.filter((item) => item.id !== slot.id);
@@ -1401,17 +2018,18 @@
         const connectionText = document.querySelector('#connectionText');
         connectionPill.className = 'connection-pill ' + runtime.connectionState;
         setText(connectionText, runtime.connectionState === 'connected'
-          ? 'เชื่อมต่อ Discord แล้ว'
+          ? t('เชื่อมต่อ Discord แล้ว')
           : runtime.connectionState === 'connecting'
-            ? 'กำลังเชื่อมต่อ Discord…'
-            : 'Discord ออฟไลน์ · กำลังลองใหม่');
+            ? t('กำลังเชื่อมต่อ Discord…')
+            : t('Discord ออฟไลน์ · กำลังลองใหม่'));
         setText(heroConnection, connectionText.textContent);
         heroConnection.className = 'vs-fact-value';
 
-        const currentName = runtime.currentSceneName || runtime.selectedPresetName || (runtime.selectionMode === 'apps' ? 'ไม่มีแอปที่ตรงกัน' : runtime.scheduledSceneName) || 'ไม่มี Scene ที่กำลังแสดง';
+        const NO_SCENE = 'ไม่มี Scene ที่กำลังแสดง';
+        const currentName = runtime.currentSceneName || runtime.selectedPresetName || (runtime.selectionMode === 'apps' ? t('ไม่มีแอปที่ตรงกัน') : runtime.scheduledSceneName) || t(NO_SCENE);
         setText(document.querySelector('#nowScene'), currentName);
-        const isEmpty = currentName === 'ไม่มี Scene ที่กำลังแสดง';
-        setText(nowKicker, isEmpty ? 'ยังไม่มี Scene ที่กำลังแสดง' : 'กำลังแสดงบน Discord');
+        const isEmpty = currentName === t(NO_SCENE);
+        setText(nowKicker, isEmpty ? t('ยังไม่มี Scene ที่กำลังแสดง') : t('กำลังแสดงบน Discord'));
         if (statusHero) statusHero.hidden = isEmpty;
         if (statusEmpty) statusEmpty.hidden = !isEmpty;
         renderAppReason();
@@ -1421,17 +2039,17 @@
         document.querySelector("#legacyScheduleCard").hidden = inAppsMode;
         document.querySelector("#daylineAppsNote").hidden = !inAppsMode;
         const sourceCopy = runtime.manualOverride
-          ? 'ปักหมุดเอง'
+          ? t('ปักหมุดเอง')
           : runtime.scheduleEnabled
             ? (runtime.selectionMode === 'apps'
-              ? 'สลับตามแอป (' + (runtime.selectedApplication || 'ไม่ตรงกัน') + ')'
-              : 'ตารางเวลา')
-            : 'หยุดสลับอัตโนมัติอยู่';
+              ? t('สลับตามแอป ({app})', { app: runtime.selectedApplication || t('ไม่ตรงกัน') })
+              : t('ตารางเวลา'))
+            : t('หยุดสลับอัตโนมัติอยู่');
         setText(document.querySelector('#nowSource'), sourceCopy);
         setText(heroSwitchMode, sourceCopy);
         setText(scheduleToggleButton, runtime.scheduleEnabled
-          ? (runtime.selectionMode === 'apps' ? 'หยุดสลับอัตโนมัติทั้งหมด' : 'หยุดสลับอัตโนมัติ')
-          : 'เริ่มสลับอัตโนมัติ');
+          ? (runtime.selectionMode === 'apps' ? t('หยุดสลับอัตโนมัติทั้งหมด') : t('หยุดสลับอัตโนมัติ'))
+          : t('เริ่มสลับอัตโนมัติ'));
         cancelOverrideButton.hidden = !runtime.manualOverride;
         const overrideActive = Boolean(runtime.manualOverride);
         overrideDuration.hidden = !overrideActive;
@@ -1441,9 +2059,9 @@
         autostartToggle.disabled = !runtime.autostart?.supported;
         // Windows-only: surface the degraded state honestly instead of a dead toggle.
         setText(autostartHint, runtime.autostart?.supported
-          ? 'เปิดแบบซ่อนหลังล็อกอิน'
-          : 'เฉพาะ Windows · ระบบนี้ไม่รองรับการเปิดอัตโนมัติ');
-        setText(document.querySelector('#configPath'), runtime.configPath || 'ไฟล์ตั้งค่าอยู่ในเครื่องนี้');
+          ? t('เปิดแบบซ่อนหลังล็อกอิน')
+          : t('เฉพาะ Windows · ระบบนี้ไม่รองรับการเปิดอัตโนมัติ'));
+        setText(document.querySelector('#configPath'), runtime.configPath || t('ไฟล์ตั้งค่าอยู่ในเครื่องนี้'));
         document.querySelector('#configPath').title = runtime.configPath || '';
         renderSecretsStatus();
 
@@ -1470,16 +2088,16 @@
         if (!nowSub || !runtime) return;
         let html;
         if (runtime.manualOverride) {
-          html = 'ปักหมุดไว้ชั่วคราว';
+          html = t('ปักหมุดไว้ชั่วคราว');
         } else if (runtime.selectionMode === 'apps') {
           html = runtime.selectedApplication
-            ? 'สลับตามแอป · ตอนนี้ ' + escHtml(runtime.selectedApplication) + ' เปิดอยู่'
-            : 'สลับตามแอป · ยังไม่มีแอปที่ตรงกัน · <a href="#/scenes">ไปจับคู่แอป</a>';
+            ? t('สลับตามแอป · ตอนนี้ {app} เปิดอยู่', { app: escHtml(runtime.selectedApplication) })
+            : t('สลับตามแอป · ยังไม่มีแอปที่ตรงกัน · <a href="#/scenes">ไปจับคู่แอป</a>');
         } else if (!runtime.scheduleEnabled) {
-          html = 'สลับตามตารางเวลา · หยุดชั่วคราวอยู่';
+          html = t('สลับตามตารางเวลา · หยุดชั่วคราวอยู่');
         } else {
           const nextTime = String(document.querySelector('#nextChange')?.textContent || '').split(' · ')[0].trim() || '--:--';
-          html = 'สลับตามตารางเวลา · เปลี่ยนอีกที ' + escHtml(nextTime);
+          html = t('สลับตามตารางเวลา · เปลี่ยนอีกที {t}', { t: escHtml(nextTime) });
         }
         if (nowSub.dataset.html !== html) {
           nowSub.innerHTML = html;
@@ -1497,17 +2115,17 @@
         const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
         nowPin.style.top = (minute / 1440 * 100) + '%';
         const nowTag = nowPin.querySelector('.vs-nowline-tag');
-        if (nowTag) nowTag.textContent = 'ตอนนี้ ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        if (nowTag) nowTag.textContent = t('ตอนนี้ {t}', { t: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) });
 
         const nextChange = document.querySelector('#nextChange');
         if (runtime?.selectionMode === 'apps' && !runtime.manualOverride) {
-          nextChange.textContent = 'ขณะแอปของคุณเปิดอยู่';
+          nextChange.textContent = t('ขณะแอปของคุณเปิดอยู่');
           nextChange.title = '';
         } else if (!runtime?.scheduleEnabled) {
-          nextChange.textContent = 'หยุดชั่วคราว';
+          nextChange.textContent = t('หยุดชั่วคราว');
           nextChange.title = '';
         } else if (!runtime?.nextSwitchAt) {
-          nextChange.textContent = 'ไม่มีช่วงเวลาที่เปิดอยู่';
+          nextChange.textContent = t('ไม่มีช่วงเวลาที่เปิดอยู่');
           nextChange.title = '';
         } else {
           const next = new Date(runtime.nextSwitchAt);
@@ -1528,7 +2146,7 @@
         renderSlots();
         renderRuntime();
         fillForm(currentScene());
-        editorTitle.textContent = currentScene()?.sceneName || 'Scene ไร้ชื่อ';
+        editorTitle.textContent = currentScene()?.sceneName || t('Scene ไร้ชื่อ');
         renderPreview();
         renderEditorJourney();
       }
@@ -1545,16 +2163,16 @@
         return data;
       }
 
-      function setGifStatus(element, value, type = '') {
-        element.textContent = value || '';
+      function setGifStatus(element, value, type = '', vars) {
+        element.textContent = t(value, vars) || '';
         element.classList.toggle('error', type === 'error');
       }
 
       function showGifUnavailable(message) {
         gifUnavailable.hidden = false;
         gifSearchPanel.hidden = true;
-        gifUnavailableMessage.textContent = message
-          || 'ใส่คีย์ GIPHY ที่หน้าตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้';
+        gifUnavailableMessage.textContent = t(message)
+          || t('ใส่คีย์ GIPHY ที่หน้าตั้งค่าเพื่อค้นหา GIF หรือวางลิงก์ GIF แบบ HTTPS เองก็ได้');
         setTimeout(() => gifCloseButton.focus(), 0);
       }
 
@@ -1611,8 +2229,8 @@
           return;
         }
         if (runtime.setup.needsDiscordApplicationId) {
-          setupBannerText.textContent = 'ยังไม่ได้เชื่อมต่อ Discord — ใส่รหัสแอปพลิเคชันเพื่อเริ่มใช้งาน';
-          setupBannerButton.textContent = 'ตั้งค่า';
+          setupBannerText.textContent = t('ยังไม่ได้เชื่อมต่อ Discord — ใส่รหัสแอปพลิเคชันเพื่อเริ่มใช้งาน');
+          setupBannerButton.textContent = t('ตั้งค่า');
           setupBanner.classList.add('visible');
           return;
         }
@@ -1625,14 +2243,14 @@
         const discordConfigured = Boolean(setup?.secrets?.discord?.configured || runtime?.clientId);
         const giphyConfigured = Boolean(runtime?.gifSearch?.configured);
         setText(discordStatusLabel, discordConfigured
-          ? ('ตั้งค่าแล้ว' + (runtime?.clientId ? ' · ' + runtime.clientId : ''))
-          : 'จำเป็น · ยังไม่ได้ตั้ง');
+          ? (t('ตั้งค่าแล้ว') + (runtime?.clientId ? ' · ' + runtime.clientId : ''))
+          : t('จำเป็น · ยังไม่ได้ตั้ง'));
         discordStatusLabel.className = 'vs-statuspill ' + (discordConfigured ? 'ok' : 'warn');
         setText(giphyStatusLabel, giphyConfigured
           ? ('ตั้งค่าแล้ว' + (runtime?.gifSearch?.source ? ' · ' + runtime.gifSearch.source : ''))
-          : 'ไม่บังคับ · ยังไม่ได้ตั้ง');
+          : t('ไม่บังคับ · ยังไม่ได้ตั้ง'));
         giphyStatusLabel.className = 'vs-statuspill ' + (giphyConfigured ? 'ok' : 'warn');
-        setText(secretsPath, runtime?.secretsPath || secrets?.filePath || 'ไฟล์เก็บความลับ');
+        setText(secretsPath, runtime?.secretsPath || secrets?.filePath || t('ไฟล์เก็บความลับ'));
         secretsPath.title = runtime?.secretsPath || secrets?.filePath || '';
         if (!discordClientIdInput.value && runtime?.clientId) {
           discordClientIdInput.value = runtime.clientId;
@@ -1647,8 +2265,8 @@
         clearGiphyOnSave = false;
         giphyApiKeyInput.value = '';
         giphyApiKeyInput.placeholder = runtime?.gifSearch?.configured
-          ? 'เว้นว่างไว้ถ้าไม่เปลี่ยนคีย์เดิม'
-          : 'วางคีย์ฟรี';
+          ? t('เว้นว่างไว้ถ้าไม่เปลี่ยนคีย์เดิม')
+          : t('วางคีย์ฟรี');
         discordClientIdInput.value = runtime?.clientId || '';
       }
 
@@ -1675,8 +2293,8 @@
           renderRuntime();
           renderSecretsStatus();
           const settingsNotice = runtime.setup?.needsDiscordApplicationId
-            ? 'บันทึกคีย์แล้ว ยังต้องใส่รหัสแอปพลิเคชัน Discord'
-            : 'บันทึกการตั้งค่าลงเครื่องนี้แล้ว';
+            ? t('บันทึกคีย์แล้ว ยังต้องใส่รหัสแอปพลิเคชัน Discord')
+            : t('บันทึกการตั้งค่าลงเครื่องนี้แล้ว');
           showMessage(settingsNotice, 'success');
           if (settingsMessage) {
             settingsMessage.textContent = settingsNotice;
@@ -1699,8 +2317,8 @@
         gifTargetField = targetField;
         gifReturnFocus = trigger || document.activeElement;
         gifPickerTitle.textContent = targetField === 'largeImage'
-          ? 'ค้นหา GIF ภาพหลัก'
-          : 'ค้นหา GIF ไอคอนเล็ก';
+          ? t('ค้นหา GIF ภาพหลัก')
+          : t('ค้นหา GIF ไอคอนเล็ก');
         gifPicker.hidden = false;
         setStudioInert(true);
         document.body.classList.add('gif-picker-open');
@@ -1736,9 +2354,9 @@
         imageField.value = item.originalUrl;
         if (!hoverField.value.trim()) hoverField.value = item.title.slice(0, 128);
         imageField.dispatchEvent(new Event('input', { bubbles: true }));
-        const destination = gifTargetField === 'largeImage' ? 'ภาพหลัก' : 'ไอคอนเล็ก';
+        const gifForLarge = gifTargetField === 'largeImage';
         closeGifPicker();
-        showMessage('เลือก GIF สำหรับ' + destination + 'แล้ว กำลังบันทึก Scene…', 'success');
+        showMessage(gifForLarge ? 'เลือก GIF สำหรับภาพหลักแล้ว กำลังบันทึก Scene…' : 'เลือก GIF สำหรับไอคอนเล็กแล้ว กำลังบันทึก Scene…', 'success');
       }
 
       function renderGifPlaceholder(text) {
@@ -1746,7 +2364,7 @@
         gifResults.replaceChildren();
         const empty = document.createElement('p');
         empty.className = 'gif-empty';
-        empty.textContent = text;
+        empty.textContent = t(text);
         gifResults.append(empty, gifLoadMoreButton);
         gifLoadMoreButton.hidden = true;
       }
@@ -1766,7 +2384,7 @@
           button.type = 'button';
           button.className = 'gif-result';
           button.dataset.gifId = item.id;
-          button.setAttribute('aria-label', 'ใช้ GIF: ' + item.title);
+          button.setAttribute('aria-label', t('ใช้ GIF: {t}', { t: item.title }));
           const image = document.createElement('img');
           image.src = item.previewUrl;
           image.alt = '';
@@ -1782,7 +2400,7 @@
         if (!gifSeenIds.size) {
           const empty = document.createElement('p');
           empty.className = 'gif-empty';
-          empty.textContent = emptyMessage || 'ไม่เจอ GIF ที่ตรงกับการค้นหา ลองคำอื่นดู';
+          empty.textContent = t(emptyMessage || 'ไม่เจอ GIF ที่ตรงกับการค้นหา ลองคำอื่นดู');
           gifResults.append(empty);
         }
         gifResults.append(gifLoadMoreButton);
@@ -1794,8 +2412,8 @@
         gifLoadMoreButton.hidden = !visible;
         gifLoadMoreButton.disabled = gifLoading;
         gifLoadMoreButton.textContent = gifLoading
-          ? ('กำลังโหลด GIF เพิ่ม…')
-          : (retry ? 'ลองโหลดเพิ่มอีกครั้ง' : 'โหลด GIF เพิ่ม');
+          ? t('กำลังโหลด GIF เพิ่ม…')
+          : (retry ? t('ลองโหลดเพิ่มอีกครั้ง') : t('โหลด GIF เพิ่ม'));
         if (visible) gifResults.append(gifLoadMoreButton);
       }
 
@@ -1839,8 +2457,8 @@
         gifSearchButton.disabled = true;
         gifResults.setAttribute('aria-busy', 'true');
         setGifStatus(gifSearchStatus, append
-          ? 'กำลังโหลด' + (query ? 'ผลเพิ่มของ “' + query + '”' : 'GIF กำลังฮิตเพิ่ม') + '…'
-          : (query ? 'กำลังค้นหา GIPHY ว่า “' + query + '”…' : 'กำลังโหลด GIF กำลังฮิต…'));
+          ? (query ? 'กำลังโหลดผลเพิ่มของ "{q}"…' : 'กำลังโหลด GIF กำลังฮิตเพิ่ม…')
+          : (query ? 'กำลังค้นหา GIPHY ว่า "{q}"…' : 'กำลังโหลด GIF กำลังฮิต…'), '', { q: query });
         updateGifLoadMore();
         let retryMore = false;
         let addedCount = 0;
@@ -1866,9 +2484,9 @@
           gifHasMore = (typeof pagination.hasMore === 'boolean'
             ? pagination.hasMore
             : items.length >= GIF_PAGE_SIZE) && gifNextOffset > offset;
-          const subject = query ? 'โหลด GIF ของ “' + query + '” แล้ว' : 'โหลด GIF กำลังฮิตแล้ว';
-          const continuation = gifHasMore ? 'เลื่อนเพื่อโหลดเพิ่ม' : 'หมดแล้ว';
-          setGifStatus(gifSearchStatus, subject + ' ' + gifSeenIds.size + ' รายการ · ' + continuation);
+          const subject = query ? t('โหลด GIF ของ "{q}" แล้ว', { q: query }) : t('โหลด GIF กำลังฮิตแล้ว');
+          const continuation = gifHasMore ? t('เลื่อนเพื่อโหลดเพิ่ม') : t('หมดแล้ว');
+          setGifStatus(gifSearchStatus, subject + ' ' + t('{n} รายการ', { n: gifSeenIds.size }) + ' · ' + continuation);
         } catch (error) {
           if (error.name === 'AbortError') return;
           if (error.runtime) runtime = error.runtime;
@@ -1975,7 +2593,7 @@
         const sceneName = currentScene()?.sceneName || 'Scene';
         const wasLive = sceneId === runtime?.currentSceneId;
         setApplyBusy(true);
-        showMessage((wasLive ? 'กำลังอัปเดต ' : 'กำลังแสดง ') + sceneName + ' บน Discord…');
+        showMessage(wasLive ? 'กำลังอัปเดต {name} บน Discord…' : 'กำลังแสดง {name} บน Discord…', undefined, { name: sceneName });
         try {
           const saved = await saveConfig(false);
           if (!saved) return;
@@ -1989,8 +2607,8 @@
           previewStartedAt = Date.now();
           renderRuntime();
           showMessage(data.applied
-            ? sceneName + (runtime.selectionMode === 'apps' ? ' ปักหมุดไว้ 1 ชม. แล้ว' : ' จะแสดงจนถึงรอบถัดไป')
-            : sceneName + ' บันทึกแล้ว จะแสดงเมื่อ Discord เชื่อมต่อใหม่', 'success');
+            ? (runtime.selectionMode === 'apps' ? '{name} ปักหมุดไว้ 1 ชม. แล้ว' : '{name} จะแสดงจนถึงรอบถัดไป')
+            : '{name} บันทึกแล้ว จะแสดงเมื่อ Discord เชื่อมต่อใหม่', 'success', { name: sceneName });
         } catch (error) {
           setSaveState('warning', 'บันทึก Scene แล้ว แต่ Discord ยังไม่อัปเดต', 'ดูข้อความที่แจ้งแล้วลองกดแสดงบน Discord อีกครั้ง');
           showMessage(error.message, 'error');
@@ -2086,7 +2704,7 @@
           setGifStatus(gifSearchStatus, 'พิมพ์อย่างน้อย 2 ตัวอักษร ผลลัพธ์จะอัปเดตอัตโนมัติ');
           return;
         }
-        setGifStatus(gifSearchStatus, 'พร้อมค้นหา “' + query + '”…');
+        setGifStatus(gifSearchStatus, 'พร้อมค้นหา "{q}"…', '', { q: query });
         gifSearchTimer = setTimeout(() => void searchGifs({ automatic: true }), 650);
       });
       gifLoadMoreButton.addEventListener('click', () => {
@@ -2154,13 +2772,13 @@
         syncFormToScene();
         const scene = clone(currentScene());
         scene.id = identifier('scene');
-        scene.sceneName = ('Scene ใหม่ ' + (config.scenes.length + 1)).slice(0, 40);
+        scene.sceneName = t('Scene ใหม่ {n}', { n: config.scenes.length + 1 }).slice(0, 40);
         config.scenes.push(scene);
         selectedSceneId = scene.id;
         fillForm(scene);
         renderAll();
         scheduleSave();
-        showMessage('เพิ่ม Scene "' + scene.sceneName + '" แล้ว', 'success');
+        showMessage('เพิ่ม Scene "{name}" แล้ว', 'success', { name: scene.sceneName });
       });
 
       document.querySelector('#duplicateSceneButton').addEventListener('click', () => {
@@ -2168,28 +2786,28 @@
         syncFormToScene();
         const scene = clone(currentScene());
         scene.id = identifier('scene');
-        scene.sceneName = (scene.sceneName + ' (สำเนา)').slice(0, 40);
+        scene.sceneName = (scene.sceneName + t(' (สำเนา)')).slice(0, 40);
         const index = config.scenes.findIndex((item) => item.id === selectedSceneId);
         config.scenes.splice(index + 1, 0, scene);
         selectedSceneId = scene.id;
         fillForm(scene);
         renderAll();
         scheduleSave();
-        showMessage('ทำสำเนา "' + scene.sceneName + '" แล้ว', 'success');
+        showMessage('ทำสำเนา "{name}" แล้ว', 'success', { name: scene.sceneName });
       });
 
       deleteSceneButton.addEventListener('click', () => {
         if (!config || config.scenes.length <= 1 || !currentScene()) return;
         const scene = currentScene();
         if (!confirm(runtime.selectionMode === 'apps'
-          ? 'ลบ Scene "' + scene.sceneName + '"?'
-          : 'ลบ Scene "' + scene.sceneName + '" พร้อมช่วงเวลาทั้งหมดที่ผูกไว้?')) return;
+          ? t('ลบ Scene "{name}"?', { name: scene.sceneName })
+          : t('ลบ Scene "{name}" พร้อมช่วงเวลาทั้งหมดที่ผูกไว้?', { name: scene.sceneName }))) return;
         config.scenes = config.scenes.filter((item) => item.id !== scene.id);
         config.slots = config.slots.filter((slot) => slot.sceneId !== scene.id);
         selectedSceneId = config.scenes[0].id;
         renderAll();
         scheduleSave();
-        showMessage('ลบ Scene "' + scene.sceneName + '" แล้ว', 'success');
+        showMessage('ลบ Scene "{name}" แล้ว', 'success', { name: scene.sceneName });
       });
 
       document.querySelector('#daylineGoStatusButton').addEventListener('click', () => {
@@ -2286,10 +2904,10 @@
         clearGiphyOnSave = true;
         settingsFormDirty = true;
         giphyApiKeyInput.value = '';
-        giphyApiKeyInput.placeholder = 'จะล้างเมื่อบันทึก';
+        giphyApiKeyInput.placeholder = t('จะล้างเมื่อบันทึก');
         showMessage('จะล้างคีย์ GIPHY ที่เก็บไว้เมื่อกด "บันทึกคีย์"', 'success');
         if (settingsMessage) {
-          settingsMessage.textContent = 'จะล้างคีย์ GIPHY ที่เก็บไว้เมื่อกด "บันทึกคีย์"';
+          settingsMessage.textContent = t('จะล้างคีย์ GIPHY ที่เก็บไว้เมื่อกด "บันทึกคีย์"');
           settingsMessage.className = 'message success';
         }
       });
@@ -2428,20 +3046,20 @@
           const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);
           const button=document.createElement('button');button.type='button';button.className='application-tile vs-tile';button.title=app.executable;button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));
           const name=document.createElement('strong');name.textContent=app.name;
-          const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||'จับคู่แล้ว') : '';detail.hidden=!mapped;
+          const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||t('จับคู่แล้ว')) : '';detail.hidden=!mapped;
           button.append(appIcon(app),name,detail);
-          button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent=selectedApps.size ? 'เลือกแล้ว '+selectedApps.size+' แอป' : 'เลือกได้หลายแอป';};
+          button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent=selectedApps.size ? t('เลือกแล้ว {n} แอป', { n: selectedApps.size }) : t('เลือกได้หลายแอป');};
           grid.append(button);
         }
-        if(!seen.size){const empty=document.createElement('p');empty.textContent='กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง';grid.append(empty);}
-        document.querySelector('#appSelectionCount').textContent=selectedApps.size ? 'เลือกแล้ว '+selectedApps.size+' แอป' : 'เลือกได้หลายแอป';
+        if(!seen.size){const empty=document.createElement('p');empty.textContent=t('กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง');grid.append(empty);}
+        document.querySelector('#appSelectionCount').textContent=selectedApps.size ? t('เลือกแล้ว {n} แอป', { n: selectedApps.size }) : t('เลือกได้หลายแอป');
       }
       let mappingDraft = [];
       let discoveredApps = [];
       const appMessage = document.querySelector('#appMappingMessage');
       function renderAppReason() {
         const mode = runtime?.selectionMode;
-        setText(document.querySelector('#appSelectionReason'), !runtime?.scheduleEnabled ? 'หยุดสลับอัตโนมัติอยู่' : runtime?.manualOverride ? 'กำลังใช้ Scene ที่ปักไว้ชั่วคราว' : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : 'รอเปิดแอปที่จับคู่ไว้') : 'ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้');
+        setText(document.querySelector('#appSelectionReason'), !runtime?.scheduleEnabled ? t('หยุดสลับอัตโนมัติอยู่') : runtime?.manualOverride ? t('กำลังใช้ Scene ที่ปักไว้ชั่วคราว') : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : t('รอเปิดแอปที่จับคู่ไว้')) : t('ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้'));
       }
       function renderPresetTiles() {
         const host=document.querySelector('#presetTiles');host.replaceChildren();
@@ -2464,20 +3082,20 @@
       }
       function renderMappings() {
         const list = document.querySelector('#appMappingList'); list.replaceChildren();
-        if (!mappingDraft.length) { const p=document.createElement('p');p.textContent='ยังไม่มีการจับคู่ เริ่มจากแอปที่ใช้บ่อย เช่น Codex หรือ Discord';list.append(p); }
+        if (!mappingDraft.length) { const p=document.createElement('p');p.textContent=t('ยังไม่มีการจับคู่ เริ่มจากแอปที่ใช้บ่อย เช่น Codex หรือ Discord');list.append(p); }
         mappingDraft.forEach((mapping,index) => {
           const row=document.createElement('div');row.className='vs-mapping';
-          const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label','เปิดใช้ '+mapping.name);enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
-          const label=document.createElement('div');label.className='vs-map-label';const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent='ตำแหน่งไฟล์';info.append(summary,path);label.append(name);label.title=mapping.executable;
-          const select=document.createElement('select');select.setAttribute('aria-label','Scene ของ '+mapping.name);presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
-          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.textContent='ลบ';remove.setAttribute('aria-label','ลบการจับคู่ '+mapping.name);remove.onclick=()=>{mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
+          const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label', t('เปิดใช้ {name}', { name: mapping.name }));enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
+          const label=document.createElement('div');label.className='vs-map-label';const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent=t('ตำแหน่งไฟล์');info.append(summary,path);label.append(name);label.title=mapping.executable;
+          const select=document.createElement('select');select.setAttribute('aria-label', t('Scene ของ {x}', { x: mapping.name }));presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
+          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.textContent=t('ลบ');remove.setAttribute('aria-label', t('ลบการจับคู่ {name}', { name: mapping.name }));remove.onclick=()=>{mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
           const icon=appIcon(discoveredApps.find(app=>applicationKey(app.executable)===applicationKey(mapping.executable))||mapping);label.prepend(icon);row.append(enabled,label,select,remove);list.append(row);
         });
       }
       async function refreshApplications() {
         try {
           const data=await requestJson('/api/apps');discoveredApps=data.apps || [];
-          const select=document.querySelector('#runningAppSelect');select.replaceChildren(new Option('เลือกแอปที่เปิดอยู่',''));
+          const select=document.querySelector('#runningAppSelect');select.replaceChildren(new Option(t('เลือกแอปที่เปิดอยู่'),''));
           const seen=new Set();for(const app of [...discoveredApps, ...mappingDraft]) { const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);select.add(new Option(app.name+(app.foreground?' · แอปที่กำลังใช้':''),app.executable)); }
           presetOptions(document.querySelector('#appPresetSelect'),document.querySelector('#appPresetSelect').value||selectedSceneId);
           renderAppTiles(); renderMappings();
@@ -2506,7 +3124,7 @@
       });
       document.querySelector('#addAppMapping').onclick=async()=>{
         const manual=document.querySelector('#manualExecutable');const paths=[...selectedApps];if(manual.value.trim()) paths.push(manual.value.trim());
-        if(!paths.length){appMessage.textContent='เลือกแอปก่อน แล้วเลือก Scene ที่จะจับคู่';return;}
+        if(!paths.length){appMessage.textContent=t('เลือกแอปก่อน แล้วเลือก Scene ที่จะจับคู่');return;}
         for(const executable of paths) {
           const existing=mappingDraft.find(item=>applicationKey(item.executable)===applicationKey(executable));
           if(existing){existing.sceneId=document.querySelector('#appPresetSelect').value;existing.enabled=true;continue;}
@@ -2516,13 +3134,13 @@
         if (!await saveMappingDraft()) { document.querySelector('#saveAppMappings').hidden=false; return; }
         manual.value='';selectedApps.clear();renderMappings();renderAppTiles();
         if(!stillPreview()) document.querySelector('#appMappingList').animate([{transform:'translateY(-12px)',opacity:.4},{transform:'translateY(0)',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});
-        appMessage.textContent='จับคู่แล้วกับ '+paths.length+' แอป';
+        appMessage.textContent=t('จับคู่แล้วกับ {n} แอป', { n: paths.length });
       };
       document.querySelector('#saveAppMappings').onclick=()=>void saveMappingDraft();
       async function saveMappingDraft(){
         const button=document.querySelector('#saveAppMappings');const apply=document.querySelector('#addAppMapping');if(apply.disabled)return false;button.disabled=true;apply.disabled=true;appMessage.textContent='กำลังบันทึก…';
         try {
-          if (!await saveConfig(false)) { appMessage.textContent='บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'; return false; }
+          if (!await saveConfig(false)) { appMessage.textContent=t('บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'); return false; }
           const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
           config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();renderSlots();button.hidden=true;appMessage.textContent='บันทึกแล้ว';return true;
         } catch(error) { appMessage.textContent=humanizeError(error.message).text;return false; } finally {button.disabled=false;apply.disabled=false;}
@@ -2560,7 +3178,7 @@
               : 'Studio พร้อมแล้ว Discord จะเชื่อมต่อใหม่อัตโนมัติ');
           }
         } catch (error) {
-          document.querySelector('#connectionText').textContent = 'companion ไม่พร้อมใช้งาน';
+          document.querySelector('#connectionText').textContent = t('companion ไม่พร้อมใช้งาน');
           showMessage(error.message, 'error');
         }
       }
@@ -2591,6 +3209,11 @@
       let onboarded = true;
       try { onboarded = localStorage.getItem('vibe.onboarded') === '1'; } catch { onboarded = true; }
       if (!onboarded) showOnboarding();
+
+      // i18n + theme: wire the topbar toggles, then translate static HTML
+      // to the persisted language before the first data render.
+      wireLangThemeToggles();
+      applyI18n();
 
       void initialize();
     </script>

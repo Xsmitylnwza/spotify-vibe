@@ -69,6 +69,74 @@
   --vs-shadow-pop: 0 1px 2px rgb(31 31 31 / 0.06), 0 16px 40px -16px rgb(31 31 31 / 0.22);
 }
 
+/* ---------- 1b. Dark theme — Discord tones ----------
+   Same radius / spacing / type tokens; only color roles change.
+   Discord palette: bg #1e1f22 · surface #2b2d31 · text #dbdee1 ·
+   muted #b5bac1/#949ba4 · blurple #5865f2. Calm, not inverted-harsh. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  /* Ground & surfaces */
+  --vs-bg:            #1e1f22;
+  --vs-surface:       #2b2d31;
+  --vs-sunken:        #232428;
+  --vs-tint:          #2e3035;
+  /* Ink tiers */
+  --vs-ink:           #dbdee1;
+  --vs-ink2:          #b5bac1;
+  --vs-ink3:          #949ba4;
+  /* Hairlines */
+  --vs-hairline:      rgba(255, 255, 255, 0.08);
+  --vs-hairline-soft: rgba(255, 255, 255, 0.05);
+  /* The ONE accent — Discord blurple, slightly lifted for dark */
+  --vs-accent:        #5865f2;
+  --vs-accent-deep:   #a3a8f7;
+  --vs-accent-soft:   rgba(88, 101, 242, 0.16);
+  --vs-accent-line:   rgba(88, 101, 242, 0.45);
+  /* Semantic — tinted fills + bright text (never saturated fills) */
+  --vs-good-t:        #57f287;  --vs-good-bg:   rgba(87, 242, 135, 0.12);
+  --vs-warn-t:        #fee75c;  --vs-warn-bg:   rgba(254, 231, 92, 0.12);
+  --vs-bad-t:         #ed4245;  --vs-bad-bg:    rgba(237, 66, 69, 0.14);
+  --vs-neutral-t:     #b5bac1;  --vs-neutral-bg:rgba(181, 186, 193, 0.12);
+  /* Shadows: floating elements only */
+  --vs-shadow-pop: 0 1px 2px rgb(0 0 0 / 0.4), 0 16px 40px -16px rgb(0 0 0 / 0.6);
+}
+
+/* ---------- 1c. Topbar toggles: language segmented + theme button ---------- */
+.vs-topbar-toggles {
+  display: flex; align-items: center; gap: 8px;
+  margin-right: auto;
+}
+.vs-seg {
+  display: inline-flex; gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--vs-hairline);
+  border-radius: var(--vs-r-pill);
+  background: var(--vs-sunken);
+}
+.vs-seg button {
+  border: 0; background: transparent;
+  border-radius: var(--vs-r-pill);
+  padding: 4px 12px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--vs-ink2);
+  transition: background var(--vs-dur) var(--vs-ease), color var(--vs-dur) var(--vs-ease);
+}
+.vs-seg button[aria-pressed="true"] {
+  background: var(--vs-surface);
+  color: var(--vs-ink);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+.vs-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  border: 1px solid var(--vs-hairline);
+  border-radius: var(--vs-r-pill);
+  background: var(--vs-surface);
+  color: var(--vs-ink2);
+  transition: color var(--vs-dur) var(--vs-ease), border-color var(--vs-dur) var(--vs-ease);
+}
+.vs-icon-btn:hover { color: var(--vs-ink); border-color: var(--vs-accent-line); }
+
 /* ---------- 2. Base ---------- */
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
