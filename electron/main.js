@@ -61,6 +61,8 @@ if (!app.requestSingleInstanceLock()) {
   // window
   // -------------------------------------------------------------------------
   function createWindow() {
+    // No default File/Edit/View menu bar — the Studio UI is self-contained.
+    Menu.setApplicationMenu(null);
     const icon = nativeImage.createFromPath(join(appDir, 'assets', 'icon.png'));
     mainWindow = new BrowserWindow({
       width: 1280,
