@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vibe Studio</title>
+    <link rel="icon" href="data:," />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -50,41 +51,42 @@
       </aside>
       <div class="app-main vs-main" id="main">
         <section class="app-screen" id="screen-status" data-screen="status">
-          <div class="error-box" id="errorBox" role="alert" hidden></div>
-          <section class="status-hero" aria-labelledby="statusHeroTitle">
-          <h2 id="statusHeroTitle" class="status-hero-title">สถานะตอนนี้</h2>
-          <div class="status-grid">
-            <div class="status-item">
-              <span class="status-label">Scene</span>
-              <span class="status-value" id="heroSceneCompare">…</span>
+          <div class="vs-page">
+            <div class="vs-page-head">
+              <span class="vs-kicker">ภาพรวม</span>
+              <h1 class="vs-title">สถานะตอนนี้</h1>
+              <p class="vs-subcopy">ทุกอย่างที่กำลังเกิดขึ้นกับ Presence ของคุณ — ถ้าหน้านี้ดูเงียบ แปลว่าทุกอย่างปกติดี</p>
             </div>
-            <div class="status-item">
-              <span class="status-label">แหล่งที่มา / โหมด</span>
-              <span class="status-value" id="heroSwitchMode">…</span>
+            <div class="error-box vs-alert" id="errorBox" role="alert" hidden></div>
+            <section class="vs-now-hero" id="statusHero" aria-labelledby="nowScene">
+              <span class="vs-kicker" id="nowKicker">กำลังแสดงบน Discord</span>
+              <h2 class="vs-now-scene" id="nowScene">กำลังโหลด…</h2>
+              <p class="vs-now-sub" id="nowSub"></p>
+              <div class="vs-facts">
+                <div class="vs-fact"><span class="vs-fact-label">แหล่งที่มา</span><span class="vs-fact-value" id="nowSource">…</span></div>
+                <div class="vs-fact"><span class="vs-fact-label">เปลี่ยนครั้งต่อไป</span><span class="vs-fact-value" id="nextChange">--:--</span></div>
+                <div class="vs-fact"><span class="vs-fact-label">Discord</span><span class="vs-fact-value" id="heroConnection">…</span></div>
+              </div>
+              <div class="vs-actions">
+                <button class="vs-btn vs-btn-sm" id="scheduleToggleButton" type="button">หยุดสลับอัตโนมัติ</button>
+                <button class="vs-btn vs-btn-sm vs-btn-ghost" id="cancelOverrideButton" type="button" hidden>ยกเลิกปักหมุด</button>
+                <a class="vs-btn vs-btn-sm vs-btn-ghost" href="#/scenes">แสดง Scene อื่น</a>
+              </div>
+              <p class="vs-footnote">ปิดหน้านี้ได้เลย — companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกครั้งเมื่ออยากเปลี่ยนการตั้งค่าเท่านั้น<br /><button class="vs-quiet-link" id="onboardingReshow" type="button">ดูวิธีใช้งานอีกครั้ง</button></p>
+            </section>
+            <div class="vs-card" id="statusEmpty" hidden>
+              <div class="vs-empty">
+                <span class="vs-empty-glyph" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/></svg></span>
+                <h3 class="vs-empty-title">ยังไม่มี Scene ที่กำลังแสดง</h3>
+                <p>เลือก Scene สักอัน แล้วกด "แสดงบน Discord" — ใช้เวลาไม่ถึงนาที</p>
+                <a class="vs-btn vs-btn-primary" href="#/scenes">ไปเลือก Scene</a>
+              </div>
             </div>
-            <div class="status-item">
-              <span class="status-label">เปลี่ยนครั้งต่อไป</span>
-              <span class="status-value" id="heroNextChange">…</span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Discord</span>
-              <span class="status-value" id="heroConnection">…</span>
-            </div>
+            <span id="heroSceneCompare" hidden></span>
+            <span id="heroSwitchMode" hidden></span>
+            <span id="heroNextChange" hidden></span>
+            <p id="overrideDuration" hidden></p>
           </div>
-          <p class="set-and-forget-note">ปิดหน้านี้ได้เลย — companion ทำงานต่อในเบื้องหลัง เปิด Studio อีกทีเมื่อต้องการเปลี่ยนการตั้งค่าเท่านั้น</p>
-        </section>
-          <section class="card now-card">
-          <div class="panel-heading"><div><span class="kicker">Right now</span><h2 id="nowScene">รอตารางเวลา</h2></div></div>
-          <div class="now-grid">
-            <div class="now-item"><small>แหล่งที่มา</small><strong id="nowSource">ตามตารางเวลา</strong></div>
-            <div class="now-item"><small>เปลี่ยนครั้งต่อไป</small><strong id="nextChange">--:--</strong></div>
-          </div>
-          <div class="timeline-actions">
-            <button class="button small" id="scheduleToggleButton" type="button">หยุด Auto</button>
-            <button class="button small" id="cancelOverrideButton" type="button" hidden>ยกเลิกปักหมุด</button>
-          </div>
-          <p class="override-duration" id="overrideDuration" hidden></p>
-        </section>
         </section>
         <section class="app-screen" id="screen-scenes" data-screen="scenes" hidden>
           <aside class="side-panel scene-panel" id="sceneLibrary" aria-labelledby="sceneLibraryTitle" tabindex="-1">
@@ -417,6 +419,10 @@
       const heroSwitchMode = document.querySelector('#heroSwitchMode');
       const heroNextChange = document.querySelector('#heroNextChange');
       const heroConnection = document.querySelector('#heroConnection');
+      const nowKicker = document.querySelector('#nowKicker');
+      const nowSub = document.querySelector('#nowSub');
+      const statusHero = document.querySelector('#statusHero');
+      const statusEmpty = document.querySelector('#statusEmpty');
       const draftBadge = document.querySelector('#draftBadge');
       const liveBadge = document.querySelector('#liveBadge');
       const journeySceneStep = document.querySelector('#journeySceneStep');
@@ -515,6 +521,43 @@
       // needless style recalc. (Mirrors the guarded #errorBox pattern.)
       function setText(element, value) {
         if (element && element.textContent !== value) element.textContent = value;
+      }
+
+      function escHtml(value) {
+        return String(value ?? '')
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;');
+      }
+
+      // Copy deck §1.1 + §8.2: the server appends raw English error detail to
+      // Thai strings; the banner shows the human line only and keeps the raw
+      // detail in `title`. Backend untouched — this is a view-layer mapping.
+      function humanizeError(raw) {
+        const text = String(raw || '');
+        const cases = [
+          ['Discord Desktop ไม่พร้อมใช้งาน',
+            'Discord บนเดสก์ท็อปไม่พร้อมใช้งาน กำลังลองเชื่อมต่อใหม่อัตโนมัติ Scene ที่เลือกไว้จะกลับมาแสดงเอง'],
+          ['Presence ทำงานอยู่แต่ไม่มีภาพตัวละคร',
+            'Presence ทำงานอยู่ แต่ไม่มีภาพตัวละคร — ใส่ URL รูปภาพสาธารณะของ Hinata เพื่อให้เพื่อนเห็นภาพ'],
+          ['Discord ปฏิเสธการอัปเดต Presence',
+            'Discord ปฏิเสธการอัปเดต Presence'],
+          ['ล้าง Discord Presence ไม่ได้',
+            'ล้าง Discord Presence ไม่ได้'],
+          ['อัปเดตการเปิดอัตโนมัติของ Windows ไม่ได้',
+            'เปิดพร้อม Windows ไม่ได้'],
+        ];
+        for (const [prefix, copy] of cases) {
+          if (text.startsWith(prefix)) return { text: copy, title: text };
+        }
+        if (text.startsWith('ใส่ Discord Application ID')) {
+          return {
+            html: 'ใส่รหัสแอปพลิเคชัน Discord ที่หน้าตั้งค่าเพื่อเชื่อมต่อ · <a href="#/settings">ไปหน้าตั้งค่า</a>',
+            title: text,
+          };
+        }
+        return { text, title: '' };
       }
 
       const HTTPS_FIELDS = new Set([
@@ -766,7 +809,7 @@
       }
 
       function overrideDurationCopy() {
-        return runtime?.selectionMode === 'apps' ? 'ปักหมุด 1 ชม.' : 'ถึงรอบถัดไป';
+        return runtime?.selectionMode === 'apps' ? 'ปักหมุดไว้ 1 ชม.' : 'ปักหมุดจนถึงรอบถัดไป';
       }
 
       function renderEditorJourney() {
@@ -1182,10 +1225,14 @@
             ? 'กำลังเชื่อมต่อ Discord…'
             : 'Discord ออฟไลน์ · กำลังลองใหม่');
         setText(heroConnection, connectionText.textContent);
-        heroConnection.className = 'status-value ' + (runtime.connectionState || 'disconnected');
+        heroConnection.className = 'vs-fact-value';
 
         const currentName = runtime.currentSceneName || runtime.selectedPresetName || (runtime.selectionMode === 'apps' ? 'ไม่มีแอปที่ตรงกัน' : runtime.scheduledSceneName) || 'ไม่มี Scene ที่กำลังแสดง';
         setText(document.querySelector('#nowScene'), currentName);
+        const isEmpty = currentName === 'ไม่มี Scene ที่กำลังแสดง';
+        setText(nowKicker, isEmpty ? 'ยังไม่มี Scene ที่กำลังแสดง' : 'กำลังแสดงบน Discord');
+        if (statusHero) statusHero.hidden = isEmpty;
+        if (statusEmpty) statusEmpty.hidden = !isEmpty;
         renderAppReason();
         // In apps mode the schedule card is hidden; show an explanatory empty
         // state instead of an empty screen.
@@ -1195,11 +1242,15 @@
         const sourceCopy = runtime.manualOverride
           ? 'ปักหมุดเอง'
           : runtime.scheduleEnabled
-            ? (runtime.selectionMode === 'apps' ? 'แอป: ' + (runtime.selectedApplication || 'ไม่ตรงกัน') : 'ตารางเวลา')
-            : 'Auto หยุดอยู่';
+            ? (runtime.selectionMode === 'apps'
+              ? 'สลับตามแอป (' + (runtime.selectedApplication || 'ไม่ตรงกัน') + ')'
+              : 'ตารางเวลา')
+            : 'หยุดสลับอัตโนมัติอยู่';
         setText(document.querySelector('#nowSource'), sourceCopy);
         setText(heroSwitchMode, sourceCopy);
-        setText(scheduleToggleButton, runtime.scheduleEnabled ? 'หยุด Auto' : 'เปิด Auto');
+        setText(scheduleToggleButton, runtime.scheduleEnabled
+          ? (runtime.selectionMode === 'apps' ? 'หยุดสลับอัตโนมัติทั้งหมด' : 'หยุดสลับอัตโนมัติ')
+          : 'เริ่มสลับอัตโนมัติ');
         cancelOverrideButton.hidden = !runtime.manualOverride;
         const overrideActive = Boolean(runtime.manualOverride);
         overrideDuration.hidden = !overrideActive;
@@ -1216,11 +1267,43 @@
         renderSecretsStatus();
 
         errorBox.hidden = !runtime.lastError;
-        const errorText = runtime.lastError || '';
-        if (errorBox.textContent !== errorText) errorBox.textContent = errorText;
+        const mappedError = humanizeError(runtime.lastError || '');
+        if (mappedError.html) {
+          if (errorBox.dataset.errHtml !== mappedError.html) {
+            errorBox.innerHTML = mappedError.html;
+            errorBox.dataset.errHtml = mappedError.html;
+          }
+        } else {
+          delete errorBox.dataset.errHtml;
+          if (errorBox.textContent !== mappedError.text) errorBox.textContent = mappedError.text;
+        }
+        errorBox.title = mappedError.title || '';
         renderSceneList();
         renderEditorJourney();
         renderClock();
+        renderNowSub();
+      }
+
+      // One human context line under the live Scene name (deck §1.2).
+      function renderNowSub() {
+        if (!nowSub || !runtime) return;
+        let html;
+        if (runtime.manualOverride) {
+          html = 'ปักหมุดไว้ชั่วคราว';
+        } else if (runtime.selectionMode === 'apps') {
+          html = runtime.selectedApplication
+            ? 'สลับตามแอป · ตอนนี้ ' + escHtml(runtime.selectedApplication) + ' เปิดอยู่'
+            : 'สลับตามแอป · ยังไม่มีแอปที่ตรงกัน · <a href="#/scenes">ไปจับคู่แอป</a>';
+        } else if (!runtime.scheduleEnabled) {
+          html = 'สลับตามตารางเวลา · หยุดชั่วคราวอยู่';
+        } else {
+          const nextTime = String(document.querySelector('#nextChange')?.textContent || '').split(' · ')[0].trim() || '--:--';
+          html = 'สลับตามตารางเวลา · เปลี่ยนอีกที ' + escHtml(nextTime);
+        }
+        if (nowSub.dataset.html !== html) {
+          nowSub.innerHTML = html;
+          nowSub.dataset.html = html;
+        }
       }
 
       function renderClock() {
@@ -1345,8 +1428,8 @@
           return;
         }
         if (runtime.setup.needsDiscordApplicationId) {
-          setupBannerText.textContent = 'ยังไม่ได้เชื่อมต่อ Discord';
-          setupBannerButton.textContent = 'เชื่อมต่อ';
+          setupBannerText.textContent = 'ยังไม่ได้เชื่อมต่อ Discord — ใส่รหัสแอปพลิเคชันเพื่อเริ่มใช้งาน';
+          setupBannerButton.textContent = 'ตั้งค่า';
           setupBanner.classList.add('visible');
           return;
         }
@@ -1748,7 +1831,7 @@
           config.settings.scheduleEnabled = runtime.scheduleEnabled;
           if (!enabled) config.manualOverride = null;
           renderRuntime();
-          showMessage(enabled ? 'เปิด Auto แล้ว' : 'หยุด Auto แล้ว', 'success');
+          showMessage(enabled ? 'เริ่มสลับอัตโนมัติแล้ว' : 'หยุดสลับอัตโนมัติแล้ว', 'success');
         } catch (error) {
           showMessage(error.message, 'error');
         } finally {
