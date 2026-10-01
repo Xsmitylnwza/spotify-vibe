@@ -717,6 +717,10 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 .vs-look img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
 .vs-look:hover { border-color: var(--vs-accent-line); }
 .vs-look[aria-pressed="true"] { border-color: var(--vs-accent); background: var(--vs-accent-soft); color: var(--vs-accent-deep); font-weight: 500; }
+/* Current artwork preview: thumbnail + label of whatever the link field holds. */
+.vs-current-art { display: flex; align-items: center; gap: 12px; margin-top: 2px; min-height: 72px; }
+.vs-current-art img { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; border: 1px solid var(--vs-hairline); background: var(--vs-tint); flex: 0 0 auto; }
+.vs-current-art .vs-hint { overflow: hidden; text-overflow: ellipsis; }
 .vs-motion-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
 .vs-motion-row .vs-label { margin-bottom: 0; }
 .vs-motion-row .vs-select { height: 36px; }

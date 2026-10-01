@@ -48,7 +48,6 @@
         <nav class="vs-nav sidebar-nav" aria-label="หลัก">
           <a class="vs-nav-link sidebar-link" href="#/status" data-screen="status" aria-current="page" title="สถานะ"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 10h4.2l1.7-4 2.4 8 1.7-4h5"/></svg><span>สถานะ</span></a>
           <a class="vs-nav-link sidebar-link" href="#/scenes" data-screen="scenes" aria-current="false" title="Scenes"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 2.8l7.2 4.2L10 11.2 2.8 7 10 2.8Z"/><path d="M4.3 12.3L10 15.6l5.7-3.3"/></svg><span>Scenes</span></a>
-          <a class="vs-nav-link sidebar-link" href="#/dayline" data-screen="dayline" aria-current="false" title="Dayline"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8.5" r="5.5"/><path d="M10 8.5V5.8M10 8.5l1.9 1.2"/><path d="M3.5 16.5h13"/><path d="M7 15.3v2.4M13 15.3v2.4"/></svg><span>Dayline</span></a>
           <a class="vs-nav-link sidebar-link" href="#/settings" data-screen="settings" aria-current="false" title="ตั้งค่า"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="4.2"/><circle cx="10" cy="10" r="1.1" fill="currentColor" stroke="none"/><path d="M16.2 10h1.6M10 16.2v1.6M3.8 10H2.2M10 3.8V2.2M14.4 14.4l1.1 1.1M5.6 14.4l-1.1 1.1M5.6 5.6L4.5 4.5M14.4 5.6l1.1-1.1"/></svg><span>ตั้งค่า</span></a>
         </nav>
         <div class="vs-side-foot">
@@ -151,27 +150,6 @@
               </div>
               <div class="vs-ed-grid">
                 <div class="vs-ed-main">
-                  <section class="vs-card vs-character" aria-labelledby="characterTitle">
-                    <div class="vs-char">
-                      <span class="vs-char-face"><img id="characterHero" src="/art/hinata/poster.png" alt="Hinata ผมสีส้ม ชูกำปั้น พร้อมลุยแต้มต่อไป" width="192" height="192" /></span>
-                      <div>
-                        <span class="vs-kicker">ลุคเริ่มต้น</span>
-                        <h2 class="vs-char-name" id="characterTitle">Hinata</h2>
-                        <p class="vs-subcopy">แต่งการ์ดให้เป็นคุณ แล้วค่อยไปลุยต่อ</p>
-                        <div class="vs-looks" role="group" aria-label="ลุคตัวละคร">
-                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-idle" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>เคลื่อนไหว</span></button>
-                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-poster" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>ภาพนิ่ง</span></button>
-                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-gaming" aria-pressed="false"><img src="/art/hinata/gaming-poster.png" alt="" width="56" height="56" /><span>เล่นเกม</span></button>
-                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-chill" aria-pressed="false"><img src="/art/hinata/chill-poster.png" alt="" width="56" height="56" /><span>ชิลล์</span></button>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="vs-motion-row">
-                      <label class="vs-label" for="motionPreference">ภาพเคลื่อนไหวตัวอย่าง</label>
-                      <select class="vs-select" id="motionPreference"><option value="system">ตามระบบ</option><option value="reduced">ภาพนิ่ง</option><option value="full">เคลื่อนไหว</option></select>
-                    </div>
-                    <p class="vs-hint" id="characterAvailability">ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata</p>
-                  </section>
                   <form id="presenceForm" novalidate>
                     <section class="vs-card" id="essentialsSection">
                       <div class="vs-sec-head"><h2>ชื่อ Scene</h2><p>ตั้งชื่อ Scene ไว้ดูเอง แล้วเลือกป้ายกิจกรรมที่ Discord จะแสดง</p></div>
@@ -194,11 +172,27 @@
                       </details>
                     </section>
                     <section class="vs-card" id="artworkSection">
-                      <div class="vs-sec-head"><h2>ภาพตัวละคร</h2><p>เลือกภาพหลักก่อน แล้วค่อยเพิ่มไอคอนเล็กและลิงก์ทีหลังได้</p></div>
+                      <div class="vs-sec-head"><h2>ภาพ Scene</h2><p>GIF สำเร็จรูป หรือลิงก์ภาพของคุณเอง — เลือกได้ที่จุดเดียว</p></div>
+                      <div class="vs-field">
+                        <span class="vs-label" id="presetArtLabel">GIF สำเร็จรูป</span>
+                        <div class="vs-looks" role="group" aria-labelledby="presetArtLabel">
+                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-idle" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>เคลื่อนไหว</span></button>
+                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-poster" aria-pressed="false"><img src="/art/hinata/poster.png" alt="" width="56" height="56" /><span>ภาพนิ่ง</span></button>
+                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-gaming" aria-pressed="false"><img src="/art/hinata/gaming-poster.png" alt="" width="56" height="56" /><span>เล่นเกม</span></button>
+                          <button type="button" class="vs-look look-option" data-character-art="builtin:hinata-chill" aria-pressed="false"><img src="/art/hinata/chill-poster.png" alt="" width="56" height="56" /><span>ชิลล์</span></button>
+                        </div>
+                      </div>
                       <div class="vs-field">
                         <label class="vs-label" for="largeImage">ลิงก์ภาพ / GIF</label>
                         <div style="display:flex;gap:8px"><input class="vs-input" id="largeImage" name="largeImage" type="text" maxlength="512" placeholder="ค้นหา GIPHY หรือวางคีย์ asset / URL แบบ HTTPS" aria-describedby="largeImageHint" style="flex:1" /><button class="vs-btn vs-btn-sm field-action" data-gif-target="largeImage" type="button" style="flex:0 0 auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>ค้นหา GIF</button></div>
-                        <p class="vs-hint" id="largeImageHint">เลือกตัวละครด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ</p>
+                        <p class="vs-hint" id="largeImageHint">เลือก GIF ด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ</p>
+                      </div>
+                      <div class="vs-field">
+                        <span class="vs-label">ภาพปัจจุบัน</span>
+                        <div class="vs-current-art">
+                          <img id="artworkCurrentPreview" alt="" width="72" height="72" hidden />
+                          <span class="vs-hint" id="artworkCurrentLabel">ยังไม่ได้เลือกภาพ</span>
+                        </div>
                       </div>
                       <details class="vs-disclosure" id="artworkOptionsDisclosure">
                         <summary><span>ไอคอนเล็กและลิงก์</span><span class="option-status" id="artworkOptionsStatus">เสริมได้</span></summary>
@@ -221,17 +215,7 @@
                     <h3 class="vs-section-label">เพิ่มเติม</h3>
                     <p class="vs-subcopy" style="margin-bottom:16px">ไม่บังคับ — ข้ามได้เลยถ้ายังไม่ต้องการ</p>
                     <section class="vs-card" aria-label="รายละเอียดเพิ่มเติม">
-                      <details class="vs-disclosure" id="timerDisclosure" style="border-top:0;margin-top:0">
-                        <summary><span>เวลา</span><span class="option-status" id="timerStatus">ปิด</span></summary>
-                        <div class="vs-disclosure-body">
-                          <p class="vs-hint" style="margin-bottom:12px">นับขึ้นหรือนับลง โดยไม่อัปเดต Presence ถี่เกินไป</p>
-                          <div class="vs-grid2">
-                            <div class="vs-field"><label class="vs-label" for="timerMode">รูปแบบตัวจับเวลา</label><select class="vs-input" id="timerMode" name="timerMode"><option value="none">ไม่ใช้ตัวจับเวลา</option><option value="elapsed">นับขึ้น</option><option value="remaining">นับถอยหลัง</option></select></div>
-                            <div class="vs-field"><label class="vs-label" for="timerMinutes">ระยะเวลานับถอยหลัง (นาที)</label><input class="vs-input" id="timerMinutes" name="timerMinutes" type="number" min="1" max="1440" value="30" /></div>
-                          </div>
-                        </div>
-                      </details>
-                      <details class="vs-disclosure" id="buttonsDisclosure">
+                      <details class="vs-disclosure" id="buttonsDisclosure" style="border-top:0;margin-top:0">
                         <summary><span>ปุ่มลิงก์</span><span class="option-status" id="buttonsStatus">ปิด</span></summary>
                         <div class="vs-disclosure-body">
                           <p class="vs-hint" style="margin-bottom:12px">ให้คนอื่นบน Discord เปิดลิงก์ HTTPS ได้สูงสุด 2 ลิงก์</p>
@@ -283,7 +267,6 @@
                         <span class="vs-dc-lines preview-target" id="previewCopy">
                           <span class="vs-dc-line1 preview-target" id="previewDetails">กำลังโหลด…</span>
                           <span class="vs-dc-line2 preview-target" id="previewState"></span>
-                          <span class="vs-dc-time preview-target" id="previewTimer" hidden></span>
                         </span>
                       </div>
                       <div class="vs-dc-buttons preview-target" id="previewButtons"></div>
@@ -327,55 +310,16 @@
               <details class="vs-disclosure"><summary>ข้อความ Codex แบบตั้งเอง</summary><div class="vs-disclosure-body">
                 <p class="vs-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p>
                 <div class="vs-field"><label class="vs-label" for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input class="vs-input" id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /></div>
-                <button type="button" class="vs-btn vs-btn-sm" id="shareCodexSession">ใช้ข้อความนี้และเริ่มจับเวลา</button>
+                <button type="button" class="vs-btn vs-btn-sm" id="shareCodexSession">ใช้ข้อความนี้</button>
                 <p id="codexSessionStatus" class="vs-hint" role="status"></p>
               </div></details>
               <h3 class="vs-section-label">แอปที่จับคู่แล้ว</h3>
               <div id="appMappingList" class="vs-mapping-list"></div>
-              <h3 class="vs-section-label">สลับ Scene อัตโนมัติตาม</h3>
-              <div class="vs-segmented" role="group" aria-label="สลับ Scene อัตโนมัติตาม" id="modeSegmented">
-                <button type="button" data-mode="apps">โหมดแอป</button>
-                <button type="button" data-mode="schedule">โหมดตารางเวลา</button>
-              </div>
-              <select id="selectionMode" class="vs-visually-hidden" aria-label="สลับ Scene อัตโนมัติตาม"><option value="apps">โหมดแอป</option><option value="schedule">โหมดตารางเวลา</option></select>
-              <p class="vs-mode-hint" data-i18n-html="modeHint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด · อยู่ในโหมดตารางเวลาเมื่อไหร่ ตั้งช่วงเวลาได้ที่หน้า <a href="#/dayline">Dayline</a></p>
+              <h3 class="vs-section-label">สลับ Scene อัตโนมัติตามแอป</h3>
+              <select id="selectionMode" class="vs-visually-hidden" aria-label="สลับ Scene อัตโนมัติตาม"><option value="apps">โหมดแอป</option></select>
+              <p class="vs-mode-hint" data-i18n-html="modeHint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด</p>
               <button type="button" class="vs-btn vs-btn-sm vs-btn-primary" id="saveAppMappings" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึกการแก้ไข</button>
               <p id="appMappingMessage" class="message" role="status"></p>
-            </section>
-          </div>
-        </section>
-<section class="app-screen" id="screen-dayline" data-screen="dayline" hidden>
-          <div class="vs-page">
-            <section class="vs-card vs-dayline" id="legacyScheduleCard">
-              <div class="vs-card-head vs-dayline-head">
-                <div>
-                  <span class="vs-kicker">ช่วงเวลารายวัน</span>
-                  <h2>Dayline</h2>
-                  <p class="vs-subcopy">แต่ละเวลาเริ่มต้นจะใช้ไปจนกว่าจะถึงช่วงเวลาถัดไปที่เปิดไว้ — ไม่ใช่ปฏิทินรายวัน ทำซ้ำทุกวัน</p>
-                </div>
-                <button class="vs-btn vs-btn-sm vs-btn-primary" id="addSlotButton" type="button">+ เพิ่มช่วงเวลา</button>
-              </div>
-              <div class="vs-day-grid">
-                <div class="vs-timeline" id="dayStrip" role="img" aria-label="ไทม์ไลน์ 24 ชั่วโมง">
-          <div class="vs-tick vs-tick-edge-top" style="top:0.0%"><span>00</span></div>
-          <div class="vs-tick" style="top:12.5%"><span>03</span></div>
-          <div class="vs-tick" style="top:25.0%"><span>06</span></div>
-          <div class="vs-tick" style="top:37.5%"><span>09</span></div>
-          <div class="vs-tick" style="top:50.0%"><span>12</span></div>
-          <div class="vs-tick" style="top:62.5%"><span>15</span></div>
-          <div class="vs-tick" style="top:75.0%"><span>18</span></div>
-          <div class="vs-tick" style="top:87.5%"><span>21</span></div>
-          <div class="vs-tick vs-tick-edge-bottom" style="top:100.0%"><span>24</span></div>
-                  <div class="vs-nowline" id="nowPin"><span class="vs-nowline-tag">ตอนนี้ --:--</span></div>
-                </div>
-                <ul class="vs-slot-list" id="slotList" aria-label="ช่วงเวลา"></ul>
-              </div>
-            </section>
-            <section class="vs-note-card" id="daylineAppsNote" hidden>
-              <span class="vs-kicker">ช่วงเวลารายวัน</span>
-              <h2>ตารางเวลาถูกซ่อนไว้</h2>
-              <p class="vs-subcopy">ตอนนี้อยู่ในโหมดแอป — ตารางเวลารายวันจึงถูกซ่อนไว้ เปลี่ยนเป็นโหมดตารางเวลาได้ที่หน้า Scenes หัวข้อ "การจับคู่แอป"</p>
-              <button class="vs-btn vs-btn-sm vs-btn-primary" id="daylineGoStatusButton" type="button">ไปหน้า Scenes</button>
             </section>
           </div>
         </section>
@@ -462,7 +406,6 @@
 <nav class="bottom-nav vs-bottomnav" aria-label="หลัก">
         <a class="bottom-link" href="#/status" data-screen="status" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>สถานะ</span></a>
         <a class="bottom-link" href="#/scenes" data-screen="scenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Scenes</span></a>
-        <a class="bottom-link" href="#/dayline" data-screen="dayline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Dayline</span></a>
         <a class="bottom-link" href="#/settings" data-screen="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>ตั้งค่า</span></a>
       </nav>
     </div>
@@ -689,6 +632,12 @@ const STR = {
 "ภาพตัวละคร": "Character art",
 "เลือกภาพหลักก่อน แล้วค่อยเพิ่มไอคอนเล็กและลิงก์ทีหลังได้": "Pick the main artwork first — you can add the small icon and links later",
 "ลิงก์ภาพ / GIF": "Image / GIF link",
+"ภาพ Scene": "Scene artwork",
+"GIF สำเร็จรูป หรือลิงก์ภาพของคุณเอง — เลือกได้ที่จุดเดียว": "Preset GIFs or your own image link — one place for both",
+"GIF สำเร็จรูป": "Preset GIFs",
+"ภาพปัจจุบัน": "Current image",
+"ยังไม่ได้เลือกภาพ": "No image selected yet",
+"เลือก GIF ด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ": "Pick a GIF above, or use a Discord asset key / public HTTPS image URL",
 "เลือกตัวละครด้านบน หรือใช้คีย์ asset ของ Discord / URL รูปภาพ HTTPS สาธารณะ": "Pick a character above, or use a Discord asset key / public HTTPS image URL",
 "ค้นหา GIPHY หรือวางคีย์ asset / URL แบบ HTTPS": "Search GIPHY or paste an asset key / HTTPS URL",
 "ไม่บังคับ · คีย์ asset หรือ URL แบบ HTTPS": "Optional · asset key or HTTPS URL",
@@ -966,7 +915,7 @@ const STR = {
 
 /* innerHTML replacements for elements carrying data-i18n-html (Thai source kept inline) */
 const STR_HTML = {
-"modeHint": "Leave it and it switches on its own · with several apps open, the most recently used wins · in schedule mode, set time slots on the <a href=\"#/dayline\">Dayline</a> page",
+"modeHint": "Leave it and it switches on its own · with several apps open, the most recently used wins",
 };
 
 /* ==========================================================================
@@ -1254,11 +1203,9 @@ function reemitToast() {
       const appbar = document.querySelector('.appbar');
       const textLinksDisclosure = document.querySelector('#textLinksDisclosure');
       const artworkOptionsDisclosure = document.querySelector('#artworkOptionsDisclosure');
-      const timerDisclosure = document.querySelector('#timerDisclosure');
       const buttonsDisclosure = document.querySelector('#buttonsDisclosure');
       const textLinksStatus = document.querySelector('#textLinksStatus');
       const artworkOptionsStatus = document.querySelector('#artworkOptionsStatus');
-      const timerStatus = document.querySelector('#timerStatus');
       const buttonsStatus = document.querySelector('#buttonsStatus');
 
       const GIF_PAGE_SIZE = 16;
@@ -1268,7 +1215,6 @@ function reemitToast() {
       let runtime = null;
       let selectedSceneId = null;
       let lastSceneListSignature = '';
-      let previewStartedAt = Date.now();
       let saveTimer = null;
       let saveChain = Promise.resolve();
       let applyBusy = false;
@@ -1496,12 +1442,6 @@ function reemitToast() {
           }
         }
 
-        if (field.name === 'timerMinutes' && form.elements.timerMode.value === 'remaining') {
-          const minutes = Number(value);
-          if (!value || !Number.isFinite(minutes)) return t('กรอกเวลานับถอยหลัง 1–1440 นาที');
-          if (minutes < 1 || minutes > 1440) return t('เลือกเวลานับถอยหลัง 1–1440 นาที');
-        }
-
         if (field.validity.typeMismatch) {
           return t('กรอกลิงก์ HTTPS ให้ครบ เช่น https://example.com');
         }
@@ -1645,15 +1585,11 @@ function reemitToast() {
         const artworkOptionCount = [
           'largeImageText', 'largeImageUrl', 'smallImage', 'smallImageText', 'smallImageUrl',
         ].filter((name) => fieldValue(name)).length;
-        const timerMode = form.elements.timerMode.value;
         const buttonCount = [1, 2].filter((index) => (
           fieldValue('button' + index + 'Label') || fieldValue('button' + index + 'Url')
         )).length;
         setText(textLinksStatus, optionCountLabel(textLinkCount, 'ลิงก์', 'link', 'links'));
         setText(artworkOptionsStatus, artworkOptionCount ? t('{n} รายการ', { n: artworkOptionCount }) : t('เสริมได้'));
-        setText(timerStatus, timerMode === 'remaining'
-          ? t('{n} นาทีนับถอยหลัง', { n: fieldValue('timerMinutes') })
-          : timerMode === 'elapsed' ? t('นับขึ้น') : t('ปิด'));
         setText(buttonsStatus, optionCountLabel(buttonCount, 'ปุ่ม', 'button', 'buttons'));
       }
 
@@ -1751,17 +1687,16 @@ function reemitToast() {
         const fields = [
           'sceneName', 'activityType', 'activityName', 'details', 'detailsUrl',
           'state', 'stateUrl', 'largeImage', 'largeImageText', 'largeImageUrl',
-          'smallImage', 'smallImageText', 'smallImageUrl', 'timerMode', 'timerMinutes',
+          'smallImage', 'smallImageText', 'smallImageUrl',
         ];
         fields.forEach((name) => { form.elements[name].value = scene[name] ?? ''; });
         form.elements.button1Label.value = scene.buttons?.[0]?.label || '';
         form.elements.button1Url.value = scene.buttons?.[0]?.url || '';
         form.elements.button2Label.value = scene.buttons?.[1]?.label || '';
         form.elements.button2Url.value = scene.buttons?.[1]?.url || '';
-        [textLinksDisclosure, artworkOptionsDisclosure, timerDisclosure, buttonsDisclosure]
-          .forEach((disclosure) => { disclosure.open = false; });
+        [textLinksDisclosure, artworkOptionsDisclosure, buttonsDisclosure]
+          .forEach((disclosure) => { if (disclosure) disclosure.open = false; });
         resetFormValidation();
-        updateTimerField();
       }
 
       function formScene() {
@@ -1782,8 +1717,8 @@ function reemitToast() {
           smallImage: value('smallImage'),
           smallImageText: value('smallImageText'),
           smallImageUrl: value('smallImageUrl'),
-          timerMode: form.elements.timerMode.value,
-          timerMinutes: Number(form.elements.timerMinutes.value || 30),
+          timerMode: 'none',
+          timerMinutes: 30,
           buttons: [
             { label: value('button1Label'), url: value('button1Url') },
             { label: value('button2Label'), url: value('button2Url') },
@@ -1802,7 +1737,6 @@ function reemitToast() {
         if (!config?.scenes.some((scene) => scene.id === sceneId)) return;
         if (currentScene()) syncFormToScene();
         selectedSceneId = sceneId;
-        previewStartedAt = Date.now();
         fillForm(currentScene());
         editorTitle.textContent = currentScene().sceneName;
         renderSceneList();
@@ -1836,17 +1770,10 @@ function reemitToast() {
         window.scrollTo(0, 0);
       }
 
-      function updateTimerField() {
-        form.elements.timerMinutes.disabled = form.elements.timerMode.value !== 'remaining';
-        if (form.elements.timerMinutes.disabled) validateField(form.elements.timerMinutes);
-      }
-
-      const motionPreference = document.querySelector('#motionPreference');
-      const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
-      try { motionPreference.value = localStorage.getItem('vibe-motion') || 'system'; } catch { /* storage optional */ }
-      if (!motionPreference.value) motionPreference.value = 'system';
+      // Motion preference UI was removed with the character card; previews
+      // always animate except when the tab is hidden.
       function stillPreview() {
-        return document.hidden || motionPreference.value === 'reduced' || (motionPreference.value === 'system' && motionQuery.matches);
+        return document.hidden;
       }
       // Studio preview only: plain Discord asset keys (e.g. "codex") resolve on
       // real Discord via uploaded Art Assets, which the mock cannot see. Map
@@ -1913,25 +1840,12 @@ function reemitToast() {
         if (keyIcon) return keyIcon;
         return /^https:\/\//i.test(value || '') ? value : '';
       }
-      function refreshCharacterMotion() {
-        document.documentElement.dataset.motion = stillPreview() ? 'reduced' : 'full';
-        const hero = document.querySelector('#characterHero');
-        const source = characterPreviewSource('builtin:hinata-idle');
-        if (hero.getAttribute('src') !== source) hero.src = source;
-        renderPreview();
-      }
-      motionPreference.addEventListener('change', () => {
-        try { localStorage.setItem('vibe-motion', motionPreference.value); } catch { /* storage optional */ }
-        refreshCharacterMotion();
-      });
-      motionQuery.addEventListener('change', refreshCharacterMotion);
-      document.addEventListener('visibilitychange', refreshCharacterMotion);
+      document.addEventListener('visibilitychange', () => { renderPreview(); });
       document.querySelectorAll('[data-character-art]').forEach(button => button.addEventListener('click', () => {
         form.elements.largeImage.value = button.dataset.characterArt;
         form.elements.largeImageText.value = 'Hinata · พร้อมสำหรับแต้มต่อไป';
         syncFormToScene(); renderPreview(); renderEditorMeta(); scheduleSave();
       }));
-      queueMicrotask(refreshCharacterMotion);
       function setImage(image, placeholder, value) {
         const source = characterPreviewSource(value);
         const isUrl = Boolean(source);
@@ -1957,6 +1871,41 @@ function reemitToast() {
       });
 
       let lastPreviewSceneId = null;
+      // "ภาพปัจจุบัน" thumbnail in the artwork card: shows whatever the link
+      // field currently holds (preset GIF, URL, or asset key).
+      const PRESET_ART_LABELS = {
+        'builtin:hinata-idle': 'Hinata · เคลื่อนไหว',
+        'builtin:hinata-poster': 'Hinata · ภาพนิ่ง',
+        'builtin:hinata-gaming': 'Hinata · เล่นเกม',
+        'builtin:hinata-chill': 'Hinata · ชิลล์',
+      };
+      function artworkDisplayLabel(value) {
+        const v = String(value || '').trim();
+        if (!v) return t('ยังไม่ได้เลือกภาพ');
+        if (PRESET_ART_LABELS[v]) return PRESET_ART_LABELS[v];
+        return v.length > 52 ? v.slice(0, 52) + '…' : v;
+      }
+      function renderArtworkCurrent() {
+        const img = document.querySelector('#artworkCurrentPreview');
+        const label = document.querySelector('#artworkCurrentLabel');
+        if (!img || !label || !form?.elements?.largeImage) return;
+        const value = form.elements.largeImage.value;
+        const source = characterPreviewSource(value);
+        if (source) {
+          if (img.getAttribute('src') !== source) img.src = source;
+          img.hidden = false;
+        } else {
+          img.hidden = true;
+          img.removeAttribute('src');
+        }
+        label.textContent = artworkDisplayLabel(value);
+        label.title = String(value || '').trim();
+      }
+      const artworkCurrentImg = document.querySelector('#artworkCurrentPreview');
+      if (artworkCurrentImg) artworkCurrentImg.addEventListener('error', () => {
+        artworkCurrentImg.hidden = true;
+        artworkCurrentImg.removeAttribute('src');
+      });
       function renderPreview() {
         const scene = currentScene();
         if (!scene) return;
@@ -1978,9 +1927,7 @@ function reemitToast() {
           }
         }
         document.querySelectorAll('[data-character-art]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.characterArt === scene.largeImage)));
-        document.querySelector('#characterAvailability').textContent = runtime?.characterArt?.publicUrlConfigured
-          ? t('ตั้งค่า URL รูปภาพสาธารณะแล้ว · ตรวจสถานะการเชื่อมต่อว่า Discord ได้รับภาพหรือไม่')
-          : t('ดูตัวอย่างได้ที่นี่ · ใส่ URL รูปภาพสาธารณะก่อน เพื่อให้เพื่อนบน Discord เห็นภาพ Hinata');
+        renderArtworkCurrent();
         const verb = {
           playing: 'Playing',
           listening: 'Listening to',
@@ -2019,7 +1966,6 @@ function reemitToast() {
           buttons.append(link);
         });
         buttons.classList.toggle('two', buttons.children.length === 2);
-        renderPreviewTimer();
       }
 
       function formatDuration(totalSeconds) {
@@ -2032,20 +1978,6 @@ function reemitToast() {
           : String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
       }
 
-      function renderPreviewTimer() {
-        const scene = currentScene();
-        const timer = document.querySelector('#previewTimer');
-        if (!scene || scene.timerMode === 'none') {
-          timer.hidden = true;
-          return;
-        }
-        timer.hidden = false;
-        const elapsed = (Date.now() - previewStartedAt) / 1000;
-        timer.textContent = scene.timerMode === 'remaining'
-          ? formatDuration(scene.timerMinutes * 60 - elapsed) + t(' ที่เหลือ')
-          : formatDuration(elapsed) + t(' ที่ผ่านมา');
-      }
-
       function minutesFromTime(value) {
         const parts = String(value).split(':').map(Number);
         return parts[0] * 60 + parts[1];
@@ -2056,6 +1988,7 @@ function reemitToast() {
       }
 
       function renderDayStrip() {
+        if (!dayStrip) return;
         dayStrip.querySelectorAll('.vs-block').forEach((block) => block.remove());
         if (!config) return;
         const enabled = config.slots
@@ -2100,7 +2033,7 @@ function reemitToast() {
       }
 
       function renderSlots() {
-        if (!config) return;
+        if (!config || !slotList) return;
         sortSlots();
         slotList.innerHTML = '';
         if (!config.slots.length) {
@@ -2213,11 +2146,6 @@ function reemitToast() {
         if (statusHero) statusHero.hidden = isEmpty;
         if (statusEmpty) statusEmpty.hidden = !isEmpty;
         renderAppReason();
-        // In apps mode the schedule card is hidden; show an explanatory empty
-        // state instead of an empty screen.
-        const inAppsMode = runtime.selectionMode === 'apps';
-        document.querySelector("#legacyScheduleCard").hidden = inAppsMode;
-        document.querySelector("#daylineAppsNote").hidden = !inAppsMode;
         const sourceCopy = runtime.manualOverride
           ? t('ปักหมุดเอง')
           : runtime.scheduleEnabled
@@ -2291,11 +2219,14 @@ function reemitToast() {
       }
 
       function renderClock() {
-        const now = new Date();
-        const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-        nowPin.style.top = (minute / 1440 * 100) + '%';
-        const nowTag = nowPin.querySelector('.vs-nowline-tag');
-        if (nowTag) nowTag.textContent = t('ตอนนี้ {t}', { t: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) });
+        // Dayline now-line is gone; only the Status "next change" line remains.
+        if (nowPin) {
+          const now = new Date();
+          const minute = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+          nowPin.style.top = (minute / 1440 * 100) + '%';
+          const nowTag = nowPin.querySelector('.vs-nowline-tag');
+          if (nowTag) nowTag.textContent = t('ตอนนี้ {t}', { t: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) });
+        }
 
         const nextChange = document.querySelector('#nextChange');
         if (runtime?.selectionMode === 'apps' && !runtime.manualOverride) {
@@ -2372,7 +2303,8 @@ function reemitToast() {
       }
 
       function setStudioInert(inert) {
-        appbar.inert = inert;
+        // The full-width topbar (.appbar) was removed; appbar may be null.
+        if (appbar) appbar.inert = inert;
         const shell = document.querySelector('#appShell');
         if (shell) shell.inert = inert;
         const banner = document.querySelector('#setupBanner');
@@ -2793,8 +2725,7 @@ function reemitToast() {
           });
           runtime = data.runtime;
           config.manualOverride = runtime.manualOverride;
-          previewStartedAt = Date.now();
-          renderRuntime();
+            renderRuntime();
           showMessage(data.applied
             ? (runtime.selectionMode === 'apps' ? '{name} ปักหมุดไว้ 1 ชม. แล้ว' : '{name} จะแสดงจนถึงรอบถัดไป')
             : '{name} บันทึกแล้ว จะแสดงเมื่อ Discord เชื่อมต่อใหม่', 'success', { name: sceneName });
@@ -2914,7 +2845,6 @@ function reemitToast() {
 
       form.addEventListener('input', (event) => {
         if (!config) return;
-        if (event.target.name === 'timerMode') updateTimerField();
         if (touchedFields.has(event.target.name) || event.target.getAttribute('aria-invalid') === 'true') {
           validateField(event.target, { reveal: true });
         }
@@ -2990,7 +2920,7 @@ function reemitToast() {
           smallImage: '',
           smallImageText: '',
           smallImageUrl: '',
-          timerMode: 'elapsed',
+          timerMode: 'none',
           timerMinutes: 30,
           buttons: [],
         };
@@ -3036,10 +2966,9 @@ function reemitToast() {
         showMessage('ลบ Scene "{name}" แล้ว', 'success', { name: scene.sceneName });
       });
 
-      document.querySelector('#daylineGoStatusButton').addEventListener('click', () => {
-        location.hash = '#/scenes';
-      });
-      document.querySelector('#addSlotButton').addEventListener('click', () => {
+      // Dayline screen removed — slot UI is gone; the listeners below are
+      // dropped with it. Slot data stays in config for a future return.
+      document.querySelector('#addSlotButton')?.addEventListener('click', () => {
         if (!config || !currentScene()) return;
         const used = new Set(config.slots.map((slot) => slot.startTime));
         const candidates = ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '23:00', '00:00'];
@@ -3140,7 +3069,7 @@ function reemitToast() {
       });
 
       const selectedApps = new Set();
-      const STUDIO_SCREENS = ['status', 'scenes', 'dayline', 'settings'];
+      const STUDIO_SCREENS = ['status', 'scenes', 'settings'];
       // Pending focus target for programmatic navigation (e.g. focusing the
       // scene name field right after a new scene is created).
       let pendingFocusSelector = null;
@@ -3149,11 +3078,11 @@ function reemitToast() {
         // Normalize before matching: case-insensitive, ignore trailing slashes,
         // so `#/dayline/` or `#/EDITOR` still land on the intended screen.
         const hash = location.hash.toLowerCase().replace(/\/+$/, '');
-        const match = /^#\/(status|scenes|dayline|settings)$/.exec(hash);
+        const match = /^#\/(status|scenes|settings)$/.exec(hash);
         if (match) return match[1];
         // Legacy compat: the old two-page hashes map onto the new screens.
         if (location.hash === '#setup') return 'status';
-        if (location.hash === '#presets' || hash === '#/editor') return 'scenes';
+        if (location.hash === '#presets' || hash === '#/editor' || hash === '#/dayline') return 'scenes';
         // Set-and-forget: Status is the landing screen.
         return 'status';
       }
@@ -3363,7 +3292,7 @@ function reemitToast() {
       };
       document.querySelector('#shareCodexSession').onclick=async()=>{
         const button=document.querySelector('#shareCodexSession');button.disabled=true;
-        try{const result=await requestJson('/api/codex-session',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.querySelector('#codexSessionTitle').value,restart:true})});runtime=result.runtime;config.codexSession=result.session;renderRuntime();document.querySelector('#codexSessionStatus').textContent=result.session?'ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex':'ใช้สถานะ Codex ทั่วไปแล้ว';}catch(error){document.querySelector('#codexSessionStatus').textContent=humanizeError(error.message).text;}finally{button.disabled=false;}
+        try{const result=await requestJson('/api/codex-session',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:document.querySelector('#codexSessionTitle').value,restart:false})});runtime=result.runtime;config.codexSession=result.session;renderRuntime();document.querySelector('#codexSessionStatus').textContent=result.session?'ใช้ข้อความที่ตั้งเองแล้ว · ไม่ติดตามแท็บ Codex':'ใช้สถานะ Codex ทั่วไปแล้ว';}catch(error){document.querySelector('#codexSessionStatus').textContent=humanizeError(error.message).text;}finally{button.disabled=false;}
       };
       async function initialize() {
         try {
@@ -3374,7 +3303,19 @@ function reemitToast() {
           config = loadedConfig;
           document.querySelector("#codexSessionTitle").value=config.codexSession?.title || "";
           mappingDraft = clone(config.appMappings || []);
-          document.querySelector("#selectionMode").value=config.settings.selectionMode || "schedule";
+          // Time features removed: the studio only drives app mode now.
+          // One-time migration for configs still saved in schedule mode.
+          if (config.settings?.selectionMode && config.settings.selectionMode !== 'apps') {
+            try {
+              const migrated = await requestJson('/api/app-mappings', {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mappings: config.appMappings || [], selectionMode: 'apps' }),
+              });
+              config = migrated.config;
+              mappingDraft = clone(config.appMappings || []);
+            } catch { /* migration is best-effort; app mode still renders */ }
+          }
+          document.querySelector("#selectionMode").value = 'apps';
           syncModeSegmented();
           renderMappings();
           void refreshApplications();
@@ -3399,7 +3340,6 @@ function reemitToast() {
         }
       }
 
-      setInterval(renderPreviewTimer, 1000);
       setInterval(renderClock, 1000);
       setInterval(() => { if (!document.hidden) void pollState(); }, 500);
       document.addEventListener('visibilitychange', () => { if (!document.hidden) void pollState(); });
