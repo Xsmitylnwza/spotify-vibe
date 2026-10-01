@@ -4,17 +4,20 @@
 // runs in-process, the window is just a view onto http://127.0.0.1:PORT/.
 // Closing the window hides to the tray — the companion keeps running.
 // Launch-at-login is on by default (toggle in Settings).
-import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, shell } from 'electron';
 import updaterPkg from 'electron-updater';
 const { autoUpdater } = updaterPkg;
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { existsSync, writeFileSync } from 'node:fs';
 import { startStudioServer } from '../scripts/studio-server.mjs';
+import { broadcastUpdateState, createStudioStartup, ensureDefaultLoginItem, createShutdown, runUpdateOperation } from './lifecycle.mjs';
+import { requireStudioSender, secureStudioNavigation } from './security.mjs';
 
 const appDir = dirname(fileURLToPath(import.meta.url));
 const isDev = !app.isPackaged;
 const STUDIO_PORT = Number(process.env.PRESENCE_STUDIO_PORT || 17345);
+const STUDIO_ORIGIN = `http://127.0.0.1:${STUDIO_PORT}`;
 const SMOKE = process.argv.includes('--smoke-test');
 const FIRST_RUN_SENTINEL = join(app.getPath('userData'), 'vibe-electron.json');
 
@@ -22,6 +25,9 @@ let mainWindow = null;
 let tray = null;
 let studioHandle = null;
 let appQuitting = false;
+let exitReady = false;
+let updateTimer = null;
+let updateInterval = null;
 const updateState = { available: null, downloaded: false, downloading: false, progress: 0, checking: false, error: null };
 
 // ---------------------------------------------------------------------------
@@ -35,17 +41,6 @@ if (!app.requestSingleInstanceLock()) {
   // -------------------------------------------------------------------------
   // login item (launch at startup, on by default)
   // -------------------------------------------------------------------------
-  function ensureDefaultLoginItem() {
-    try {
-      if (!existsSync(FIRST_RUN_SENTINEL)) {
-        app.setLoginItemSettings({ openAtLogin: true, openAsHidden: true });
-        writeFileSync(FIRST_RUN_SENTINEL, JSON.stringify({ loginItemDefaultApplied: true }));
-      }
-    } catch {
-      /* non-fatal: user can toggle in Settings */
-    }
-  }
-
   function openedHidden() {
     if (SMOKE) return false;
     if (process.argv.includes('--hidden')) return true;
@@ -82,10 +77,12 @@ if (!app.requestSingleInstanceLock()) {
         sandbox: false,
       },
     });
+    secureStudioNavigation(mainWindow, STUDIO_ORIGIN, shell);
     mainWindow.on('close', (event) => {
       if (!appQuitting) {
         event.preventDefault();
-        mainWindow.hide();
+        if (tray) mainWindow.hide();
+        else void quitApp();
       }
     });
     mainWindow.on('closed', () => {
@@ -97,6 +94,7 @@ if (!app.requestSingleInstanceLock()) {
   }
 
   function showWindow() {
+    if (!studioHandle || appQuitting) return;
     if (!mainWindow) createWindow();
     if (!mainWindow.webContents.getURL()) {
       mainWindow.loadURL(studioHandle.url + '#/status').catch(() => {});
@@ -144,6 +142,7 @@ if (!app.requestSingleInstanceLock()) {
       tray.on('click', () => showWindow());
       tray.on('double-click', () => showWindow());
     } catch {
+      try { tray?.destroy(); } catch { /* ignore */ }
       tray = null; // headless / no tray host — the app still works
     }
   }
@@ -160,38 +159,29 @@ if (!app.requestSingleInstanceLock()) {
   // updates (electron-updater, GitHub Releases)
   // -------------------------------------------------------------------------
   function pushUpdateState() {
-    const payload = { ...updateState };
-    for (const win of BrowserWindow.getAllWindows()) {
-      win.webContents.send('vibe:update-state', payload).catch?.(() => {});
-    }
+    broadcastUpdateState(BrowserWindow.getAllWindows(), updateState);
     refreshTray();
   }
 
   async function checkForUpdates(manual = false) {
     if (!app.isPackaged || updateState.checking) return;
-    updateState.checking = true;
-    updateState.error = null;
-    if (manual) pushUpdateState();
+    let timeout;
     try {
       // Never leave `checking` stuck: a hung updater promise used to make
       // every later manual check silently no-op (dead button).
-      await Promise.race([
+      return await runUpdateOperation(updateState, pushUpdateState, () => Promise.race([
         autoUpdater.checkForUpdates(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('update check timed out')), 60_000)),
-      ]);
-    } catch {
-      // No releases published yet, offline, timed out, etc. — stay quiet, retry later.
-      updateState.error = 'unreachable';
+        new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('update check timed out')), 60_000); }),
+      ]), 'checking');
     } finally {
-      updateState.checking = false;
-      pushUpdateState();
+      clearTimeout(timeout);
     }
   }
 
   function wireAutoUpdater() {
     if (!app.isPackaged) return; // no feed in dev
     autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.autoInstallOnAppQuit = false;
     autoUpdater.logger = null;
     autoUpdater.on('update-available', (info) => {
       updateState.available = info?.version || 'new';
@@ -214,80 +204,101 @@ if (!app.requestSingleInstanceLock()) {
       updateState.progress = 100;
       pushUpdateState();
     });
-    autoUpdater.on('error', () => {
-      updateState.error = 'unreachable';
+    autoUpdater.on('error', (error) => {
+      if (shutdown.installFailed(error)) return;
+      updateState.error = error?.message || 'Update failed';
       updateState.checking = false;
       updateState.downloading = false;
       pushUpdateState();
     });
     // Delayed first check + every 6h.
-    setTimeout(() => void checkForUpdates(false), 20_000);
-    setInterval(() => void checkForUpdates(false), 6 * 60 * 60 * 1000);
+    updateTimer = setTimeout(() => void checkForUpdates(false), 20_000);
+    updateInterval = setInterval(() => void checkForUpdates(false), 6 * 60 * 60 * 1000);
   }
 
   // -------------------------------------------------------------------------
   // IPC bridge for the renderer (preload.cjs)
   // -------------------------------------------------------------------------
-  ipcMain.handle('vibe:get-version', () => app.getVersion());
-  ipcMain.handle('vibe:get-update-state', () => ({ ...updateState }));
-  ipcMain.handle('vibe:get-open-at-login', () => {
+  function handleStudioIPC(channel, handler) {
+    ipcMain.handle(channel, (event, ...args) => {
+      requireStudioSender(event, mainWindow, studioHandle ? STUDIO_ORIGIN : null);
+      return handler(event, ...args);
+    });
+  }
+  handleStudioIPC('vibe:get-version', () => app.getVersion());
+  handleStudioIPC('vibe:get-update-state', () => ({ ...updateState }));
+  handleStudioIPC('vibe:get-open-at-login', () => {
     try {
       return app.getLoginItemSettings().openAtLogin;
     } catch {
       return false;
     }
   });
-  ipcMain.handle('vibe:set-open-at-login', (_event, enabled) => {
+  handleStudioIPC('vibe:set-open-at-login', (_event, enabled) => {
+    if (!app.isPackaged || process.env.PRESENCE_AUTOSTART_DISABLE === '1') return false;
     app.setLoginItemSettings({ openAtLogin: Boolean(enabled), openAsHidden: true });
+    writeFileSync(FIRST_RUN_SENTINEL, JSON.stringify({ loginItemDefaultApplied: true }));
     return app.getLoginItemSettings().openAtLogin;
   });
-  ipcMain.handle('vibe:check-for-updates', () => checkForUpdates(true));
-  ipcMain.handle('vibe:download-update', async () => {
-    if (!app.isPackaged) return { ok: false };
-    updateState.downloading = true;
+  handleStudioIPC('vibe:check-for-updates', () => checkForUpdates(true));
+  handleStudioIPC('vibe:download-update', async () => {
+    if (!app.isPackaged || !updateState.available || updateState.downloading || updateState.downloaded) return { ok: false };
     updateState.progress = 0;
-    pushUpdateState();
-    try {
-      await autoUpdater.downloadUpdate();
-      return { ok: true };
-    } catch {
-      updateState.downloading = false;
-      pushUpdateState();
-      throw new Error('download failed');
-    }
+    const result = await runUpdateOperation(updateState, pushUpdateState, () => autoUpdater.downloadUpdate(), 'downloading');
+    // Electron handles this IPC rejection; the existing renderer catch shows
+    // its localized download error after the state has been broadcast.
+    if (!result.ok) throw new Error(result.error);
+    return result;
   });
-  ipcMain.handle('vibe:quit-and-install', () => {
-    appQuitting = true;
-    autoUpdater.quitAndInstall(false, true);
+  handleStudioIPC('vibe:quit-and-install', () => {
+    if (!app.isPackaged || !updateState.downloaded) return { ok: false };
+    return quitApp({ restart: true });
   });
-  ipcMain.handle('vibe:open-studio', () => showWindow());
+  handleStudioIPC('vibe:quit', () => quitApp());
+  handleStudioIPC('vibe:open-studio', () => showWindow());
   // Frameless window controls (custom title bar in the renderer).
-  ipcMain.handle('vibe:window-minimize', () => { mainWindow?.minimize(); });
-  ipcMain.handle('vibe:window-toggle-maximize', () => {
+  handleStudioIPC('vibe:window-minimize', () => { mainWindow?.minimize(); });
+  handleStudioIPC('vibe:window-toggle-maximize', () => {
     if (!mainWindow) return false;
     if (mainWindow.isMaximized()) mainWindow.unmaximize();
     else mainWindow.maximize();
     return mainWindow.isMaximized();
   });
-  ipcMain.handle('vibe:is-maximized', () => mainWindow?.isMaximized() ?? false);
+  handleStudioIPC('vibe:is-maximized', () => mainWindow?.isMaximized() ?? false);
   // Reuse the tray-hide behavior: closing the window hides it to the tray.
-  ipcMain.handle('vibe:window-close', () => { mainWindow?.close(); });
+  handleStudioIPC('vibe:window-close', () => { mainWindow?.close(); });
 
-  async function quitApp() {
+  const startup = createStudioStartup({
+    start: startStudioServer,
+    onError: error => console.error('Vibe Studio late cleanup:', error),
+  });
+  const shutdown = createShutdown({
+    stop: async () => {
+      clearTimeout(updateTimer);
+      clearInterval(updateInterval);
+      await startup.stop();
+      tray?.destroy();
+    },
+    quit: () => { exitReady = true; app.quit(); },
+    install: () => { exitReady = true; return autoUpdater.quitAndInstall(false, true); },
+    onError: (error) => {
+      updateState.error = error?.message || 'Shutdown failed';
+      pushUpdateState();
+      console.error('Vibe Studio shutdown:', updateState.error);
+    },
+  });
+  function quitApp(options) {
     appQuitting = true;
-    try {
-      await studioHandle?.stop();
-    } catch {
-      /* ignore */
-    }
-    app.quit();
+    return shutdown(options);
   }
 
   app.on('window-all-closed', () => {
     // Background-first: keep running in the tray.
   });
-  app.on('before-quit', () => {
-    appQuitting = true;
+  app.on('before-quit', (event) => {
+    if (exitReady) { shutdown.exitObserved(); return; }
+    event.preventDefault();
+    void quitApp();
   });
   app.on('activate', () => showWindow());
 
@@ -295,19 +306,31 @@ if (!app.requestSingleInstanceLock()) {
   // boot
   // -------------------------------------------------------------------------
   app.whenReady().then(async () => {
-    ensureDefaultLoginItem();
-    try {
-      studioHandle = await startStudioServer({
-        port: STUDIO_PORT,
-        openBrowser: false,
-        exitProcess: false,
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Vibe Studio server failed to start:', error?.message || error);
-      app.exit(1);
-      return;
+    ensureDefaultLoginItem({ app, fs: { existsSync, writeFileSync }, sentinel: FIRST_RUN_SENTINEL, env: process.env });
+    while (!appQuitting && !studioHandle) {
+      try {
+        studioHandle = await startup.begin({
+          port: STUDIO_PORT,
+          argv: [],
+          openBrowser: false,
+          exitProcess: false,
+          onQuit: () => quitApp(),
+        });
+      } catch (error) {
+        console.error('Vibe Studio server failed to start:', error?.message || error);
+        if (appQuitting) return;
+        // A timed-out start may still own resources; do not launch a retry.
+        if (error?.code === 'STUDIO_START_TIMEOUT') { await quitApp(); return; }
+        const result = await dialog.showMessageBox({
+          type: 'error', title: 'Vibe Studio',
+          message: 'Studio could not start / ไม่สามารถเปิด Studio ได้',
+          detail: `${error?.code || 'STUDIO_START_FAILED'}: ${error?.message || error}`,
+          buttons: ['Retry / ลองอีกครั้ง', 'Quit / ออก'], defaultId: 0, cancelId: 1,
+        });
+        if (result.response !== 0) { await quitApp(); return; }
+      }
     }
+    if (appQuitting) return;
 
     createWindow();
     createTray();
@@ -317,8 +340,11 @@ if (!app.requestSingleInstanceLock()) {
       await runSmokeTest();
       return;
     }
-    if (!openedHidden()) showWindow();
+    if (!tray || !openedHidden()) showWindow();
     else mainWindow.loadURL(studioHandle.url + '#/status').catch(() => {});
+  }).catch(async (error) => {
+    console.error('Vibe Studio startup:', error?.message || error);
+    await quitApp();
   });
 
   // -------------------------------------------------------------------------
@@ -359,7 +385,7 @@ if (!app.requestSingleInstanceLock()) {
     console.log(`SMOKE url=${studioHandle.url} bridge=${bridge} consoleErrors=${errors.length}`);
     errors.slice(0, 5).forEach((m) => console.log('SMOKE-ERR ' + m));
     try { mainWindow.destroy(); } catch { /* ignore */ }
-    await studioHandle?.stop().catch(() => {});
-    app.exit(errors.length ? 1 : 0);
+    process.exitCode = errors.length ? 1 : 0;
+    await quitApp();
   }
 }
