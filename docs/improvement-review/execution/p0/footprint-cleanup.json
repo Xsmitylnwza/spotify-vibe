@@ -1,0 +1,670 @@
+{
+  "checkedAt": "2026-10-02T03:17:55.8246302+07:00",
+  "identities": [
+    {
+      "pid": 36128,
+      "created": "2026-10-01T15:08:54.678851Z",
+      "name": "node.exe",
+      "source": "S1.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 35608,
+      "created": "2026-10-01T15:08:54.938233Z",
+      "name": "conhost.exe",
+      "source": "S1.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 29392,
+      "created": "2026-10-01T15:08:54.922252Z",
+      "name": "powershell.exe",
+      "source": "S1.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 22308,
+      "created": "2026-10-01T15:08:54.691471Z",
+      "name": "conhost.exe",
+      "source": "S1.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 34212,
+      "created": "2026-10-01T15:34:36.533977Z",
+      "name": "conhost.exe",
+      "source": "S2.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 28900,
+      "created": "2026-10-01T15:34:36.760905Z",
+      "name": "conhost.exe",
+      "source": "S2.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 23716,
+      "created": "2026-10-01T15:34:36.740341Z",
+      "name": "powershell.exe",
+      "source": "S2.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 8604,
+      "created": "2026-10-01T15:34:36.525074Z",
+      "name": "node.exe",
+      "source": "S2.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 37852,
+      "created": "2026-10-01T15:45:12.428277Z",
+      "name": "powershell.exe",
+      "source": "S3.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 35324,
+      "created": "2026-10-01T15:45:12.055253Z",
+      "name": "conhost.exe",
+      "source": "S3.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 28764,
+      "created": "2026-10-01T15:45:12.449953Z",
+      "name": "conhost.exe",
+      "source": "S3.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 10512,
+      "created": "2026-10-01T15:45:12.038588Z",
+      "name": "node.exe",
+      "source": "S3.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 48788,
+      "created": "2026-10-01T19:45:41.905294Z",
+      "name": "node.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 48576,
+      "created": "2026-10-01T19:46:02.166946Z",
+      "name": "conhost.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47448,
+      "created": "2026-10-01T19:45:56.033227Z",
+      "name": "node.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 46944,
+      "created": "2026-10-01T19:46:01.221954Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 46504,
+      "created": "2026-10-01T19:46:01.295053Z",
+      "name": "powershell.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45840,
+      "created": "2026-10-01T19:46:07.100285Z",
+      "name": "csc.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45764,
+      "created": "2026-10-01T19:45:55.653749Z",
+      "name": "cmd.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45388,
+      "created": "2026-10-01T19:46:00.044664Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 44696,
+      "created": "2026-10-01T19:45:41.469225Z",
+      "name": "cmd.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43264,
+      "created": "2026-10-01T19:46:02.108408Z",
+      "name": "conhost.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 39656,
+      "created": "2026-10-01T19:46:01.513026Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 37108,
+      "created": "2026-10-01T19:46:01.228091Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 31144,
+      "created": "2026-10-01T19:45:41.487837Z",
+      "name": "conhost.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 22776,
+      "created": "2026-10-01T19:46:01.724531Z",
+      "name": "powershell.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47512,
+      "created": "2026-10-01T19:57:41.946962Z",
+      "name": "powershell.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 46556,
+      "created": "2026-10-01T19:57:42.202004Z",
+      "name": "conhost.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45452,
+      "created": "2026-10-01T19:57:41.570967Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 44532,
+      "created": "2026-10-01T19:57:42.226129Z",
+      "name": "conhost.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43932,
+      "created": "2026-10-01T19:57:26.19863Z",
+      "name": "cmd.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43860,
+      "created": "2026-10-01T19:57:40.446727Z",
+      "name": "node.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43292,
+      "created": "2026-10-01T19:57:41.9382Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43136,
+      "created": "2026-10-01T19:57:41.579171Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 42916,
+      "created": "2026-10-01T19:57:26.94019Z",
+      "name": "cmd.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 42440,
+      "created": "2026-10-01T19:57:40.203456Z",
+      "name": "cmd.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 40608,
+      "created": "2026-10-01T19:57:40.723453Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 28628,
+      "created": "2026-10-01T19:57:27.038682Z",
+      "name": "node.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 12684,
+      "created": "2026-10-01T19:57:41.703964Z",
+      "name": "powershell.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 6016,
+      "created": "2026-10-01T19:57:26.308557Z",
+      "name": "conhost.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 5676,
+      "created": "2026-10-01T19:57:28.328889Z",
+      "name": "node.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47248,
+      "created": "2026-10-01T20:13:49.761687Z",
+      "name": "node.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47204,
+      "created": "2026-10-01T20:13:49.769676Z",
+      "name": "conhost.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47140,
+      "created": "2026-10-01T20:13:50.016396Z",
+      "name": "conhost.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 41996,
+      "created": "2026-10-01T20:13:49.999874Z",
+      "name": "powershell.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 40652,
+      "created": "2026-10-01T20:13:50.526538Z",
+      "name": "Notepad.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 40440,
+      "created": "2026-10-01T20:13:50.01642Z",
+      "name": "conhost.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 26164,
+      "created": "2026-10-01T20:13:54.016074Z",
+      "name": "mspaint.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 22924,
+      "created": "2026-10-01T20:13:49.96289Z",
+      "name": "powershell.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 40276,
+      "created": "2026-10-01T15:55:44.50575Z",
+      "name": "node.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 39648,
+      "created": "2026-10-01T15:55:48.678187Z",
+      "name": "powershell.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 37148,
+      "created": "2026-10-01T15:55:48.539376Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 35448,
+      "created": "2026-10-01T15:55:48.396273Z",
+      "name": "conhost.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 31824,
+      "created": "2026-10-01T15:55:48.287474Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 28136,
+      "created": "2026-10-01T15:55:42.781387Z",
+      "name": "conhost.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 27728,
+      "created": "2026-10-01T15:55:48.917842Z",
+      "name": "conhost.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 25380,
+      "created": "2026-10-01T15:55:43.011113Z",
+      "name": "node.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 22712,
+      "created": "2026-10-01T15:55:48.303097Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 21240,
+      "created": "2026-10-01T15:55:44.706785Z",
+      "name": "electron.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 21168,
+      "created": "2026-10-01T15:55:48.362697Z",
+      "name": "powershell.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 20652,
+      "created": "2026-10-01T15:55:44.45508Z",
+      "name": "cmd.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 5380,
+      "created": "2026-10-01T15:55:42.767694Z",
+      "name": "cmd.exe",
+      "source": "S4.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 40844,
+      "created": "2026-10-01T16:10:32.175202Z",
+      "name": "cmd.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 39720,
+      "created": "2026-10-01T16:10:32.216231Z",
+      "name": "node.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 35068,
+      "created": "2026-10-01T16:10:32.784967Z",
+      "name": "conhost.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33972,
+      "created": "2026-10-01T16:10:30.688317Z",
+      "name": "conhost.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33520,
+      "created": "2026-10-01T16:10:32.704321Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33304,
+      "created": "2026-10-01T16:10:32.302346Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33032,
+      "created": "2026-10-01T16:10:32.713274Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 32704,
+      "created": "2026-10-01T16:10:30.944743Z",
+      "name": "node.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 28388,
+      "created": "2026-10-01T16:10:32.88003Z",
+      "name": "electron.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 27096,
+      "created": "2026-10-01T16:10:30.670399Z",
+      "name": "cmd.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 22352,
+      "created": "2026-10-01T16:10:32.748365Z",
+      "name": "powershell.exe",
+      "source": "S5.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47832,
+      "created": "2026-10-01T20:09:04.327855Z",
+      "name": "powershell.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 44128,
+      "created": "2026-10-01T20:09:04.012067Z",
+      "name": "node.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 41876,
+      "created": "2026-10-01T20:09:04.025302Z",
+      "name": "conhost.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 36876,
+      "created": "2026-10-01T20:09:04.387267Z",
+      "name": "conhost.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 21200,
+      "created": "2026-10-01T20:09:09.59598Z",
+      "name": "mspaint.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 6432,
+      "created": "2026-10-01T20:09:05.191061Z",
+      "name": "Notepad.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 252,
+      "created": "2026-10-01T20:09:04.372432Z",
+      "name": "powershell.exe",
+      "source": "S6.metadata.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 4548,
+      "created": "2026-10-02T02:41:00.289006+07:00",
+      "name": "pwsh.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 48880,
+      "created": "2026-10-02T02:41:00.305853+07:00",
+      "name": "conhost.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 42584,
+      "created": "2026-10-02T02:41:05.589472+07:00",
+      "name": "cmd.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43816,
+      "created": "2026-10-02T02:41:05.603263+07:00",
+      "name": "conhost.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33004,
+      "created": "2026-10-02T02:41:05.830631+07:00",
+      "name": "node.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 25912,
+      "created": "2026-10-02T02:41:07.207438+07:00",
+      "name": "cmd.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45200,
+      "created": "2026-10-02T02:41:07.265111+07:00",
+      "name": "node.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 28316,
+      "created": "2026-10-02T02:41:07.368892+07:00",
+      "name": "electron.exe",
+      "source": "aborted-resume-pids.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47324,
+      "created": "2026-10-01T19:51:48.860655Z",
+      "name": "measurement runner",
+      "source": "footprint-controller.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 39632,
+      "created": "2026-10-01T19:45:32.1337511Z",
+      "name": "measurement runner",
+      "source": "footprint-resume-runners.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 2184,
+      "created": "2026-10-01T19:57:02.2638388Z",
+      "name": "measurement runner",
+      "source": "footprint-resume-runners.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43920,
+      "created": "2026-10-01T20:08:48.1938286Z",
+      "name": "measurement runner",
+      "source": "footprint-resume-runners.json",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 18784,
+      "created": "2026-10-01T20:13:46.3437713Z",
+      "name": "measurement runner",
+      "source": "S6-focus-runner.json",
+      "stillSameIdentity": false
+    }
+  ],
+  "additionalPidChecks": [
+    {
+      "pid": 44200,
+      "present": false
+    },
+    {
+      "pid": 30800,
+      "present": false
+    }
+  ],
+  "remainingTaskProcesses": [],
+  "tempRemoved": true,
+  "electronRunItemPresent": false,
+  "isolatedPortListening": false
+}

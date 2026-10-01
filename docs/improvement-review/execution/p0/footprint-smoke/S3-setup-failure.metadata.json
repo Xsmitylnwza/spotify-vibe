@@ -1,0 +1,82 @@
+﻿{
+    "mode":  "S3",
+    "durationRequested":  600,
+    "intervalRequested":  5,
+    "logicalProcessors":  12,
+    "launchAt":  "2026-10-01T22:30:39.2625850+07:00",
+    "head":  "b401d34b523f8b1e219985d3cca6e54a7dfb8d8b",
+    "gitStatus":  " M docs/improvement-review/execution/LOG.md\n M electron/main.js\n M electron/preload.cjs\n M scripts/app-secrets.mjs\n M scripts/installed-apps.mjs\n M scripts/local-config-store.mjs\n M scripts/studio-server.mjs\n M scripts/tests/studio-server.test.mjs\n?? docs/improvement-review/execution/p0/__pycache__/\n?? docs/improvement-review/execution/p0/footprint-clean-aborted.ps1\n?? docs/improvement-review/execution/p0/footprint-measure.ps1\n?? docs/improvement-review/execution/p0/footprint-raw/\n?? docs/improvement-review/execution/p0/footprint-run.ps1\n?? docs/improvement-review/execution/p0/footprint-smoke/\n?? docs/improvement-review/execution/p0/footprint-summarize.py\n?? docs/improvement-review/execution/p1/\n?? electron/lifecycle.mjs\n?? scripts/tests/electron-lifecycle.test.mjs\n?? scripts/tests/persistence-boundary.test.mjs\n?? scripts/tests/studio-boundary.test.mjs",
+    "sourceHashes":  {
+                         "scripts/app-presence.mjs":  "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+                         "scripts/discord-presence-studio.html":  "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+                         "electron/preload.cjs":  "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+                         "electron/lifecycle.mjs":  "FED82FCB2B225C82C4B4C3362E7796F26AAE32659C189E1CA0342F9CCF014F43",
+                         "electron/main.js":  "26923E26379B00A4433AB4FBA9112199EBE5F9728FA9F9BCB410DE9BD021436A",
+                         "scripts/presence-scheduler.mjs":  "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF",
+                         "scripts/local-config-store.mjs":  "FAD06EA79341A504A6983B83534CAA3FB9AE77B15B3CFF9EF69C536DC461C237",
+                         "scripts/studio-server.mjs":  "B54AB172A8A506EE86DBE903D9388E8EC42CA74CFF80B89EF8E7DADA97775CDC",
+                         "scripts/app-secrets.mjs":  "06698A12007563DCB3E65E1D1291FE079F93DB38EB5E4BBA8308C93192DD34CD",
+                         "scripts/windows-apps.mjs":  "EC5397DFE21E305AE36A257F24C59DB95B95E0DD2C432E16B3CAFE66775CF0D3",
+                         "scripts/installed-apps.mjs":  "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+                         "scripts/windows-apps.ps1":  "BCDF5244E5ACA28EF8C6B8E23BFE1BC3B6A366DBAF635FB082959EAC35B1CDF4"
+                     },
+    "commands":  [
+                     "node scripts/discord-presence-studio.mjs --port=47393 --no-open"
+                 ],
+    "focusEvents":  [
+
+                    ],
+    "cleanup":  [
+                    {
+                        "pid":  40980,
+                        "name":  "conhost.exe",
+                        "created":  "2026-10-01T15:30:40.7718920Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  39864,
+                        "name":  "node.exe",
+                        "created":  "2026-10-01T15:30:39.8094790Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  28604,
+                        "name":  "powershell.exe",
+                        "created":  "2026-10-01T15:30:40.7537850Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  8892,
+                        "name":  "conhost.exe",
+                        "created":  "2026-10-01T15:30:39.8188800Z",
+                        "stillSameIdentity":  false
+                    }
+                ],
+    "error":  "Could not resolve blank tab.",
+    "rootPid":  39864,
+    "runtimeSetup":  {
+                         "ready":  false,
+                         "needsDiscordApplicationId":  true,
+                         "needsGiphyApiKey":  true,
+                         "secrets":  {
+                                         "filePath":  "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\secrets.json",
+                                         "warning":  null,
+                                         "discord":  {
+                                                         "configured":  false,
+                                                         "source":  null,
+                                                         "clientId":  null
+                                                     },
+                                         "giphy":  {
+                                                       "configured":  false,
+                                                       "source":  null
+                                                   }
+                                     }
+                     },
+    "studioPage":  "8c2fcd38-ea0b-416c-ae5c-2b6d481584e5",
+    "blankTab":  {
+                     "browserPageId":  "90519949-ac69-43f0-9ce4-0e5bd1ed133c"
+                 },
+    "cleanupAt":  "2026-10-01T22:30:50.9106081+07:00",
+    "electronRunItemPresent":  false,
+    "isolationDirectoryRemoved":  true
+}

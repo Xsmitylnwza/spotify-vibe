@@ -1,0 +1,29 @@
+{
+  "electronCrashEvents": [],
+  "powerEvents": [
+    {
+      "TimeCreated": "2026-10-01T23:09:53.1892211+07:00",
+      "Id": 507,
+      "ProviderName": "Microsoft-Windows-Kernel-Power",
+      "Message": "The system is exiting Modern Standby \r\n\r\nReason: Lid."
+    },
+    {
+      "TimeCreated": "2026-10-01T23:09:30.6961996+07:00",
+      "Id": 506,
+      "ProviderName": "Microsoft-Windows-Kernel-Power",
+      "Message": "The system is entering Modern Standby \r\n\r\nReason: Lid."
+    },
+    {
+      "TimeCreated": "2026-10-01T23:09:30.6953925+07:00",
+      "Id": 507,
+      "ProviderName": "Microsoft-Windows-Kernel-Power",
+      "Message": "The system is exiting Modern Standby \r\n\r\nReason: Power Button."
+    },
+    {
+      "TimeCreated": "2026-10-01T23:03:37.4435288+07:00",
+      "Id": 506,
+      "ProviderName": "Microsoft-Windows-Kernel-Power",
+      "Message": "The system is entering Modern Standby \r\n\r\nReason: Lid."
+    }
+  ]
+}

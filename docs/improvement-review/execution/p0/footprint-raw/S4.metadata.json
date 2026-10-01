@@ -1,0 +1,285 @@
+{
+  "mode": "S4",
+  "durationRequested": 600,
+  "intervalRequested": 5,
+  "logicalProcessors": 12,
+  "launchAt": "2026-10-02T02:45:38.5395293+07:00",
+  "head": "b401d34b523f8b1e219985d3cca6e54a7dfb8d8b",
+  "gitStatus": " M docs/improvement-review/execution/LOG.md\n M electron/main.js\n M electron/preload.cjs\n M scripts/app-secrets.mjs\n M scripts/installed-apps.mjs\n M scripts/local-config-store.mjs\n M scripts/studio-server.mjs\n M scripts/tests/studio-server.test.mjs\n?? docs/improvement-review/execution/p0/S4.runner-pid.txt\n?? docs/improvement-review/execution/p0/__pycache__/\n?? docs/improvement-review/execution/p0/aborted-resume-pids.json\n?? docs/improvement-review/execution/p0/footprint-clean-aborted.ps1\n?? docs/improvement-review/execution/p0/footprint-measure-resume.ps1\n?? docs/improvement-review/execution/p0/footprint-measure.ps1\n?? docs/improvement-review/execution/p0/footprint-raw/\n?? docs/improvement-review/execution/p0/footprint-run.ps1\n?? docs/improvement-review/execution/p0/footprint-smoke/\n?? docs/improvement-review/execution/p0/footprint-summarize.py\n?? docs/improvement-review/execution/p1/\n?? electron/lifecycle.mjs\n?? electron/security.mjs\n?? scripts/tests/electron-host.test.mjs\n?? scripts/tests/electron-lifecycle.test.mjs\n?? scripts/tests/electron-security.test.mjs\n?? scripts/tests/persistence-boundary.test.mjs\n?? scripts/tests/studio-boundary.test.mjs",
+  "sourceHashes": {
+    "electron/lifecycle.mjs": "FED82FCB2B225C82C4B4C3362E7796F26AAE32659C189E1CA0342F9CCF014F43",
+    "scripts/windows-apps.ps1": "BCDF5244E5ACA28EF8C6B8E23BFE1BC3B6A366DBAF635FB082959EAC35B1CDF4",
+    "scripts/local-config-store.mjs": "FAD06EA79341A504A6983B83534CAA3FB9AE77B15B3CFF9EF69C536DC461C237",
+    "electron/main.js": "26923E26379B00A4433AB4FBA9112199EBE5F9728FA9F9BCB410DE9BD021436A",
+    "scripts/app-secrets.mjs": "06698A12007563DCB3E65E1D1291FE079F93DB38EB5E4BBA8308C93192DD34CD",
+    "scripts/app-presence.mjs": "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+    "scripts/windows-apps.mjs": "EC5397DFE21E305AE36A257F24C59DB95B95E0DD2C432E16B3CAFE66775CF0D3",
+    "electron/preload.cjs": "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+    "scripts/installed-apps.mjs": "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+    "scripts/studio-server.mjs": "B54AB172A8A506EE86DBE903D9388E8EC42CA74CFF80B89EF8E7DADA97775CDC",
+    "scripts/presence-scheduler.mjs": "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF",
+    "scripts/discord-presence-studio.html": "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E"
+  },
+  "commands": [
+    "npx electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\""
+  ],
+  "focusEvents": [],
+  "cleanup": [
+    {
+      "pid": 48788,
+      "name": "node.exe",
+      "created": "2026-10-01T19:45:41.9052940Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 48576,
+      "name": "conhost.exe",
+      "created": "2026-10-01T19:46:02.1669460Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47448,
+      "name": "node.exe",
+      "created": "2026-10-01T19:45:56.0332270Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 46944,
+      "name": "electron.exe",
+      "created": "2026-10-01T19:46:01.2219540Z",
+      "stillSameIdentity": true
+    },
+    {
+      "pid": 46504,
+      "name": "powershell.exe",
+      "created": "2026-10-01T19:46:01.2950530Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45840,
+      "name": "csc.exe",
+      "created": "2026-10-01T19:46:07.1002850Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45764,
+      "name": "cmd.exe",
+      "created": "2026-10-01T19:45:55.6537490Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 45388,
+      "name": "electron.exe",
+      "created": "2026-10-01T19:46:00.0446640Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 44696,
+      "name": "cmd.exe",
+      "created": "2026-10-01T19:45:41.4692250Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43264,
+      "name": "conhost.exe",
+      "created": "2026-10-01T19:46:02.1084080Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 39656,
+      "name": "electron.exe",
+      "created": "2026-10-01T19:46:01.5130260Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 37108,
+      "name": "electron.exe",
+      "created": "2026-10-01T19:46:01.2280910Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 31144,
+      "name": "conhost.exe",
+      "created": "2026-10-01T19:45:41.4878370Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 22776,
+      "name": "powershell.exe",
+      "created": "2026-10-01T19:46:01.7245310Z",
+      "stillSameIdentity": false
+    }
+  ],
+  "error": null,
+  "frozenFrom": "S4-source with other repository runtime files copied at launch",
+  "frozenHashes": {
+    "scripts/tests/codex-session.test.mjs": "B6E3ECD8FBE61F5348311515F224C34B84B9A7B83807190F2E4BC8667CB2E87B",
+    "scripts/app-secrets.mjs": "06698A12007563DCB3E65E1D1291FE079F93DB38EB5E4BBA8308C93192DD34CD",
+    "scripts/tests/electron-lifecycle.test.mjs": "F730010062D05E1E6DC3F0E1BC797901751E426B14A933D97B03E1B8F1098D5D",
+    "scripts/discord-presence-poc.mjs": "F1029608B3F6667A4048BF8B226ABF99A5B94E8F351A635647258CAB3E99D05A",
+    "scripts/tests/running-presence.test.mjs": "EE2F9EE016B10C62D68F2066C6312D4F8E60819098FE84464C81464F435FB2A6",
+    "electron/assets/tray.png": "9A0C8483B5D175F2C029EB0DD32F398AA32EB05189E1535E56B0148B2B31E5BD",
+    "scripts/windows-apps.mjs": "EC5397DFE21E305AE36A257F24C59DB95B95E0DD2C432E16B3CAFE66775CF0D3",
+    "scripts/presence-config.mjs": "7B68B117DD1F50B48947C9A1190C7D8DAEA2F863A0D4402A1A233CED9673FBE6",
+    "scripts/tests/discord-application.test.mjs": "3F0478C36902769A6F6089F17A08B7BDBF4F0BC38A587A28DDCB1589F1D6BB64",
+    "scripts/tests/giphy-search.test.mjs": "D69F652BB4329DEAD4B1CFA255540A01DA969ECE43F5743B6900693B3C0B0C20",
+    "scripts/discord-application.mjs": "158D5BFF85E441242A5BC445E1853E9BCFF29F7E199D3A5BF95D78449E27CFA7",
+    "electron/lifecycle.mjs": "FED82FCB2B225C82C4B4C3362E7796F26AAE32659C189E1CA0342F9CCF014F43",
+    "electron/assets/logo-ghost.svg": "A7A4DD3F357554D99B6F8D8E740F810D62184C5C8200E0FE1CBC675EE9D830BA",
+    "electron/main.js": "26923E26379B00A4433AB4FBA9112199EBE5F9728FA9F9BCB410DE9BD021436A",
+    "scripts/windows-autostart.mjs": "7F7BEDB9D41A99AF3C299346750A0D5A0AB7E9967D35FE3EE13D2E166687A07B",
+    "electron/assets/icon.png": "911F7E3FD843BEAFC9C92A8083507BD89DB633CC2AB00EB68D41271530FCAE3C",
+    "electron/assets/icon.ico": "94BD2FA9FF5602D40DCD6FBC0FDA30F8E8A1AFDE708F37C82063EFB213D480E9",
+    "package.json": "97AE197B83FB571C9F8EC565D33DAC1AE9893595CF861110E3BB5BB5380A985D",
+    "scripts/tests/presence-config.test.mjs": "A0BA5FD19C95D7DE48D6239BA6949A937A60CC7454804188F5EFBDF4FBD3A00B",
+    "scripts/windows-apps.ps1": "BCDF5244E5ACA28EF8C6B8E23BFE1BC3B6A366DBAF635FB082959EAC35B1CDF4",
+    "scripts/tests/electron-packaging.test.mjs": "74A5D3249C69ED0B2D300BF25CFA4C067AE4653918CEA25131583E45BC2A004D",
+    "scripts/app-presence.mjs": "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+    "scripts/tests/local-config-store.test.mjs": "F725B115D95232F218A9A478E5B61FAD6E3EB3021EF2E87C74E6CFC67ABE47C9",
+    "scripts/installed-apps.ps1": "E088CF200A5738D43A9E543D1A713E76EBEA851D8C569681DE7B7B6446B9AF13",
+    "scripts/discord-presence-studio.mjs": "25799EA51239E260A2F413D2A02476B0F49EE8959BF979C32AA28E9323F5BF5E",
+    "electron/assets/icon.icns": "439119AF59D7FB58E4940AB7B091493453860127090EB34DF669F9D1CDA7F1A7",
+    "scripts/tests/persistence-boundary.test.mjs": "C72144B072C6EBC7C1EE861AD3CE1E086E6C344EFFB8858C956FA35919C8D0C6",
+    "scripts/installed-apps.mjs": "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+    "scripts/studio-ci.css": "9D923E928E8B1C816D6EDD9BAE27C3722AD291B514E4712363C8AA6A2DBE745A",
+    "scripts/tests/electron-host.test.mjs": "5B33E95D0D44C1B50085140D541F3D1E09E5B11F8500CEDC51F77F9A9B84A9AE",
+    "scripts/tests/windows-autostart.test.mjs": "2FA05F488DBE02C597AC6B1B67E964C76315F7B6B277A807E8F65B09AAA9EB94",
+    "scripts/tests/app-presence.test.mjs": "5C66D4576FD21CF7B40384C54A10A95659438133EF4DD258D0FF982AC00B2F5E",
+    "scripts/tests/presence-scheduler.test.mjs": "AEDD92223BC39AED83EC58A6E5A63B2832F95F5714EAD70BE2F80C6B57FC2CDC",
+    "scripts/local-config-store.mjs": "FAD06EA79341A504A6983B83534CAA3FB9AE77B15B3CFF9EF69C536DC461C237",
+    "scripts/studio-server.mjs": "B54AB172A8A506EE86DBE903D9388E8EC42CA74CFF80B89EF8E7DADA97775CDC",
+    "scripts/tests/studio-server.test.mjs": "DB80AE1297C6387EDF7DE6BB0A0BCEE131276CE81E8014CEF501282F81F48985",
+    "scripts/presence-scheduler.mjs": "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF",
+    "scripts/codex-session.mjs": "40316EEC3709FA9E2F6D44E2CC1B02CA2F750F27BD5181437BF906BCEC6B9E89",
+    "scripts/tests/electron-security.test.mjs": "1EEA0C4460A9A9D8AC2D29AC2F3FA67E73C7C0433CF888AF3C6A03D65B64D7A4",
+    "scripts/setup-giphy-key.mjs": "CCDB6635055AA4D3B0FAE5D9C477A35AE8A25298CA71B9D65E261ADD3D77AA90",
+    "scripts/tests/studio-boundary.test.mjs": "644B8A45234274009E7A0AAA6C4A2DD625D264125E948579F127A47276D47D5F",
+    "scripts/character-art.mjs": "97AD50FCF2692528BEB35C0B617C392DC17662A1787E8D70BDB5F56D460341A0",
+    "electron/preload.cjs": "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+    "scripts/giphy-search.mjs": "A8B54C570D3B8EF321B6B33EFAE4ADAB4583895F515E3B26EE0286E4D0649FA7",
+    "scripts/application-badges.mjs": "98C0A09949493DB73C27D8F90253842DA9DAB70E6F06E6C1927C19F80ECD2784",
+    "scripts/tests/app-secrets.test.mjs": "34A0C74AA3BAA9D745D0F43A4BBAF86600A79DDF7CE751EE09F0610CA8A1C9D6",
+    "scripts/discord-presence-studio.html": "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+    "scripts/tests/character-art.test.mjs": "DD94A14262268CB4288D5CECE39E30E840107599B2C5AD224A24B018CCF72573"
+  },
+  "minimized": false,
+  "rootPid": 44696,
+  "runtimeSetup": {
+    "ready": false,
+    "needsDiscordApplicationId": true,
+    "needsGiphyApiKey": true,
+    "secrets": {
+      "filePath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\secrets.json",
+      "warning": null,
+      "discord": {
+        "configured": false,
+        "source": null,
+        "clientId": null
+      },
+      "giphy": {
+        "configured": false,
+        "source": null
+      }
+    }
+  },
+  "visibleWindowCount": 1,
+  "treeAtStart": [
+    {
+      "ProcessId": 44696,
+      "ParentProcessId": 39632,
+      "Name": "cmd.exe",
+      "CreationDate": "2026-10-02T02:45:41.469225+07:00",
+      "CommandLine": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"C:\\Program Files\\nodejs\\npx.cmd\" electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\"\""
+    },
+    {
+      "ProcessId": 31144,
+      "ParentProcessId": 44696,
+      "Name": "conhost.exe",
+      "CreationDate": "2026-10-02T02:45:41.487837+07:00",
+      "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+      "ProcessId": 48788,
+      "ParentProcessId": 44696,
+      "Name": "node.exe",
+      "CreationDate": "2026-10-02T02:45:41.905294+07:00",
+      "CommandLine": "\"C:\\Program Files\\nodejs\\\\node.exe\"  \"C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npx-cli.js\" electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\""
+    },
+    {
+      "ProcessId": 45764,
+      "ParentProcessId": 48788,
+      "Name": "cmd.exe",
+      "CreationDate": "2026-10-02T02:45:55.653749+07:00",
+      "CommandLine": "C:\\WINDOWS\\system32\\cmd.exe /d /s /c electron . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data"
+    },
+    {
+      "ProcessId": 47448,
+      "ParentProcessId": 45764,
+      "Name": "node.exe",
+      "CreationDate": "2026-10-02T02:45:56.033227+07:00",
+      "CommandLine": "\"node\"   \"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\app\\node_modules\\.bin\\\\..\\electron\\cli.js\" . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data"
+    },
+    {
+      "ProcessId": 45388,
+      "ParentProcessId": 47448,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T02:46:00.044664+07:00",
+      "CommandLine": "C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data"
+    },
+    {
+      "ProcessId": 46944,
+      "ParentProcessId": 45388,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T02:46:01.221954+07:00",
+      "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=th --service-sandbox-type=none --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\" --field-trial-handle=2076,i,13352149228704961202,14941203618817664077,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=2080,i,4767963729941783853,4630992703218593182,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=1960 /prefetch:11"
+    },
+    {
+      "ProcessId": 37108,
+      "ParentProcessId": 45388,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T02:46:01.228091+07:00",
+      "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=2076,i,13352149228704961202,14941203618817664077,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=2080,i,4767963729941783853,4630992703218593182,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=2072 /prefetch:2"
+    },
+    {
+      "ProcessId": 46504,
+      "ParentProcessId": 45388,
+      "Name": "powershell.exe",
+      "CreationDate": "2026-10-02T02:46:01.295053+07:00",
+      "CommandLine": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\app\\scripts\\windows-apps.ps1"
+    },
+    {
+      "ProcessId": 39656,
+      "ParentProcessId": 45388,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T02:46:01.513026+07:00",
+      "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=renderer --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\" --app-user-model-id=electron.app.Electron --app-path=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\app\" --no-sandbox --no-zygote --video-capture-use-gpu-memory-buffer --lang=th --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --launch-time-ticks=53896753708 --field-trial-handle=2076,i,13352149228704961202,14941203618817664077,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=2080,i,4767963729941783853,4630992703218593182,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3492 /prefetch:1"
+    },
+    {
+      "ProcessId": 22776,
+      "ParentProcessId": 45388,
+      "Name": "powershell.exe",
+      "CreationDate": "2026-10-02T02:46:01.724531+07:00",
+      "CommandLine": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\app\\scripts\\installed-apps.ps1"
+    },
+    {
+      "ProcessId": 43264,
+      "ParentProcessId": 46504,
+      "Name": "conhost.exe",
+      "CreationDate": "2026-10-02T02:46:02.108408+07:00",
+      "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+      "ProcessId": 48576,
+      "ParentProcessId": 22776,
+      "Name": "conhost.exe",
+      "CreationDate": "2026-10-02T02:46:02.166946+07:00",
+      "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    }
+  ],
+  "start": "2026-10-01T19:46:12.8034390Z",
+  "end": "2026-10-01T19:56:16.3600210Z",
+  "rows": 120,
+  "cleanupAt": "2026-10-02T02:56:53.0939279+07:00",
+  "electronRunItemPresent": false,
+  "isolationDirectoryRemoved": true
+}

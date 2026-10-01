@@ -1,0 +1,12 @@
+{
+    "abortedPids":  [
+                        9152,
+                        392,
+                        37728,
+                        29644,
+                        35864
+                    ],
+    "allExited":  true,
+    "tempRemoved":  true,
+    "reason":  "PowerShell Math.Max overload selected integer; partial CSV discarded before baseline restart"
+}

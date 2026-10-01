@@ -1,0 +1,50 @@
+[
+  {
+    "ProcessId": 4548,
+    "ParentProcessId": 33028,
+    "Name": "pwsh.exe",
+    "CreationDate": "2026-10-02T02:41:00.289006+07:00"
+  },
+  {
+    "ProcessId": 48880,
+    "ParentProcessId": 4548,
+    "Name": "conhost.exe",
+    "CreationDate": "2026-10-02T02:41:00.305853+07:00"
+  },
+  {
+    "ProcessId": 42584,
+    "ParentProcessId": 4548,
+    "Name": "cmd.exe",
+    "CreationDate": "2026-10-02T02:41:05.589472+07:00"
+  },
+  {
+    "ProcessId": 43816,
+    "ParentProcessId": 42584,
+    "Name": "conhost.exe",
+    "CreationDate": "2026-10-02T02:41:05.603263+07:00"
+  },
+  {
+    "ProcessId": 33004,
+    "ParentProcessId": 42584,
+    "Name": "node.exe",
+    "CreationDate": "2026-10-02T02:41:05.830631+07:00"
+  },
+  {
+    "ProcessId": 25912,
+    "ParentProcessId": 33004,
+    "Name": "cmd.exe",
+    "CreationDate": "2026-10-02T02:41:07.207438+07:00"
+  },
+  {
+    "ProcessId": 45200,
+    "ParentProcessId": 25912,
+    "Name": "node.exe",
+    "CreationDate": "2026-10-02T02:41:07.265111+07:00"
+  },
+  {
+    "ProcessId": 28316,
+    "ParentProcessId": 45200,
+    "Name": "electron.exe",
+    "CreationDate": "2026-10-02T02:41:07.368892+07:00"
+  }
+]

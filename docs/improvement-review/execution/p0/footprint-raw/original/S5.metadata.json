@@ -1,0 +1,122 @@
+﻿{
+    "mode":  "S5",
+    "durationRequested":  600,
+    "intervalRequested":  5,
+    "logicalProcessors":  12,
+    "launchAt":  "2026-10-01T23:10:30.2723450+07:00",
+    "head":  "b401d34b523f8b1e219985d3cca6e54a7dfb8d8b",
+    "gitStatus":  " M docs/improvement-review/execution/LOG.md\n M electron/main.js\n M electron/preload.cjs\n M scripts/app-secrets.mjs\n M scripts/installed-apps.mjs\n M scripts/local-config-store.mjs\n M scripts/studio-server.mjs\n M scripts/tests/studio-server.test.mjs\n?? docs/improvement-review/execution/p0/__pycache__/\n?? docs/improvement-review/execution/p0/footprint-clean-aborted.ps1\n?? docs/improvement-review/execution/p0/footprint-measure.ps1\n?? docs/improvement-review/execution/p0/footprint-raw/\n?? docs/improvement-review/execution/p0/footprint-run.ps1\n?? docs/improvement-review/execution/p0/footprint-smoke/\n?? docs/improvement-review/execution/p0/footprint-summarize.py\n?? docs/improvement-review/execution/p1/\n?? electron/lifecycle.mjs\n?? scripts/tests/electron-lifecycle.test.mjs\n?? scripts/tests/persistence-boundary.test.mjs\n?? scripts/tests/studio-boundary.test.mjs",
+    "sourceHashes":  {
+                         "scripts/app-presence.mjs":  "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+                         "scripts/discord-presence-studio.html":  "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+                         "electron/preload.cjs":  "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+                         "electron/lifecycle.mjs":  "FED82FCB2B225C82C4B4C3362E7796F26AAE32659C189E1CA0342F9CCF014F43",
+                         "electron/main.js":  "26923E26379B00A4433AB4FBA9112199EBE5F9728FA9F9BCB410DE9BD021436A",
+                         "scripts/presence-scheduler.mjs":  "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF",
+                         "scripts/local-config-store.mjs":  "FAD06EA79341A504A6983B83534CAA3FB9AE77B15B3CFF9EF69C536DC461C237",
+                         "scripts/studio-server.mjs":  "B54AB172A8A506EE86DBE903D9388E8EC42CA74CFF80B89EF8E7DADA97775CDC",
+                         "scripts/app-secrets.mjs":  "06698A12007563DCB3E65E1D1291FE079F93DB38EB5E4BBA8308C93192DD34CD",
+                         "scripts/windows-apps.mjs":  "EC5397DFE21E305AE36A257F24C59DB95B95E0DD2C432E16B3CAFE66775CF0D3",
+                         "scripts/installed-apps.mjs":  "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+                         "scripts/windows-apps.ps1":  "BCDF5244E5ACA28EF8C6B8E23BFE1BC3B6A366DBAF635FB082959EAC35B1CDF4"
+                     },
+    "commands":  [
+                     "npx electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\electron-user-data\""
+                 ],
+    "focusEvents":  [
+
+                    ],
+    "cleanup":  [
+                    {
+                        "pid":  40844,
+                        "name":  "cmd.exe",
+                        "created":  "2026-10-01T16:10:32.1752020Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  39720,
+                        "name":  "node.exe",
+                        "created":  "2026-10-01T16:10:32.2162310Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  35068,
+                        "name":  "conhost.exe",
+                        "created":  "2026-10-01T16:10:32.7849670Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  33972,
+                        "name":  "conhost.exe",
+                        "created":  "2026-10-01T16:10:30.6883170Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  33520,
+                        "name":  "electron.exe",
+                        "created":  "2026-10-01T16:10:32.7043210Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  33304,
+                        "name":  "electron.exe",
+                        "created":  "2026-10-01T16:10:32.3023460Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  33032,
+                        "name":  "electron.exe",
+                        "created":  "2026-10-01T16:10:32.7132740Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  32704,
+                        "name":  "node.exe",
+                        "created":  "2026-10-01T16:10:30.9447430Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  28388,
+                        "name":  "electron.exe",
+                        "created":  "2026-10-01T16:10:32.8800300Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  27096,
+                        "name":  "cmd.exe",
+                        "created":  "2026-10-01T16:10:30.6703990Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  22352,
+                        "name":  "powershell.exe",
+                        "created":  "2026-10-01T16:10:32.7483650Z",
+                        "stillSameIdentity":  false
+                    }
+                ],
+    "error":  "Measured process tree exited.",
+    "rootPid":  27096,
+    "runtimeSetup":  {
+                         "ready":  false,
+                         "needsDiscordApplicationId":  true,
+                         "needsGiphyApiKey":  true,
+                         "secrets":  {
+                                         "filePath":  "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\secrets.json",
+                                         "warning":  null,
+                                         "discord":  {
+                                                         "configured":  false,
+                                                         "source":  null,
+                                                         "clientId":  null
+                                                     },
+                                         "giphy":  {
+                                                       "configured":  false,
+                                                       "source":  null
+                                                   }
+                                     }
+                     },
+    "visibleWindowCount":  0,
+    "start":  "2026-10-01T16:10:43.1460328Z",
+    "cleanupAt":  "2026-10-01T23:13:28.0679849+07:00",
+    "electronRunItemPresent":  false,
+    "isolationDirectoryRemoved":  true
+}

@@ -1,0 +1,81 @@
+﻿{
+    "mode":  "S2",
+    "durationRequested":  10,
+    "intervalRequested":  5,
+    "logicalProcessors":  12,
+    "launchAt":  "2026-10-01T22:03:29.0206866+07:00",
+    "head":  "b401d34b523f8b1e219985d3cca6e54a7dfb8d8b",
+    "gitStatus":  " M electron/main.js\n M electron/preload.cjs\n M scripts/app-secrets.mjs\n M scripts/local-config-store.mjs\n M scripts/studio-server.mjs\n?? docs/improvement-review/execution/p0/footprint-measure.ps1\n?? docs/improvement-review/execution/p0/footprint-smoke/\n?? electron/lifecycle.mjs\n?? scripts/tests/electron-lifecycle.test.mjs",
+    "sourceHashes":  {
+                         "scripts/windows-apps.ps1":  "BCDF5244E5ACA28EF8C6B8E23BFE1BC3B6A366DBAF635FB082959EAC35B1CDF4",
+                         "electron/main.js":  "2F46C3AB45BCB90885E7E1BDBC3F2D4ECABA68062BFC27DF1516018BFAD070E0",
+                         "scripts/studio-server.mjs":  "683D7A971BEFCFD32664BCE537399DA4332441D6D0D29BC5634763342A6166B7",
+                         "scripts/discord-presence-studio.html":  "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E"
+                     },
+    "commands":  [
+                     "node scripts/discord-presence-studio.mjs --port=47393 --no-open"
+                 ],
+    "focusEvents":  [
+
+                    ],
+    "cleanup":  [
+                    {
+                        "pid":  41548,
+                        "name":  "node.exe",
+                        "created":  "2026-10-01T15:03:29.2525910Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  39676,
+                        "name":  "conhost.exe",
+                        "created":  "2026-10-01T15:03:29.4682690Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  32364,
+                        "name":  "conhost.exe",
+                        "created":  "2026-10-01T15:03:29.2608320Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  2608,
+                        "name":  "powershell.exe",
+                        "created":  "2026-10-01T15:03:29.4550830Z",
+                        "stillSameIdentity":  false
+                    }
+                ],
+    "error":  null,
+    "rootPid":  41548,
+    "runtimeSetup":  {
+                         "ready":  false,
+                         "needsDiscordApplicationId":  true,
+                         "needsGiphyApiKey":  true,
+                         "secrets":  {
+                                         "filePath":  "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p0-c\\secrets.json",
+                                         "warning":  null,
+                                         "discord":  {
+                                                         "configured":  false,
+                                                         "source":  null,
+                                                         "clientId":  null
+                                                     },
+                                         "giphy":  {
+                                                       "configured":  false,
+                                                       "source":  null
+                                                   }
+                                     }
+                     },
+    "tabCreate":  {
+                      "browserPageId":  "020e4a4a-f841-4de8-bc7e-6f4e3996aa17"
+                  },
+    "studioPage":  "020e4a4a-f841-4de8-bc7e-6f4e3996aa17",
+    "visibility":  {
+                       "result":  "{\"hidden\":false,\"visibilityState\":\"visible\",\"url\":\"http://127.0.0.1:47393/#/status\"}",
+                       "origin":  "http://127.0.0.1:47393/#/status"
+                   },
+    "start":  "2026-10-01T15:03:38.3032131Z",
+    "end":  "2026-10-01T15:03:48.6293017Z",
+    "rows":  2,
+    "cleanupAt":  "2026-10-01T22:03:50.2918469+07:00",
+    "electronRunItemPresent":  false,
+    "isolationDirectoryRemoved":  true
+}
