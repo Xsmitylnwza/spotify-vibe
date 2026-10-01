@@ -705,6 +705,28 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 #applicationTiles .vs-tile strong { font-weight: 500; font-size: 13px; }
 #applicationTiles .vs-tile small { display: block; color: var(--vs-ink3); font-size: 11px; }
 #applicationTiles .vs-tile img { width: 44px; height: 44px; border-radius: 10px; }
+/* App search field above the tile grid */
+.vs-app-search {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--vs-hairline); border-radius: 999px;
+  background: var(--vs-surface);
+  padding: 0 16px; height: 42px; margin-bottom: 14px;
+  color: var(--vs-ink3);
+}
+.vs-app-search:focus-within { border-color: var(--vs-accent-line); color: var(--vs-ink2); }
+.vs-app-search input {
+  flex: 1; border: 0; background: transparent; outline: none;
+  font: inherit; font-size: 14px; color: var(--vs-ink); min-width: 0;
+}
+.vs-app-search input::placeholder { color: var(--vs-ink3); }
+/* Tile icon with a "running now" dot */
+.vs-tile-icon { position: relative; display: inline-flex; }
+.vs-tile-running {
+  position: absolute; right: -2px; bottom: -2px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--vs-good-t, #3ba55d);
+  border: 2.5px solid var(--vs-surface);
+}
 #applicationTiles .app-icon-fallback {
   width: 44px; height: 44px; border-radius: 10px;
   background: var(--vs-sunken); border: 1px solid var(--vs-hairline);

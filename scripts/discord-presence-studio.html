@@ -306,6 +306,10 @@
               </ol>
               <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
               <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกได้หลายแอป</span></div>
+              <div class="vs-app-search">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="appSearchInput" type="search" autocomplete="off" placeholder="ค้นหาแอปในเครื่อง…" aria-label="ค้นหาแอปในเครื่อง" />
+              </div>
               <div id="applicationTiles" aria-label="แอปที่เปิดอยู่"></div>
               <select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select>
               <div class="vs-pair-bar">
@@ -546,6 +550,10 @@ const STR = {
 "ออกจาก companion เบื้องหลังและล้าง Rich Presence? companion จะหยุดทำงาน": "Quit the background companion and clear Rich Presence? The companion will stop.",
 "ออกเลย": "Quit now",
 "ลบการจับคู่นี้?": "Remove this pairing?",
+"ค้นหาแอปในเครื่อง…": "Search apps on this machine…",
+"กำลังใช้": "In use",
+"กำลังใช้อยู่": "Currently running",
+"ไม่เจอแอปที่ชื่อ “{q}”": "No app named “{q}”",
 "ย่อหน้าต่าง": "Minimize window",
 "ขยายหน้าต่าง": "Maximize window",
 "ย่อขนาดหน้าต่างลง": "Restore window",
@@ -3292,19 +3300,39 @@ function reemitToast() {
         };
         return img;
       }
+      let installedApps = [];
+      let appSearchQuery = '';
       function renderAppTiles() {
         const grid=document.querySelector('#applicationTiles');grid.replaceChildren();
+        const query=appSearchQuery.trim().toLowerCase();
+        const runningKeys=new Set(discoveredApps.map((app)=>applicationKey(app.executable)));
         const seen=new Set();
-        for(const app of [...discoveredApps, ...mappingDraft]) {
-          const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);
+        const items=[];
+        // Installed apps (from this machine) are the base catalog; running
+        // apps not in the catalog are appended so nothing disappears.
+        for (const app of [...installedApps, ...discoveredApps]) {
+          const key=applicationKey(app.executable);if(!key||seen.has(key))continue;seen.add(key);
+          items.push({ name:app.name||key, executable:app.executable, icon:app.icon, running:runningKeys.has(key) });
+        }
+        // Already-paired apps stay visible even if they left the machine.
+        for (const mapping of mappingDraft) {
+          const key=applicationKey(mapping.executable);if(!key||seen.has(key))continue;seen.add(key);
+          const running=discoveredApps.find((app)=>applicationKey(app.executable)===key);
+          items.push({ name:mapping.name||key, executable:mapping.executable, icon:running?.icon, running:runningKeys.has(key) });
+        }
+        const filtered=query?items.filter((app)=>app.name.toLowerCase().includes(query)):items;
+        for(const app of filtered) {
+          const key=applicationKey(app.executable);
           const button=document.createElement('button');button.type='button';button.className='application-tile vs-tile';button.title=app.executable;button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));
+          const iconWrap=document.createElement('span');iconWrap.className='vs-tile-icon';iconWrap.append(appIcon(app));
+          if(app.running){const dot=document.createElement('span');dot.className='vs-tile-running';dot.title=t('กำลังใช้อยู่');iconWrap.append(dot);}
           const name=document.createElement('strong');name.textContent=app.name;
-          const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||t('จับคู่แล้ว')) : '';detail.hidden=!mapped;
-          button.append(appIcon(app),name,detail);
+          const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||t('จับคู่แล้ว')) : (app.running?t('กำลังใช้'):'');detail.hidden=!detail.textContent;
+          button.append(iconWrap,name,detail);
           button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent=selectedApps.size ? t('เลือกแล้ว {n} แอป', { n: selectedApps.size }) : t('เลือกได้หลายแอป');};
           grid.append(button);
         }
-        if(!seen.size){const empty=document.createElement('p');empty.textContent=t('กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง');grid.append(empty);}
+        if(!filtered.length){const empty=document.createElement('p');empty.textContent=query?t('ไม่เจอแอปที่ชื่อ “{q}”', { q: appSearchQuery.trim() }):t('กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง');grid.append(empty);}
         document.querySelector('#appSelectionCount').textContent=selectedApps.size ? t('เลือกแล้ว {n} แอป', { n: selectedApps.size }) : t('เลือกได้หลายแอป');
       }
       let mappingDraft = [];
@@ -3333,7 +3361,12 @@ function reemitToast() {
       }
       async function refreshApplications() {
         try {
-          const data=await requestJson('/api/apps');discoveredApps=data.apps || [];
+          const [data, installed] = await Promise.all([
+            requestJson('/api/apps'),
+            requestJson('/api/installed-apps').catch(() => ({ apps: [] })),
+          ]);
+          discoveredApps=data.apps || [];
+          installedApps=installed.apps || [];
           const select=document.querySelector('#runningAppSelect');select.replaceChildren(new Option(t('เลือกแอปที่เปิดอยู่'),''));
           const seen=new Set();for(const app of [...discoveredApps, ...mappingDraft]) { const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);select.add(new Option(app.name+(app.foreground?' · แอปที่กำลังใช้':''),app.executable)); }
           presetOptions(document.querySelector('#appPresetSelect'),document.querySelector('#appPresetSelect').value||selectedSceneId);
@@ -3342,6 +3375,11 @@ function reemitToast() {
         } catch(error) { appMessage.textContent=humanizeError(error.message).text; }
       }
       document.querySelector('#refreshApps').onclick=()=>void refreshApplications();
+      const appSearchInput=document.querySelector('#appSearchInput');
+      if (appSearchInput) appSearchInput.addEventListener('input', () => {
+        appSearchQuery=appSearchInput.value;
+        renderAppTiles();
+      });
       document.querySelector('#selectionMode').onchange=()=>{document.querySelector('#saveAppMappings').hidden=false;syncModeSegmented();};
       // Segmented control: the visible switch drives the real select, which
       // stays the single source of truth the save path reads.

@@ -3,6 +3,7 @@ import { withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
 import { selectRunningPreset, createForegroundSettler } from './app-presence.mjs';
 import { watchWindowsApps } from './windows-apps.mjs';
+import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
 import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
@@ -757,6 +758,14 @@ export async function startStudioServer(options = {}) {
         sendJson(response, 200, { ...appSnapshot, foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
         return;
       }
+      if (request.method === 'GET' && url.pathname === '/api/installed-apps') {
+        if (url.searchParams.get('refresh') === '1') {
+          try { await refreshInstalledApps(dataDirectory); }
+          catch { /* serve whatever is cached */ }
+        }
+        sendJson(response, 200, { apps:getInstalledApps() });
+        return;
+      }
       if (request.method === 'PUT' && url.pathname === '/api/app-mappings') {
         const body = await readJson(request);
         if (!['apps', 'schedule'].includes(body.selectionMode)) throw new Error('Choose applications or schedule.');
@@ -901,6 +910,9 @@ export async function startStudioServer(options = {}) {
       if (stableForeground && stableForeground !== recentApplications[0]) recentApplications = [stableForeground, ...recentApplications.filter(path => path !== stableForeground)].slice(0,100);
       if (config.settings.selectionMode === 'apps') void reconcilePresence({ reason:'Foreground application changed' }).catch(error => { runtime.lastError = errorMessage(error); });
     }, { disabled:process.env.PRESENCE_APP_DETECTION_DISABLE === '1' });
+    // Installed-apps catalog (Start Menu): scanned in the background, served
+    // from cache instantly.
+    void initInstalledApps(dataDirectory);
     const studioUrl = 'http://127.0.0.1:' + port;
     console.log('\nPresence Studio is ready.');
     console.log(studioUrl);
