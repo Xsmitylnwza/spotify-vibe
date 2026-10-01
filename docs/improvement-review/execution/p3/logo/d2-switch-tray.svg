@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>D2 Switch tray (single colour)</title>
+  <defs>
+    <mask id="d2m"><rect width="64" height="64" fill="#fff"/>
+      <rect x="21" y="21" width="35" height="35" rx="10.500" fill="#000"/>
+    </mask>
+  </defs>
+  <rect x="6" y="6" width="33" height="33" rx="9.500" fill="none" stroke="currentColor" stroke-width="6" mask="url(#d2m)"/>
+  <path fill-rule="evenodd" fill="currentColor" d="M33 24h12a9 9 0 0 1 9 9v12a9 9 0 0 1-9 9H33a9 9 0 0 1-9-9V33a9 9 0 0 1 9-9Zm6 10.500a4.500 4.500 0 1 0 0 9 4.500 4.500 0 0 0 0-9Z"/>
+</svg>

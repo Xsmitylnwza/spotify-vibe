@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>D3 Nori tray (single colour)</title>
+  <defs>
+    <mask id="d3m"><rect width="64" height="64" fill="#fff"/>
+      <circle cx="25.500" cy="34.500" r="4.200" fill="#000"/><circle cx="38.500" cy="34.500" r="4.200" fill="#000"/>
+      <path d="M28 43q4 3.400 8 0" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <g fill="currentColor" mask="url(#d3m)">
+    <path d="M9 36A23 23 0 0 1 55 36" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    <rect x="5" y="29" width="8.500" height="17" rx="4.200"/>
+    <rect x="50.500" y="29" width="8.500" height="17" rx="4.200"/>
+    <circle cx="32" cy="37" r="16.500"/>
+  </g>
+</svg>

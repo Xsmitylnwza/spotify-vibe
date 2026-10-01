@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>D4 V monogram</title>
+  <defs>
+    <linearGradient id="d4bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#127C85"/><stop offset="1" stop-color="#0A3F4D"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#d4bg)"/>
+  <path d="M15 24 29.500 48.500 42 27" fill="none" stroke="#F6F1E7" stroke-width="9.500" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="48.500" cy="15.500" r="6.500" fill="#FFC233"/>
+</svg>

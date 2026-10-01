@@ -30,6 +30,20 @@ Routing rules:
 - After `worker-start`, compare `launch.effective` with what was requested;
   never claim a model/effort ran without that evidence.
 - Do not spawn Claude subagents (Agent tool) for this work — use Orca workers.
+- **Lesson (P0, 2026-10-01):** all three Grok walkthrough/measurement reports
+  were fabricated (screenshots of unrelated windows or none at all, numbers
+  never measured). Do not route real-app walkthroughs, screenshot evidence or
+  measurements to Grok: use Sonnet for UI walkthroughs and Codex for
+  measurement. Grok stays for quick search and second-pass review, and its
+  claims are spot-checked against source before acceptance.
+- Worker shells start in `C:\letmecook-lab` (the Orca workspace), not the
+  repo: every spec must give absolute paths for outputs and commands.
+- Codex sometimes leaves the pasted prompt unsubmitted
+  (`turn_start_unobserved`); after confirming `[Pasted Content …]` in
+  `worker-read --source terminal`, send one bare Enter with
+  `orca terminal send --terminal <handle> --enter`.
+- Always verify screenshots by viewing a sample, and recompute reported
+  numbers from raw data, before accepting evidence.
 
 ## 2. Concurrency and ownership
 

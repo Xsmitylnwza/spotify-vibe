@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>D1 Soft Ghost</title>
+  <defs>
+    <linearGradient id="d1bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A2F5B"/><stop offset="1" stop-color="#17132B"/></linearGradient>
+    <linearGradient id="d1gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFBF3"/><stop offset="1" stop-color="#FFE6C4"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#d1bg)"/>
+  <path d="M32 10C21.500 10 14.500 18 14.500 28.500V50c0 2 2 2.800 3.400 1.500l3.600-3.300c.9-.8 2.200-.8 3.100 0l3.600 3.300c1.300 1.200 3.300 1.200 4.600 0l1.200-1.100 1.200 1.100c1.300 1.200 3.300 1.200 4.600 0l3.600-3.300c.9-.8 2.200-.8 3.100 0l3.600 3.300c1.400 1.300 3.400.5 3.400-1.500V28.500C49.500 18 42.500 10 32 10Z" fill="url(#d1gh)"/>
+  <circle cx="25.500" cy="29" r="3.300" fill="#17132B"/>
+  <path d="M35 29.500q3.200-3.600 6.400 0" fill="none" stroke="#17132B" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="21" cy="36" r="2.600" fill="#FF9A5C" opacity=".55"/>
+  <circle cx="44" cy="36" r="2.600" fill="#FF9A5C" opacity=".55"/>
+</svg>

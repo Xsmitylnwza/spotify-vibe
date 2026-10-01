@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>D1 Soft Ghost tray (single colour)</title>
+  <defs>
+    <mask id="d1m"><rect width="64" height="64" fill="#fff"/>
+      <circle cx="24.500" cy="28" r="4.400" fill="#000"/>
+      <path d="M35.500 28.500q3.500-4 7 0" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <path d="M32 5C19.500 5 11 14 11 27v27c0 2.400 2.400 3.400 4.100 1.800l3.800-3.500c1-.9 2.500-.9 3.500 0l4 3.700c1.400 1.300 3.700 1.300 5.100 0l.5-.5.500.5c1.400 1.300 3.700 1.300 5.100 0l4-3.700c1-.9 2.500-.9 3.500 0l3.800 3.500c1.700 1.600 4.100.6 4.100-1.800V27C53 14 44.500 5 32 5Z" fill="currentColor" mask="url(#d1m)"/>
+</svg>

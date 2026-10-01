@@ -135,6 +135,18 @@ focus and bounded result window (48 buttons). Keep current tokens/identity
 unless the owner approves a change. **Gate G1:** owner reviews screenshot pack
 (desktop + narrow, TH/EN, light/dark, key states).
 
+### P3-L — Brand mark / logo redesign (Sonnet, design)
+
+Owner request 2026-10-01: the current ghost mark (`electron/assets/logo-ghost.svg`,
+`icon.png/.ico/.icns`, inline SVG in the Studio brand bar and onboarding) feels
+dated. Steps: (1) Sonnet produces 3–4 distinct directions as SVG concept sheets
+(app icon at 16/32/256 px, tray icon on light/dark taskbar, in-app brand mark,
+both themes) under `execution/p3/logo/`; (2) owner picks/iterates in chat;
+(3) Sonnet finalizes the SVG and regenerates icons via `electron/build-icons.mjs`;
+renderer brand mark updated in the same slice. Must stay legible at 16 px tray
+size and must not imitate Discord/Spotify marks. Can start any time after D1;
+does not block P1/P2.
+
 ### P4 — Background footprint (Codex server + desktop; starts after P0-C)
 
 Targets are set from P0-C numbers; candidates to evaluate, each kept only if
