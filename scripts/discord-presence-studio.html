@@ -148,6 +148,7 @@
               <div class="vs-card-head">
                 <div class="vs-detail-topbar">
                   <button class="vs-btn vs-btn-sm vs-btn-ghost" id="backToScenesButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg><span>กลับคลัง Scene</span></button>
+                  <button class="vs-btn vs-btn-sm vs-btn-primary" id="useButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg><span id="useButtonLabel">แสดงบน Discord</span></button>
                 </div>
                 <span class="vs-kicker">แต่ง Scene</span>
                 <h2 id="editorTitle">กำลังโหลด…</h2>
@@ -239,16 +240,10 @@
                       </details>
                     </section>
                     <p class="message" id="message" role="status" aria-live="polite"></p>
-                    <div class="vs-savebar form-actions">
-                      <div class="vs-save-status" id="saveFeedback" data-state="saved" role="status" aria-live="polite">
-                        <span class="save-status" id="saveStatus">บันทึกทุกอย่างแล้ว</span>
-                        <small id="saveHint">เก็บไว้ในเครื่องนี้</small>
-                      </div>
-                      <button class="vs-btn vs-btn-sm" id="saveButton" type="submit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>บันทึกเลย</span></button>
-                      <span class="vs-publish-action">
-                        <button class="vs-btn vs-btn-sm vs-btn-primary" id="useButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg><span id="useButtonLabel">แสดงบน Discord</span></button>
-                        <small id="applyHint">แสดงครั้งละ 1 ชม.</small>
-                      </span>
+                    <div class="vs-savebar" id="savebar" data-state="saved" role="status" aria-live="polite">
+                      <span class="vs-savebar-dot" aria-hidden="true"></span>
+                      <span class="vs-savebar-text" id="saveStatus">บันทึกทุกอย่างแล้ว</span>
+                      <button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" id="saveButton" type="submit" form="presenceForm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2-2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>บันทึกเลย</span></button>
                     </div>
                   </form>
                 </div>
@@ -699,6 +694,8 @@ const STR = {
 "ชื่อปุ่มที่ 2": "Button 2 label",
 "URL HTTPS ของปุ่มที่ 2": "Button 2 HTTPS URL",
 "บันทึกทุกอย่างแล้ว": "Everything saved",
+"เปิดลิงก์ภาพหลัก": "Open the main image link",
+"อธิบายช่องนี้": "Explain this field",
 "เก็บไว้ในเครื่องนี้": "Saved on this machine",
 "บันทึกเลย": "Save now",
 "แสดงบน Discord": "Show on Discord",
@@ -1163,9 +1160,8 @@ function reemitToast() {
       const dayStrip = document.querySelector('#dayStrip');
       const nowPin = document.querySelector('#nowPin');
       const message = document.querySelector('#message');
-      const saveFeedback = document.querySelector('#saveFeedback');
+      const savebar = document.querySelector('#savebar');
       const saveStatus = document.querySelector('#saveStatus');
-      const saveHint = document.querySelector('#saveHint');
       const saveButton = document.querySelector('#saveButton');
       const editorTitle = document.querySelector('#editorTitle');
       const editingSceneName = document.querySelector('#editingSceneName');
@@ -1188,7 +1184,6 @@ function reemitToast() {
       const largePlaceholder = document.querySelector('#largePlaceholder');
       const smallPlaceholder = document.querySelector('#smallPlaceholder');
       const useButton = document.querySelector('#useButton');
-      const applyHint = document.querySelector('#applyHint');
       const deleteSceneButton = document.querySelector('#deleteSceneButton');
       const scheduleToggleButton = document.querySelector('#scheduleToggleButton');
       const cancelOverrideButton = document.querySelector('#cancelOverrideButton');
@@ -1454,9 +1449,9 @@ function reemitToast() {
 
       function setSaveState(state, label, detail) {
         _lastSave = { state, label, detail };
-        saveFeedback.dataset.state = state;
+        savebar.dataset.state = state;
         saveStatus.textContent = t(label);
-        saveHint.textContent = t(detail);
+        savebar.title = t(detail);
       }
 
       function setApplyBusy(busy) {
@@ -1655,7 +1650,7 @@ function reemitToast() {
           : t('Discord กำลังเชื่อมต่อใหม่ Scene ที่เลือกไว้จะกลับมาแสดงอัตโนมัติ');
 
         if (!applyBusy) setText(document.querySelector('#useButtonLabel'), selectedIsLive ? t('อัปเดตบน Discord') : t('แสดงบน Discord'));
-        setText(applyHint, overrideDurationCopy());
+        useButton.title = overrideDurationCopy();
         setText(previewPublishHint, selectedIsLive
           ? (connected
             ? t('Scene นี้กำลังแสดง · บันทึกแล้วจะอัปเดตอัตโนมัติ')
@@ -1976,6 +1971,20 @@ function reemitToast() {
         previewLargeImage.dataset.failedSrc = previewLargeImage.getAttribute('src') || '';
         flagArtError(t('โหลดภาพหลักไม่ได้ — ตรวจว่า URL เป็นไฟล์รูปโดยตรงและเปิดให้คนทั่วไปเข้าถึงได้'));
       });
+      // Preview artwork click-through (wired once; URL resolved per scene at click time).
+      const previewArtworkEl = document.querySelector('#previewArtwork');
+      previewArtworkEl.setAttribute('tabindex', '0');
+      previewArtworkEl.setAttribute('role', 'link');
+      previewArtworkEl.addEventListener('click', () => {
+        const url = (currentScene()?.largeImageUrl || '').trim();
+        if (url) window.open(url, '_blank', 'noopener');
+      });
+      previewArtworkEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          previewArtworkEl.click();
+        }
+      });
       previewSmallImage.addEventListener('error', () => {
         previewSmallImage.hidden = true;
         smallPlaceholder.hidden = false;
@@ -2022,6 +2031,22 @@ function reemitToast() {
       function renderPreview() {
         const scene = currentScene();
         if (!scene) return;
+        // Line with optional click-through URL (details/state links).
+        function setLinkedLine(el, text, url) {
+          el.innerHTML = '';
+          const cleanUrl = (url || '').trim();
+          if (cleanUrl) {
+            const link = document.createElement('a');
+            link.href = cleanUrl;
+            link.target = '_blank';
+            link.rel = 'noreferrer';
+            link.className = 'vs-dc-link';
+            link.textContent = text;
+            el.append(link);
+          } else {
+            el.textContent = text;
+          }
+        }
         // Clear any stale artwork warning; error handlers and the URL check
         // below re-raise it when the current values are actually broken.
         const artWarning = document.querySelector('#previewArtWarning');
@@ -2049,8 +2074,13 @@ function reemitToast() {
         }[scene.activityType] || 'Playing';
         previewSceneName.textContent = scene.sceneName || t('Scene ไร้ชื่อ');
         document.querySelector('#previewActivityLabel').textContent = verb + ' ' + (scene.activityName || 'Vibe Presence');
-        document.querySelector('#previewDetails').textContent = scene.details || t('กิจกรรมไร้ชื่อ');
-        document.querySelector('#previewState').textContent = scene.state || t('ไม่มีข้อความรอง');
+        setLinkedLine(document.querySelector('#previewDetails'), scene.details || t('กิจกรรมไร้ชื่อ'), scene.detailsUrl);
+        setLinkedLine(document.querySelector('#previewState'), scene.state || t('ไม่มีข้อความรอง'), scene.stateUrl);
+        // Artwork click-through: opens the attached image link, like the ? helper explains.
+        const artworkEl = document.querySelector('#previewArtwork');
+        const artUrl = (scene.largeImageUrl || '').trim();
+        artworkEl.classList.toggle('is-clickable', Boolean(artUrl));
+        artworkEl.title = artUrl ? t('เปิดลิงก์ภาพหลัก') : (scene.largeImageText || '');
         largePlaceholder.textContent = (scene.activityName || 'V').charAt(0).toUpperCase();
         previewLargeImage.title = scene.largeImageText || '';
         largePlaceholder.title = scene.largeImageText || '';
@@ -2923,6 +2953,97 @@ function reemitToast() {
       document.querySelectorAll('[data-gif-target]').forEach((button) => {
         button.addEventListener('click', () => openGifPicker(button.dataset.gifTarget, button));
       });
+      // Field help (?): hover/focus spotlights the field and explains what it's for.
+      const FIELD_HELP = {
+        detailsUrl: {
+          th: { title: 'ลิงก์ข้อความบรรทัดบน', body: 'ใครคลิกที่ข้อความบรรทัดบนบน Discord จะเปิดลิงก์นี้ในเบราว์เซอร์ทันที' },
+          en: { title: 'Top-line text link', body: 'Anyone who clicks the top-line text on Discord opens this link in their browser' },
+        },
+        stateUrl: {
+          th: { title: 'ลิงก์ข้อความบรรทัดรอง', body: 'ใครคลิกที่ข้อความบรรทัดรองบน Discord จะเปิดลิงก์นี้ในเบราว์เซอร์ทันที' },
+          en: { title: 'Second-line text link', body: 'Anyone who clicks the second-line text on Discord opens this link in their browser' },
+        },
+        largeImage: {
+          th: { title: 'ภาพหลัก', body: 'รูปใหญ่ที่โชว์บน Discord — เลือก GIF สำเร็จรูป ค้นหา GIPHY หรือวางลิงก์รูป/คีย์ asset เองก็ได้' },
+          en: { title: 'Main image', body: 'The large image on Discord — pick a preset GIF, search GIPHY, or paste your own image link/asset key' },
+        },
+        largeImageUrl: {
+          th: { title: 'ลิงก์ของภาพหลัก', body: 'ใครคลิกที่รูปภาพนี้บน Discord จะเปิดลิงก์นี้ทันที — ลองกดที่รูปในตัวอย่างขวามือดูได้เลย' },
+          en: { title: 'Main image link', body: 'Anyone who clicks this image on Discord opens this link — try clicking the image in the preview on the right' },
+        },
+        smallImage: {
+          th: { title: 'ไอคอนเล็ก', body: 'รูปวงกลมเล็กซ้อนที่มุมขวาล่างของภาพหลัก ใส่แล้วสถานะดูเป็นมืออาชีพขึ้น' },
+          en: { title: 'Small icon', body: 'Small circle overlapping the main image\u2019s bottom-right corner — makes the status look more professional' },
+        },
+        buttons: {
+          th: { title: 'ปุ่มลิงก์', body: 'ปุ่มใต้สถานะ Discord — ตั้งชื่อปุ่มคู่กับ URL ข้างๆ ใครกดปุ่มจะเปิดลิงก์นั้น (ใส่ได้สูงสุด 2 ปุ่ม)' },
+          en: { title: 'Link buttons', body: 'Buttons under the Discord status — pair a label with its URL; anyone pressing a button opens that link (up to 2 buttons)' },
+        },
+      };
+      const FIELD_HELP_KEYS = {
+        detailsUrl: 'detailsUrl', stateUrl: 'stateUrl',
+        largeImage: 'largeImage', largeImageUrl: 'largeImageUrl', smallImage: 'smallImage',
+        button1Label: 'buttons', button1Url: 'buttons', button2Label: 'buttons', button2Url: 'buttons',
+      };
+      function helpText(key, part) {
+        const entry = FIELD_HELP[key];
+        if (!entry) return '';
+        return (entry[LANG] || entry.th)[part] || '';
+      }
+      function getHelpTip() {
+        let tip = document.querySelector('#vsHelpTip');
+        if (!tip) {
+          tip = document.createElement('div');
+          tip.id = 'vsHelpTip';
+          tip.setAttribute('role', 'tooltip');
+          tip.innerHTML = '<span class="vs-help-tip-title"></span><span class="vs-help-tip-body"></span>';
+          document.body.append(tip);
+        }
+        return tip;
+      }
+      function hideFieldHelp() {
+        document.querySelectorAll('.vs-field.vs-spot').forEach((el) => el.classList.remove('vs-spot'));
+        document.querySelector('#vsHelpTip')?.classList.remove('show');
+      }
+      function showFieldHelp(btn) {
+        const dictKey = FIELD_HELP_KEYS[btn.dataset.help];
+        if (!dictKey) return;
+        hideFieldHelp();
+        const input = document.getElementById(btn.dataset.help);
+        const wrap = input?.closest('.vs-field') || input;
+        if (!wrap) return;
+        wrap.classList.add('vs-spot');
+        const tip = getHelpTip();
+        tip.querySelector('.vs-help-tip-title').textContent = helpText(dictKey, 'title');
+        tip.querySelector('.vs-help-tip-body').textContent = helpText(dictKey, 'body');
+        const rect = wrap.getBoundingClientRect();
+        tip.style.visibility = 'hidden';
+        tip.classList.add('show');
+        const tipW = tip.offsetWidth, tipH = tip.offsetHeight;
+        let left = Math.min(Math.max(12, rect.left), Math.max(12, window.innerWidth - tipW - 12));
+        let top = rect.bottom + 12;
+        if (top + tipH > window.innerHeight - 12) top = rect.top - tipH - 12;
+        tip.style.left = left + 'px';
+        tip.style.top = Math.max(12, top) + 'px';
+        tip.style.visibility = '';
+      }
+      Object.keys(FIELD_HELP_KEYS).forEach((fieldId) => {
+        const label = document.querySelector('label[for="' + fieldId + '"]');
+        if (!label || label.querySelector('.vs-help')) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'vs-help';
+        btn.dataset.help = fieldId;
+        btn.textContent = '?';
+        btn.setAttribute('aria-label', t('อธิบายช่องนี้'));
+        btn.addEventListener('mouseenter', () => showFieldHelp(btn));
+        btn.addEventListener('mouseleave', hideFieldHelp);
+        btn.addEventListener('focus', () => showFieldHelp(btn));
+        btn.addEventListener('blur', hideFieldHelp);
+        label.append(btn);
+      });
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') hideFieldHelp(); });
+      window.addEventListener('scroll', hideFieldHelp, { passive: true, capture: true });
       gifCloseButton.addEventListener('click', closeGifPicker);
       document.querySelector('#gifPickerBackdrop').addEventListener('click', closeGifPicker);
       document.querySelector('#gifGoSettingsButton').addEventListener('click', () => {
