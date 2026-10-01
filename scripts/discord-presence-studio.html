@@ -2748,6 +2748,9 @@ function reemitToast() {
             setSaveState('saved', 'บันทึกทุกอย่างแล้ว', 'เก็บไว้ในเครื่องนี้');
             renderSceneList();
             renderSlots();
+            const pairSelect = document.querySelector('#appPresetSelect');
+            if (pairSelect) presetOptions(pairSelect, pairSelect.value || selectedSceneId);
+            renderMappings();
             renderRuntime();
             if (showSuccess) showMessage('บันทึก Scene ลงเครื่องนี้แล้ว', 'success');
             return true;
