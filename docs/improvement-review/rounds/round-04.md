@@ -1,0 +1,89 @@
+# Scrutinize Round 4 — lifecycle and delivery
+
+Verdict: **Rework**. New findings: **0 Blocker / 1 Major / 1 Nit**. Review/planning only; application source remains unchanged.
+
+## Independent cold record
+
+Read both canonical artifacts before any earlier report/log/conclusion; recorded this complete independent section before inherited comparison (2026-10-01, Asia/Bangkok).
+Observed HEAD: `b241ccd5542b1f3e5ee348bd507cac051cafabda`; tracked tree clean, review directory untracked.
+SHA-256 of `docs/improvement-review/IMPROVEMENT-SPEC.md`: `9139B972161B430B2D0366B9AB7A818A51F9B06D6CB89A90D6375EEF50878C83`.
+SHA-256 of `docs/improvement-review/WORKFLOW.md`: `8B8785A223D11234A10EE9CC0302AB16C358A2C52C5B7F8CBA22454FEA2E8AEA`.
+Intent: make owner-chosen Presence reliable and distinguish draft, durable save and acknowledged Discord output, preserving current app-first selection, artwork, local data and scheduled compatibility without rewriting the stack.
+Owner evidence: `docs/presence-studio/app-mapping-and-personal-space.md:7`, `:15`, `:43`; foreground-only priority remains unconfirmed in `docs/presence-studio/decision-auto.md:18` and historical `docs/presence-studio/APP-SETUP-JOURNEY.md:20`.
+The plan correctly preserves observable running-app policy instead of inferring a new owner decision (`IMPROVEMENT-SPEC.md:13`, `:95`, `:104`).
+
+## Findings
+
+### R4-M1 — Major: first upgrade lacks a handoff from writers that do not implement leases
+
+- **Consequence:** an already-running baseline CLI on another port, or the baseline key helper, can overwrite the new companion's committed config/secrets despite its new exclusive lease; revision checks cannot protect against that writer. This can lose Scenes/keys or invalidate migration/backout provenance.
+- **Evidence/trace:** old CLI entry `scripts/discord-presence-studio.mjs:7` → `scripts/studio-server.mjs:41`, `:55`, `:61` selects port independently of storage → `:73`, `:75` loads the same files → `:769`, `:783`, `:807` writes through unleased stores. `scripts/local-config-store.mjs:25` queues only within its process; `scripts/app-secrets.mjs:141`, `:180` likewise knows no lease. Old standalone helper `scripts/setup-giphy-key.mjs:11`, `:44` can write independently. Electron's instance lock at `electron/main.js:30` does not cover that CLI/helper.
+- **Plan gap:** `IMPROVEMENT-SPEC.md:156`, `:158`, `:160` makes future participants cooperate, but neither its rollout at `:206` nor `WORKFLOW.md:63`–`:66`, `:98` requires stopping/isolating a pre-lease incumbent before first shared-file load/backup/migration. Removing an obsolete launcher after verifying native startup (`IMPROVEMENT-SPEC.md:168`) does not stop an existing process. G2's general two-process test and G4's installed-previous-version test do not define this handoff.
+- **Minimal correction:** choose a quiescent-upgrade contract in W0/W2/W6: identify the supported legacy writer(s), stop and verify exit before taking a trustworthy backup and opening shared storage; refuse shared-storage activation when their absence cannot be established. Use a disjoint test profile until handoff is complete; preserve startup opt-out and never terminate an unidentified listener/process. Add old-baseline-on-port-A/new-candidate-on-port-B and old-helper overlap fixtures, with zero new writes until handoff, then one writer and a verified compatible backout. Runtime owns storage admission; lifecycle owns upgrade/startup handoff. The policy is a design correction; Windows proof comes afterward.
+
+### R4-N1 — Nit: name the external helper resources in the existing packaging contract
+
+- **Consequence/evidence:** `package.json:4`, `:14` puts scripts in ASAR; `scripts/windows-apps.mjs:10` and `scripts/installed-apps.mjs:16`, `:31` pass module-relative `.ps1` paths to external PowerShell. Its filesystem cannot use Electron's virtual archive paths. The running helper also reads `../public/art/apps/codex.png` through `$PSScriptRoot` (`scripts/windows-apps.ps1:52`). Packaging checks currently prove file presence/source strings, not external reads (`scripts/tests/electron-packaging.test.mjs:23`, `:27`, `:72`).
+- **Minimal correction:** W6's already-required resource proof (`IMPROVEMENT-SPEC.md:184`, `:200`) should explicitly inventory both scripts and the relative icon, choose unpacked resources plus a shared dev/packaged resolver, and test actual packaged helper startup. Runtime owns helper consumers; lifecycle owns package layout, coordinated at `WORKFLOW.md:59`. This clarifies assigned delivery work and is not counted as a new Major or a measured packaged failure.
+
+## Full-plan traces and paths checked
+
+Paths below are relative to the checkout; plan citations are under `docs/improvement-review/`.
+
+| Entry → owner → branches/effect → failure/recovery → observable result | Source and plan checked |
+| --- | --- |
+| CLI/Electron boot → host/server → port, storage load, startup, scanner/RPC → collision/read/boot failure cleanup → owned Studio or typed error | `scripts/discord-presence-studio.mjs:7`; `electron/main.js:38`, `:99`, `:297`; `scripts/studio-server.mjs:35`, `:68`, `:887`, `:906`; spec `:144`, `:156`, `:168`, `:170` covers pre-bind writes, false reopen and startup settlement; M1 adds legacy admission. |
+| Mutation → command queue/revision → validate/save/publish/reconcile → failed save or stale tab → retained draft, 409 or staged receipt | `scripts/studio-server.mjs:429`, `:525`, `:541`, `:555`, `:750`, `:783`; `scripts/local-config-store.mjs:11`, `:32`; `scripts/presence-config.mjs:143`; spec `:118`–`:128`, `:162`–`:164` supplies sufficient corrections for F02/F03/F08/F14. |
+| Store/helper/settings → per-file owner → secrets merge, revision/future-schema/backup → denied read/rename/crash → preserved bytes, read-only recovery | `scripts/app-secrets.mjs:103`, `:141`, `:187`; `scripts/setup-giphy-key.mjs:42`; `scripts/local-config-store.mjs:38`, `:45`; spec `:156`–`:164`, `:206`; alias/overlapping-path and stale-owner rules are decided, not delegated to G2. |
+| Foreground/process/time/manual commands → selection/controller → derived payload/RPC → stale scanner, expiry, reconnect, submitted apply → desired versus acknowledged/held output | `scripts/app-presence.mjs:27`, `:38`; `scripts/windows-apps.mjs:5`; `scripts/windows-apps.ps1:60`, `:64`; `scripts/presence-scheduler.mjs:19`, `:42`; `scripts/studio-server.mjs:185`, `:298`, `:342`, `:380`, `:442`; spec `:93`–`:114`, `:126`–`:128` covers unknown-versus-empty, DST, Pause barrier, held edits/deletion, cold restart and Hide. |
+| Session/app label → projection → validator → invalid derived text → field correction before commit | `scripts/codex-session.mjs:3`, `:10`; `scripts/application-badges.mjs:12`; `scripts/presence-config.mjs:97`, `:280`; F11 and W3/spec `:181` assign the correction; no new issue. |
+| Studio visit/nav/onboarding/skip → renderer route/overlay owner → focus/inert/history → hidden/deleted origin or load failure → visible Retry and restored focus | `scripts/discord-presence-studio.html:35`, `:1385`, `:1878`, `:2416`, `:2456`, `:3346`, `:3620`, `:3849`; spec `:63`–`:64`, `:70`, `:79` removes implicit migration and defines shared overlay cleanup. |
+| Status/pause/pin/hide/quit → transport/actor/host → save then external effect/stop → error/uncertainty/stopped → truthful result on current screen | HTML `:98`, `:2863`, `:2934`, `:3276`, `:3291`; server `:541`, `:590`, `:671`, `:867`; spec `:65`, `:68`, `:73`, `:98`–`:114`, `:126` separates applied, persisted and stopped. Quit must drain before host exit; baseline early 200 is already F16/F17 work. |
+| Scene create/duplicate/edit/select/delete → draft owner → absent timer fields, captured saves, reference removal → validation/conflict/failed delete → newest draft and committed success | HTML `:1794`, `:1811`, `:2789`, `:2846`, `:3153`, `:3187`, `:3202`; `scripts/app-presence.mjs:7`; spec `:66`–`:68`, `:120`–`:122` covers timer retention, unique IDs, save generations, revision recovery and dependent deletion. |
+| Running/installed/manual pairing and Codex control → discovery/draft/controller → scan/filter/commit → empty versus failure, retry/reassign → committed pairing without incidental Auto | HTML `:308`, `:3529`, `:3564`, `:3601`, `:3610`, `:3616`; `scripts/installed-apps.mjs:28`, `:51`, `:70`; `scripts/installed-apps.ps1:51`, `:67`; spec `:69`, `:108`, `:122` corrects singleton/launcher targets, successful-empty and retry intent. |
+| GIF modal/query/continuation → renderer + provider owners → credential coalescing, admission/media/cache → abort/overflow/timeout/ignored abort → bounded work and visible retry | HTML `:2448`, `:2726`, `:2738`; `scripts/giphy-search.mjs:99`, `:141`, `:170`, `:213`; server `:625`, `:844`; spec `:71`, `:85`, `:148`–`:152` chooses transport/waiter/page/byte bounds and true settlement accounting. |
+| Settings/theme/language/art → renderer/secret store → explicit replace/clear, local preference, public art projection → error/overridden credentials/media fail → form retained, keys hidden, named source | HTML `:332`, `:371`, `:1096`, `:1115`, `:1883`, `:2503`, `:3317`; server `:134`, `:603`; `scripts/character-art.mjs:13`; spec `:72`, `:75`, `:79`–`:83`, `:140`–`:142`, `:162` covers privacy, themes, narrow preferences, motion and arbitrary owner HTTPS art. |
+| HTTP/bootstrap/Electron links/IPC → trust guard/host → origin/Host/token/body/frame/navigation → malformed/foreign/oversized input → typed rejection with zero effects | server `:490`, `:498`, `:693`, `:735`, `:807`, `:837`, `:844`, `:867`; `electron/main.js:80`, `:231`; `electron/preload.cjs:5`; spec `:134`–`:144` supplies 1 MiB strict UTF-8 reader/deadline, anti-framing, per-process token and owned main-frame IPC. No local-account isolation is claimed. |
+| Close/tray/OS/update → lifecycle owner → hide/download/install/stop/startup → lost tray, hung check, send failure, repeated Quit → reachable window and bounded idempotent shutdown | `electron/main.js:85`, `:135`, `:162`, `:170`, `:191`, `:259`, `:276`, `:289`; HTML `:3750`, `:3786`; `scripts/windows-autostart.mjs:24`, `:49`; spec `:74`, `:168`–`:170`, `:206` already covers F06/F07/F16 and pending-update backout. |
+| Tag/build/update/downgrade → delivery owner → runtime imports, manifest/feed, migration copy → bad metadata/signature/resource/compatibility → block exposure, preserve current config/secrets/opt-out | `package.json:4`, `:14`, `:39`, `:54`, `:70`, `:82`; `package-lock.json:3`, `:9`, `:16`; `.github/workflows/release.yml:21`, `:25`, `:27`; `electron/RELEASE.md:12`, `:25`; spec F20 `:53`, W6 `:184`, gates `:200`, backout `:206`; N1 names resource inventory; M1 is the missing cross-version handoff. |
+
+All UX surfaces were checked against spec section 4: shell, first run, Status, library/detail/preview, pairing/session, hidden legacy slots, GIF, settings/secrets, companion controls, tray/startup/update and language/theme/responsive/motion.
+`scripts/studio-ci.css:911`, `:1141`, `:1147` and HTML `:279`, `:1133`, `:1883` confirm F18/F19's selector/preferences/motion seams; visual/contrast claims remain unproved.
+Meaningful validation sources inspected: `scripts/tests/studio-server.test.mjs:38`, `:199`; `electron-packaging.test.mjs:10`, `:49`, `:55`, `:72`; `local-config-store.test.mjs:9`, `:32`; `app-secrets.test.mjs:32`, `:58`, `:82`; `giphy-search.test.mjs:76`, `:174`; `running-presence.test.mjs:7`; `presence-config.test.mjs:42`, `:64`; `presence-scheduler.test.mjs:23`, `:76`, `:83`; `windows-autostart.test.mjs:8`; `character-art.test.mjs:13` (all under `scripts/tests/`).
+Existing tests do not prove packaged helpers/IPC, submitted-RPC races, disk-failure transactions, migration from an active old writer, or Windows replacement/lease behavior. Spec `:191`–`:193` and workflow `:63`–`:66`, `:84` demand tests of effects instead of source strings.
+Performance trace: one running helper emits approximately every 200 ms/full enumeration each second (`scripts/windows-apps.ps1:60`, `:68`); renderer polls each 500 ms only while visible (HTML `:3666`), installed scan is single-flight with a 120-second timeout (`scripts/installed-apps.mjs:10`, `:51`). Spec `:108`, `:204` adds recovery and separate timing measurements; no performance result was manufactured.
+
+## Smaller 90/10 path and burden
+
+Use W0–W4 and the necessary W6 safety fixes first: read-only initialization, preserved fields, serialized durable/revision commands, HTTP/IPC guards, selection/Pause recovery and one startup/quit owner. Keep current screens/tokens, manual HTTPS artwork and compact legacy notice; defer W5 composition polish until correctness and owner visual review.
+Reuse Node/vanilla modules and existing adapters, with one command queue, one RPC actor and one shared lease primitive. No database/framework/cloud rewrite is justified. GIF provider/window bounds and Windows packaging proofs remain necessary for exposed features; do not replace safety with a larger redesign. M1 adds a bounded supported-upgrade policy, not product scope.
+
+## Legitimate external gates remaining
+
+These prove already-chosen contracts; none substitutes for M1's missing admission policy (`IMPROVEMENT-SPEC.md:195`–`:206`, `WORKFLOW.md:98`).
+
+| Gate / owner | Experiment → pass → failure consequence |
+| --- | --- |
+| G1 UX + App Owner | Authorized isolated real Studio: 390/768/1280/1440, zoom, both languages/themes, keyboard/overlay/motion → correct states/focus/contrast and owner appearance acceptance → W5 stays local. |
+| G2 runtime + lifecycle | Disposable Windows profile: alias/overlap leases, confirmed process exit/PID reuse, denial/sharing/crash, startup preference plus the M1 old-writer handoff → one owner and preserved bytes/opt-out → block W2/W6 release. |
+| G3 runtime + App Owner | Approved isolated Discord session and separate viewer: switch/pin/pause/hold/Hide/reconnect, art/buttons/timestamps → correct visible result → block Rich Presence exposure/acceptance. |
+| G4 lifecycle | Packaged Windows candidate, supported installed predecessor, controlled local feed: real helper paths, preload/IPC, tray, hidden startup, drain/install and downgrade → working resources, one launcher, compatible copy, no rejected-update resurrection → no installer/update release. |
+| G5 security | Isolated HTTP harness, then authorized browser/Electron: foreign Origin/Host/parent frame/navigation, body bounds, GIF cancellation → zero forbidden effects and functioning intended art/navigation → block W1 exposure. |
+| G6 runtime + UX | Named Windows machine/fixed fixture: helper/CPU/RSS/enumeration, healthy-observation-to-RPC switching, typing and long GIF browsing → chosen bounds and predeclared numerical regression limits met → reduce overhead before release. |
+
+No server, Discord, Electron, browser, autostart, install/build/publish, user-data/secret access, nested worker, probe or test suite was run. Source tracing was timeboxed to approximately seven minutes; runtime evidence remains explicitly external.
+
+## Inherited comparison
+
+Read `rounds/round-01.md`, `rounds/round-02.md`, `rounds/round-03.md` and `SCRUTINIZE-LOG.md` only after the independent findings/complete coverage above were durably written. Canonical hashes were unchanged at final verification; tracked source diff remains empty.
+
+- **R1-M1 resolved for updated cooperating writers:** spec `:156`–`:160` assigns canonical per-file leases, pre-load acquisition, positive-exit/nonce recovery and the updated key helper; workflow `:54`–`:55` assigns integration. R4-M1 addresses the additional transition from an unmodified predecessor, not a request for a second lease mechanism or a repeat of its resolved steady-state contract.
+- **R1-M2 resolved:** spec `:110`–`:114` chooses submitted-RPC handoff, immutable hold, uncertain failure/restoration, Hide invalidation and cold restart without a persisted hold; W3 `:181` requires actual effects.
+- **R1-N1 resolved:** spec `:204` separates emitted focus observations from full running enumeration and measurement starts.
+- **R2-M1 resolved:** spec `:138` mandates top-level Studio plus HTTP anti-framing headers, including boot/error responses; workflow `:54`, `:63`–`:64` assigns implementation and G5 verifies it.
+- **R2-M2 resolved:** spec `:85`, `:148`–`:152` chooses provider/queue/requester/response/deadline/media bounds and transport-settlement cancellation; workflow `:54`–`:56` assigns each seam.
+- **R03-M1 resolved:** spec `:134`–`:136` chooses the compatible 1 MiB byte ceiling and maximum multibyte/escaped fixtures including revision/mappings; W0/W1 `:178`–`:179` requires the actual guarded reader. The coordinator's pure fixture is compatibility evidence, not a new HTTP result.
+- **Owner evidence addition:** after inherited comparison, read `docs/presence-studio/RUNNING-APPS.md:3`; its newer owner decision explicitly supersedes the historical foreground-only rule, confirming the plan's retained running-app priority. The cold record's open-decision citation refers to the older document, not the current owner instruction.
+- **F01–F20:** remain sufficient assigned application corrections with applicable release proofs; unchanged baseline faults are not newly counted. All previous round Blocker/Major findings are resolved at plan level; G1–G6 remain legitimate external implementation gates.
+
+Added coverage: migration while a pre-lease CLI/helper remains active, cross-version storage admission and backup provenance, external PowerShell/relative-asset paths in an ASAR package, and drain/startup/update backout seams. **Final verdict remains Rework: 0 new Blocker / 1 new Major**, requiring coordinator correction of R4-M1 before this can count as a clean full pass; R4-N1 is optional clarification. No user product decision is required to choose the narrow quiescent-upgrade policy.
