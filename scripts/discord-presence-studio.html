@@ -223,6 +223,28 @@
                         </div>
                       </details>
                     </section>
+                    <h3 class="vs-section-label" id="detailAppsTitle">แอปที่ผูกกับ Scene นี้</h3>
+                    <p class="vs-subcopy" style="margin-bottom:16px">เปิดแอปพวกนี้ Scene จะเปลี่ยนให้เอง — กดที่ tile เพื่อผูกหรือเลิกผูก</p>
+                    <section class="vs-card" id="detailAppsSection" aria-labelledby="detailAppsTitle">
+                      <div class="vs-app-search">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                        <input id="detailAppSearch" type="search" autocomplete="off" placeholder="ค้นหาแอปในเครื่อง…" aria-label="ค้นหาแอปในเครื่อง" />
+                      </div>
+                      <div id="detailAppTiles" class="vs-tiles" role="group" aria-label="แอปที่ผูกกับ Scene นี้"></div>
+                      <details class="vs-disclosure">
+                        <summary><span>ระบุไฟล์โปรแกรมเอง</span><span class="option-status" id="detailManualStatus">ไม่บังคับ</span></summary>
+                        <div class="vs-disclosure-body">
+                          <div class="vs-field">
+                            <label class="vs-label" for="detailManualExecutable">พาธไฟล์ .exe</label>
+                            <div style="display:flex;gap:8px">
+                              <input class="vs-input" id="detailManualExecutable" type="text" autocomplete="off" spellcheck="false" placeholder="เช่น C:\Program Files\App\app.exe" style="flex:1" />
+                              <button class="vs-btn vs-btn-sm" id="detailAddManual" type="button">ผูกแอปนี้</button>
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+                      <p class="vs-hint" id="detailAppsStatus" role="status" aria-live="polite" style="margin-top:12px"></p>
+                    </section>
                     <h3 class="vs-section-label">เพิ่มเติม</h3>
                     <p class="vs-subcopy" style="margin-bottom:16px">ไม่บังคับ — ข้ามได้เลยถ้ายังไม่ต้องการ</p>
                     <section class="vs-card" aria-label="รายละเอียดเพิ่มเติม">
@@ -287,47 +309,22 @@
               <div class="vs-card-head">
                 <div class="apps-heading">
                   <div>
-                    <span class="vs-kicker">การจับคู่แอป</span>
+                    <span class="vs-kicker">การสลับอัตโนมัติ</span>
                     <h2 id="appsTitle">แอปของคุณ</h2>
                   </div>
                   <button class="vs-btn vs-btn-sm vs-btn-ghost" type="button" id="refreshApps">รีเฟรช</button>
                 </div>
-                <p class="vs-subcopy">เปิดแอปที่จับคู่ไว้ Scene จะเปลี่ยนให้เอง — ไม่ต้องกดอะไรเพิ่ม</p>
+                <p class="vs-subcopy">เปิดแอปที่ผูกไว้ Scene จะเปลี่ยนให้เอง — กดเข้า Scene ไหนแล้วเลือกแอปที่อยากผูกได้เลย</p>
               </div>
-              <ol class="vs-steps">
-                <li class="vs-step"><span class="vs-step-n">1</span>เลือกแอป</li>
-                <li class="vs-step"><span class="vs-step-n">2</span>เลือก Scene</li>
-                <li class="vs-step"><span class="vs-step-n">3</span>กดจับคู่</li>
-              </ol>
-              <p class="app-selection-reason" id="appSelectionReason" role="status">กำลังอ่านแอปที่เปิดอยู่…</p>
-              <div class="app-discovery-head"><h2>เลือกแอปของคุณ</h2><span id="appSelectionCount">เลือกได้หลายแอป</span></div>
-              <div class="vs-app-search">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                <input id="appSearchInput" type="search" autocomplete="off" placeholder="ค้นหาแอปในเครื่อง…" aria-label="ค้นหาแอปในเครื่อง" />
-              </div>
-              <div id="applicationTiles" aria-label="แอปที่เปิดอยู่"></div>
-              <select id="runningAppSelect" hidden aria-label="แอปที่เปิดอยู่"></select>
-              <div class="vs-pair-bar">
-                <select id="appPresetSelect" class="vs-select" aria-label="Scene ที่เลือก"></select>
-                <button type="button" class="vs-btn vs-btn-primary" id="addAppMapping"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>จับคู่เลย</button>
-                <button type="button" class="vs-btn vs-btn-ghost" id="createPresetFromSetup">+ สร้าง Scene ใหม่</button>
-              </div>
-              <details class="vs-disclosure"><summary>ระบุไฟล์โปรแกรมเอง</summary><div class="vs-disclosure-body">
-                <div class="vs-field"><label class="vs-label" for="manualExecutable">ตำแหน่งไฟล์ .exe</label><input class="vs-input" id="manualExecutable" placeholder="C:\Apps\MyApp\MyApp.exe (ตัวอย่าง)" /></div>
-                <p class="vs-hint">สำหรับแอปที่ยังไม่เปิด หรือระบบอ่านตำแหน่งไฟล์ไม่ได้</p>
-              </div></details>
+              <h3 class="vs-section-label">สลับ Scene อัตโนมัติตามแอป</h3>
+              <select id="selectionMode" class="vs-visually-hidden" aria-label="สลับ Scene อัตโนมัติตาม"><option value="apps">โหมดแอป</option></select>
+              <p class="vs-mode-hint" data-i18n-html="modeHint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด</p>
               <details class="vs-disclosure"><summary>ข้อความ Codex แบบตั้งเอง</summary><div class="vs-disclosure-body">
                 <p class="vs-hint">ข้อความนี้ไม่เปลี่ยนตามแท็บ Codex · เว้นว่างเพื่อแสดงสถานะทั่วไป</p>
                 <div class="vs-field"><label class="vs-label" for="codexSessionTitle">ข้อความที่ต้องการแสดง</label><input class="vs-input" id="codexSessionTitle" maxlength="128" placeholder="กำลังทำอะไรอยู่" /></div>
                 <button type="button" class="vs-btn vs-btn-sm" id="shareCodexSession">ใช้ข้อความนี้</button>
                 <p id="codexSessionStatus" class="vs-hint" role="status"></p>
               </div></details>
-              <h3 class="vs-section-label">แอปที่จับคู่แล้ว</h3>
-              <div id="appMappingList" class="vs-mapping-list"></div>
-              <h3 class="vs-section-label">สลับ Scene อัตโนมัติตามแอป</h3>
-              <select id="selectionMode" class="vs-visually-hidden" aria-label="สลับ Scene อัตโนมัติตาม"><option value="apps">โหมดแอป</option></select>
-              <p class="vs-mode-hint" data-i18n-html="modeHint">ทิ้งไว้ก็สลับให้เอง · ถ้าเปิดหลายแอป ใช้แอปที่เพิ่งใช้ล่าสุด</p>
-              <button type="button" class="vs-btn vs-btn-sm vs-btn-primary" id="saveAppMappings" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>บันทึกการแก้ไข</button>
               <p id="appMappingMessage" class="message" role="status"></p>
             </section>
           </div>
@@ -548,6 +545,13 @@ const STR = {
 "ค้นหาแอปในเครื่อง…": "Search apps on this machine…",
 "กำลังใช้": "In use",
 "กำลังใช้อยู่": "Currently running",
+"ผูกกับ Scene นี้แล้ว": "Bound to this scene",
+"ผูกกับ {s} แล้ว": "Bound to {s}",
+"Scene อื่น": "Another scene",
+"เลิกผูก {name} แล้ว": "Unbound {name}",
+"ย้าย {name} จาก {from} มาแล้ว": "Moved {name} from {from}",
+"ผูก {name} กับ Scene นี้แล้ว": "Bound {name} to this scene",
+"บันทึกไม่สำเร็จ ลองแตะ tile อีกครั้ง": "Save failed, tap the tile again",
 "ไม่เจอแอปที่ชื่อ “{q}”": "No app named “{q}”",
 "ย่อหน้าต่าง": "Minimize window",
 "ขยายหน้าต่าง": "Maximize window",
@@ -1099,8 +1103,7 @@ function setLanguage(lang, opts) {
   // Re-render every JS-driven string in the new language.
   try {
     renderAll();
-    renderAppTiles();
-    renderMappings();
+    renderDetailApps();
     renderSetupBanner();
     renderSecretsStatus();
     reemitSaveState();
@@ -1772,12 +1775,10 @@ function reemitToast() {
             }
             appsCluster.addEventListener('click', (event) => {
               event.stopPropagation();
-              const pairSelect = document.querySelector('#appPresetSelect');
-              if (pairSelect && [...pairSelect.options].some((o) => o.value === scene.id)) {
-                pairSelect.value = scene.id;
-                pairSelect.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-              document.querySelector('.vs-pairing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              openSceneDetail(scene.id);
+              requestAnimationFrame(() => {
+                document.querySelector('#detailAppsSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              });
             });
             button.append(appsCluster);
           }
@@ -1867,6 +1868,7 @@ function reemitToast() {
         selectScene(sceneId);
         setScenesSubView('detail');
         window.scrollTo(0, 0);
+        renderDetailApps();
         const title = document.querySelector('#editorTitle');
         if (title) {
           title.setAttribute('tabindex', '-1');
@@ -2810,9 +2812,7 @@ function reemitToast() {
             setSaveState('saved', 'บันทึกทุกอย่างแล้ว', 'เก็บไว้ในเครื่องนี้');
             renderSceneList();
             renderSlots();
-            const pairSelect = document.querySelector('#appPresetSelect');
-            if (pairSelect) presetOptions(pairSelect, pairSelect.value || selectedSceneId);
-            renderMappings();
+            renderDetailApps();
             renderRuntime();
             if (showSuccess) showMessage('บันทึก Scene ลงเครื่องนี้แล้ว', 'success');
             return true;
@@ -3326,7 +3326,6 @@ function reemitToast() {
         }
       });
 
-      const selectedApps = new Set();
       const STUDIO_SCREENS = ['status', 'scenes', 'settings'];
       // Pending focus target for programmatic navigation (e.g. focusing the
       // scene name field right after a new scene is created).
@@ -3395,7 +3394,7 @@ function reemitToast() {
           if (target) target.focus({ preventScroll: true });
         }
         if (screen === 'settings' && !settingsFormDirty) resetSettingsForm();
-        if (config) { presetOptions(document.querySelector('#appPresetSelect'),selectedSceneId); }
+
       }
       window.addEventListener('hashchange',navigateStudio);
       navigateStudio();
@@ -3418,7 +3417,6 @@ function reemitToast() {
       // "+ Scene ใหม่" jumps to the editor, creates a scene, and focuses its name
       // field — but the hashchange is async, so focus is deferred until the
       // editor screen is actually shown (review m1).
-      document.querySelector('#createPresetFromSetup').onclick=()=>{location.hash='#/scenes'; document.querySelector('#addSceneButton').click();};
       function applicationKey(path) {
         return String(path || '').trim().replaceAll('/', '\\').toLowerCase()
           .replace(/(\\windowsapps\\openai\.codex_)\d+\.\d+\.\d+\.\d+(_[^\\]+\\app\\chatgpt\.exe)$/, '$1version$2');
@@ -3457,63 +3455,111 @@ function reemitToast() {
         return img;
       }
       let installedApps = [];
-      let appSearchQuery = '';
-      function renderAppTiles() {
-        const grid=document.querySelector('#applicationTiles');grid.replaceChildren();
-        const query=appSearchQuery.trim().toLowerCase();
-        const runningKeys=new Set(discoveredApps.map((app)=>applicationKey(app.executable)));
-        const seen=new Set();
-        const items=[];
-        // Installed apps (from this machine) are the base catalog; running
-        // apps not in the catalog are appended so nothing disappears.
-        for (const app of [...installedApps, ...discoveredApps]) {
-          const key=applicationKey(app.executable);if(!key||seen.has(key))continue;seen.add(key);
-          items.push({ name:app.name||key, executable:app.executable, icon:app.icon, running:runningKeys.has(key) });
-        }
-        // Already-paired apps stay visible even if they left the machine.
-        for (const mapping of mappingDraft) {
-          const key=applicationKey(mapping.executable);if(!key||seen.has(key))continue;seen.add(key);
-          const running=discoveredApps.find((app)=>applicationKey(app.executable)===key);
-          items.push({ name:mapping.name||key, executable:mapping.executable, icon:running?.icon, running:runningKeys.has(key) });
-        }
-        const filtered=query?items.filter((app)=>app.name.toLowerCase().includes(query)):items;
-        for(const app of filtered) {
-          const key=applicationKey(app.executable);
-          const button=document.createElement('button');button.type='button';button.className='application-tile vs-tile';button.title=app.executable;button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));
-          const iconWrap=document.createElement('span');iconWrap.className='vs-tile-icon';iconWrap.append(appIcon(app));
-          if(app.running){const dot=document.createElement('span');dot.className='vs-tile-running';dot.title=t('กำลังใช้อยู่');iconWrap.append(dot);}
-          const name=document.createElement('strong');name.textContent=app.name;
-          const detail=document.createElement('small');const mapped=mappingDraft.find(m=>applicationKey(m.executable)===key);detail.textContent=mapped ? (config.scenes.find(p=>p.id===mapped.sceneId)?.sceneName||t('จับคู่แล้ว')) : (app.running?t('กำลังใช้'):'');detail.hidden=!detail.textContent;
-          button.append(iconWrap,name,detail);
-          button.onclick=()=>{if(selectedApps.has(app.executable))selectedApps.delete(app.executable);else selectedApps.add(app.executable);button.setAttribute('aria-pressed',String(selectedApps.has(app.executable)));document.querySelector('#appSelectionCount').textContent=selectedApps.size ? t('เลือกแล้ว {n} แอป', { n: selectedApps.size }) : t('เลือกได้หลายแอป');};
-          grid.append(button);
-        }
-        if(!filtered.length){const empty=document.createElement('p');empty.textContent=query?t('ไม่เจอแอปที่ชื่อ “{q}”', { q: appSearchQuery.trim() }):t('กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง');grid.append(empty);}
-        document.querySelector('#appSelectionCount').textContent=selectedApps.size ? t('เลือกแล้ว {n} แอป', { n: selectedApps.size }) : t('เลือกได้หลายแอป');
-      }
+      // App binding lives inside the scene detail: tiles toggle the mapping
+      // for the scene being edited. One app binds to exactly one scene.
+      let detailAppSearchQuery = '';
       let mappingDraft = [];
       let discoveredApps = [];
       const appMessage = document.querySelector('#appMappingMessage');
       function renderAppReason() {
-        const mode = runtime?.selectionMode;
-        setText(document.querySelector('#appSelectionReason'), !runtime?.scheduleEnabled ? t('หยุดสลับอัตโนมัติอยู่') : runtime?.manualOverride ? t('กำลังใช้ Scene ที่ปักไว้ชั่วคราว') : mode === 'apps' ? (runtime.selectedApplication ? runtime.selectedApplication + ' → ' + runtime.selectedPresetName : t('รอเปิดแอปที่จับคู่ไว้')) : t('ขณะนี้ใช้ตารางเวลา — เลือกโหมดแอปแล้วกดบันทึกและเปิดใช้'));
+        // The inline reason line was removed with the external pairing UI;
+        // the Status screen still explains the current switching state.
+      }
+      function renderDetailApps() {
+        const grid = document.querySelector('#detailAppTiles');
+        if (!grid) return;
+        grid.replaceChildren();
+        if (!selectedSceneId) return;
+        const query = detailAppSearchQuery.trim().toLowerCase();
+        const runningKeys = new Set(discoveredApps.map((app) => applicationKey(app.executable)));
+        const seen = new Set();
+        const items = [];
+        // Installed apps (from this machine) are the base catalog; running
+        // apps not in the catalog are appended so nothing disappears.
+        for (const app of [...installedApps, ...discoveredApps]) {
+          const key = applicationKey(app.executable);
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          items.push({ name: app.name || key, executable: app.executable, icon: app.icon, running: runningKeys.has(key) });
+        }
+        // Already-paired apps stay visible even if they left the machine.
+        for (const mapping of mappingDraft) {
+          const key = applicationKey(mapping.executable);
+          if (!key || seen.has(key)) continue;
+          seen.add(key);
+          const running = discoveredApps.find((app) => applicationKey(app.executable) === key);
+          items.push({ name: mapping.name || key, executable: mapping.executable, icon: running?.icon, running: runningKeys.has(key) });
+        }
+        const filtered = query ? items.filter((app) => app.name.toLowerCase().includes(query)) : items;
+        for (const app of filtered) {
+          const key = applicationKey(app.executable);
+          const mapping = mappingDraft.find((m) => m.enabled !== false && applicationKey(m.executable) === key);
+          const isBoundHere = Boolean(mapping && mapping.sceneId === selectedSceneId);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'application-tile vs-tile';
+          button.title = app.executable;
+          button.setAttribute('aria-pressed', String(isBoundHere));
+          const iconWrap = document.createElement('span');
+          iconWrap.className = 'vs-tile-icon';
+          iconWrap.append(appIcon(app));
+          if (app.running) {
+            const dot = document.createElement('span');
+            dot.className = 'vs-tile-running';
+            dot.title = t('กำลังใช้อยู่');
+            iconWrap.append(dot);
+          }
+          const name = document.createElement('strong');
+          name.textContent = app.name;
+          const detail = document.createElement('small');
+          if (isBoundHere) detail.textContent = t('ผูกกับ Scene นี้แล้ว');
+          else if (mapping) detail.textContent = t('ผูกกับ {s} แล้ว', { s: config.scenes.find((sc) => sc.id === mapping.sceneId)?.sceneName || t('Scene อื่น') });
+          else if (app.running) detail.textContent = t('กำลังใช้');
+          detail.hidden = !detail.textContent;
+          button.append(iconWrap, name, detail);
+          button.onclick = () => void toggleDetailApp(app.executable, app.name);
+          grid.append(button);
+        }
+        if (!filtered.length) {
+          const empty = document.createElement('p');
+          empty.textContent = query ? t('ไม่เจอแอปที่ชื่อ “{q}”', { q: detailAppSearchQuery.trim() }) : t('กำลังรอแอปที่มีหน้าต่าง เปิดแอปแล้วกดรีเฟรช หรือระบุไฟล์เองด้านล่าง');
+          grid.append(empty);
+        }
+      }
+      async function toggleDetailApp(executable, name) {
+        if (!selectedSceneId || toggleDetailApp.busy) return;
+        toggleDetailApp.busy = true;
+        const key = applicationKey(executable);
+        const status = document.querySelector('#detailAppsStatus');
+        try {
+          const idx = mappingDraft.findIndex((m) => applicationKey(m.executable) === key);
+          if (idx >= 0) {
+            const mapping = mappingDraft[idx];
+            if (mapping.sceneId === selectedSceneId) {
+              mappingDraft.splice(idx, 1);
+              if (status) status.textContent = t('เลิกผูก {name} แล้ว', { name });
+            } else {
+              const fromName = config.scenes.find((s) => s.id === mapping.sceneId)?.sceneName || t('Scene อื่น');
+              mapping.sceneId = selectedSceneId;
+              mapping.enabled = true;
+              if (status) status.textContent = t('ย้าย {name} จาก {from} มาแล้ว', { name, from: fromName });
+            }
+          } else {
+            mappingDraft.push({ executable, name: name || String(executable).split(/[\\/]/).pop(), sceneId: selectedSceneId, enabled: true });
+            if (status) status.textContent = t('ผูก {name} กับ Scene นี้แล้ว', { name });
+          }
+          renderDetailApps();
+          renderSceneList();
+          const ok = await saveMappingDraft();
+          if (!ok && status) status.textContent = t('บันทึกไม่สำเร็จ ลองแตะ tile อีกครั้ง');
+        } finally {
+          toggleDetailApp.busy = false;
+        }
       }
       function presetOptions(select, selected) {
         select.replaceChildren();
         for (const scene of config.scenes) { const option = new Option(scene.sceneName, scene.id); select.add(option); }
         if (selected) select.value = selected;
-      }
-      function renderMappings() {
-        const list = document.querySelector('#appMappingList'); list.replaceChildren();
-        if (!mappingDraft.length) { const p=document.createElement('p');p.textContent=t('ยังไม่มีการจับคู่ เริ่มจากแอปที่ใช้บ่อย เช่น Codex หรือ Discord');list.append(p); }
-        mappingDraft.forEach((mapping,index) => {
-          const row=document.createElement('div');row.className='vs-mapping';
-          const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label', t('เปิดใช้ {name}', { name: mapping.name }));enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
-          const label=document.createElement('div');label.className='vs-map-label';const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent=t('ตำแหน่งไฟล์');info.append(summary,path);label.append(name);label.title=mapping.executable;
-          const select=document.createElement('select');select.setAttribute('aria-label', t('Scene ของ {x}', { x: mapping.name }));presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
-          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'+escHtml(t('ลบ'));remove.setAttribute('aria-label', t('ลบการจับคู่ {name}', { name: mapping.name }));remove.onclick=async()=>{const ok=await confirmDialog({title:t('ลบการจับคู่นี้?'),message:t('ลบการจับคู่ {name}?', { name: mapping.name }),okText:t('ลบ'),danger:true});if(!ok)return;mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
-          const icon=appIcon(discoveredApps.find(app=>applicationKey(app.executable)===applicationKey(mapping.executable))||mapping);label.prepend(icon);row.append(enabled,label,select,remove);list.append(row);
-        });
       }
       async function refreshApplications() {
         try {
@@ -3523,20 +3569,17 @@ function reemitToast() {
           ]);
           discoveredApps=data.apps || [];
           installedApps=installed.apps || [];
-          const select=document.querySelector('#runningAppSelect');select.replaceChildren(new Option(t('เลือกแอปที่เปิดอยู่'),''));
-          const seen=new Set();for(const app of [...discoveredApps, ...mappingDraft]) { const key=applicationKey(app.executable);if(seen.has(key))continue;seen.add(key);select.add(new Option(app.name+(app.foreground?' · แอปที่กำลังใช้':''),app.executable)); }
-          presetOptions(document.querySelector('#appPresetSelect'),document.querySelector('#appPresetSelect').value||selectedSceneId);
-          renderAppTiles(); renderMappings();
+          renderDetailApps();
           if(data.error) appMessage.textContent=data.error;
         } catch(error) { appMessage.textContent=humanizeError(error.message).text; }
       }
       document.querySelector('#refreshApps').onclick=()=>void refreshApplications();
-      const appSearchInput=document.querySelector('#appSearchInput');
-      if (appSearchInput) appSearchInput.addEventListener('input', () => {
-        appSearchQuery=appSearchInput.value;
-        renderAppTiles();
+      const detailAppSearch=document.querySelector('#detailAppSearch');
+      if (detailAppSearch) detailAppSearch.addEventListener('input', () => {
+        detailAppSearchQuery=detailAppSearch.value;
+        renderDetailApps();
       });
-      document.querySelector('#selectionMode').onchange=()=>{document.querySelector('#saveAppMappings').hidden=false;syncModeSegmented();};
+      document.querySelector('#selectionMode').onchange=()=>{syncModeSegmented();void saveMappingDraft();};
       // Segmented control: the visible switch drives the real select, which
       // stays the single source of truth the save path reads.
       const modeSegmented = document.querySelector('#modeSegmented');
@@ -3555,28 +3598,20 @@ function reemitToast() {
           }
         });
       });
-      document.querySelector('#addAppMapping').onclick=async()=>{
-        const manual=document.querySelector('#manualExecutable');const paths=[...selectedApps];if(manual.value.trim()) paths.push(manual.value.trim());
-        if(!paths.length){appMessage.textContent=t('เลือกแอปก่อน แล้วเลือก Scene ที่จะจับคู่');return;}
-        for(const executable of paths) {
-          const existing=mappingDraft.find(item=>applicationKey(item.executable)===applicationKey(executable));
-          if(existing){existing.sceneId=document.querySelector('#appPresetSelect').value;existing.enabled=true;continue;}
-          const app=discoveredApps.find(item=>item.executable===executable);
-          mappingDraft.push({executable,name:app?.name||executable.split(/[\\/]/).at(-1),sceneId:document.querySelector('#appPresetSelect').value,enabled:true});
-        }
-        if (!await saveMappingDraft()) { document.querySelector('#saveAppMappings').hidden=false; return; }
-        manual.value='';selectedApps.clear();renderMappings();renderAppTiles();
-        if(!stillPreview()) document.querySelector('#appMappingList').animate([{transform:'translateY(-12px)',opacity:.4},{transform:'translateY(0)',opacity:1}],{duration:260,easing:'cubic-bezier(.2,.8,.2,1)'});
-        appMessage.textContent=t('จับคู่แล้วกับ {n} แอป', { n: paths.length });
+      document.querySelector('#detailAddManual').onclick=async()=>{
+        const input=document.querySelector('#detailManualExecutable');
+        const executable=input.value.trim();
+        if(!executable){input.focus();return;}
+        const name=executable.split(/[\\/]/).pop()||executable;
+        input.value='';
+        await toggleDetailApp(executable, name);
       };
-      document.querySelector('#saveAppMappings').onclick=()=>void saveMappingDraft();
+
       async function saveMappingDraft(){
-        const button=document.querySelector('#saveAppMappings');const apply=document.querySelector('#addAppMapping');if(apply.disabled)return false;button.disabled=true;apply.disabled=true;appMessage.textContent=t('กำลังบันทึก…');
         try {
-          if (!await saveConfig(false)) { appMessage.textContent=t('บันทึก Scene ไม่สำเร็จ — ตรวจช่องที่จำเป็นในหน้าแต่ง Scene'); return false; }
           const data=await requestJson('/api/app-mappings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({mappings:mappingDraft,selectionMode:document.querySelector('#selectionMode').value})});
-          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderMappings();renderRuntime();renderAppTiles();renderSlots();button.hidden=true;appMessage.textContent=t('บันทึกการจับคู่แล้ว');return true;
-        } catch(error) { appMessage.textContent=humanizeError(error.message).text;return false; } finally {button.disabled=false;apply.disabled=false;}
+          config=data.config;runtime=data.runtime;mappingDraft=clone(config.appMappings);renderRuntime();renderSlots();return true;
+        } catch(error) { appMessage.textContent=humanizeError(error.message).text;return false; }
       };
       document.querySelector('#shareCodexSession').onclick=async()=>{
         const button=document.querySelector('#shareCodexSession');button.disabled=true;
@@ -3605,7 +3640,6 @@ function reemitToast() {
           }
           document.querySelector("#selectionMode").value = 'apps';
           syncModeSegmented();
-          renderMappings();
           void refreshApplications();
           setTimeout(()=>void refreshApplications(),2500);
           runtime = loadedRuntime;

@@ -205,7 +205,7 @@ body.gif-picker-open { overflow: hidden; }
 #sceneList .vs-scene-row:nth-child(4) { animation-delay: 0.12s; }
 #sceneList .vs-scene-row:nth-child(5) { animation-delay: 0.16s; }
 #sceneList .vs-scene-row:nth-child(n+6) { animation-delay: 0.2s; }
-#applicationTiles .vs-tile { animation: vs-fade-up 0.35s var(--vs-ease) backwards; }
+#applicationTiles .vs-tile, #detailAppTiles .vs-tile { animation: vs-fade-up 0.35s var(--vs-ease) backwards; }
 .vs-dialog, .gif-dialog { animation: vs-fade-up 0.3s var(--vs-ease) backwards; }
 #sceneEditorCard .vs-field, #sceneEditorCard .vs-disclosure { animation: vs-fade-in 0.4s var(--vs-ease) backwards; }
 @media (prefers-reduced-motion: reduce) {
@@ -749,20 +749,20 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
 .vs-scene-apps-more { font-size: 11px; font-weight: 600; color: var(--vs-ink2); background: var(--vs-tint); border: 1px solid var(--vs-hairline); border-radius: 7px; min-width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
 
 /* Pairing */
-#applicationTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: var(--vs-s4); }
-#applicationTiles:empty { display: block; }
-#applicationTiles .vs-tile {
+#applicationTiles, #detailAppTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: var(--vs-s4); }
+#applicationTiles:empty, #detailAppTiles:empty { display: block; }
+#applicationTiles .vs-tile, #detailAppTiles .vs-tile {
   border: 1px solid var(--vs-hairline); border-radius: var(--vs-r-sm);
   background: var(--vs-surface); padding: 14px 10px;
   text-align: center; cursor: pointer; font-size: 13px;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   transition: border-color var(--vs-dur) var(--vs-ease), background var(--vs-dur) var(--vs-ease);
 }
-#applicationTiles .vs-tile:hover { border-color: var(--vs-accent-line); }
-#applicationTiles .vs-tile[aria-pressed="true"] { border-color: var(--vs-accent); background: var(--vs-accent-soft); }
-#applicationTiles .vs-tile strong { font-weight: 500; font-size: 13px; }
-#applicationTiles .vs-tile small { display: block; color: var(--vs-ink3); font-size: 11px; }
-#applicationTiles .vs-tile img { width: 44px; height: 44px; border-radius: 10px; }
+#applicationTiles .vs-tile:hover, #detailAppTiles .vs-tile:hover { border-color: var(--vs-accent-line); }
+#applicationTiles .vs-tile[aria-pressed="true"], #detailAppTiles .vs-tile[aria-pressed="true"] { border-color: var(--vs-accent); background: var(--vs-accent-soft); }
+#applicationTiles .vs-tile strong, #detailAppTiles .vs-tile strong { font-weight: 500; font-size: 13px; }
+#applicationTiles .vs-tile small, #detailAppTiles .vs-tile small { display: block; color: var(--vs-ink3); font-size: 11px; }
+#applicationTiles .vs-tile img, #detailAppTiles .vs-tile img { width: 44px; height: 44px; border-radius: 10px; }
 /* App search field above the tile grid */
 .vs-app-search {
   display: flex; align-items: center; gap: 10px;
@@ -785,7 +785,7 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--vs
   background: var(--vs-good-t, #3ba55d);
   border: 2.5px solid var(--vs-surface);
 }
-#applicationTiles .app-icon-fallback {
+#applicationTiles .app-icon-fallback, #detailAppTiles .app-icon-fallback {
   width: 44px; height: 44px; border-radius: 10px;
   background: var(--vs-sunken); border: 1px solid var(--vs-hairline);
   display: inline-flex; align-items: center; justify-content: center;
