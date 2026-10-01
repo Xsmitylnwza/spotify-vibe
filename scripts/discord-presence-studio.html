@@ -1690,6 +1690,7 @@ function reemitToast() {
           runtime?.manualOverride?.sceneId,
           runtime?.selectionMode,
           config.scenes.map((scene) => [scene.id, scene.sceneName, scene.activityType, scene.activityName, scene.largeImage, scene.details, scene.state]),
+          (config.appMappings || []).map((m) => [m.executable, m.sceneId, m.enabled]),
         ]);
         if (signature === lastSceneListSignature) return;
         lastSceneListSignature = signature;
@@ -1754,7 +1755,38 @@ function reemitToast() {
             badge.className = 'vs-pill vs-pill-neutral';
             badge.textContent = t('ร่าง');
           }
-          button.append(icon, meta, badge);
+          button.append(icon, meta);
+          // Bound-app icons: glanceable "which apps trigger this scene".
+          // Clicking jumps one-way to the pairing section with this scene preselected.
+          const boundMappings = (config.appMappings || []).filter((m) => m.sceneId === scene.id && m.enabled !== false);
+          if (boundMappings.length) {
+            const appsCluster = document.createElement('span');
+            appsCluster.className = 'vs-scene-apps';
+            appsCluster.title = boundMappings.map((m) => m.name || String(m.executable || '').split(/[\\/]/).pop()).join(', ');
+            const MAX_ROW_ICONS = 4;
+            const knownApps = [...discoveredApps, ...installedApps];
+            boundMappings.slice(0, MAX_ROW_ICONS).forEach((mapping) => {
+              const known = knownApps.find((app) => applicationKey(app.executable) === applicationKey(mapping.executable));
+              appsCluster.append(appIcon(known || mapping));
+            });
+            if (boundMappings.length > MAX_ROW_ICONS) {
+              const more = document.createElement('span');
+              more.className = 'vs-scene-apps-more';
+              more.textContent = '+' + (boundMappings.length - MAX_ROW_ICONS);
+              appsCluster.append(more);
+            }
+            appsCluster.addEventListener('click', (event) => {
+              event.stopPropagation();
+              const pairSelect = document.querySelector('#appPresetSelect');
+              if (pairSelect && [...pairSelect.options].some((o) => o.value === scene.id)) {
+                pairSelect.value = scene.id;
+                pairSelect.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              document.querySelector('.vs-pairing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+            button.append(appsCluster);
+          }
+          button.append(badge);
           button.addEventListener('click', () => openSceneDetail(scene.id));
           sceneList.append(button);
           if (focusedSceneId === scene.id) focusRestoreTarget = button;
