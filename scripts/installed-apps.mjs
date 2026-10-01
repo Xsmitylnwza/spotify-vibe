@@ -25,21 +25,31 @@ async function readCache(cachePath) {
   return null;
 }
 
-function runScan() {
-  if (process.platform !== 'win32') return Promise.resolve([]);
+function runScan({ signal, spawnProcess = spawn, platform = process.platform } = {}) {
+  if (platform !== 'win32' || signal?.aborted) return Promise.resolve([]);
   return new Promise((resolve) => {
-    const child = spawn('powershell.exe', [
+    const child = spawnProcess('powershell.exe', [
       '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
       '-File', scriptPath(),
     ], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     let done = false;
-    const finish = (apps) => { if (!done) { done = true; resolve(apps); } };
-    const timer = setTimeout(() => { try { child.kill(); } catch {} finish([]); }, SCAN_TIMEOUT_MS);
-    child.stdout.on('data', (chunk) => { out += chunk; });
-    child.on('error', () => { clearTimeout(timer); finish([]); });
-    child.on('close', () => {
+    let timer;
+    const finish = (apps) => {
+      if (done) return;
+      done = true;
       clearTimeout(timer);
+      signal?.removeEventListener('abort', abort);
+      resolve(apps);
+    };
+    const abort = () => { try { child.kill(); } catch {} finish([]); };
+    timer = setTimeout(abort, SCAN_TIMEOUT_MS);
+    signal?.addEventListener('abort', abort, { once: true });
+    if (signal?.aborted) abort();
+    child.stdout.on('data', chunk => { if (!done) out += chunk; });
+    child.stderr?.resume();
+    child.on('error', () => finish([]));
+    child.on('close', () => {
       try {
         const parsed = JSON.parse(out.trim() || '[]');
         finish(Array.isArray(parsed) ? parsed : []);
@@ -48,39 +58,43 @@ function runScan() {
   });
 }
 
-async function refreshCache(cachePath) {
+async function refreshCache(cachePath, options = {}) {
+  if (options.signal?.aborted) return cached;
   if (scanPromise) return scanPromise;
-  scanPromise = (async () => {
-    const apps = await runScan();
-    if (apps.length) {
+  const operation = (async () => {
+    const apps = await runScan(options);
+    if (apps.length && !options.signal?.aborted) {
       cached = { scannedAt: new Date().toISOString(), apps };
       try {
         await mkdir(dirname(cachePath), { recursive: true });
         await writeFile(cachePath, JSON.stringify(cached), 'utf8');
       } catch { /* cache is best-effort */ }
     }
-    scanPromise = null;
     return cached;
   })();
-  return scanPromise;
+  scanPromise = operation;
+  try { return await operation; }
+  finally { if (scanPromise === operation) scanPromise = null; }
 }
 
 // Call once at server startup. Serves disk cache instantly; refreshes in
 // the background when the cache is missing or stale.
-export async function initInstalledApps(dataDirectory) {
+export async function initInstalledApps(dataDirectory, options = {}) {
   const cachePath = join(dataDirectory, 'installed-apps.json');
-  if (process.platform !== 'win32') {
+  if (options.signal?.aborted) return;
+  if ((options.platform ?? process.platform) !== 'win32') {
     cached = { scannedAt: new Date().toISOString(), apps: [] };
     return;
   }
   const disk = await readCache(cachePath);
+  if (options.signal?.aborted) return;
   if (disk) {
     cached = disk;
     const age = Date.now() - new Date(disk.scannedAt).getTime();
-    if (!Number.isFinite(age) || age > CACHE_TTL_MS) void refreshCache(cachePath);
+    if (!Number.isFinite(age) || age > CACHE_TTL_MS) void refreshCache(cachePath, options).catch(() => undefined);
   } else {
     cached = { scannedAt: new Date().toISOString(), apps: [] };
-    void refreshCache(cachePath);
+    void refreshCache(cachePath, options).catch(() => undefined);
   }
 }
 
@@ -89,8 +103,8 @@ export function getInstalledApps() {
 }
 
 // Force a fresh scan (e.g. after the user installs something).
-export async function refreshInstalledApps(dataDirectory) {
+export async function refreshInstalledApps(dataDirectory, options = {}) {
   const cachePath = join(dataDirectory, 'installed-apps.json');
-  await refreshCache(cachePath);
+  await refreshCache(cachePath, options);
   return getInstalledApps();
 }

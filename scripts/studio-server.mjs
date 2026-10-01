@@ -24,7 +24,7 @@ import {
   validateDiscordClientId,
   validateGiphyApiKey,
 } from './app-secrets.mjs';
-import { createConfigStore } from './local-config-store.mjs';
+import { assertSupportedVersion, createConfigStore } from './local-config-store.mjs';
 import { createCachedGiphySearch } from './giphy-search.mjs';
 import {
   getScheduleState,
@@ -33,6 +33,10 @@ import {
 import { createWindowsAutostart } from './windows-autostart.mjs';
 
 export async function startStudioServer(options = {}) {
+  const env = options.environment ?? process.env;
+  const nowDate = () => new Date(options.clock?.now?.() ?? Date.now());
+  const setSchedulerTimeout = options.clock?.setTimeout ?? setTimeout;
+  const clearSchedulerTimeout = options.clock?.clearTimeout ?? clearTimeout;
   const scriptPath = fileURLToPath(import.meta.url);
   const scriptDirectory = dirname(scriptPath);
   const args = options.argv ?? process.argv.slice(2);
@@ -40,7 +44,7 @@ export async function startStudioServer(options = {}) {
   const argumentPort = args.find((argument) => argument.startsWith('--port='));
   const port = Number.isInteger(options.port) && options.port >= 1024 && options.port <= 65535
       ? options.port
-      : Number(argumentPort?.slice('--port='.length) || process.env.PRESENCE_STUDIO_PORT || 17345);
+      : Number(argumentPort?.slice('--port='.length) || env.PRESENCE_STUDIO_PORT || 17345);
   const shouldOpenBrowser = options.openBrowser ?? !args.includes('--no-open');
     const exitProcess = options.exitProcess !== false;
     const onLog = options.onLog ?? console.log;
@@ -53,19 +57,20 @@ export async function startStudioServer(options = {}) {
   const htmlPath = join(scriptDirectory, 'discord-presence-studio.html');
   const html = await readFile(htmlPath, 'utf8');
   const dataDirectory = options.dataDirectory
-    || (process.env.PRESENCE_CONFIG_PATH
-      ? dirname(process.env.PRESENCE_CONFIG_PATH)
-      : process.platform === 'win32' && process.env.APPDATA
-        ? join(process.env.APPDATA, 'Spotify Vibe')
+    || (env.PRESENCE_CONFIG_PATH
+      ? dirname(env.PRESENCE_CONFIG_PATH)
+      : process.platform === 'win32' && env.APPDATA
+        ? join(env.APPDATA, 'Spotify Vibe')
         : join(homedir(), '.spotify-vibe'));
-  const configPath = process.env.PRESENCE_CONFIG_PATH || join(dataDirectory, 'presence-config.json');
-  const appSecretsPath = process.env.PRESENCE_SECRETS_PATH || join(dataDirectory, 'app-secrets.json');
-  const startupDirectory = process.env.PRESENCE_STARTUP_DIR
-    || (process.env.APPDATA
-      ? join(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
+  const configPath = env.PRESENCE_CONFIG_PATH || join(dataDirectory, 'presence-config.json');
+  const appSecretsPath = env.PRESENCE_SECRETS_PATH || join(dataDirectory, 'app-secrets.json');
+  const startupDirectory = env.PRESENCE_STARTUP_DIR
+    || (env.APPDATA
+      ? join(env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
       : null);
 
   const configStore = createConfigStore({
+    fs: options.configFs,
     filePath: configPath,
     createDefault: createDefaultConfig,
     validate: validateConfig,
@@ -74,12 +79,12 @@ export async function startStudioServer(options = {}) {
   let config = loaded.config;
   let appSecrets = await loadAppSecrets({
     filePath: appSecretsPath,
-    environmentApiKey: process.env.GIPHY_API_KEY,
-    environmentGiphyApiKey: process.env.GIPHY_API_KEY,
-    environmentDiscordClientId: argumentClientId || process.env.DISCORD_CLIENT_ID || '',
+    environmentApiKey: env.GIPHY_API_KEY,
+    environmentGiphyApiKey: env.GIPHY_API_KEY,
+    environmentDiscordClientId: argumentClientId || env.DISCORD_CLIENT_ID || '',
   });
 
-  if (process.env.PRESENCE_DISABLE_DEFAULT_APPLICATION !== '1') appSecrets = withDefaultApplication(appSecrets);
+  if (env.PRESENCE_DISABLE_DEFAULT_APPLICATION !== '1') appSecrets = withDefaultApplication(appSecrets);
   let clientId = appSecrets.discordClientId || '';
   let searchConfiguredGiphy = createCachedGiphySearch({ apiKey: appSecrets.giphyApiKey });
   let autostart = createWindowsAutostart({
@@ -88,7 +93,7 @@ export async function startStudioServer(options = {}) {
     nodePath: process.execPath,
     clientId: clientId || '0',
     port,
-    platform: process.env.PRESENCE_AUTOSTART_DISABLE === '1' ? 'disabled' : process.platform,
+    platform: options.disableHostEffects || env.PRESENCE_AUTOSTART_DISABLE === '1' ? 'disabled' : process.platform,
   });
 
   let autostartState = {
@@ -96,6 +101,9 @@ export async function startStudioServer(options = {}) {
     enabled: false,
     filePath: autostart.filePath,
   };
+  const installedAppsAbort = new AbortController();
+  const installedAppsOptions = { ...options.installedAppsOptions, signal: installedAppsAbort.signal };
+  let stopPromise;
   let server;
   let discordClient;
   let schedulerTimer;
@@ -167,22 +175,22 @@ export async function startStudioServer(options = {}) {
       nodePath: process.execPath,
       clientId: clientId || '0',
       port,
-      platform: process.env.PRESENCE_AUTOSTART_DISABLE === '1' ? 'disabled' : process.platform,
+      platform: options.disableHostEffects || env.PRESENCE_AUTOSTART_DISABLE === '1' ? 'disabled' : process.platform,
     });
   }
 
-  function activeOverride(now = new Date()) {
+  function activeOverride(now = nowDate()) {
     if (!config.manualOverride) return null;
     return Date.parse(config.manualOverride.expiresAt) > now.getTime()
       ? config.manualOverride
       : null;
   }
 
-  function scheduleSnapshot(now = new Date()) {
+  function scheduleSnapshot(now = nowDate()) {
     return getScheduleState(config.slots, now);
   }
 
-  function desiredPresence(now = new Date()) {
+  function desiredPresence(now = nowDate()) {
     const override = activeOverride(now);
     if (override) {
       return {
@@ -208,7 +216,7 @@ export async function startStudioServer(options = {}) {
     };
   }
 
-  function runtimeSnapshot(now = new Date()) {
+  function runtimeSnapshot(now = nowDate()) {
     const schedule = scheduleSnapshot(now);
     const override = activeOverride(now);
     const currentScene = sceneById(runtime.currentSceneId);
@@ -243,7 +251,7 @@ export async function startStudioServer(options = {}) {
       lastError: runtime.lastError,
       autostart: autostartState,
       gifSearch: gifSearchSnapshot(),
-      characterArt: { publicUrlConfigured: Boolean(process.env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl) },
+      characterArt: { publicUrlConfigured: Boolean(env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl) },
       localTime: now.toISOString(),
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local time',
     };
@@ -307,7 +315,7 @@ export async function startStudioServer(options = {}) {
       if (runtime.desiredKey !== key) return false;
       if (!force && runtime.active && runtime.appliedKey === key) return true;
       let activity;
-      const artBaseUrl = process.env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl;
+      const artBaseUrl = env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl;
       const pendingArt = !artBaseUrl && [scene.largeImage, scene.smallImage].some(value => value?.startsWith('builtin:'));
       const deliveryScene = pendingArt ? { ...scene,
         largeImage: scene.largeImage?.startsWith('builtin:') ? '' : scene.largeImage,
@@ -378,7 +386,7 @@ export async function startStudioServer(options = {}) {
   }
 
   async function connectDiscord() {
-    if (isStopping || !clientId) {
+    if (options.disableHostEffects || env.PRESENCE_DISCORD_DISABLE === '1' || isStopping || !clientId) {
       runtime.connectionState = 'disconnected';
       if (!clientId) {
         runtime.lastError = runtime.lastError || 'ใส่ Discord Application ID ที่ API keys เพื่อเชื่อมต่อ';
@@ -388,7 +396,7 @@ export async function startStudioServer(options = {}) {
     if (['connecting', 'connected'].includes(runtime.connectionState)) return;
     runtime.connectionState = 'connecting';
     runtime.nextReconnectAt = null;
-    const candidate = new DiscordRPC.Client({ transport: 'ipc' });
+    const candidate = options.createDiscordClient ? options.createDiscordClient() : new DiscordRPC.Client({ transport: 'ipc' });
     discordClient = candidate;
     candidate.on('disconnected', () => handleDisconnected(candidate));
 
@@ -412,51 +420,74 @@ export async function startStudioServer(options = {}) {
   }
 
   function stopSchedulerTimer() {
-    if (schedulerTimer) clearTimeout(schedulerTimer);
+    if (schedulerTimer) clearSchedulerTimeout(schedulerTimer);
     schedulerTimer = undefined;
+  }
+
+  let commandQueue = Promise.resolve();
+  let expiryRetryAttempt = 0;
+
+  // Build against the latest committed state inside the same queue as save/publish.
+  function commitConfig(buildCandidate, { writeSlots = false } = {}) {
+    const operation = commandQueue.then(async () => {
+      const candidate = buildCandidate(config);
+      if (candidate === config) return config;
+      assertSupportedVersion(candidate, 2);
+      const normalized = validateConfig(candidate);
+      let saved;
+      try { saved = await configStore.save(normalized, { writeSlots }); }
+      catch (cause) {
+        throw Object.assign(new Error('Configuration could not be saved.'), { code: 'CONFIG_SAVE_FAILED', statusCode: 500, cause });
+      }
+      config = saved;
+      return config;
+    });
+    commandQueue = operation.catch(() => undefined);
+    return operation;
   }
 
   function scheduleHeartbeat() {
     stopSchedulerTimer();
     if (isStopping) return;
-    const state = scheduleSnapshot();
-    const delay = nextHeartbeatDelay(state);
-    schedulerTimer = setTimeout(() => {
-      void reconcilePresence({ reason: 'Clock heartbeat' });
+    let delay = nextHeartbeatDelay(scheduleSnapshot());
+    if (config.manualOverride) {
+      const remaining = Date.parse(config.manualOverride.expiresAt) - nowDate().getTime();
+      delay = Math.min(delay, remaining > 0 ? Math.max(250, remaining) : Math.min(60_000, 1_000 * (2 ** Math.min(expiryRetryAttempt, 6))));
+    }
+    schedulerTimer = setSchedulerTimeout(() => {
+      schedulerTimer = undefined;
+      return reconcilePresence({ reason: 'Clock heartbeat' }).catch(error => { runtime.lastError = errorMessage(error); });
     }, delay);
   }
 
-  async function persistConfig() {
-    config = await configStore.save(config);
-    return config;
-  }
-
-  async function expireOverride(now = new Date()) {
-    if (!config.manualOverride) return false;
-    if (Date.parse(config.manualOverride.expiresAt) > now.getTime()) return false;
-    config = { ...config, manualOverride: null };
-    await persistConfig();
-    return true;
+  async function expireOverride(now = nowDate()) {
+    await commitConfig(current => {
+      if (!current.manualOverride || Date.parse(current.manualOverride.expiresAt) > now.getTime()) return current;
+      return { ...current, manualOverride: null };
+    });
   }
 
   async function reconcilePresence({ force = false, reason = 'Schedule changed' } = {}) {
     if (isStopping) return false;
-    const now = new Date();
-    await expireOverride(now);
-    const desired = desiredPresence(now);
-    runtime.desiredSceneId = desired.scene?.id || null;
-    if (desired.session) desired.key += ":session:" + desired.session.startedAt + ":" + desired.session.title;
-    runtime.desiredKey = desired.key;
-    if (activityIdentity !== desired.key) { activityIdentity = desired.key; activityStartedAt = desired.session ? new Date(desired.session.startedAt) : now; }
-    let applied = false;
-    if (desired.scene) {
-      applied = await applyScene(desired.scene, desired.key, { force });
-    } else if (config.settings.selectionMode === "apps" && runtime.active) {
-      await clearDiscordPresence();
-    }
-    scheduleHeartbeat();
-    if (force) console.log(reason + '.');
-    return applied;
+    try {
+      const now = nowDate();
+      try { await expireOverride(now); expiryRetryAttempt = 0; }
+      catch (error) {
+        expiryRetryAttempt += 1;
+        runtime.lastError = errorMessage(error);
+        // Expired intent is already ineffective even if durable cleanup must retry.
+      }
+      const desired = desiredPresence(now);
+      runtime.desiredSceneId = desired.scene?.id || null;
+      if (desired.session) desired.key += ':session:' + desired.session.startedAt + ':' + desired.session.title;
+      runtime.desiredKey = desired.key;
+      if (activityIdentity !== desired.key) { activityIdentity = desired.key; activityStartedAt = desired.session ? new Date(desired.session.startedAt) : now; }
+      let applied = false;
+      if (desired.scene) applied = await applyScene(desired.scene, desired.key, { force });
+      else if (config.settings.selectionMode === 'apps' && runtime.active) await clearDiscordPresence();
+      if (force) console.log(reason + '.');
+      return applied;
+    } finally { scheduleHeartbeat(); }
   }
 
   async function syncAutostart() {
@@ -495,17 +526,57 @@ export async function startStudioServer(options = {}) {
     response.end(JSON.stringify(payload));
   }
 
-  async function readJson(request) {
-    let body = '';
-    for await (const chunk of request) {
-      body += chunk;
-      if (body.length > 262_144) throw new Error('Request body is too large.');
-    }
-    try {
-      return JSON.parse(body || '{}');
-    } catch {
-      throw new Error('Request body must be valid JSON.');
-    }
+  function requestError(message, code, statusCode = 400) {
+    return Object.assign(new Error(message), { code, statusCode });
+  }
+
+  function readJson(request) {
+    return new Promise((resolveBody, rejectBody) => {
+      const chunks = [];
+      let bytes = 0;
+      let finished = false;
+      const timer = setTimeout(() => fail(requestError('Request body read timed out.', 'BODY_TIMEOUT', 408)), 5_000);
+      function cleanup() {
+        clearTimeout(timer);
+        request.off('data', onData);
+        request.off('end', onEnd);
+        request.off('aborted', onAborted);
+        request.off('error', onError);
+      }
+      function fail(error) {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        // Drain rather than destroy so the handler can deliver the typed response.
+        request.resume();
+        rejectBody(error);
+      }
+      function onData(chunk) {
+        const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        bytes += buffer.length;
+        if (bytes > 1_048_576) return fail(requestError('Request body is too large.', 'BODY_TOO_LARGE', 413));
+        chunks.push(buffer);
+      }
+      function onAborted() { fail(requestError('Request body was aborted.', 'BODY_ABORTED')); }
+      function onError() { fail(requestError('Request body could not be read.', 'BODY_READ_FAILED')); }
+      function onEnd() {
+        if (finished) return;
+        let text;
+        try { text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(Buffer.concat(chunks, bytes)); }
+        catch { return fail(requestError('Request body must be valid UTF-8.', 'INVALID_UTF8')); }
+        let body;
+        try { body = JSON.parse(text); }
+        catch { return fail(requestError('Request body must be valid JSON.', 'INVALID_JSON')); }
+        if (!body || typeof body !== 'object' || Array.isArray(body)) return fail(requestError('Request body must be a JSON object.', 'INVALID_BODY'));
+        finished = true;
+        cleanup();
+        resolveBody(body);
+      }
+      request.on('data', onData);
+      request.on('end', onEnd);
+      request.on('aborted', onAborted);
+      request.on('error', onError);
+    });
   }
 
   function openBrowser(url) {
@@ -523,77 +594,49 @@ export async function startStudioServer(options = {}) {
   }
 
   async function updateScenesAndSlots(body) {
-    const sceneIds = new Set((Array.isArray(body.scenes) ? body.scenes : []).map((scene) => scene.id));
-    const manualOverride = config.manualOverride && sceneIds.has(config.manualOverride.sceneId)
-      ? config.manualOverride
-      : null;
-    config = validateConfig({
-      ...config,
-      scenes: body.scenes,
-      slots: body.slots,
-      manualOverride,
-    });
-    await persistConfig();
+    const saved = await commitConfig(current => {
+      const sceneIds = new Set((Array.isArray(body.scenes) ? body.scenes : []).map(scene => scene.id));
+      return { ...current, scenes: body.scenes, slots: Object.hasOwn(body, 'slots') ? body.slots : current.slots,
+        manualOverride: current.manualOverride && sceneIds.has(current.manualOverride.sceneId) ? current.manualOverride : null };
+    }, { writeSlots: Object.hasOwn(body, 'slots') });
     await reconcilePresence({ force: true, reason: 'Configuration saved' });
-    return config;
+    return saved;
   }
 
   async function setScheduleEnabled(enabled) {
-    config = validateConfig({
-      ...config,
-      settings: { ...config.settings, scheduleEnabled: Boolean(enabled) },
-      manualOverride: enabled ? config.manualOverride : null,
-    });
-    await persistConfig();
-    if (enabled) {
-      await reconcilePresence({ force: true, reason: 'Daily schedule resumed' });
-    } else {
-      stopSchedulerTimer();
-    }
+    await commitConfig(current => ({ ...current,
+      settings: { ...current.settings, scheduleEnabled: Boolean(enabled) },
+      manualOverride: enabled ? current.manualOverride : null }));
+    if (enabled) await reconcilePresence({ force: true, reason: 'Daily schedule resumed' });
+    else stopSchedulerTimer();
   }
 
   async function setManualOverride(sceneId) {
-    if (!clientId) throw new Error('Add your Discord Application ID in API keys before showing a Scene on Discord.');
-    const scene = sceneById(sceneId);
-    if (!scene) throw new Error('Choose an existing Scene.');
-    const schedule = scheduleSnapshot();
-    if (config.settings.selectionMode === 'schedule' && !schedule.nextAt) throw new Error('Add at least one enabled Daily Time Slot before using an override.');
-    config = validateConfig({
-      ...config,
-      settings: { ...config.settings, scheduleEnabled: true },
-      manualOverride: {
-        sceneId,
-        expiresAt: config.settings.selectionMode === 'apps' ? new Date(Date.now() + 3600000).toISOString() : schedule.nextAt.toISOString(),
-      },
+    await commitConfig(current => {
+      if (!clientId) throw new Error('Add your Discord Application ID in API keys before showing a Scene on Discord.');
+      if (!current.scenes.some(scene => scene.id === sceneId)) throw new Error('Choose an existing Scene.');
+      const schedule = getScheduleState(current.slots, nowDate());
+      if (current.settings.selectionMode === 'schedule' && !schedule.nextAt) throw new Error('Add at least one enabled Daily Time Slot before using an override.');
+      return { ...current, settings: { ...current.settings, scheduleEnabled: true }, manualOverride: {
+        sceneId, expiresAt: current.settings.selectionMode === 'apps' ? new Date(nowDate().getTime() + 3600000).toISOString() : schedule.nextAt.toISOString() } };
     });
-    await persistConfig();
     return reconcilePresence({ force: true, reason: 'Manual Override started' });
   }
 
   async function cancelManualOverride() {
-    config = validateConfig({ ...config, manualOverride: null });
-    await persistConfig();
+    await commitConfig(current => ({ ...current, manualOverride: null }));
     return reconcilePresence({ force: true, reason: 'Manual Override cancelled' });
   }
 
   async function setAutostartEnabled(enabled) {
     if (!autostart.supported) throw new Error('Windows automatic startup is unavailable in this environment.');
     if (!clientId) throw new Error('Add your Discord Application ID before enabling Start with Windows.');
-    config = validateConfig({
-      ...config,
-      settings: { ...config.settings, autostartEnabled: Boolean(enabled) },
-    });
-    await persistConfig();
+    await commitConfig(current => ({ ...current, settings: { ...current.settings, autostartEnabled: Boolean(enabled) } }));
     await syncAutostart();
   }
 
   async function pauseAndClear() {
-    config = validateConfig({
-      ...config,
-      settings: { ...config.settings, scheduleEnabled: false },
-      manualOverride: null,
-    });
-    await persistConfig();
+    await commitConfig(current => ({ ...current, settings: { ...current.settings, scheduleEnabled: false }, manualOverride: null }));
     stopSchedulerTimer();
     runtime.desiredSceneId = null;
     runtime.desiredKey = null;
@@ -604,23 +647,23 @@ export async function startStudioServer(options = {}) {
     const previousClientId = clientId;
     appSecrets = await loadAppSecrets({
       filePath: appSecretsPath,
-      environmentApiKey: process.env.GIPHY_API_KEY,
-      environmentGiphyApiKey: process.env.GIPHY_API_KEY,
-      environmentDiscordClientId: argumentClientId || process.env.DISCORD_CLIENT_ID || '',
+      environmentApiKey: env.GIPHY_API_KEY,
+      environmentGiphyApiKey: env.GIPHY_API_KEY,
+      environmentDiscordClientId: argumentClientId || env.DISCORD_CLIENT_ID || '',
     });
 
     // Prefer freshly saved values when environment is not overriding them.
-    if (!process.env.GIPHY_API_KEY) {
+    if (!env.GIPHY_API_KEY) {
       appSecrets.giphyApiKey = saved.giphyApiKey;
       appSecrets.giphySource = saved.giphySource;
       appSecrets.source = saved.giphySource;
     }
-    if (!argumentClientId && !process.env.DISCORD_CLIENT_ID) {
+    if (!argumentClientId && !env.DISCORD_CLIENT_ID) {
       appSecrets.discordClientId = saved.discordClientId;
       appSecrets.discordSource = saved.discordSource;
     }
 
-    if (process.env.PRESENCE_DISABLE_DEFAULT_APPLICATION !== '1') appSecrets = withDefaultApplication(appSecrets);
+    if (env.PRESENCE_DISABLE_DEFAULT_APPLICATION !== '1') appSecrets = withDefaultApplication(appSecrets);
     clientId = appSecrets.discordClientId || '';
     searchConfiguredGiphy = createCachedGiphySearch({ apiKey: appSecrets.giphyApiKey });
     rebuildAutostart();
@@ -668,32 +711,53 @@ export async function startStudioServer(options = {}) {
     return saved;
   }
 
-  async function stop(exitCode = 0) {
-    if (isStopping) return;
+  function stop(exitCode = 0, { exit = exitProcess } = {}) {
+    if (stopPromise) return stopPromise;
     isStopping = true;
-    stopAppWatcher();
+    process.off('SIGINT', onSignal);
+    process.off('SIGTERM', onSignal);
+    installedAppsAbort.abort();
+    try { stopAppWatcher(); } catch { /* continue shutdown */ }
     stopSchedulerTimer();
     stopReconnectTimer();
-
-    if (server?.listening) {
-      try { server.closeAllConnections(); } catch { /* older node */ }
-      await new Promise((resolve) => server.close(resolve));
-    }
-    if (runtime.active) await clearDiscordPresence().catch(() => undefined);
     const candidate = discordClient;
     discordClient = undefined;
-    await destroyDiscordClient(candidate);
-    console.log('\nPresence Studio stopped.');
-    if (exitProcess) process.exit(exitCode);
+    const shutdown = (async () => {
+      if (server?.listening) {
+        try { server.closeAllConnections(); } catch { /* older node */ }
+        await new Promise(resolve => server.close(resolve));
+      }
+      // Do not queue behind a pending login/request. Teardown must stay bounded.
+      if (candidate && runtime.active) await candidate.clearActivity().catch(() => undefined);
+      await destroyDiscordClient(candidate);
+    })();
+    stopPromise = new Promise(resolveStop => {
+      const deadline = setTimeout(() => {
+        try { candidate?.transport?.socket?.destroy(); } catch { /* best effort */ }
+        void Promise.resolve().then(() => candidate?.transport?.close?.()).catch(() => undefined);
+        resolveStop();
+      }, 3_000);
+      shutdown.catch(() => undefined).then(() => { clearTimeout(deadline); resolveStop(); });
+    }).then(() => {
+      console.log('\nPresence Studio stopped.');
+      if (exit) process.exit(exitCode);
+    });
+    return stopPromise;
   }
 
-  process.once('SIGINT', () => void stop());
-  process.once('SIGTERM', () => void stop());
+  const onSignal = () => void stop();
+  process.once('SIGINT', onSignal);
+  process.once('SIGTERM', onSignal);
 
   server = createServer(async (request, response) => {
-    const url = new URL(request.url || '/', 'http://' + (request.headers.host || '127.0.0.1'));
-
     try {
+      let url;
+      try {
+        const host = request.headers.host || '127.0.0.1';
+        const authority = new URL('http://' + host);
+        if (authority.host !== host || authority.pathname !== '/' || authority.search || authority.hash || authority.username || authority.password) throw new Error('Invalid authority');
+        url = new URL(request.url || '/', authority);
+      } catch { throw requestError('Request URL or Host is invalid.', 'INVALID_URL'); }
       const art = Object.values(characterArt).find(item => item.path === url.pathname);
       if (request.method === 'GET' && art) {
         const bytes = await readFile(join(scriptDirectory, '../public', art.path));
@@ -749,8 +813,7 @@ export async function startStudioServer(options = {}) {
 
       if (request.method === 'PUT' && url.pathname === '/api/codex-session') {
         const body = await readJson(request);
-        const next = validateConfig({ ...config, codexSession:body.title ? { title:body.title, startedAt:body.restart || !config.codexSession ? new Date().toISOString() : config.codexSession.startedAt } : null });
-        config = await configStore.save(next);
+        await commitConfig(current => ({ ...current, codexSession:body.title ? { title:body.title, startedAt:body.restart || !current.codexSession ? nowDate().toISOString() : current.codexSession.startedAt } : null }));
         await reconcilePresence({force:true,reason:'Codex session shared'});
         sendJson(response,200,{session:config.codexSession,runtime:runtimeSnapshot()});return;
       }
@@ -760,7 +823,7 @@ export async function startStudioServer(options = {}) {
       }
       if (request.method === 'GET' && url.pathname === '/api/installed-apps') {
         if (url.searchParams.get('refresh') === '1') {
-          try { await refreshInstalledApps(dataDirectory); }
+          try { if (!options.disableHostEffects) await refreshInstalledApps(dataDirectory, installedAppsOptions); }
           catch { /* serve whatever is cached */ }
         }
         sendJson(response, 200, { apps:getInstalledApps() });
@@ -769,8 +832,7 @@ export async function startStudioServer(options = {}) {
       if (request.method === 'PUT' && url.pathname === '/api/app-mappings') {
         const body = await readJson(request);
         if (!['apps', 'schedule'].includes(body.selectionMode)) throw new Error('Choose applications or schedule.');
-        const next = validateConfig({ ...config, appMappings:body.mappings, settings:{ ...config.settings, selectionMode:body.selectionMode, scheduleEnabled:true }, manualOverride:null });
-        config = await configStore.save(next);
+        await commitConfig(current => ({ ...current, appMappings:body.mappings, settings:{ ...current.settings, selectionMode:body.selectionMode, scheduleEnabled:true }, manualOverride:null }));
         await reconcilePresence({ force:true, reason:'Application mappings saved' });
         sendJson(response, 200, { config:publicConfig(), runtime:runtimeSnapshot() });
         return;
@@ -866,7 +928,9 @@ export async function startStudioServer(options = {}) {
 
       if (request.method === 'POST' && url.pathname === '/api/quit') {
         sendJson(response, 200, { ok: true });
-        setTimeout(() => void stop(), 50);
+        setTimeout(() => {
+          Promise.resolve().then(() => options.onQuit ? options.onQuit() : stop()).catch(error => { runtime.lastError = errorMessage(error); });
+        }, 50);
         return;
       }
 
@@ -886,6 +950,10 @@ export async function startStudioServer(options = {}) {
 
   server.on('error', (error) => {
     if (error?.code === 'EADDRINUSE') {
+      if (options.requireOwnership) {
+        void stop(0, { exit: false }).then(() => failServerStart(Object.assign(new Error('Presence Studio port is already in use.'), { code: 'STUDIO_PORT_IN_USE' })));
+        return;
+      }
       const studioUrl = 'http://127.0.0.1:' + port;
       onLog('Presence Studio is already running at ' + studioUrl);
       if (shouldOpenBrowser) openBrowser(studioUrl);
@@ -904,15 +972,15 @@ export async function startStudioServer(options = {}) {
     finishServerStart = resolveStart;
     failServerStart = rejectStart;
     server.listen(port, '127.0.0.1', async () => {
-    stopAppWatcher = watchWindowsApps(snapshot => {
+    if (!options.disableHostEffects) stopAppWatcher = (options.watchApps ?? watchWindowsApps)(snapshot => {
       appSnapshot = snapshot;
       stableForeground = settleForeground(snapshot.apps.find(app => app.foreground)?.executable || '');
       if (stableForeground && stableForeground !== recentApplications[0]) recentApplications = [stableForeground, ...recentApplications.filter(path => path !== stableForeground)].slice(0,100);
       if (config.settings.selectionMode === 'apps') void reconcilePresence({ reason:'Foreground application changed' }).catch(error => { runtime.lastError = errorMessage(error); });
-    }, { disabled:process.env.PRESENCE_APP_DETECTION_DISABLE === '1' });
+    }, { disabled:env.PRESENCE_APP_DETECTION_DISABLE === '1' });
     // Installed-apps catalog (Start Menu): scanned in the background, served
     // from cache instantly.
-    void initInstalledApps(dataDirectory);
+    if (!options.disableHostEffects && env.PRESENCE_APP_DETECTION_DISABLE !== '1') void initInstalledApps(dataDirectory, installedAppsOptions).catch(error => { runtime.lastError = errorMessage(error); });
     const studioUrl = 'http://127.0.0.1:' + port;
     console.log('\nPresence Studio is ready.');
     console.log(studioUrl);
@@ -927,8 +995,7 @@ export async function startStudioServer(options = {}) {
     console.log('Press Ctrl+C to stop.\n');
 
     await syncAutostart();
-    await expireOverride();
-    scheduleHeartbeat();
+    await reconcilePresence({ reason: 'Startup' });
     void connectDiscord();
     if (shouldOpenBrowser) openBrowser(studioUrl);
     resolveStart({ alreadyRunning: false, url: studioUrl, port, stop: () => stop(0) });

@@ -1,6 +1,6 @@
 import { validateCodexSession } from './codex-session.mjs';
 import { characterArt, defaultCharacterArt, resolveDiscordArt } from './character-art.mjs';
-import { validateMappings } from './app-presence.mjs';
+import { appKey, validateMappings } from './app-presence.mjs';
 import { parseLocalTime } from './presence-scheduler.mjs';
 
 export const activityTypes = {
@@ -178,6 +178,27 @@ export function validateConfig(input) {
       autostartEnabled: input?.settings?.autostartEnabled !== false,
     },
     manualOverride: validateManualOverride(input?.manualOverride, sceneIds),
+  };
+}
+
+// Storage keeps owner extensions; runtime/API validation remains a known-field projection.
+export function overlayConfigDocument(raw, normalized, { writeSlots = true } = {}) {
+  const id = item => item?.id === undefined ? undefined : String(item.id).trim();
+  function retainedEntries(previous, next, identity) {
+    const retained = new Map((Array.isArray(previous) ? previous : [])
+      .filter(item => identity(item) !== undefined)
+      .map(item => [identity(item), item]));
+    return next.map(item => ({ ...(identity(item) === undefined ? {} : retained.get(identity(item))), ...item }));
+  }
+  return {
+    ...raw,
+    ...normalized,
+    settings: { ...raw?.settings, ...normalized.settings },
+    scenes: retainedEntries(raw?.scenes, normalized.scenes, id),
+    appMappings: retainedEntries(raw?.appMappings, normalized.appMappings, mapping => mapping?.executable ? appKey(mapping.executable) : undefined),
+    slots: !writeSlots && Array.isArray(raw?.slots)
+      ? raw.slots
+      : retainedEntries(raw?.slots, normalized.slots, id),
   };
 }
 

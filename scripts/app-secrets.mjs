@@ -1,5 +1,8 @@
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import * as filesystem from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { assertSupportedVersion, atomicWriteJson, verifiedBackup } from './local-config-store.mjs';
+
+const secretWrites = new Map();
 
 const GIPHY_KEY_PATTERN = /^[a-zA-Z0-9_-]{20,200}$/;
 const DISCORD_CLIENT_ID_PATTERN = /^\d{17,20}$/;
@@ -105,14 +108,17 @@ export async function loadAppSecrets({
   environmentApiKey = '',
   environmentGiphyApiKey = environmentApiKey,
   environmentDiscordClientId = '',
+  fs = filesystem,
 } = {}) {
   try {
-    const payload = JSON.parse(await readFile(filePath, 'utf8'));
+    const payload = JSON.parse(await fs.readFile(filePath, 'utf8'));
+    assertSupportedVersion(payload, 1);
     return secretsFromPayload(payload, filePath, {
       environmentDiscordClientId,
       environmentGiphyApiKey,
     });
   } catch (error) {
+    if (error?.code === 'UNSUPPORTED_SCHEMA') throw error;
     if (error?.code === 'ENOENT') {
       return secretsFromPayload({}, filePath, {
         environmentDiscordClientId,
@@ -124,7 +130,7 @@ export async function loadAppSecrets({
       const recovered = secretsFromPayload({}, filePath, {
         environmentDiscordClientId,
         environmentGiphyApiKey,
-        warning: 'The app-owned secrets file could not be loaded. ' + error.message,
+        warning: 'The app-owned secrets file could not be loaded.',
       });
       if (recovered.discordClientId || recovered.giphyApiKey) {
         return { ...recovered, warning: null };
@@ -133,24 +139,34 @@ export async function loadAppSecrets({
     }
     return emptySecrets(
       filePath,
-      'The app-owned secrets file could not be loaded. ' + error.message,
+      'The app-owned secrets file could not be loaded.',
     );
   }
 }
 
-export async function saveAppSecrets({
+async function writeAppSecrets({
   filePath,
   discordClientId,
   giphyApiKey,
   clearDiscordClientId = false,
   clearGiphyApiKey = false,
+  fs = filesystem,
 } = {}) {
   let existing = {};
+  let raw;
   try {
-    existing = JSON.parse(await readFile(filePath, 'utf8'));
+    raw = await fs.readFile(filePath);
   } catch (error) {
-    if (error?.code !== 'ENOENT') {
-      // Keep going with empty existing when the file is unreadable.
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  if (raw !== undefined) {
+    try {
+      existing = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw));
+      assertSupportedVersion(existing, 1);
+      if (!existing || typeof existing !== 'object' || Array.isArray(existing)) throw new SyntaxError('Invalid secrets object.');
+    } catch (error) {
+      if (error?.code === 'UNSUPPORTED_SCHEMA') throw error;
+      await verifiedBackup(filePath, raw, fs);
       existing = {};
     }
   }
@@ -171,28 +187,13 @@ export async function saveAppSecrets({
   }
 
   const payload = {
+    ...existing,
     version: 1,
     discordClientId: nextDiscord,
     giphyApiKey: nextGiphy,
   };
 
-  const directory = dirname(filePath);
-  const temporaryPath = filePath + '.tmp-' + process.pid;
-  await mkdir(directory, { recursive: true });
-  await writeFile(
-    temporaryPath,
-    JSON.stringify(payload, null, 2) + '\n',
-    { encoding: 'utf8', mode: 0o600 },
-  );
-  try {
-    await rename(temporaryPath, filePath);
-  } catch (error) {
-    if (!['EEXIST', 'EPERM'].includes(error?.code)) throw error;
-    await rm(filePath, { force: true });
-    await rename(temporaryPath, filePath);
-  } finally {
-    await rm(temporaryPath, { force: true }).catch(() => undefined);
-  }
+  await atomicWriteJson(filePath, payload, { fs, mode: 0o600 });
 
   return {
     discordClientId: nextDiscord,
@@ -203,6 +204,15 @@ export async function saveAppSecrets({
     filePath,
     warning: null,
   };
+}
+
+export function saveAppSecrets(options = {}) {
+  const key = resolve(options.filePath);
+  const operation = (secretWrites.get(key) || Promise.resolve()).then(() => writeAppSecrets(options));
+  const tail = operation.catch(() => undefined);
+  secretWrites.set(key, tail);
+  void tail.then(() => { if (secretWrites.get(key) === tail) secretWrites.delete(key); });
+  return operation;
 }
 
 export function publicSecretsStatus(secrets) {
