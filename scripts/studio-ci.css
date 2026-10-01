@@ -197,6 +197,74 @@ body.gif-picker-open { overflow: hidden; }
 /* ---------- 3. App shell ---------- */
 .vs-app { display: flex; min-height: 100vh; }
 
+/* Frameless Electron window: slim custom title bar on top, no logo strip.
+   The bar is only unhidden when the renderer detects the Electron bridge. */
+.vs-titlebar {
+  display: none;
+  flex: 0 0 38px;
+  align-items: stretch;
+  background: var(--vs-bg);
+  border-bottom: 1px solid var(--vs-hairline-soft);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.vs-titlebar-drag { flex: 1; -webkit-app-region: drag; }
+.vs-titlebar-controls { display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.vs-winbtn {
+  width: 54px;
+  display: flex; align-items: center; justify-content: center;
+  border: 0; background: transparent; color: var(--vs-ink2);
+  cursor: pointer; padding: 0;
+  transition: background var(--vs-dur-fast, 120ms) ease, color var(--vs-dur-fast, 120ms) ease;
+}
+.vs-winbtn:hover { background: var(--vs-tint); color: var(--vs-ink); }
+.vs-winbtn:active { background: var(--vs-hairline); }
+.vs-winbtn:focus-visible { outline: 2px solid var(--vs-accent); outline-offset: -2px; }
+.vs-winbtn-close:hover { background: #e81123; color: #fff; }
+.vs-winbtn-close:active { background: #c60f1f; color: #fff; }
+body.vs-frameless { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+body.vs-frameless .vs-titlebar { display: flex; }
+body.vs-frameless .vs-app { flex: 1; min-height: 0; min-width: 0; }
+body.vs-frameless .vs-sidebar { height: 100%; }
+/* Custom confirm dialog (replaces native confirm()) */
+.vs-confirm-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgb(15 12 8 / 0.42);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: vs-confirm-in 160ms ease;
+}
+.vs-confirm-backdrop[hidden] { display: none; }
+@keyframes vs-confirm-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.vs-confirm {
+  width: min(400px, 100%);
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-hairline);
+  border-radius: 20px;
+  padding: 26px 26px 22px;
+  box-shadow: var(--vs-shadow-pop);
+  animation: vs-confirm-pop 200ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes vs-confirm-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+.vs-confirm h2 { font-size: 17px; font-weight: 600; margin: 0 0 8px; color: var(--vs-ink); }
+.vs-confirm p { font-size: 14px; line-height: 1.55; color: var(--vs-ink2); margin: 0 0 22px; overflow-wrap: break-word; }
+.vs-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.vs-confirm-actions .vs-btn { min-width: 96px; }
+.vs-confirm.vs-confirm-danger #confirmOkBtn {
+  background: var(--vs-bad-t, #ed4245);
+  border-color: transparent;
+  color: #fff;
+}
+.vs-confirm.vs-confirm-danger #confirmOkBtn:hover { filter: brightness(1.06); }
+
 /* Sidebar */
 .vs-sidebar {
   width: 248px; flex: 0 0 248px;

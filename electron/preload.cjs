@@ -12,6 +12,16 @@ contextBridge.exposeInMainWorld('vibeStudio', {
   downloadUpdate: () => ipcRenderer.invoke('vibe:download-update'),
   quitAndInstall: () => ipcRenderer.invoke('vibe:quit-and-install'),
   openStudio: () => ipcRenderer.invoke('vibe:open-studio'),
+  // Frameless window controls for the custom title bar.
+  windowMinimize: () => ipcRenderer.invoke('vibe:window-minimize'),
+  windowToggleMaximize: () => ipcRenderer.invoke('vibe:window-toggle-maximize'),
+  windowClose: () => ipcRenderer.invoke('vibe:window-close'),
+  isMaximized: () => ipcRenderer.invoke('vibe:is-maximized'),
+  onMaximizeChanged: (callback) => {
+    const handler = (_event, maximized) => callback(maximized);
+    ipcRenderer.on('vibe:maximize-changed', handler);
+    return () => ipcRenderer.removeListener('vibe:maximize-changed', handler);
+  },
   onUpdateState: (callback) => {
     const handler = (_event, state) => callback(state);
     ipcRenderer.on('vibe:update-state', handler);

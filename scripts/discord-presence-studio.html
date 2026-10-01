@@ -11,6 +11,16 @@
   <link rel="stylesheet" href="/studio-ci.css" />
   </head>
   <body>
+    <!-- Custom frameless window chrome (Electron only; hidden in browsers).
+         No logo bar — just a slim drag strip with modern window controls. -->
+    <div class="vs-titlebar" id="windowTitlebar" hidden>
+      <div class="vs-titlebar-drag" id="windowDragRegion" aria-hidden="true"></div>
+      <div class="vs-titlebar-controls" role="group" aria-label="ตัวควบคุมหน้าต่าง">
+        <button type="button" class="vs-winbtn" id="winMinimize" aria-label="ย่อหน้าต่าง"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M2 6h8"/></svg></button>
+        <button type="button" class="vs-winbtn" id="winMaximize" aria-label="ขยายหน้าต่าง"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1"/></svg></button>
+        <button type="button" class="vs-winbtn vs-winbtn-close" id="winClose" aria-label="ปิดหน้าต่าง"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg></button>
+      </div>
+    </div>
     <script>
       // Pre-apply the persisted sidebar state before first paint so returning
       // users never see the expanded sidebar flash before it snaps to the rail.
@@ -528,6 +538,17 @@ const STR = {
 "+ เพิ่ม Scene": "+ Add Scene",
 "ทำสำเนา": "Duplicate",
 "ลบ Scene": "Delete Scene",
+"ลบ Scene นี้?": "Delete this Scene?",
+"ลบรหัสแอปพลิเคชัน?": "Remove the application ID?",
+"ลบ": "Delete",
+"ออกจาก Vibe Studio?": "Quit Vibe Studio?",
+"เปิดพร้อม Windows อยู่ — companion จะกลับมาทำงานเมื่อล็อกอินครั้งถัดไป ปิดตัวเลือกนั้นก่อนถ้าอยากหยุดถาวร ออกเลยไหม?": "Launch at startup is on — the companion will return at your next login. Turn that off first to stop for good. Quit now?",
+"ออกจาก companion เบื้องหลังและล้าง Rich Presence? companion จะหยุดทำงาน": "Quit the background companion and clear Rich Presence? The companion will stop.",
+"ออกเลย": "Quit now",
+"ลบการจับคู่นี้?": "Remove this pairing?",
+"ย่อหน้าต่าง": "Minimize window",
+"ขยายหน้าต่าง": "Maximize window",
+"ย่อขนาดหน้าต่างลง": "Restore window",
 "กลับคลัง Scene": "Back to Scene library",
 "การจับคู่แอป": "App pairing",
 "แอปของคุณ": "Your apps",
@@ -1352,6 +1373,58 @@ function reemitToast() {
         return prefix + '-' + suffix;
       }
 
+      // Custom confirm dialog — replaces native confirm() everywhere so the
+      // UI never shows the browser's grey box. Promise<boolean>.
+      let confirmResolve = null;
+      function confirmDialog({ title, message, okText, cancelText, danger = false }) {
+        const backdrop = document.querySelector('#confirmBackdrop');
+        const dialog = backdrop.querySelector('.vs-confirm');
+        const titleEl = document.querySelector('#confirmTitle');
+        const messageEl = document.querySelector('#confirmMessage');
+        const okBtn = document.querySelector('#confirmOkBtn');
+        const cancelBtn = document.querySelector('#confirmCancelBtn');
+        // If a dialog is already open, resolve it as cancelled first.
+        if (confirmResolve) { const pending = confirmResolve; confirmResolve = null; pending(false); }
+        titleEl.textContent = title || '';
+        messageEl.textContent = message || '';
+        okBtn.textContent = okText || t('ตกลง');
+        cancelBtn.textContent = cancelText || t('ยกเลิก');
+        dialog.classList.toggle('vs-confirm-danger', Boolean(danger));
+        const previousFocus = document.activeElement;
+        backdrop.hidden = false;
+        const close = (value) => {
+          if (!confirmResolve) return;
+          const resolve = confirmResolve;
+          confirmResolve = null;
+          backdrop.hidden = true;
+          document.removeEventListener('keydown', onKey, true);
+          if (previousFocus?.focus) previousFocus.focus({ preventScroll: true });
+          resolve(value);
+        };
+        const focusables = () => [...dialog.querySelectorAll('button:not([disabled])')]
+          .filter((el) => el.getClientRects().length);
+        const onKey = (event) => {
+          if (event.key === 'Escape') { event.preventDefault(); close(false); return; }
+          if (event.key !== 'Tab') return;
+          const items = focusables();
+          if (!items.length) { event.preventDefault(); return; }
+          const first = items[0];
+          const last = items[items.length - 1];
+          if (event.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+            event.preventDefault(); last.focus();
+          } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+            event.preventDefault(); first.focus();
+          }
+        };
+        document.addEventListener('keydown', onKey, true);
+        backdrop.onmousedown = (event) => { if (event.target === backdrop) close(false); };
+        okBtn.onclick = () => close(true);
+        cancelBtn.onclick = () => close(false);
+        // Safe default: focus cancel for destructive actions, ok otherwise.
+        setTimeout(() => { (danger ? cancelBtn : okBtn).focus(); }, 0);
+        return new Promise((resolve) => { confirmResolve = resolve; });
+      }
+
       function showMessage(text, type, vars) {
         _lastToast = text ? { text, type, vars } : null;
         if (type === 'error') {
@@ -2111,8 +2184,14 @@ function reemitToast() {
           remove.className = 'vs-icon-btn vs-icon-btn-danger';
           remove.setAttribute('aria-label', t('ลบ {t}', { t: slot.startTime }));
           remove.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6"/></svg>';
-          remove.addEventListener('click', () => {
-            if (!confirm(t('ลบช่วงเวลา {t}?', { t: slot.startTime }))) return;
+          remove.addEventListener('click', async () => {
+            const ok = await confirmDialog({
+              title: t('ลบช่วงเวลานี้?'),
+              message: t('ลบช่วงเวลา {t}?', { t: slot.startTime }),
+              okText: t('ลบ'),
+              danger: true,
+            });
+            if (!ok) return;
             config.slots = config.slots.filter((item) => item.id !== slot.id);
             renderSlots();
             scheduleSave();
@@ -2386,7 +2465,12 @@ function reemitToast() {
         event.preventDefault();
         const discordValue = discordClientIdInput.value.trim();
         if (!discordValue && runtime?.clientId) {
-          const ok = confirm(t('จะลบรหัสแอปพลิเคชัน Discord ที่บันทึกไว้ใช่ไหม? การเชื่อมต่อ Discord จะหลุดจนกว่าจะใส่รหัสใหม่'));
+          const ok = await confirmDialog({
+            title: t('ลบรหัสแอปพลิเคชัน?'),
+            message: t('จะลบรหัสแอปพลิเคชัน Discord ที่บันทึกไว้ใช่ไหม? การเชื่อมต่อ Discord จะหลุดจนกว่าจะใส่รหัสใหม่'),
+            okText: t('ลบ'),
+            danger: true,
+          });
           if (!ok) return;
         }
         saveSettingsButton.disabled = true;
@@ -2951,12 +3035,16 @@ function reemitToast() {
         showMessage('ทำสำเนา "{name}" แล้ว', 'success', { name: scene.sceneName });
       });
 
-      deleteSceneButton.addEventListener('click', () => {
+      deleteSceneButton.addEventListener('click', async () => {
         if (!config || config.scenes.length <= 1 || !currentScene()) return;
         const scene = currentScene();
-        if (!confirm(runtime.selectionMode === 'apps'
-          ? t('ลบ Scene "{name}"?', { name: scene.sceneName })
-          : t('ลบ Scene "{name}" พร้อมช่วงเวลาทั้งหมดที่ผูกไว้?', { name: scene.sceneName }))) return;
+        const ok = await confirmDialog({
+          title: t('ลบ Scene นี้?'),
+          message: t('ลบ Scene "{name}"?', { name: scene.sceneName }),
+          okText: t('ลบ Scene'),
+          danger: true,
+        });
+        if (!ok) return;
         config.scenes = config.scenes.filter((item) => item.id !== scene.id);
         config.slots = config.slots.filter((slot) => slot.sceneId !== scene.id);
         selectedSceneId = config.scenes[0].id;
@@ -3038,9 +3126,15 @@ function reemitToast() {
 
       document.querySelector('#quitButton').addEventListener('click', async () => {
         const autostartOn = Boolean(runtime?.autostart?.enabled);
-        if (!confirm(autostartOn
-          ? 'เปิดพร้อม Windows อยู่ — companion จะกลับมาทำงานเมื่อล็อกอินครั้งถัดไป ปิดตัวเลือกนั้นก่อนถ้าอยากหยุดถาวร ออกเลยไหม?'
-          : 'ออกจาก companion เบื้องหลังและล้าง Rich Presence? companion จะหยุดทำงาน')) return;
+        const ok = await confirmDialog({
+          title: t('ออกจาก Vibe Studio?'),
+          message: autostartOn
+            ? t('เปิดพร้อม Windows อยู่ — companion จะกลับมาทำงานเมื่อล็อกอินครั้งถัดไป ปิดตัวเลือกนั้นก่อนถ้าอยากหยุดถาวร ออกเลยไหม?')
+            : t('ออกจาก companion เบื้องหลังและล้าง Rich Presence? companion จะหยุดทำงาน'),
+          okText: t('ออกเลย'),
+          danger: true,
+        });
+        if (!ok) return;
         try {
           await requestJson('/api/quit', { method: 'POST' });
           showMessage(autostartOn
@@ -3233,7 +3327,7 @@ function reemitToast() {
           const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=mapping.enabled;enabled.setAttribute('aria-label', t('เปิดใช้ {name}', { name: mapping.name }));enabled.onchange=()=>{mapping.enabled=enabled.checked;document.querySelector('#saveAppMappings').hidden=false;};
           const label=document.createElement('div');label.className='vs-map-label';const name=document.createElement('strong');name.textContent=mapping.name;const path=document.createElement('small');path.textContent=mapping.executable;const info=document.createElement('details');const summary=document.createElement('summary');summary.textContent=t('ตำแหน่งไฟล์');info.append(summary,path);label.append(name);label.title=mapping.executable;
           const select=document.createElement('select');select.setAttribute('aria-label', t('Scene ของ {x}', { x: mapping.name }));presetOptions(select,mapping.sceneId);select.onchange=()=>{mapping.sceneId=select.value;document.querySelector('#saveAppMappings').hidden=false;};
-          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'+escHtml(t('ลบ'));remove.setAttribute('aria-label', t('ลบการจับคู่ {name}', { name: mapping.name }));remove.onclick=()=>{if(!confirm(t('ลบการจับคู่ {name}?', { name: mapping.name })))return;mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
+          const remove=document.createElement('button');remove.type='button';remove.className='vs-btn vs-btn-sm vs-btn-ghost';remove.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'+escHtml(t('ลบ'));remove.setAttribute('aria-label', t('ลบการจับคู่ {name}', { name: mapping.name }));remove.onclick=async()=>{const ok=await confirmDialog({title:t('ลบการจับคู่นี้?'),message:t('ลบการจับคู่ {name}?', { name: mapping.name }),okText:t('ลบ'),danger:true});if(!ok)return;mappingDraft.splice(index,1);renderMappings();document.querySelector('#saveAppMappings').hidden=false;};
           const icon=appIcon(discoveredApps.find(app=>applicationKey(app.executable)===applicationKey(mapping.executable))||mapping);label.prepend(icon);row.append(enabled,label,select,remove);list.append(row);
         });
       }
@@ -3348,6 +3442,36 @@ function reemitToast() {
       // - update banner driven by main-process electron-updater events
       // - "แอป Vibe Studio" settings card: version, check-for-updates,
       //   launch-at-login toggle (supersedes the legacy Windows-shortcut row)
+      // Custom frameless window chrome (Electron only). The native title bar
+      // is replaced by a slim drag strip with modern window controls.
+      function initWindowControls() {
+        const vibe = window.vibeStudio;
+        if (!vibe || !vibe.isElectron) return;
+        document.body.classList.add('vs-frameless');
+        const bar = document.querySelector('#windowTitlebar');
+        if (bar) bar.hidden = false;
+        const minBtn = document.querySelector('#winMinimize');
+        const maxBtn = document.querySelector('#winMaximize');
+        const closeBtn = document.querySelector('#winClose');
+        const restoreSvg = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1"/></svg>';
+        const maximizeSvg = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 2.5h5v5"/><rect x="2.5" y="4.5" width="7" height="7" rx="1"/></svg>';
+        const syncMaximize = (maximized) => {
+          if (!maxBtn) return;
+          maxBtn.innerHTML = maximized ? maximizeSvg : restoreSvg;
+          maxBtn.setAttribute('aria-label', maximized ? t('ย่อขนาดหน้าต่างลง') : t('ขยายหน้าต่าง'));
+        };
+        if (minBtn) minBtn.addEventListener('click', () => { vibe.windowMinimize?.(); });
+        if (maxBtn) maxBtn.addEventListener('click', async () => {
+          try { syncMaximize(await vibe.windowToggleMaximize?.()); }
+          catch { /* control is best-effort */ }
+        });
+        if (closeBtn) closeBtn.addEventListener('click', () => { vibe.windowClose?.(); });
+        const drag = document.querySelector('#windowDragRegion');
+        if (drag) drag.addEventListener('dblclick', () => { maxBtn?.click(); });
+        if (vibe.isMaximized) vibe.isMaximized().then(syncMaximize).catch(() => {});
+        if (vibe.onMaximizeChanged) vibe.onMaximizeChanged(syncMaximize);
+      }
+
       function initElectronShell() {
         const vibe = window.vibeStudio;
         if (!vibe || !vibe.isElectron) return;
@@ -3516,9 +3640,22 @@ function reemitToast() {
       // to the persisted language before the first data render.
       wireLangThemeToggles();
       applyI18n();
+      initWindowControls();
       initElectronShell();
 
       void initialize();
     </script>
+    <!-- Custom confirm dialog: replaces every native confirm() so destructive
+         actions always speak the app's language and visual voice. -->
+    <div class="vs-confirm-backdrop" id="confirmBackdrop" hidden>
+      <div class="vs-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+        <h2 id="confirmTitle"></h2>
+        <p id="confirmMessage"></p>
+        <div class="vs-confirm-actions">
+          <button type="button" class="vs-btn vs-btn-ghost" id="confirmCancelBtn">ยกเลิก</button>
+          <button type="button" class="vs-btn vs-btn-primary" id="confirmOkBtn">ตกลง</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

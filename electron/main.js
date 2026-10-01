@@ -72,6 +72,9 @@ if (!app.requestSingleInstanceLock()) {
       title: 'Vibe Studio',
       icon,
       show: false,
+      // Frameless: the renderer draws its own slim title bar with custom
+      // minimize / maximize / close controls (no OS logo bar).
+      frame: false,
       backgroundColor: '#FAF8F5',
       webPreferences: {
         preload: join(appDir, 'preload.cjs'),
@@ -88,6 +91,8 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.on('closed', () => {
       mainWindow = null;
     });
+    mainWindow.on('maximize', () => mainWindow.webContents.send('vibe:maximize-changed', true));
+    mainWindow.on('unmaximize', () => mainWindow.webContents.send('vibe:maximize-changed', false));
     return mainWindow;
   }
 
@@ -256,6 +261,17 @@ if (!app.requestSingleInstanceLock()) {
     autoUpdater.quitAndInstall(false, true);
   });
   ipcMain.handle('vibe:open-studio', () => showWindow());
+  // Frameless window controls (custom title bar in the renderer).
+  ipcMain.handle('vibe:window-minimize', () => { mainWindow?.minimize(); });
+  ipcMain.handle('vibe:window-toggle-maximize', () => {
+    if (!mainWindow) return false;
+    if (mainWindow.isMaximized()) mainWindow.unmaximize();
+    else mainWindow.maximize();
+    return mainWindow.isMaximized();
+  });
+  ipcMain.handle('vibe:is-maximized', () => mainWindow?.isMaximized() ?? false);
+  // Reuse the tray-hide behavior: closing the window hides it to the tray.
+  ipcMain.handle('vibe:window-close', () => { mainWindow?.close(); });
 
   async function quitApp() {
     appQuitting = true;
