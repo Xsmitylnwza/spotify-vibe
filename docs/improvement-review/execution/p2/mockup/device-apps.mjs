@@ -12,13 +12,23 @@ export function publicAppIcon(executable, name) {
   return sites[file] ? `https://www.google.com/s2/favicons?domain=${sites[file]}&sz=128` : '';
 }
 
+const HELPER_EXES = new Set(['textinputhost.exe', 'applicationframehost.exe', 'runtimebroker.exe', 'shellexperiencehost.exe', 'searchhost.exe', 'searchapp.exe', 'startmenuexperiencehost.exe', 'systemsettings.exe', 'lockapp.exe', 'taskhostw.exe', 'sihost.exe', 'ctfmon.exe', 'dllhost.exe', 'conhost.exe', 'backgroundtaskhost.exe']);
+/* Junk = uninstallers, Windows helper/system processes, bare Electron hosts and dock helpers. Flagged (not dropped) so the UI can offer "N hidden — show". */
+export function isJunkApp(executable, name = '') {
+  const file = executable.replaceAll('/', '\\').split('\\').at(-1).toLowerCase(), label = String(name).trim();
+  if (/^unins/.test(file) || /uninstall/i.test(file) || /uninstall|ถอนการติดตั้ง/i.test(label)) return true;
+  if (HELPER_EXES.has(file)) return true;
+  if (file === 'electron.exe' && (!label || /^electron(\.exe)?$/i.test(label))) return true;
+  if (/^dock_?\d*\.exe$/.test(file) || /^dock_?helper/.test(file)) return true;
+  return false;
+}
 export function appIdentity(executable) { return 'device-' + createHash('sha256').update(appKey(executable)).digest('hex').slice(0, 24); }
 export function normalizeDeviceApps(apps) {
   const seen = new Set();
   return apps.filter(a => a && typeof a.executable === 'string' && /^[a-z]:\\.*\.exe$/i.test(a.executable)).flatMap(a => {
     const id = appIdentity(a.executable); if (seen.has(id)) return []; seen.add(id);
     const name = String(a.name || a.executable.split('\\').at(-1));
-    return [{ id, name, exe: a.executable, publicIcon: publicAppIcon(a.executable, name), icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '', foreground: !!a.foreground }];
+    return [{ id, name, exe: a.executable, publicIcon: publicAppIcon(a.executable, name), icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '', foreground: !!a.foreground, hidden: isJunkApp(a.executable, name) }];
   }).sort((a, b) => Number(b.foreground) - Number(a.foreground) || a.name.localeCompare(b.name));
 }
 export function readRunningApps(watch = watchWindowsApps) {

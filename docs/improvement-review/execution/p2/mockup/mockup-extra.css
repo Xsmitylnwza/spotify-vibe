@@ -746,3 +746,18 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 
 .mk-generic-app { width: 100%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 12px; background: var(--vs-sunken); border: 1px solid var(--vs-hairline); color: var(--vs-ink2); }
 .mk-app-art { flex-direction: column; gap: 6px; height: auto; } .mk-app-art > span:last-child { font-size: 11px; line-height: 1.25; text-align: center; }
+
+/* Add app picker: multi-select */
+.mk-tile, .mk-item { position: relative; }
+.mk-check { width: 20px; height: 20px; flex: none; border-radius: 50%; border: 2px solid var(--vs-hairline); display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; background: transparent; }
+.mk-tile .mk-check { position: absolute; top: 6px; right: 6px; }
+.mk-check.is-on { background: var(--vs-accent); border-color: var(--vs-accent); }
+.mk-item .mk-check { margin-left: auto; }
+.mk-inscene { font-size: 11px; color: var(--vs-ink2); background: var(--vs-sunken); border: 1px solid var(--vs-hairline); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+.mk-tile .mk-inscene { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); max-width: 90%; overflow: hidden; text-overflow: ellipsis; }
+.mk-tile.is-sel, .mk-item.is-sel { outline: 2px solid var(--vs-accent); outline-offset: -2px; }
+.mk-pchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.mk-pchip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 8px; border-radius: 999px; background: var(--vs-sunken); border: 1px solid var(--vs-hairline); font-size: 13px; }
+.mk-pchip .mk-ico, .mk-pchip .mk-ico-fb { width: 16px; height: 16px; flex: 0 0 16px; border-radius: 4px; font-size: 9px; }
+.mk-pchip button { border: 0; background: none; color: var(--vs-ink2); cursor: pointer; border-radius: 50%; width: 20px; height: 20px; }
+.mk-pchip button:focus-visible { outline: 2px solid var(--vs-accent); }

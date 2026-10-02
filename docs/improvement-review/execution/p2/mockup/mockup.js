@@ -777,12 +777,13 @@ function openPicker(tab, opener, opts = {}) {
 function buildPicker() {
   const p = S.picker;
   if (REAL.enabled) p.tab = 'app';
+  const hiddenN = [...APPS, ...INSTALLED].filter(a => a.hidden).length;
   const html = `<div class="gif-picker mk-picker"><button class="gif-picker-backdrop" type="button" data-act="closepicker" aria-label="${T('Close', 'ปิด')}" tabindex="-1"></button>
   <div class="vs-dialog" role="dialog" aria-modal="true" aria-labelledby="ptitle" data-kind="picker">
   <div class="gif-dialog-head"><div><h2 id="ptitle">${pickTitle()[0]}</h2><p>${pickTitle()[1]}</p></div><button class="vs-icon-btn" type="button" data-act="closepicker" aria-label="${T('Close', 'ปิด')}">✕</button></div>
   <div class="vs-segmented mk-tabs" role="tablist" style="align-self:flex-start"><button type="button" role="tab" class="${p.tab === 'app' ? 'is-on' : ''}" aria-selected="${p.tab === 'app'}" data-act="ptab" data-arg="app">${T('An app', 'แอป')}</button><button type="button" role="tab" class="${p.tab === 'web' ? 'is-on' : ''}" aria-selected="${p.tab === 'web'}" data-act="ptab" data-arg="web" ${REAL.enabled ? 'hidden' : ''}>${T('A web page (tab title)', 'หน้าเว็บ (ชื่อแท็บ)')}</button></div>
-  <div class="gif-search-panel">${p.tab === 'app' ? `<label class="vs-visually-hidden" for="pq">${T('Search apps', 'ค้นหาแอป')}</label><div class="vs-app-search">${I.search}<input type="text" id="pq" value="${esc(p.q)}" placeholder="${T('Search by name or .exe…', 'ค้นหาชื่อแอปหรือ .exe…')}" data-bind="pq" autocomplete="off"></div><div id="plistwrap"></div>
-   ${REAL.enabled ? `<div class="vs-actions"><button class="vs-btn vs-btn-sm" type="button" data-act="refreshapps" ${REAL.loading ? 'disabled' : ''}>${T('Refresh apps', 'อ่านแอปใหม่')}</button><span class="vs-hint">${REAL.loading ? T('Reading apps from this PC…', 'กำลังอ่านแอปจากเครื่อง…') : T('Read from this PC', 'อ่านจากเครื่องนี้')}</span></div>` : `<div class="vs-actions"><button class="vs-btn vs-btn-sm" type="button" data-act="browse">${I.folder}${T('Browse for .exe…', 'เลือกไฟล์ .exe…')}</button><button class="vs-quiet-link" type="button" data-act="sys">${p.showSys ? T('Hide system entries', 'ซ่อนรายการระบบ') : T('4 system & uninstaller entries hidden — show', 'ซ่อนรายการระบบและตัวถอนการติดตั้ง 4 รายการ — แสดง')}</button></div>`}`
+  <div class="gif-search-panel">${p.tab === 'app' ? `<div id="pchips"></div><label class="vs-visually-hidden" for="pq">${T('Search apps', 'ค้นหาแอป')}</label><div class="vs-app-search">${I.search}<input type="text" id="pq" value="${esc(p.q)}" placeholder="${T('Search by name or .exe…', 'ค้นหาชื่อแอปหรือ .exe…')}" data-bind="pq" autocomplete="off"></div><div id="plistwrap"></div>
+   ${REAL.enabled ? `<div class="vs-actions"><button class="vs-btn vs-btn-sm" type="button" data-act="refreshapps" ${REAL.loading ? 'disabled' : ''}>${T('Refresh apps', 'อ่านแอปใหม่')}</button><span class="vs-hint">${REAL.loading ? T('Reading apps from this PC…', 'กำลังอ่านแอปจากเครื่อง…') : T('Read from this PC', 'อ่านจากเครื่องนี้')}</span><button class="vs-btn vs-btn-sm" type="button" data-act="browse">${I.folder}${T('Browse for .exe…', 'เลือกไฟล์ .exe…')}</button>${hiddenN ? `<button class="vs-quiet-link" type="button" data-act="junk">${p.showJunk ? T('Hide system & uninstaller entries', 'ซ่อนรายการระบบและตัวถอนการติดตั้ง') : T(`${hiddenN} hidden — show`, `ซ่อนอยู่ ${hiddenN} รายการ — แสดง`)}</button>` : ''}</div>` : `<div class="vs-actions"><button class="vs-btn vs-btn-sm" type="button" data-act="browse">${I.folder}${T('Browse for .exe…', 'เลือกไฟล์ .exe…')}</button><button class="vs-quiet-link" type="button" data-act="sys">${p.showSys ? T('Hide system entries', 'ซ่อนรายการระบบ') : T('4 system & uninstaller entries hidden — show', 'ซ่อนรายการระบบและตัวถอนการติดตั้ง 4 รายการ — แสดง')}</button></div>`}`
       : `<div class="vs-field"><label class="vs-label" for="wbrowser">${T('Browser', 'เบราว์เซอร์')}</label><select class="vs-select" id="wbrowser" data-bind="wbrowser" style="width:100%"><option ${p.browser === 'Google Chrome' ? 'selected' : ''}>Google Chrome</option><option ${p.browser === 'Microsoft Edge' ? 'selected' : ''}>Microsoft Edge</option><option ${p.browser === 'Any browser' ? 'selected' : ''}>${T('Any browser', 'เบราว์เซอร์ใดก็ได้')}</option></select></div>
    <div class="vs-field"><label class="vs-label" for="wcontains">${T('When the tab title contains', 'เมื่อชื่อแท็บมีคำว่า')}</label><input class="vs-input" type="text" id="wcontains" value="${esc(p.contains)}" data-bind="wcontains" autocomplete="off"></div><div id="wmatch"></div>
    <div class="mk-note">${I.lock}<span>${T('Vibe reads the title of your active browser tab only to compare it with this text. Nothing is sent anywhere unless a Scene’s text uses {window}.', 'Vibe อ่านชื่อแท็บที่ใช้งานอยู่เพื่อเทียบกับข้อความนี้เท่านั้น ไม่ส่งไปไหน เว้นแต่ข้อความของซีนใช้ {window}')}</span></div>`}
@@ -791,33 +792,42 @@ function buildPicker() {
   if (!S.pickerBuilt || !$('.mk-picker .vs-dialog', pl())) { pl().innerHTML = html; trap($('.vs-dialog', pl())); updatePicker(); enterLayer(pl()); S.pickerBuilt = true; }
   else swapRegion($('.mk-picker .vs-dialog', pl()), '.gif-search-panel', () => { morphInto(pl(), html); updatePicker(); });
 }
-const pitem = (a, sel, dim) => `<button class="mk-item" type="button" role="radio" aria-checked="${sel}" aria-pressed="${sel}" data-act="ppick" data-arg="${a.id}" ${dim ? 'style="opacity:.65"' : ''}>${icoOf(a)}<span style="min-width:0"><strong style="font-weight:500;display:block">${esc(a.name)}</strong><small class="vs-hint" style="margin:0;display:block">${esc(a.exe)}</small></span>${sel ? `<span class="vs-pill vs-pill-accent">${T('Selected', 'เลือกแล้ว')}</span>` : ''}</button>`;
+const pSel = p => p.sel || (p.app ? [p.app] : []);
+const pMulti = p => p.mode === 'pair' && p.tab === 'app';
+const pOther = (p, id) => { if (!pMulti(p)) return null; const r = S.rules.find(x => x.kind === 'app' && x.app === id); return r && r.scene !== p.scene ? sceneBy(r.scene) : null; };
+const pHere = (p, id) => pMulti(p) && S.rules.some(x => x.kind === 'app' && x.app === id && x.scene === p.scene);
+const pMark = (p, id) => { if (!pMulti(p)) return ''; const i = pSel(p).indexOf(id), o = pOther(p, id); return `<span class="mk-check ${i >= 0 ? 'is-on' : ''}" aria-hidden="true">${i >= 0 ? i + 1 : ''}</span>${o ? `<span class="mk-inscene">${T('in ', 'อยู่ใน ')}${esc(o.name)}</span>` : pHere(p, id) ? `<span class="mk-inscene">${T('in this Scene', 'อยู่ใน Scene นี้')}</span>` : ''}`; };
+const pitem = (a, sel, dim) => { const p = S.picker, multi = pMulti(p); return `<button class="mk-item ${sel ? 'is-sel' : ''}" type="button" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${sel}" ${multi ? '' : `aria-pressed="${sel}"`} data-act="ppick" data-arg="${a.id}" ${dim ? 'style="opacity:.65"' : ''}>${icoOf(a)}<span style="min-width:0"><strong style="font-weight:500;display:block">${esc(a.name)}</strong><small class="vs-hint" style="margin:0;display:block">${esc(a.exe)}</small></span>${multi ? pMark(p, a.id) : sel ? `<span class="vs-pill vs-pill-accent">${T('Selected', 'เลือกแล้ว')}</span>` : ''}</button>`; };
 function updatePicker() {
   const p = S.picker, m = $('.vs-dialog', pl()); if (!m) return;
   if (p.tab === 'app') {
     const q = p.q.trim().toLowerCase(), f = a => !q || a.name.toLowerCase().includes(q) || a.exe.toLowerCase().includes(q);
-    const run = APPS.filter(f), inst = INSTALLED.filter(f), sys = p.showSys ? SYSTEM.filter(f) : [];
-    const tile = a => `<button class="mk-tile" type="button" role="radio" aria-checked="${p.app === a.id}" aria-pressed="${p.app === a.id}" data-act="ppick" data-arg="${a.id}"><span class="vs-tile-icon">${icoOf(a, 1)}<span class="vs-tile-running" title="${T('Running now', 'กำลังทำงาน')}"></span></span><strong>${esc(a.name)}</strong></button>`;
-    morphInto($('#plistwrap', m), `${REAL.loading ? `<p role="status" class="vs-hint">${T('Reading apps from your PC…', 'กำลังอ่านแอปจากเครื่องของคุณ…')}</p>` : ''}${REAL.error ? `<p role="alert" class="field-error">${esc(REAL.error)}</p>` : ''}<div role="radiogroup" aria-label="${T('Apps', 'แอป')}"><p class="mk-section">${T('Running now', 'กำลังทำงานอยู่')} <span class="vs-hint" style="display:inline;font-weight:400">· ${REAL.enabled ? T('foreground app first', 'แอปที่ใช้อยู่ก่อน') : T('most recently used first', 'ใช้ล่าสุดก่อน')}</span></p>
+    const vis = a => p.showJunk || !a.hidden, run = APPS.filter(f).filter(vis), inst = INSTALLED.filter(f).filter(vis), sys = p.showSys ? SYSTEM.filter(f) : [];
+    const selIds = pSel(p), multi = pMulti(p);
+    morphInto($('#pchips', m), multi && selIds.length ? `<div class="mk-pchips" role="list" aria-label="${T('Selected apps', 'แอปที่เลือก')}">${selIds.map(id => `<span class="mk-pchip" role="listitem">${icoOf(appBy(id))}<span>${esc(appBy(id).name)}</span><button type="button" data-act="ppick" data-arg="${id}" aria-label="${T('Remove', 'เอาออก')} ${esc(appBy(id).name)}">✕</button></span>`).join('')}</div>` : '');
+    const tile = a => `<button class="mk-tile ${selIds.includes(a.id) ? 'is-sel' : ''}" type="button" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${selIds.includes(a.id)}" ${multi ? '' : `aria-pressed="${p.app === a.id}"`} data-act="ppick" data-arg="${a.id}">${multi ? pMark(p, a.id) : ''}<span class="vs-tile-icon">${icoOf(a, 1)}<span class="vs-tile-running" title="${T('Running now', 'กำลังทำงาน')}"></span></span><strong>${esc(a.name)}</strong></button>`;
+    morphInto($('#plistwrap', m), `${REAL.loading ? `<p role="status" class="vs-hint">${T('Reading apps from your PC…', 'กำลังอ่านแอปจากเครื่องของคุณ…')}</p>` : ''}${REAL.error ? `<p role="alert" class="field-error">${esc(REAL.error)}</p>` : ''}<div role="${multi ? 'group' : 'radiogroup'}" aria-label="${T('Apps', 'แอป')}"><p class="mk-section">${T('Running now', 'กำลังทำงานอยู่')} <span class="vs-hint" style="display:inline;font-weight:400">· ${REAL.enabled ? T('foreground app first', 'แอปที่ใช้อยู่ก่อน') : T('most recently used first', 'ใช้ล่าสุดก่อน')}</span></p>
       ${run.length ? `<div class="mk-tiles">${run.map(tile).join('')}</div>` : `<p class="vs-hint" style="margin:0 0 16px">${T('No running app matches.', 'ไม่มีแอปที่กำลังทำงานตรงกับคำค้น')}</p>`}
-      <p class="mk-section">${T('Available apps', 'แอปที่เลือกได้')} <span class="vs-hint" style="display:inline;font-weight:400">· ${inst.length}</span></p><div class="mk-list">${inst.map(a => pitem(a, p.app === a.id)).join('') || `<p class="vs-hint" role="status" style="padding:10px 0;margin:0">${T('No apps match. Try a name or .exe filename.', 'ไม่พบแอป ลองค้นหาชื่อหรือชื่อไฟล์ .exe')}</p>`}</div>
-      ${sys.length ? `<p class="mk-section">${T('System (hidden by default)', 'ระบบ (ซ่อนโดยปริยาย)')}</p><div class="mk-list">${sys.map(a => pitem(a, p.app === a.id, true)).join('')}</div>` : ''}</div>`);
+      <p class="mk-section">${T('Available apps', 'แอปที่เลือกได้')} <span class="vs-hint" style="display:inline;font-weight:400">· ${inst.length}</span></p><div class="mk-list">${inst.map(a => pitem(a, selIds.includes(a.id))).join('') || `<p class="vs-hint" role="status" style="padding:10px 0;margin:0">${T('No apps match. Try a name or .exe filename.', 'ไม่พบแอป ลองค้นหาชื่อหรือชื่อไฟล์ .exe')}</p>`}</div>
+      ${sys.length ? `<p class="mk-section">${T('System (hidden by default)', 'ระบบ (ซ่อนโดยปริยาย)')}</p><div class="mk-list">${sys.map(a => pitem(a, selIds.includes(a.id), true)).join('')}</div>` : ''}</div>`);
   } else {
     const q = p.contains.trim().toLowerCase();
     morphInto($('#wmatch', m), `<p class="mk-section">${T('Tabs open right now', 'แท็บที่เปิดอยู่ตอนนี้')}</p><div class="mk-list">${TABS.map(t => { const hit = q && t.title.toLowerCase().includes(q); return `<div class="mk-item" style="cursor:default"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.title)}</span><span class="vs-pill ${hit ? 'vs-pill-good' : 'vs-pill-neutral'}">${hit ? T('matches', 'ตรงกัน') : T('no match', 'ไม่ตรง')}</span></div>`; }).join('')}</div>`);
   }
-  const showThen = p.tab === 'web' ? !!p.contains.trim() : !!p.app;
-  const cf = p.mode === 'pair' ? pairConflict(p) : null, here = cf && cf.scene === p.scene;
+  const msel = pMulti(p) ? pSel(p).filter(x => !pHere(p, x)) : [], moves = msel.map(x => ({ a: appBy(x), from: pOther(p, x) })).filter(x => x.from);
+  const showThen = p.tab === 'web' ? !!p.contains.trim() : pMulti(p) ? msel.length > 0 : !!p.app;
+  const cf = p.mode === 'pair' && !pMulti(p) ? pairConflict(p) : null, here = cf && cf.scene === p.scene;
   const nm = p.tab === 'web' ? T('tab “' + p.contains + '”', 'แท็บ “' + p.contains + '”') : p.app ? appBy(p.app).name : '';
   let then = '';
-  if (showThen && p.mode === 'pair') then = cf ? (here ? `<div class="vs-alert is-warn" role="status" style="margin:0"><span class="vs-alert-text">${T(nm + ' is already shown by this Scene.', nm + ' ใช้ Scene นี้อยู่แล้ว')}</span></div>` : `<div class="vs-alert is-warn" role="group" aria-label="${T('Move confirmation', 'ยืนยันการย้าย')}" style="margin:0"><span class="vs-alert-text"><strong>${T('Move ' + nm + ' from ' + esc(sceneBy(cf.scene).name) + ' to this Scene?', 'ย้าย ' + nm + ' จาก ' + esc(sceneBy(cf.scene).name) + ' มาที่ Scene นี้?')}</strong> ${T('An app or tab belongs to one Scene only.', 'แอปหรือแท็บหนึ่งใช้ได้กับหนึ่ง Scene เท่านั้น')}</span></div>`) : `<p class="vs-hint" style="margin:0">${T('Discord will show this Scene whenever it is open.', 'Discord จะแสดง Scene นี้เมื่อเปิดสิ่งนี้อยู่')}</p>`;
+  if (showThen && pMulti(p)) then = moves.length ? `<div class="vs-alert is-warn" role="group" aria-label="${T('Move confirmation', 'ยืนยันการย้าย')}" style="margin:0"><span class="vs-alert-text"><strong>${T(`Move ${moves.length} app${moves.length > 1 ? 's' : ''} to this Scene?`, `ย้าย ${moves.length} แอปมาที่ Scene นี้?`)}</strong> ${moves.map(m => esc(m.a.name) + ' ← ' + esc(m.from.name)).join(' · ')}. ${T('An app belongs to one Scene only.', 'แอปหนึ่งใช้ได้กับหนึ่ง Scene เท่านั้น')}</span></div>` : `<p class="vs-hint" style="margin:0">${T('Discord will show this Scene whenever any of these is open.', 'Discord จะแสดง Scene นี้เมื่อเปิดแอปเหล่านี้')}</p>`;
+  else if (showThen && p.mode === 'pair') then = cf ? (here ? `<div class="vs-alert is-warn" role="status" style="margin:0"><span class="vs-alert-text">${T(nm + ' is already shown by this Scene.', nm + ' ใช้ Scene นี้อยู่แล้ว')}</span></div>` : `<div class="vs-alert is-warn" role="group" aria-label="${T('Move confirmation', 'ยืนยันการย้าย')}" style="margin:0"><span class="vs-alert-text"><strong>${T('Move ' + nm + ' from ' + esc(sceneBy(cf.scene).name) + ' to this Scene?', 'ย้าย ' + nm + ' จาก ' + esc(sceneBy(cf.scene).name) + ' มาที่ Scene นี้?')}</strong> ${T('An app or tab belongs to one Scene only.', 'แอปหรือแท็บหนึ่งใช้ได้กับหนึ่ง Scene เท่านั้น')}</span></div>`) : `<p class="vs-hint" style="margin:0">${T('Discord will show this Scene whenever it is open.', 'Discord จะแสดง Scene นี้เมื่อเปิดสิ่งนี้อยู่')}</p>`;
   else if (showThen && p.mode === 'hide') then = `<p class="vs-hint" style="margin:0">${T('Discord will show nothing while this is open.', 'Discord จะไม่แสดงอะไรขณะที่เปิดสิ่งนี้อยู่')}</p>`;
   else if (false) then = `<p class="mk-section">${T('Then', 'แล้ว')}</p>
     <div class="vs-row" style="padding-top:0"><div class="vs-row-copy"><strong>${T('Hide Discord while this is open instead', 'ซ่อน Discord ขณะที่เปิดสิ่งนี้อยู่แทน')}</strong><small>${T('Auto-hide rule — good for banking or private apps.', 'กฎซ่อนอัตโนมัติ — เหมาะกับแอปธนาคารหรือแอปส่วนตัว')}</small></div><label class="vs-switch"><input type="checkbox" data-bind="phide" aria-label="${T('Hide Discord while this is open', 'ซ่อน Discord ขณะเปิดอยู่')}" ${p.hide ? 'checked' : ''}><span></span></label></div>
     ${p.hide ? '' : `<div class="vs-field"><label class="vs-label" for="pscene">${T('Show this Scene', 'แสดงซีนนี้')}</label><select class="vs-select" id="pscene" data-bind="pscene" style="width:100%">${S.scenes.map(s => `<option value="${s.id}" ${p.scene === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>`}`;
   morphInto($('#pthen', m), then);
-  const pa = $('#padd', m); pa.textContent = p.mode === 'pair' ? (cf && !here ? T('Move here', 'ย้ายมาที่นี่') : T('Add app', 'เพิ่มแอป')) : T('Add rule', 'เพิ่มกฎ');
-  $('#padd', m).disabled = !showThen || !!here;
+  const pa = $('#padd', m); pa.textContent = pMulti(p) ? T(`Add ${msel.length} app${msel.length === 1 ? '' : 's'}`, `เพิ่ม ${msel.length} แอป`) : p.mode === 'pair' ? (cf && !here ? T('Move here', 'ย้ายมาที่นี่') : T('Add app', 'เพิ่มแอป')) : T('Add rule', 'เพิ่มกฎ');
+  $('#padd', m).disabled = !showThen || !!here || (pMulti(p) && !msel.length);
 }
 function closePicker() { const L = pl(), pair = S.picker && S.picker.mode === 'pair'; S.picker = null; S.pickerBuilt = false; $('#root').inert = !!S.drawer; layer().inert = false; if (pair) { const b = $('[data-k="pairadd"]'); b && b.focus({ preventScroll: true }); } else restoreFocus(); leaveLayer(null, L); }
 
@@ -903,13 +913,27 @@ const ACT = {
   retry: () => { scheduleSave(); return 'overlay'; },
   pvview: a => { S.pvView = a; if (S.drawer) updateDrawer(); else render(); const b = $(`[data-act="pvview"][data-arg="${a}"]`); b && b.focus(); return 'overlay'; },
   closepicker: () => { closePicker(); return 'overlay'; },
-  ptab: a => { S.picker.tab = a; S.picker.app = null; buildPicker(); const t = $('.vs-dialog [role=tab][aria-selected=true]'); t && t.focus(); return 'overlay'; },
-  ppick: a => { S.picker.app = a; updatePicker(); const b = $(`.vs-dialog [data-arg="${a}"]`); b && b.focus(); return 'overlay'; },
-  browse: () => { const c = { id: 'custom', name: 'sync.exe', exe: 'C:\\Tools\\sync.exe', g: '…' }; if (!INSTALLED.find(x => x.id === 'custom')) INSTALLED.push(c); S.picker.app = 'custom'; S.picker.q = 'sync'; buildPicker(); return 'overlay'; },
+  ptab: a => { S.picker.tab = a; S.picker.app = null; S.picker.sel = []; buildPicker(); const t = $('.vs-dialog [role=tab][aria-selected=true]'); t && t.focus(); return 'overlay'; },
+  ppick: a => {
+    const p = S.picker;
+    if (pMulti(p)) { const cur = pSel(p).slice(), i = cur.indexOf(a); if (i >= 0) cur.splice(i, 1); else if (!pHere(p, a)) cur.push(a); p.sel = cur; p.app = cur[cur.length - 1] || null; } else p.app = a;
+    updatePicker(); const b = $(`.vs-dialog .mk-tile[data-arg="${a}"], .vs-dialog .mk-item[data-arg="${a}"]`); b && b.focus && b.focus(); return 'overlay';
+  },
+  browse: () => { if (REAL.enabled) { toast(T('Browsing for an .exe isn’t connected in this mockup yet', 'การเลือกไฟล์ .exe ยังไม่เชื่อมต่อในตัวอย่างนี้')); return 'overlay'; }  const c = { id: 'custom', name: 'sync.exe', exe: 'C:\\Tools\\sync.exe', g: '…' }; if (!INSTALLED.find(x => x.id === 'custom')) INSTALLED.push(c); S.picker.app = 'custom'; S.picker.sel = ['custom']; S.picker.q = 'sync'; buildPicker(); return 'overlay'; },
+  junk: () => { S.picker.showJunk = !S.picker.showJunk; buildPicker(); return 'overlay'; },
   sys: () => { S.picker.showSys = !S.picker.showSys; buildPicker(); return 'overlay'; },
   paddgo: () => {
     const p = S.picker, id = 'rn' + Date.now(), web = p.tab === 'web';
     if (!(web ? p.contains.trim() : p.app)) return 'overlay';
+    if (p.mode === 'pair' && !web) {
+      const ids = pSel(p).filter(x => !pHere(p, x)); if (!ids.length) return 'overlay';
+      const added = [], moved = [];
+      ids.forEach((aid, i) => { const cf = S.rules.find(x => x.kind === 'app' && x.app === aid); if (cf) { moved.push({ r: cf, old: cf.scene }); cf.scene = p.scene; } else { const r = { id: id + '-' + i, kind: 'app', app: aid, scene: p.scene }; S.rules.push(r); added.push(r); } });
+      S.fresh = (added[0] || moved[0].r).id;
+      const msg = T(`Added ${ids.length} app${ids.length > 1 ? 's' : ''}${moved.length ? ' (' + moved.length + ' moved)' : ''}`, `เพิ่ม ${ids.length} แอปแล้ว${moved.length ? ' (ย้าย ' + moved.length + ')' : ''}`);
+      undoFn = () => { S.rules = S.rules.filter(x => !added.includes(x)); moved.forEach(m => { m.r.scene = m.old; }); if (S.drawer) { buildDrawer(); scheduleSave(); } else render(); };
+      closePicker(); if (S.drawer) { S.drawer.dirty = true; buildDrawer(); scheduleSave(); } setTimeout(() => { S.fresh = null; }, 400); toast(msg, true); return 'overlay';
+    }
     if (p.mode === 'pair') {
       const cf = pairConflict(p), nm = web ? T('tab “' + p.contains + '”', 'แท็บ “' + p.contains + '”') : appBy(p.app).name; let msg;
       if (cf && cf.scene === p.scene) return 'overlay';
@@ -921,6 +945,12 @@ const ACT = {
     return 'overlay';
   },
 };
+document.addEventListener('keydown', e => {
+  const p = S.picker; if (e.key !== 'Enter' || !p || !pMulti(p) || e.defaultPrevented) return;
+  if (e.target && e.target.closest && !e.target.closest('.mk-picker .vs-dialog')) return;
+  if (e.target && e.target.tagName === 'BUTTON' && e.target.dataset.act !== 'ppick') return;
+  e.preventDefault(); e.stopPropagation(); ACT.paddgo();
+});
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]');
   if (el) {

@@ -42,3 +42,19 @@ test('blank browser title disables Add and cannot create a rule', () => {
   run('ACT.paddgo()');
   assert.equal(run('S.rules.length'), count);
 });
+
+test('multi-select: toggling builds a count, Add N apps, one confirm lists every move, add + move apply together', () => {
+  const { run, elements } = renderer();
+  run("S.drawer=null; S.picker={tab:'app',q:'',app:null,mode:'pair',scene:'focus',showSys:false}; closePicker = () => {}; toast = () => {}; setTimeout = () => 0");
+  const other = run("S.rules.find(r => r.kind === 'app' && r.scene !== 'focus')"); assert.ok(other);
+  const free = run("APPS.concat(INSTALLED).find(a => !S.rules.some(r => r.kind === 'app' && r.app === a.id)).id");
+  run('updatePicker()'); assert.equal(elements.get('#padd').disabled, true);
+  run("ACT.ppick('" + free + "')"); run("ACT.ppick('" + other.app + "')");
+  assert.deepEqual(JSON.parse(JSON.stringify(run('S.picker.sel'))), [free, other.app]); assert.equal(elements.get('#padd').textContent, 'Add 2 apps');
+  assert.match(elements.get('#pthen').innerHTML, /Move 1 app to this Scene\?/); assert.match(elements.get('#pchips').innerHTML, /mk-pchip/);
+  run("ACT.ppick('" + free + "')"); assert.equal(elements.get('#padd').textContent, 'Add 1 app'); run("ACT.ppick('" + free + "')");
+  const before = run('S.rules.length'); run('ACT.paddgo()');
+  assert.equal(run('S.rules.length'), before + 1);
+  assert.equal(run("S.rules.find(r => r.kind === 'app' && r.app === '" + other.app + "').scene"), 'focus');
+  assert.ok(run("S.rules.some(r => r.kind === 'app' && r.app === '" + free + "' && r.scene === 'focus')"));
+});

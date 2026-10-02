@@ -50,3 +50,10 @@ test('real workspace saves and reloads independently, rejects invalid pairings a
   assert.equal((await fetch(base + '/api/device-workspace', { ...opts, body: JSON.stringify({ ...input, rules: [{ ...input.rules[0], scene: 'missing' }] }) })).status, 400);
   assert.equal((await (await fetch(base + '/api/device-workspace')).json()).rules[0].scene, 'design');
 });
+
+test('junk filter flags uninstallers, helper/system processes, bare electron and dock helpers but keeps real apps', () => {
+  const mk = (n, e) => ({ name: n, executable: e });
+  const out = normalizeDeviceApps([mk('Figma', 'C:\\Apps\\Figma.exe'), mk('Setup', 'C:\\Apps\\unins000.exe'), mk('Uninstall Foo', 'C:\\Apps\\foo-remove.exe'), mk('ถอนการติดตั้ง Bar', 'C:\\Apps\\bar.exe'), mk('TextInputHost', 'C:\\Windows\\TextInputHost.exe'), mk('ApplicationFrameHost', 'C:\\Windows\\ApplicationFrameHost.exe'), mk('RuntimeBroker', 'C:\\Windows\\RuntimeBroker.exe'), mk('ShellExperienceHost', 'C:\\Windows\\ShellExperienceHost.exe'), mk('SearchHost', 'C:\\Windows\\SearchHost.exe'), mk('StartMenuExperienceHost', 'C:\\Windows\\StartMenuExperienceHost.exe'), mk('electron.exe', 'C:\\x\\electron.exe'), mk('Orca', 'C:\\Orca\\electron.exe'), mk('Dock', 'C:\\x\\Dock_64.exe')]);
+  assert.deepEqual(out.filter(a => !a.hidden).map(a => a.name).sort(), ['Figma', 'Orca']);
+  assert.equal(out.filter(a => a.hidden).length, 11);
+});
