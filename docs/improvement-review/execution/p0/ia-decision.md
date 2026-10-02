@@ -90,6 +90,12 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 39 | Now = on/off + what shows | **Supersedes #3, #30, #34, #35 for Now.** Now has only: a large **Show on Discord** switch (on/off = old Hide), one reason line ("Following Orca · Auto" / "Pinned: Coding · Back to Auto" link / "No paired app is open"), and the centred fixed-size Discord preview with small Profile/Member tabs. **Pause is removed** from the product. Removed from Now: state chip, Scene card, Change…, Paired apps panel and per-row Pin. Pinning a Scene happens from Scenes (summary modal "Show on Discord now" / row action) or the tray menu. |
 
+| 40 | Previews | Show **Profile popout and Member list side by side** (no toggle) on Now and in the editor; Now uses the full content width. Refined, lighter typography for the Show on Discord header (no heavy bold). Remove the "{app} = Orca" helper line under the editor preview. |
+| 41 | Loading & entrance | Every page/panel has **skeleton loading** (shimmer placeholders matching final layout) and a styled entrance (staggered fade/translate ≤ 8 px, 180–260 ms) when data arrives; respects reduced motion; no layout shift between skeleton and content. |
+| 42 | Truthful preview | The preview must render exactly what is published to Discord (resolved images, names, timestamps). Owner observed mismatch (app showed Orca app icon; Discord showed Hinata art + 1:04 timer) — investigate and fix in the publish path. No timestamps unless a Scene sets them (timer removed, #9). |
+| 43 | Enable Scene | Replace "Show now" in Scene rows with an **on/off toggle** per Scene meaning "enabled for auto" (disabled Scenes never show automatically, pairing kept); success toast on enable/disable. Pinning stays via the summary modal / tray. |
+| 44 | Image picker | Discord-style picker: two big tiles **Upload image** (then choose: from computer → image host #27, or **GIF search** via our GIPHY-backed API) and **App icon** (follows the paired app); below, a **catalog grid** of built-in art + recent images to pick directly. Link entry becomes a small "Paste link" action. Replaces the tab bar. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
