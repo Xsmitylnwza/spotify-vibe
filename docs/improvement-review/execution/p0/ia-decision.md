@@ -71,6 +71,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 29 | Where apps are paired | **Supersedes the App-rules-on-Now part of #1.** Apps are paired **inside each Scene's editor** (section "Shows when these apps are open": app/web-tab chips with remove, "+ Add app" opening the #6 picker). One app/tab belongs to one Scene; picking an app already used elsewhere asks to move it. Now keeps only the status card plus a compact summary ("5 apps paired · 1 auto-hide") linking to Scenes. Auto-hide rules (not Scene-bound) move to **Settings → Privacy**. Selection policy (#5) unchanged. |
 
+| 30 | Now page focus | Single focal point = the Discord preview. One-line status (app icon + "Showing Design · following Figma" + one state chip), preview centred, one compact control row (Pin/Pause/Hide with contextual labels). Removed: Why/Also open/Discord facts row, duplicate "Connected as", close-window paragraph. Problem states = one short message + one action. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
