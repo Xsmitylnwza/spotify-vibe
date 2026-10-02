@@ -84,3 +84,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner logo pick #32: option 09 Swooping ghost | P3 | owner | P3-L8 vectorize dispatched (Sonnet, lean) | — | owner |
 | 2026-10-02 | P3-L8 vectorize logo 09 | P3 / design | Sonnet | Done: ghost-09.svg + tray, final-09.html; mockup logo swapped | (this commit) | owner to view |
 | 2026-10-02 | D1-M7 pairing in editor + Now simplification + sidebar fix (#29-#31) | P2 / design | Sonnet | Done; capture stopped per owner; JS loads clean | (this commit) | owner to view |
+| 2026-10-02 | Owner request #33 app icon as image | D1 | owner | D1-M8 dispatched (lean) | — | owner |

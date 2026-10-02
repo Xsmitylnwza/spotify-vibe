@@ -77,6 +77,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 32 | Logo (final) | **Option 09 "Swooping ghost"** from execution/p3/logo/generated/ (owner pick). Redraw as SVG (app icon + single-colour tray) before applying to app assets in P3. Supersedes earlier logo choices. |
 
+| 33 | App icon as image | Image picker gains an **"App icon (automatic)"** choice for Large and/or Small image: the image follows the matched app's icon. Uses hosted icons where available (today: scripts/application-badges.mjs set); other apps fall back to a generic icon or a one-time confirmed upload of the extracted icon to the image host (#27), cached. The current silent small-image override in withApplicationBadge becomes opt-in only (truthful UI). |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
