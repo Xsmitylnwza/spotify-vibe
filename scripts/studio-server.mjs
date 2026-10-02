@@ -122,6 +122,7 @@ export async function startStudioServer(options = {}) {
 
   const runtime = {
     connectionState: 'disconnected',
+    discordUser: null,
     active: false,
     desiredSceneId: null,
     desiredKey: null,
@@ -134,6 +135,15 @@ export async function startStudioServer(options = {}) {
 
   function errorMessage(error) {
     return error instanceof Error ? error.message : String(error);
+  }
+
+  function discordIdentity(user) {
+    if (!user || !/^\d+$/.test(user.id) || !user.username) return null;
+    const { id, username, avatar } = user;
+    const avatarUrl = avatar
+      ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith('a_') ? 'gif' : 'png'}?size=128`
+      : `https://cdn.discordapp.com/embed/avatars/${(BigInt(id) >> 22n) % 6n}.png`;
+    return { id, username, displayName: user.global_name || username, avatarUrl };
   }
 
   function sceneById(sceneId) {
@@ -230,6 +240,7 @@ export async function startStudioServer(options = {}) {
       applicationBadge: desiredPresence(now).scene?.smallImage || null,
       selectedPresetName: desiredPresence(now).scene?.sceneName || null,
       connected: runtime.connectionState === 'connected',
+      discordUser: runtime.discordUser,
       connectionState: runtime.connectionState,
       active: runtime.active,
       clientId: clientId || null,
@@ -278,6 +289,7 @@ export async function startStudioServer(options = {}) {
   function scheduleReconnect(error) {
     if (isStopping || reconnectTimer || !clientId) return;
     runtime.connectionState = 'disconnected';
+    runtime.discordUser = null;
     runtime.active = false;
     runtime.appliedKey = null;
     runtime.nextReconnectAt = null;
@@ -299,6 +311,7 @@ export async function startStudioServer(options = {}) {
     if (isStopping || discordClient !== candidate) return;
     discordClient = undefined;
     runtime.connectionState = 'disconnected';
+    runtime.discordUser = null;
     runtime.active = false;
     runtime.appliedKey = null;
     scheduleReconnect(error || new Error('Discord connection closed.'));
@@ -381,6 +394,7 @@ export async function startStudioServer(options = {}) {
     const candidate = discordClient;
     discordClient = undefined;
     runtime.connectionState = 'disconnected';
+    runtime.discordUser = null;
     runtime.active = false;
     runtime.appliedKey = null;
     await destroyDiscordClient(candidate);
@@ -389,6 +403,7 @@ export async function startStudioServer(options = {}) {
   async function connectDiscord() {
     if (options.disableHostEffects || env.PRESENCE_DISCORD_DISABLE === '1' || isStopping || !clientId) {
       runtime.connectionState = 'disconnected';
+      runtime.discordUser = null;
       if (!clientId) {
         runtime.lastError = runtime.lastError || 'ใส่ Discord Application ID ที่ API keys เพื่อเชื่อมต่อ';
       }
@@ -408,13 +423,19 @@ export async function startStudioServer(options = {}) {
         return;
       }
       runtime.connectionState = 'connected';
+      runtime.discordUser = discordIdentity(candidate.user);
       runtime.lastError = null;
       reconnectAttempt = 0;
       console.log('Connected to Discord Desktop.');
       await reconcilePresence({ force: true, reason: 'Discord connected' });
     } catch (error) {
-      if (discordClient === candidate) discordClient = undefined;
+      if (isStopping || discordClient !== candidate) {
+        await destroyDiscordClient(candidate);
+        return;
+      }
+      discordClient = undefined;
       runtime.connectionState = 'disconnected';
+      runtime.discordUser = null;
       await destroyDiscordClient(candidate);
       scheduleReconnect(error);
     }
@@ -724,6 +745,7 @@ export async function startStudioServer(options = {}) {
     stopReconnectTimer();
     const candidate = discordClient;
     discordClient = undefined;
+    runtime.discordUser = null;
     const shutdown = (async () => {
       if (server?.listening) {
         try { server.closeAllConnections(); } catch { /* older node */ }
