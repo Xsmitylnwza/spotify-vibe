@@ -79,6 +79,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 33 | App icon as image | Image picker gains an **"App icon (automatic)"** choice for Large and/or Small image: the image follows the matched app's icon. Uses hosted icons where available (today: scripts/application-badges.mjs set); other apps fall back to a generic icon or a one-time confirmed upload of the extracted icon to the image host (#27), cached. The current silent small-image override in withApplicationBadge becomes opt-in only (truthful UI). |
 
+| 34 | Now layout | Two columns filling the width: left = status hero (chip, one line, Pin/Pause/Hide) + "Paired apps" tile grid (icon → Scene, running dot, active highlighted, click opens Scene editor); right = fixed-size preview panel with Profile/Member tabs in its header (switch cross-fades inside the box; no page re-layout). No duplicate Manage buttons. Stacks below 1024 px. Refines #30. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
