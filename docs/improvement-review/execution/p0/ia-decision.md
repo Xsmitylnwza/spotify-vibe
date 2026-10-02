@@ -73,6 +73,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 30 | Now page focus | Single focal point = the Discord preview. One-line status (app icon + "Showing Design · following Figma" + one state chip), preview centred, one compact control row (Pin/Pause/Hide with contextual labels). Removed: Why/Also open/Discord facts row, duplicate "Connected as", close-window paragraph. Problem states = one short message + one action. |
 
+| 31 | Shell & scrolling | One scroll owner: full-height shell; sidebar fixed to the viewport with its background full height, nav top + account panel pinned bottom; only main content scrolls; on narrow the bottom nav stays fixed with content padding (fixes owner-reported sidebar gap and UX M11). |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).

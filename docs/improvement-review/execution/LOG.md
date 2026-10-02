@@ -79,3 +79,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner bug: Reconnect shown while connected | D1 | coordinator (small mockup fix) | Reconnect now only when Discord not connected, placed beside the status pill | (this commit) | owner |
 | 2026-10-02 | Owner decision #29 pairing in Scene editor | D1 | owner | App rules table leaves Now; pairing in Scene drawer; auto-hide to Settings > Privacy. D1-M7 dispatched | — | owner |
 | 2026-10-02 | Owner feedback #30 Now card too wordy | D1 | owner | Sent to D1-M7 | — | owner |
+| 2026-10-02 | Owner bug: sidebar scrolls/gap | D1 | owner | #31 one scroll owner; sent to D1-M7 | — | owner |
