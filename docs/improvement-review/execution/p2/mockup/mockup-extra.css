@@ -588,3 +588,4 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-now .mk-menu { left: 0; }
 @media (max-width: 560px) { .mk-ctlrow .vs-btn { padding-left: 10px; padding-right: 10px; font-size: 13px; } }
 .mk-now .dcp, .mk-now .mk-pvwrap, .mk-now .vs-preview-label { text-align: left; } .mk-now .vs-preview-label { text-align: center; }
+.mk-well-thumb.is-app { position: relative; } .mk-appbadge { position: absolute; right: 3px; bottom: 3px; width: 16px; height: 16px; border-radius: 5px; background: var(--vs-accent); color: #fff; display: grid; place-items: center; z-index: 1; border: 1.5px solid var(--vs-surface); box-sizing: content-box; }

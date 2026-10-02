@@ -19,6 +19,10 @@ Verified in the Orca tab (script): editor and its scroll container stay the same
 Screenshots: `26`/`26b` (editor pairing section EN/TH), `27`/`27b` (move confirm EN/TH), `28` (empty state), `29` (library "+ app" flow), `10`/`72` (Now summary EN/TH), `57`/`57b` (Settings → Privacy EN/TH), `58` (Add auto-hide picker); narrow equivalents `m-…`.
 
 
+## D1-M8 "App icon (automatic)" image choice (#33)
+
+The image picker (Large and Small) has a new first tab **App icon**. Choosing it makes the well read "App icon · automatic — follows the app that's showing" (with a small app glyph on the thumbnail) and the preview shows the icon of the Scene's paired app (the most recently used one; with several paired apps a note says "App icon changes with the app that is showing"). The tab has a short explainer and a per-paired-app list: **Ready** (hosted icon) or **Needs upload — uses a generic icon until uploaded** with an *Upload icon* button that runs the existing upload-confirm flow (#27: public-host confirmation, progress, then the icon becomes Ready and the preview updates; disabled with a hint if no image host key is set). No app paired → "No paired app yet" and a generic icon. Motion (#20) and the stable frame (#28) are unchanged. Checked by a DOM script (list shows Figma "Needs upload", Chrome "Ready"; choose → well + preview update; Upload icon → confirm → Figma Ready); no screenshots taken (speed-over-evidence rule).
+
 ## D1-M7b Now simplified (#30), rules table gone, sidebar pinned
 
 **Now (#30).** One focal point: the Discord preview. Layout: title → **one status line** (app icon + “Showing **Design** · following Figma” + one state chip: Auto / Pinned / Paused / Hidden / Hidden by rule / Not shown) → the preview, centred (small Profile popout / Member list toggle) → **one control row** → the one-line pairing summary. Removed: the headline + explanation paragraph, the Why / Also open / Discord facts, the "Connected as" duplicate (the account panel has it), the "You can close this window…" paragraph (only the one-time close notice remains) and the kicker/sub-copy. Above the preview there is one line of copy plus the small preview caption.
