@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-10-02T02:21:28.1932385Z",
+  "legacyCount": 91,
+  "newCount": 102,
+  "missing": [
+    "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+    "C:\\Users\\golfp\\AppData\\Roaming\\Claude\\claude-code\\2.1.286\\635c1867224a\\claude.exe",
+    "C:\\Users\\golfp\\.codex\\plugins\\cache\\openai-bundled\\chrome\\latest\\extension-host\\windows\\x64\\extension-host.exe"
+  ],
+  "added": [
+    "C:\\Program Files\\GitHub CLI\\gh.exe",
+    "C:\\Program Files\\HP\\OmenInstallMonitor\\OmenInstallMonitor.exe",
+    "C:\\Program Files\\HP\\Overlay\\OverlayHelper.exe",
+    "C:\\Program Files\\HP\\SystemOptimizer\\SystemOptimizer.exe",
+    "C:\\Program Files\\McAfee\\wps\\1.40.161.1\\mc-fw-host.exe",
+    "C:\\Users\\golfp\\.codex\\plugins\\cache\\openai-bundled\\chrome\\26.928.21956\\extension-host\\windows\\x64\\extension-host.exe",
+    "C:\\Users\\golfp\\AppData\\Local\\Discord\\app-1.0.9260\\modules\\discord_utils-1\\discord_utils\\DiscordSystemHelper.exe",
+    "C:\\Users\\golfp\\AppData\\Local\\Packages\\Claude_pzs8sxrjxfjjc\\LocalCache\\Roaming\\Claude\\claude-code\\2.1.286\\635c1867224a\\claude.exe",
+    "C:\\Users\\golfp\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "C:\\Users\\golfp\\AppData\\Roaming\\npm\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe.old.1790877667520",
+    "C:\\Users\\golfp\\AppData\\Roaming\\npm\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe.old.1790899379138",
+    "C:\\Users\\golfp\\AppData\\Roaming\\npm\\node_modules\\@anthropic-ai\\claude-code\\bin\\claude.exe.old.1790904782385",
+    "C:\\Windows\\System32\\ctfmon.exe",
+    "C:\\Windows\\System32\\Taskmgr.exe"
+  ],
+  "error": null
+}

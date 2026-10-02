@@ -40,15 +40,9 @@ public static class VibeForeground {
         // A retained handle identifies the original process even after PID reuse.
         if(!cache.TryGetValue(process.Id,out item) || WaitForSingleObject(item.Handle,0) != 258) {
           var handle=OpenProcess(0x101000,false,process.Id); if(handle == IntPtr.Zero) continue;
-          // Keep loader/alias identity used by existing mappings; probe once per PID.
-          // Native paths can resolve junctions or renamed images differently.
-          string value=null;
-          try { value=process.MainModule.FileName; } catch { }
-          if(String.IsNullOrEmpty(value)) {
-            uint length=32768; var path=new StringBuilder((int)length);
-            if(!QueryFullProcessImageNameW(handle,0,path,ref length)) { CloseHandle(handle); continue; }
-            value=path.ToString();
-          }
+          uint length=32768; var path=new StringBuilder((int)length);
+          if(!QueryFullProcessImageNameW(handle,0,path,ref length)) { CloseHandle(handle); continue; }
+          var value=path.ToString();
           item=new Cached {Handle=handle,Path=value,Name=System.IO.Path.GetFileNameWithoutExtension(value)};
         }
         next[process.Id]=item;
@@ -80,12 +74,11 @@ while ($true) {
       $scanStarted = $scanClock.ElapsedMilliseconds
       $nextScan = $scanStarted + 1000
     }
-    # Collect finished work first; a delayed loop must not discard a completed scan.
-    $completedScan = [VibeForeground]::PollScan()
     if ([VibeForeground]::Pending -and $scanClock.ElapsedMilliseconds - $scanStarted -ge 10000) {
       @{ apps=@(); running=@(); error='Windows process scan timed out.' } | ConvertTo-Json -Compress
       exit 1 # Node owns restart; heartbeats must not mask a hung bulk scan.
     }
+    $completedScan = [VibeForeground]::PollScan()
     if ($null -ne $completedScan) {
     $processes = @($completedScan)
     $running = @($processes.Path | Sort-Object -Unique)
@@ -143,7 +136,8 @@ while ($true) {
     }
   } catch {
     @{ apps=@(); running=@(); error='Could not read visible Windows applications.' } | ConvertTo-Json -Compress
-    exit 1 # Node restarts; only a fresh helper scan may restore healthy state.
+    # Recovery must emit even if the healthy snapshot is identical to pre-error state.
+    $lastKey = $null
   }
   Start-Sleep -Milliseconds 200
 }

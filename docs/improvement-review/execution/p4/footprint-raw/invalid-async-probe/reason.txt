@@ -1,0 +1,1 @@
+Initial focus acquisition returned Probe B instead of requested Probe A, so the later B request was not a real transition; 10893 ms reflected recovery delivery, not foreground sampling during the blocked scan. Excluded as invalid; timeout/restart itself was observed. Probe controller now waits for windows and verifies actual foreground identity.

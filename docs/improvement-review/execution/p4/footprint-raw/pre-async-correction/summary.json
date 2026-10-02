@@ -1,0 +1,982 @@
+{
+  "S1": {
+    "before": {
+      "rows": 120,
+      "elapsed": 600.3130827,
+      "cpu": {
+        "avg": 1.9487786536859715,
+        "p95": 2.55251935107926,
+        "max": 2.70472852324862,
+        "min": 1.30186107246357
+      },
+      "ws": {
+        "avg": 213.2201171875,
+        "p95": 220.37109375,
+        "max": 222.05078125,
+        "min": 200.34765625
+      },
+      "machine": {
+        "avg": 42.021244612095934,
+        "p95": 72.5661375661376,
+        "max": 97.0664589823468,
+        "min": 18.4265010351967
+      },
+      "interval": {
+        "avg": 5.0026090225,
+        "p95": 5.1713524,
+        "max": 5.3499665,
+        "min": 4.7538884
+      },
+      "processes": {
+        "avg": 4.0,
+        "p95": 4.0,
+        "max": 4.0,
+        "min": 4.0
+      },
+      "per_process": {
+        "conhost.exe": {
+          "cpu_avg": 0.0010778071143184565,
+          "ws_avg": 17.659830729166668
+        },
+        "powershell.exe": {
+          "cpu_avg": 1.915807571942545,
+          "ws_avg": 122.45872395833334
+        },
+        "node.exe": {
+          "cpu_avg": 0.03189327462910766,
+          "ws_avg": 73.1015625
+        }
+      }
+    },
+    "after": {
+      "rows": 120,
+      "elapsed": 600.801846,
+      "cpu": {
+        "avg": 0.4865614922511478,
+        "p95": 0.7806890358932589,
+        "max": 1.0535615228420259,
+        "min": 0.05026351172784928
+      },
+      "ws": {
+        "avg": 187.87041015625,
+        "p95": 192.375,
+        "max": 198.09765625,
+        "min": 171.98828125
+      },
+      "machine": {
+        "avg": 80.71295061979829,
+        "p95": 99.96878901373283,
+        "max": 100.0,
+        "min": 36.46783016410524
+      },
+      "interval": {
+        "avg": 5.00668205,
+        "p95": 5.4129396,
+        "max": 6.5018376,
+        "min": 2.965246
+      },
+      "processes": {
+        "avg": 4.0,
+        "p95": 4.0,
+        "max": 4.0,
+        "min": 4.0
+      },
+      "per_process": {
+        "conhost.exe": {
+          "cpu_avg": 0.0,
+          "ws_avg": 17.758170572916665
+        },
+        "powershell.exe": {
+          "cpu_avg": 0.4778266436943923,
+          "ws_avg": 97.5263671875
+        },
+        "node.exe": {
+          "cpu_avg": 0.00873484855675552,
+          "ws_avg": 72.58587239583333
+        }
+      }
+    },
+    "cpu_reduction_percent": 75.0324906663539
+  },
+  "S6": {
+    "before": {
+      "rows": 36,
+      "elapsed": 180.8850875,
+      "cpu": {
+        "avg": 1.8008210767892616,
+        "p95": 2.329733090687197,
+        "max": 2.339439331431758,
+        "min": 1.3747550340501886
+      },
+      "ws": {
+        "avg": 211.97157118055554,
+        "p95": 222.42578125,
+        "max": 222.6953125,
+        "min": 199.0703125
+      },
+      "machine": {
+        "avg": 35.353784796997296,
+        "p95": 62.2974537037037,
+        "max": 68.69369369369369,
+        "min": 16.740823136818687
+      },
+      "interval": {
+        "avg": 5.024585763888889,
+        "p95": 5.6726857,
+        "max": 5.8997398,
+        "min": 4.3243175
+      },
+      "processes": {
+        "avg": 4.0,
+        "p95": 4.0,
+        "max": 4.0,
+        "min": 4.0
+      },
+      "per_process": {
+        "conhost.exe": {
+          "cpu_avg": 0.0,
+          "ws_avg": 17.611979166666668
+        },
+        "powershell.exe": {
+          "cpu_avg": 1.7718328111971142,
+          "ws_avg": 125.15288628472223
+        },
+        "node.exe": {
+          "cpu_avg": 0.028988265592147257,
+          "ws_avg": 69.20670572916667
+        }
+      }
+    },
+    "after": {
+      "rows": 36,
+      "elapsed": 180.4166649,
+      "cpu": {
+        "avg": 0.49383102163773845,
+        "p95": 0.6274633853960142,
+        "max": 0.7971055794861306,
+        "min": 0.1541961504509159
+      },
+      "ws": {
+        "avg": 189.88031684027777,
+        "p95": 194.71484375,
+        "max": 197.078125,
+        "min": 183.34765625
+      },
+      "machine": {
+        "avg": 81.1474195775868,
+        "p95": 97.4937343358396,
+        "max": 99.31062449310625,
+        "min": 57.278481012658226
+      },
+      "interval": {
+        "avg": 5.011574025,
+        "p95": 8.3582558,
+        "max": 8.3976726,
+        "min": 1.6310822
+      },
+      "processes": {
+        "avg": 4.0,
+        "p95": 4.0,
+        "max": 4.0,
+        "min": 4.0
+      },
+      "per_process": {
+        "conhost.exe": {
+          "cpu_avg": 0.0,
+          "ws_avg": 17.654622395833332
+        },
+        "powershell.exe": {
+          "cpu_avg": 0.43371182633942523,
+          "ws_avg": 99.37424045138889
+        },
+        "node.exe": {
+          "cpu_avg": 0.06011919529831323,
+          "ws_avg": 72.85145399305556
+        }
+      }
+    },
+    "cpu_reduction_percent": 72.57745214098645
+  },
+  "focus_latency": {
+    "switches": 14,
+    "attempts": 18,
+    "failed_observations": [
+      {
+        "previousForegroundPid": 35996,
+        "selectedApplication": "P4FocusB",
+        "focusStarted": "2026-10-02T01:59:51.5562699Z",
+        "targetPath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\P4FocusA.exe",
+        "serverMatched": false,
+        "latencyMs": 3162.7638,
+        "timestamp": "2026-10-02T01:59:54.7192645Z",
+        "requestedHandle": 7083816,
+        "requestedPid": 25648,
+        "appActivate": true,
+        "accepted": true,
+        "foregroundPid": 25648
+      },
+      {
+        "previousForegroundPid": 25648,
+        "selectedApplication": "P4FocusA",
+        "focusStarted": "2026-10-02T02:02:01.5343350Z",
+        "targetPath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\P4FocusB.exe",
+        "serverMatched": false,
+        "latencyMs": 3138.9947,
+        "timestamp": "2026-10-02T02:02:04.6734616Z",
+        "requestedHandle": 10950350,
+        "requestedPid": 39232,
+        "appActivate": true,
+        "accepted": true,
+        "foregroundPid": 35996
+      },
+      {
+        "previousForegroundPid": 35996,
+        "selectedApplication": "P4FocusA",
+        "focusStarted": "2026-10-02T02:02:11.6063360Z",
+        "targetPath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\P4FocusA.exe",
+        "serverMatched": false,
+        "latencyMs": 3175.6637,
+        "timestamp": "2026-10-02T02:02:14.7823270Z",
+        "requestedHandle": 7083816,
+        "requestedPid": 25648,
+        "appActivate": true,
+        "accepted": true,
+        "foregroundPid": 25648
+      }
+    ],
+    "avg_ms": 949.5312071428572,
+    "p95_ms": 1742.9867,
+    "max_ms": 1742.9867,
+    "all_under_1s": false
+  },
+  "launch_latency": {
+    "cleanup": [
+      {
+        "pid": 27080,
+        "created": "2026-10-02T02:02:23.6864716Z",
+        "stillSameIdentity": false
+      },
+      {
+        "pid": 32776,
+        "created": "2026-10-02T02:02:28.1100566Z",
+        "stillSameIdentity": false
+      },
+      {
+        "pid": 18256,
+        "created": "2026-10-02T02:02:33.9371206Z",
+        "stillSameIdentity": false
+      }
+    ],
+    "events": [
+      {
+        "attempt": 1,
+        "launched": "2026-10-02T02:02:23.5454540Z",
+        "pid": 27080,
+        "foregroundPid": 27080,
+        "runningLatencyMs": 1566.6089000000002,
+        "selectedLatencyMs": 1764.7669,
+        "exitLatencyMs": 1756.671,
+        "exitSamples": [
+          {
+            "elapsedMs": 12.0737,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 59.428200000000004,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 107.25280000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 152.34640000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 200.4146,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 243.651,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 289.36400000000003,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 335.54580000000004,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 381.46610000000004,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 426.55260000000004,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 474.0038,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 541.4894,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 582.4464,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 629.7249,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 678.1741000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 724.8188,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 772.4300000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 825.1353,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 863.9072,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 909.4711000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 955.0933,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1015.6524000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1079.2859,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1127.0893,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1174.2844,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1218.5829,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1264.8589,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1312.9812000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1359.5753,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1405.8476,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1454.103,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1502.2763,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1547.4440000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1594.4726,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1641.1733000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1704.9144000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1754.5649,
+            "runningPresent": false,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          }
+        ],
+        "fallback": "P4FocusA"
+      },
+      {
+        "attempt": 2,
+        "launched": "2026-10-02T02:02:28.0921089Z",
+        "pid": 32776,
+        "foregroundPid": 32776,
+        "runningLatencyMs": 2854.5812,
+        "selectedLatencyMs": 3054.9477,
+        "exitLatencyMs": 1743.1542000000002,
+        "exitSamples": [
+          {
+            "elapsedMs": 12.144400000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 53.7974,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 95.8249,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 143.74290000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 188.336,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 236.8417,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 282.0196,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 329.0348,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 387.1904,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 434.7678,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 480.5822,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 527.6161000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 572.2102,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 618.1005,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 665.2287,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 715.1547,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 758.9141000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 806.7051,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 851.6321,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 900.4211,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 963.2706000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1006.6228000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1050.1582,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1097.9075,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1144.6961000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1189.6621,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1235.7740000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1282.8382000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1326.5633,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1372.1025,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1417.75,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1462.9323000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1522.7288,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1556.7194000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1603.3517000000002,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1647.662,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1694.9455,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1742.9446,
+            "runningPresent": false,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          }
+        ],
+        "fallback": "P4FocusA"
+      },
+      {
+        "attempt": 3,
+        "launched": "2026-10-02T02:02:33.9177910Z",
+        "pid": 18256,
+        "foregroundPid": 18256,
+        "runningLatencyMs": 2857.8746,
+        "selectedLatencyMs": 3088.9977000000003,
+        "exitLatencyMs": 1723.0337000000002,
+        "exitSamples": [
+          {
+            "elapsedMs": 10.491100000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 68.7806,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 110.47670000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 157.5934,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 218.6799,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 267.3553,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 313.738,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 360.1669,
+            "runningPresent": true,
+            "selectedApplication": "P4 launch probe",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 407.7291,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 453.75350000000003,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 502.3883,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 546.4634,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 591.3261,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 637.9106,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 684.5268,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 731.2696000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 789.2844,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 824.1674,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 870.1327,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 918.4430000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 967.0415,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1014.8225000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1059.123,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1109.8125,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1155.3737,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1202.1062,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1247.6911,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1293.073,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1355.6691,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1400.8437000000001,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1446.3696,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1492.6513,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1538.7895,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1586.7117,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1631.7853,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1678.9004,
+            "runningPresent": true,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          },
+          {
+            "elapsedMs": 1722.8631,
+            "runningPresent": false,
+            "selectedApplication": "P4FocusA",
+            "helperError": null
+          }
+        ],
+        "fallback": "P4FocusA"
+      }
+    ],
+    "mappingPath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\P4LaunchProbe.exe"
+  }
+}

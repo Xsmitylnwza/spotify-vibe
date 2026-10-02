@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-02T03:17:00.4553138Z",
+  "remainingTaskProcesses": [],
+  "port47396Listener": [],
+  "electronRunItemPresent": false,
+  "retainedAncillaryTemp": [
+    "vibe-p4-pre-app",
+    "vibe-p4-async-probe",
+    "vibe-p4-smoke"
+  ]
+}

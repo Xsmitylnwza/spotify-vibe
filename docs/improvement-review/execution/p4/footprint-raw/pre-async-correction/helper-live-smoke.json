@@ -1,0 +1,12 @@
+{
+  "pid": 2920,
+  "created": "2026-10-02T01:34:14.4256835Z",
+  "lines": 5,
+  "changes": 3,
+  "heartbeats": 2,
+  "duplicateSnapshots": 0,
+  "errors": 0,
+  "stderr": null,
+  "helperRemaining": false,
+  "childRemaining": []
+}

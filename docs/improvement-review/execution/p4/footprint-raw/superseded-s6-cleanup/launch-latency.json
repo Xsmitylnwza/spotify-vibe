@@ -1,0 +1,52 @@
+{
+    "cleanup":  [
+                    {
+                        "pid":  24208,
+                        "created":  "2026-10-02T01:52:15.4394294Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  43036,
+                        "created":  "2026-10-02T01:52:20.1486184Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  37080,
+                        "created":  "2026-10-02T01:52:27.5153800Z",
+                        "stillSameIdentity":  false
+                    }
+                ],
+    "events":  [
+                   {
+                       "attempt":  1,
+                       "launched":  "2026-10-02T01:52:14.9617682Z",
+                       "pid":  24208,
+                       "foregroundPid":  24208,
+                       "runningLatencyMs":  2175.4257000000002,
+                       "selectedLatencyMs":  2360.2143,
+                       "exitLatencyMs":  1743.7184,
+                       "fallback":  "P4FocusA"
+                   },
+                   {
+                       "attempt":  2,
+                       "launched":  "2026-10-02T01:52:20.1214132Z",
+                       "pid":  43036,
+                       "foregroundPid":  43036,
+                       "runningLatencyMs":  1079.7632,
+                       "selectedLatencyMs":  1263.401,
+                       "exitLatencyMs":  null,
+                       "fallback":  "P4FocusA"
+                   },
+                   {
+                       "attempt":  3,
+                       "launched":  "2026-10-02T01:52:27.4693181Z",
+                       "pid":  37080,
+                       "foregroundPid":  37080,
+                       "runningLatencyMs":  1372.1793,
+                       "selectedLatencyMs":  1648.392,
+                       "exitLatencyMs":  1839.2195000000002,
+                       "fallback":  "P4FocusA"
+                   }
+               ],
+    "mappingPath":  "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\P4LaunchProbe.exe"
+}

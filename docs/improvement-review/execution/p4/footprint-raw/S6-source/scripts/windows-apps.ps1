@@ -80,12 +80,11 @@ while ($true) {
       $scanStarted = $scanClock.ElapsedMilliseconds
       $nextScan = $scanStarted + 1000
     }
-    # Collect finished work first; a delayed loop must not discard a completed scan.
-    $completedScan = [VibeForeground]::PollScan()
     if ([VibeForeground]::Pending -and $scanClock.ElapsedMilliseconds - $scanStarted -ge 10000) {
       @{ apps=@(); running=@(); error='Windows process scan timed out.' } | ConvertTo-Json -Compress
       exit 1 # Node owns restart; heartbeats must not mask a hung bulk scan.
     }
+    $completedScan = [VibeForeground]::PollScan()
     if ($null -ne $completedScan) {
     $processes = @($completedScan)
     $running = @($processes.Path | Sort-Object -Unique)
@@ -143,7 +142,8 @@ while ($true) {
     }
   } catch {
     @{ apps=@(); running=@(); error='Could not read visible Windows applications.' } | ConvertTo-Json -Compress
-    exit 1 # Node restarts; only a fresh helper scan may restore healthy state.
+    # Recovery must emit even if the healthy snapshot is identical to pre-error state.
+    $lastKey = $null
   }
   Start-Sleep -Milliseconds 200
 }

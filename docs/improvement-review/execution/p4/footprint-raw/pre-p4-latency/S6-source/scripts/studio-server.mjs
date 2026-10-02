@@ -1,7 +1,7 @@
 import { codexSessionScene } from './codex-session.mjs';
 import { withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
-import { appKey, selectRunningPreset } from './app-presence.mjs';
+import { selectRunningPreset, createForegroundSettler } from './app-presence.mjs';
 import { watchWindowsApps } from './windows-apps.mjs';
 import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
 import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
@@ -114,9 +114,8 @@ export async function startStudioServer(options = {}) {
   let stopAppWatcher = () => {};
   let appSnapshot = { apps:[], supported:process.platform === "win32", error:null };
   let stableForeground = null;
-  let foregroundTimer;
-  let foregroundCandidate;
   let recentApplications = [];
+  const settleForeground = createForegroundSettler();
   let activityStartedAt = new Date();
   let activityIdentity = null;
 
@@ -718,7 +717,6 @@ export async function startStudioServer(options = {}) {
     process.off('SIGINT', onSignal);
     process.off('SIGTERM', onSignal);
     installedAppsAbort.abort();
-    clearSchedulerTimeout(foregroundTimer);
     try { stopAppWatcher(); } catch { /* continue shutdown */ }
     stopSchedulerTimer();
     stopReconnectTimer();
@@ -975,26 +973,10 @@ export async function startStudioServer(options = {}) {
     failServerStart = rejectStart;
     server.listen(port, '127.0.0.1', async () => {
     if (!options.disableHostEffects) stopAppWatcher = (options.watchApps ?? watchWindowsApps)(snapshot => {
-      const previousKey = desiredPresence().key;
       appSnapshot = snapshot;
-      const path = snapshot.foregroundExecutable ?? snapshot.apps.find(app => app.foreground)?.executable ?? '';
-      const reconcileTransition = before => {
-        if (config.settings.selectionMode === 'apps' && desiredPresence().key !== before) void reconcilePresence({ reason:'Application selection changed' }).catch(error => { runtime.lastError = errorMessage(error); });
-      };
-      // Change-only output needs an explicit second stable observation.
-      // Duplicate/catalog updates must not restart this timer.
-      if (foregroundCandidate !== path) {
-        foregroundCandidate = path;
-        clearSchedulerTimeout(foregroundTimer);
-        foregroundTimer = setSchedulerTimeout(() => {
-          foregroundTimer = undefined;
-          const before = desiredPresence().key;
-          stableForeground = appKey(path);
-          if (stableForeground && stableForeground !== recentApplications[0]) recentApplications = [stableForeground, ...recentApplications.filter(item => item !== stableForeground)].slice(0,100);
-          reconcileTransition(before);
-        }, 200);
-      }
-      reconcileTransition(previousKey);
+      stableForeground = settleForeground(snapshot.apps.find(app => app.foreground)?.executable || '');
+      if (stableForeground && stableForeground !== recentApplications[0]) recentApplications = [stableForeground, ...recentApplications.filter(path => path !== stableForeground)].slice(0,100);
+      if (config.settings.selectionMode === 'apps') void reconcilePresence({ reason:'Foreground application changed' }).catch(error => { runtime.lastError = errorMessage(error); });
     }, { disabled:env.PRESENCE_APP_DETECTION_DISABLE === '1' });
     // Installed-apps catalog (Start Menu): scanned in the background, served
     // from cache instantly.

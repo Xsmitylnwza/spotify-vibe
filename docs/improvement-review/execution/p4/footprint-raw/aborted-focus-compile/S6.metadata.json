@@ -1,0 +1,88 @@
+{
+  "mode": "S6",
+  "durationRequested": 180,
+  "intervalRequested": 5,
+  "logicalProcessors": 12,
+  "launchAt": "2026-10-02T08:46:18.0221512+07:00",
+  "head": "0748b44f939b1a2a26b8d2e913d5a64a0be9f376",
+  "gitStatus": " M docs/improvement-review/execution/LOG.md\n M docs/improvement-review/execution/p0/screens-a/01-first-load.png\n D docs/improvement-review/execution/p0/screens-a/02-status-after-start.png\n D docs/improvement-review/execution/p0/screens-a/03-scenes-list.png\n D docs/improvement-review/execution/p0/screens-a/03b-scenes-delete-cancelled.png\n D docs/improvement-review/execution/p0/screens-a/04-scene-detail-top.png\n D docs/improvement-review/execution/p0/screens-a/05-server-gone-offline-and-save-failed.png\n D docs/improvement-review/execution/p0/screens-a/06-after-server-restart-reload.png\n D docs/improvement-review/execution/p0/screens-a/07-scene-detail-en.png\n D docs/improvement-review/execution/p0/screens-a/08-after-show-click.png\n D docs/improvement-review/execution/p0/screens-a/09-status-live-override.png\n D docs/improvement-review/execution/p0/screens-a/10-j2-open-studio-root.png\n D docs/improvement-review/execution/p0/screens-b/10-status-768x1024-dark-en.png\n D docs/improvement-review/execution/p0/screens-b/11-scene-detail-768x1024-dark-en.png\n D docs/improvement-review/execution/p0/screens-b/12-settings-768x1024-dark-en.png\n D docs/improvement-review/execution/p0/screens-b/21-gif-modal-fake-key-loading-or-error-1280x800-dark-en.png\n M scripts/studio-server.mjs\n M scripts/windows-apps.mjs\n M scripts/windows-apps.ps1\n?? docs/improvement-review/execution/p0/screens-a/02-j1-onboarding-first-run.png\n?? docs/improvement-review/execution/p0/screens-a/03-j1-after-start-click.png\n?? docs/improvement-review/execution/p0/screens-a/04-j1-scenes-library-fresh.png\n?? docs/improvement-review/execution/p0/screens-a/05-j1-scenes-your-apps-section.png\n?? docs/improvement-review/execution/p0/screens-a/06-j1-scene-detail-top.png\n?? docs/improvement-review/execution/p0/screens-a/07-j1-after-show-on-discord.png\n?? docs/improvement-review/execution/p0/screens-a/08-j1-detail-long-page-tall-viewport.png\n?? docs/improvement-review/execution/p0/screens-b/30-settings-giphy-fake-key-saved-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/31-settings-giphy-set-after-reload-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/32-gif-modal-fake-key-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/32-gif-modal-fake-key-1s-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/34-gif-modal-keyboard-opened-fake-key-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/35-scene-detail-draft-typed-before-lang-switch-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/36-scene-detail-after-switch-to-thai-1280x800-dark-th.png\n?? docs/improvement-review/execution/p0/screens-b/40-settings-768x1024-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/40-status-768x1024-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/41-scene-detail-768x1024-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/42-scene-detail-200pct-zoom-640x400-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/42-settings-200pct-zoom-640x400-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/42-status-200pct-zoom-640x400-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/50-keyboard-skip-link-focused-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/60-status-companion-stopped-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/61-status-after-pause-click-while-companion-down-1280x800-dark-en.png\n?? docs/improvement-review/execution/p4/\n?? scripts/tests/studio-apps.test.mjs\n?? scripts/tests/windows-apps.test.mjs",
+  "sourceHashes": {
+    "scripts/app-secrets.mjs": "0CD02A5F6BF6790C1468B05C38491F3ECF8E43AF511FF761FAA3D8C4535C4D53",
+    "electron/main.js": "F8397B6402FE0F69E97EEBCD3582F96E6D3E75EDA684BF4B5E3AC20554CF7D77",
+    "electron/preload.cjs": "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+    "scripts/studio-server.mjs": "81C04FBDFD969F883FE91D9B11BB20FB927FECD0571D2F6611164B34E9FB706D",
+    "electron/lifecycle.mjs": "C28BDCB816472F9B33656B46AABD91F9A9E155A3DDE554C2F02549B65AD0E61A",
+    "scripts/installed-apps.mjs": "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+    "scripts/local-config-store.mjs": "02BE495A1D59BCE42B1E5B49F5907F9BD8721431637716C40963F589688F2B58",
+    "scripts/windows-apps.mjs": "28F3727EC58C10DA4DDD21EE96BB274B343D43DD7367E10CBB9543A256A72679",
+    "scripts/app-presence.mjs": "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+    "scripts/discord-presence-studio.html": "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+    "scripts/windows-apps.ps1": "9B9CA0199C9F4F4CC5F716A2CA37A317C176AD50930125D02D1DB662BC0B7224",
+    "scripts/presence-scheduler.mjs": "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF"
+  },
+  "commands": [
+    "node scripts/discord-presence-studio.mjs --port=47396 --no-open"
+  ],
+  "focusEvents": [],
+  "cleanup": [
+    {
+      "pid": 48584,
+      "name": "conhost.exe",
+      "created": "2026-10-02T01:46:21.2735430Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47904,
+      "name": "conhost.exe",
+      "created": "2026-10-02T01:46:19.3516670Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47252,
+      "name": "conhost.exe",
+      "created": "2026-10-02T01:46:21.3577310Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 44948,
+      "name": "powershell.exe",
+      "created": "2026-10-02T01:46:21.2263560Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 25308,
+      "name": "powershell.exe",
+      "created": "2026-10-02T01:46:21.0879140Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 15320,
+      "name": "node.exe",
+      "created": "2026-10-02T01:46:19.2714300Z",
+      "stillSameIdentity": false
+    }
+  ],
+  "error": "Focus probe compilation failed",
+  "rootPid": 15320,
+  "runtimeSetup": {
+    "ready": false,
+    "needsDiscordApplicationId": true,
+    "needsGiphyApiKey": true,
+    "secrets": {
+      "filePath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\secrets.json",
+      "warning": null,
+      "discord": {
+        "configured": false,
+        "source": null,
+        "clientId": null
+      },
+      "giphy": {
+        "configured": false,
+        "source": null
+      }
+    }
+  },
+  "cleanupAt": "2026-10-02T08:46:33.4711471+07:00",
+  "electronRunItemPresent": false,
+  "isolationDirectoryRemoved": true
+}

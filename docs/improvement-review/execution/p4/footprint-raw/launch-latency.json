@@ -1,0 +1,448 @@
+{
+    "cleanup":  [
+                    {
+                        "pid":  9040,
+                        "created":  "2026-10-02T02:53:49.4345680Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  47908,
+                        "created":  "2026-10-02T02:53:52.6927475Z",
+                        "stillSameIdentity":  false
+                    },
+                    {
+                        "pid":  30512,
+                        "created":  "2026-10-02T02:53:55.8638945Z",
+                        "stillSameIdentity":  false
+                    }
+                ],
+    "events":  [
+                   {
+                       "attempt":  1,
+                       "launched":  "2026-10-02T02:53:49.2743763Z",
+                       "pid":  9040,
+                       "foregroundPid":  9040,
+                       "runningLatencyMs":  1293.7975000000001,
+                       "selectedLatencyMs":  1496.7018,
+                       "exitLatencyMs":  871.9792,
+                       "exitSamples":  [
+                                           {
+                                               "elapsedMs":  13.2241,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  66.3482,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  126.63000000000001,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  178.8257,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  222.8796,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  268.1778,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  316.1696,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  360.0547,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  416.0479,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  452.9501,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  498.4825,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  545.64740000000006,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  593.799,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  647.4806,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  686.0918,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  729.5505,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  777.6669,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  826.4833,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4FocusA",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  870.41000000000008,
+                                               "runningPresent":  false,
+                                               "selectedApplication":  "P4FocusA",
+                                               "helperError":  null
+                                           }
+                                       ],
+                       "fallback":  "P4FocusA"
+                   },
+                   {
+                       "attempt":  2,
+                       "launched":  "2026-10-02T02:53:52.6788910Z",
+                       "pid":  47908,
+                       "foregroundPid":  47908,
+                       "runningLatencyMs":  1077.478,
+                       "selectedLatencyMs":  1077.4832000000001,
+                       "exitLatencyMs":  1067.0938,
+                       "exitSamples":  [
+                                           {
+                                               "elapsedMs":  11.491000000000001,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  64.8843,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  122.48830000000001,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  171.9319,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  215.59050000000002,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  262.3607,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  307.7688,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  358.2243,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  405.7323,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  445.8553,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  492.3987,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  540.3354,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  586.4097,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  633.0125,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  686.8025,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  722.2555,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  769.1402,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  817.07940000000008,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  863.72980000000007,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  911.1095,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  957.094,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  1014.9371000000001,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  1066.9391,
+                                               "runningPresent":  false,
+                                               "selectedApplication":  "P4FocusA",
+                                               "helperError":  null
+                                           }
+                                       ],
+                       "fallback":  "P4FocusA"
+                   },
+                   {
+                       "attempt":  3,
+                       "launched":  "2026-10-02T02:53:55.8445320Z",
+                       "pid":  30512,
+                       "foregroundPid":  30512,
+                       "runningLatencyMs":  1315.3115,
+                       "selectedLatencyMs":  1315.3181,
+                       "exitLatencyMs":  1060.4037,
+                       "exitSamples":  [
+                                           {
+                                               "elapsedMs":  22.9888,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  78.213400000000007,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  122.6397,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  168.9643,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  213.5499,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  261.196,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  305.94980000000004,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  362.1772,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  414.608,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  459.5131,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  506.2078,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  552.7397,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  601.86660000000006,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  649.688,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  690.83080000000007,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  736.8364,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  784.5765,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  830.10340000000008,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  875.90320000000008,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  924.2947,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  978.56580000000008,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  1014.9155000000001,
+                                               "runningPresent":  true,
+                                               "selectedApplication":  "P4 launch probe",
+                                               "helperError":  null
+                                           },
+                                           {
+                                               "elapsedMs":  1060.2509,
+                                               "runningPresent":  false,
+                                               "selectedApplication":  "P4FocusA",
+                                               "helperError":  null
+                                           }
+                                       ],
+                       "fallback":  "P4FocusA"
+                   }
+               ],
+    "mappingPath":  "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\P4LaunchProbe.exe"
+}

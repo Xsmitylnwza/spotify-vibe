@@ -1,0 +1,91 @@
+{
+  "mode": "S1",
+  "durationRequested": 600,
+  "intervalRequested": 5,
+  "logicalProcessors": 12,
+  "launchAt": "2026-10-02T08:22:04.2623843+07:00",
+  "head": "0748b44f939b1a2a26b8d2e913d5a64a0be9f376",
+  "gitStatus": " M docs/improvement-review/execution/LOG.md\n M docs/improvement-review/execution/p0/screens-a/01-first-load.png\n D docs/improvement-review/execution/p0/screens-a/02-status-after-start.png\n D docs/improvement-review/execution/p0/screens-a/03-scenes-list.png\n D docs/improvement-review/execution/p0/screens-a/03b-scenes-delete-cancelled.png\n D docs/improvement-review/execution/p0/screens-a/04-scene-detail-top.png\n D docs/improvement-review/execution/p0/screens-a/05-server-gone-offline-and-save-failed.png\n D docs/improvement-review/execution/p0/screens-a/06-after-server-restart-reload.png\n D docs/improvement-review/execution/p0/screens-a/07-scene-detail-en.png\n D docs/improvement-review/execution/p0/screens-a/08-after-show-click.png\n D docs/improvement-review/execution/p0/screens-a/09-status-live-override.png\n D docs/improvement-review/execution/p0/screens-a/10-j2-open-studio-root.png\n D docs/improvement-review/execution/p0/screens-b/21-gif-modal-fake-key-loading-or-error-1280x800-dark-en.png\n M scripts/studio-server.mjs\n M scripts/windows-apps.mjs\n M scripts/windows-apps.ps1\n?? docs/improvement-review/execution/p0/screens-a/02-j1-onboarding-first-run.png\n?? docs/improvement-review/execution/p4/\n?? scripts/tests/windows-apps.test.mjs",
+  "sourceHashes": {
+    "scripts/installed-apps.mjs": "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+    "electron/preload.cjs": "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+    "electron/lifecycle.mjs": "C28BDCB816472F9B33656B46AABD91F9A9E155A3DDE554C2F02549B65AD0E61A",
+    "scripts/app-secrets.mjs": "0CD02A5F6BF6790C1468B05C38491F3ECF8E43AF511FF761FAA3D8C4535C4D53",
+    "scripts/local-config-store.mjs": "02BE495A1D59BCE42B1E5B49F5907F9BD8721431637716C40963F589688F2B58",
+    "scripts/discord-presence-studio.html": "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+    "scripts/windows-apps.mjs": "28F3727EC58C10DA4DDD21EE96BB274B343D43DD7367E10CBB9543A256A72679",
+    "scripts/studio-server.mjs": "81C04FBDFD969F883FE91D9B11BB20FB927FECD0571D2F6611164B34E9FB706D",
+    "scripts/windows-apps.ps1": "3EF0B46C221578FE17BE00D996A1D3A9674F82A0595698C20E8769617E423CA6",
+    "scripts/app-presence.mjs": "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+    "electron/main.js": "F8397B6402FE0F69E97EEBCD3582F96E6D3E75EDA684BF4B5E3AC20554CF7D77",
+    "scripts/presence-scheduler.mjs": "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF"
+  },
+  "commands": [
+    "node scripts/discord-presence-studio.mjs --port=47396 --no-open"
+  ],
+  "focusEvents": [],
+  "cleanup": [
+    {
+      "pid": 47556,
+      "name": "powershell.exe",
+      "created": "2026-10-02T01:22:05.4588100Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 47012,
+      "name": "powershell.exe",
+      "created": "2026-10-02T01:22:05.5214390Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 29640,
+      "name": "node.exe",
+      "created": "2026-10-02T01:22:04.9331620Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 29132,
+      "name": "conhost.exe",
+      "created": "2026-10-02T01:22:04.9613710Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 26896,
+      "name": "conhost.exe",
+      "created": "2026-10-02T01:22:05.5922590Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 25932,
+      "name": "conhost.exe",
+      "created": "2026-10-02T01:22:05.5943770Z",
+      "stillSameIdentity": false
+    }
+  ],
+  "error": null,
+  "rootPid": 29640,
+  "runtimeSetup": {
+    "ready": false,
+    "needsDiscordApplicationId": true,
+    "needsGiphyApiKey": true,
+    "secrets": {
+      "filePath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-1-rerun\\secrets.json",
+      "warning": null,
+      "discord": {
+        "configured": false,
+        "source": null,
+        "clientId": null
+      },
+      "giphy": {
+        "configured": false,
+        "source": null
+      }
+    }
+  },
+  "start": "2026-10-02T01:22:08.8969133Z",
+  "end": "2026-10-02T01:32:09.5815754Z",
+  "rows": 120,
+  "cleanupAt": "2026-10-02T08:32:14.4951572+07:00",
+  "electronRunItemPresent": false,
+  "isolationDirectoryRemoved": true
+}

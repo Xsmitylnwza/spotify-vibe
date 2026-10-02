@@ -1,0 +1,1 @@
+{"error": "Sampler cleanup looked up int Hashtable PID keys using a uint32 variable introduced by the mapping loop; metadata was not written", "manuallyStoppedPids": [40032, 46008], "testAppsAndHelperAlreadyExited": true, "tempRemoved": true}
