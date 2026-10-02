@@ -1,0 +1,62 @@
+[
+  {
+    "ProcessId": 9620,
+    "CreationDate": "2026-10-02T09:44:50.787635+07:00",
+    "Name": "conhost.exe",
+    "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+  },
+  {
+    "ProcessId": 10464,
+    "CreationDate": "2026-10-02T09:44:50.771635+07:00",
+    "Name": "cmd.exe",
+    "CommandLine": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"C:\\Program Files\\nodejs\\npx.cmd\" electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\"\""
+  },
+  {
+    "ProcessId": 30128,
+    "CreationDate": "2026-10-02T09:44:53.224051+07:00",
+    "Name": "conhost.exe",
+    "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+  },
+  {
+    "ProcessId": 33396,
+    "CreationDate": "2026-10-02T09:44:53.077715+07:00",
+    "Name": "electron.exe",
+    "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=th --service-sandbox-type=none --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\" --field-trial-handle=1968,i,7346164741222460781,18056059972073972376,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1972,i,17215426153621040768,880070343568740731,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2104 /prefetch:11"
+  },
+  {
+    "ProcessId": 33444,
+    "CreationDate": "2026-10-02T09:44:53.136266+07:00",
+    "Name": "powershell.exe",
+    "CommandLine": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\app\\scripts\\windows-apps.ps1"
+  },
+  {
+    "ProcessId": 33764,
+    "CreationDate": "2026-10-02T09:44:52.561962+07:00",
+    "Name": "electron.exe",
+    "CommandLine": "C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data"
+  },
+  {
+    "ProcessId": 35056,
+    "CreationDate": "2026-10-02T09:44:52.450801+07:00",
+    "Name": "node.exe",
+    "CommandLine": "\"node\"   \"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\app\\node_modules\\.bin\\\\..\\electron\\cli.js\" . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data"
+  },
+  {
+    "ProcessId": 40444,
+    "CreationDate": "2026-10-02T09:44:51.080613+07:00",
+    "Name": "node.exe",
+    "CommandLine": "\"C:\\Program Files\\nodejs\\\\node.exe\"  \"C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npx-cli.js\" electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\""
+  },
+  {
+    "ProcessId": 41640,
+    "CreationDate": "2026-10-02T09:44:53.078364+07:00",
+    "Name": "electron.exe",
+    "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=1968,i,7346164741222460781,18056059972073972376,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1972,i,17215426153621040768,880070343568740731,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1964 /prefetch:2"
+  },
+  {
+    "ProcessId": 48740,
+    "CreationDate": "2026-10-02T09:44:52.392126+07:00",
+    "Name": "cmd.exe",
+    "CommandLine": "C:\\WINDOWS\\system32\\cmd.exe /d /s /c electron . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data"
+  }
+]

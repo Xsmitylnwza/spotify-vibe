@@ -1,0 +1,270 @@
+{
+  "mode": "S5",
+  "durationRequested": 600,
+  "intervalRequested": 5,
+  "logicalProcessors": 12,
+  "launchAt": "2026-10-02T09:44:49.1778002+07:00",
+  "head": "0748b44f939b1a2a26b8d2e913d5a64a0be9f376",
+  "gitStatus": " M CLAUDE.md\n M docs/improvement-review/execution/LOG.md\n M docs/improvement-review/execution/p0/screens-a/01-first-load.png\n D docs/improvement-review/execution/p0/screens-a/02-status-after-start.png\n D docs/improvement-review/execution/p0/screens-a/03-scenes-list.png\n D docs/improvement-review/execution/p0/screens-a/03b-scenes-delete-cancelled.png\n D docs/improvement-review/execution/p0/screens-a/04-scene-detail-top.png\n D docs/improvement-review/execution/p0/screens-a/05-server-gone-offline-and-save-failed.png\n D docs/improvement-review/execution/p0/screens-a/06-after-server-restart-reload.png\n D docs/improvement-review/execution/p0/screens-a/07-scene-detail-en.png\n D docs/improvement-review/execution/p0/screens-a/08-after-show-click.png\n D docs/improvement-review/execution/p0/screens-a/09-status-live-override.png\n D docs/improvement-review/execution/p0/screens-a/10-j2-open-studio-root.png\n D docs/improvement-review/execution/p0/screens-b/10-status-768x1024-dark-en.png\n D docs/improvement-review/execution/p0/screens-b/11-scene-detail-768x1024-dark-en.png\n D docs/improvement-review/execution/p0/screens-b/12-settings-768x1024-dark-en.png\n D docs/improvement-review/execution/p0/screens-b/21-gif-modal-fake-key-loading-or-error-1280x800-dark-en.png\n M electron/main.js\n M scripts/studio-server.mjs\n M scripts/tests/electron-host.test.mjs\n M scripts/windows-apps.mjs\n M scripts/windows-apps.ps1\n?? docs/improvement-review/execution/p0/journey-audit-b.md\n?? docs/improvement-review/execution/p0/screens-a/02-j1-onboarding-first-run.png\n?? docs/improvement-review/execution/p0/screens-a/03-j1-after-start-click.png\n?? docs/improvement-review/execution/p0/screens-a/04-j1-scenes-library-fresh.png\n?? docs/improvement-review/execution/p0/screens-a/05-j1-scenes-your-apps-section.png\n?? docs/improvement-review/execution/p0/screens-a/06-j1-scene-detail-top.png\n?? docs/improvement-review/execution/p0/screens-a/07-j1-after-show-on-discord.png\n?? docs/improvement-review/execution/p0/screens-a/09-j2-open-studio-root-while-live.png\n?? docs/improvement-review/execution/p0/screens-a/10-settings-connection-keys.png\n?? docs/improvement-review/execution/p0/screens-a/11-j3-library-live-pinned-tag.png\n?? docs/improvement-review/execution/p0/screens-a/12-j3-typed-main-line-preview-draft.png\n?? docs/improvement-review/execution/p0/screens-a/13-j3-activity-name-edited-live.png\n?? docs/improvement-review/execution/p0/screens-a/14-j4-after-add-scene-click.png\n?? docs/improvement-review/execution/p0/screens-a/15-j4-new-scene-texts-filled.png\n?? docs/improvement-review/execution/p0/screens-a/16-j4-library-with-new-scene-after-reload.png\n?? docs/improvement-review/execution/p0/screens-a/17-j4-pairing-search-paint.png\n?? docs/improvement-review/execution/p0/screens-a/18-j4-after-pairing-click.png\n?? docs/improvement-review/execution/p0/screens-a/19-j4-library-with-paint-scene-live.png\n?? docs/improvement-review/execution/p0/screens-a/20-j4-library-paired-icons-good-morning-live.png\n?? docs/improvement-review/execution/p0/screens-a/21-j5-taskmanager-paired-to-paint-scene.png\n?? docs/improvement-review/execution/p0/screens-a/22-j5-chrome-tile-bound-elsewhere.png\n?? docs/improvement-review/execution/p0/screens-b/30-settings-giphy-fake-key-saved-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/31-settings-giphy-set-after-reload-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/32-gif-modal-fake-key-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/34-gif-modal-keyboard-opened-fake-key-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/35-scene-detail-draft-typed-before-lang-switch-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/36-scene-detail-after-switch-to-thai-1280x800-dark-th.png\n?? docs/improvement-review/execution/p0/screens-b/40-settings-768x1024-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/40-status-768x1024-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/41-scene-detail-768x1024-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/42-scene-detail-200pct-zoom-640x400-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/42-settings-200pct-zoom-640x400-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/42-status-200pct-zoom-640x400-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/50-keyboard-skip-link-focused-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/60-status-companion-stopped-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/62-status-after-companion-restart-no-reload-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/63-settings-quit-confirm-dialog-browser-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/64-browser-ui-after-companion-quit-1280x800-dark-en.png\n?? docs/improvement-review/execution/p0/screens-b/70-electron-window-first-run-onboarding.png\n?? docs/improvement-review/execution/p0/screens-b/71-electron-window-status-frameless.png\n?? docs/improvement-review/execution/p0/screens-b/72-electron-after-close-button-click.png\n?? docs/improvement-review/execution/p0/screens-b/73-electron-settings-top.png\n?? docs/improvement-review/execution/p0/screens-b/75-electron-settings-update-and-quit-area.png\n?? docs/improvement-review/execution/p0/screens-b/76-electron-after-quit-click.png\n?? docs/improvement-review/execution/p4/\n?? electron/tray-window.mjs\n?? scripts/tests/electron-tray-window.test.mjs\n?? scripts/tests/studio-apps.test.mjs\n?? scripts/tests/windows-apps.test.mjs",
+  "sourceHashes": {
+    "scripts/windows-apps.mjs": "28F3727EC58C10DA4DDD21EE96BB274B343D43DD7367E10CBB9543A256A72679",
+    "scripts/app-presence.mjs": "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+    "electron/lifecycle.mjs": "C28BDCB816472F9B33656B46AABD91F9A9E155A3DDE554C2F02549B65AD0E61A",
+    "scripts/windows-apps.ps1": "2E1D81744EC27E6AB6722872C0AC70EEF3F20A470EED6DD956683E5A9B878D8C",
+    "scripts/local-config-store.mjs": "02BE495A1D59BCE42B1E5B49F5907F9BD8721431637716C40963F589688F2B58",
+    "scripts/installed-apps.mjs": "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+    "electron/main.js": "EE230751EECA2BDA29B53A92440904F2CBCB6251A8B62511689383F96FA1CCC6",
+    "scripts/app-secrets.mjs": "0CD02A5F6BF6790C1468B05C38491F3ECF8E43AF511FF761FAA3D8C4535C4D53",
+    "scripts/discord-presence-studio.html": "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+    "electron/preload.cjs": "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+    "scripts/presence-scheduler.mjs": "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF",
+    "scripts/studio-server.mjs": "81C04FBDFD969F883FE91D9B11BB20FB927FECD0571D2F6611164B34E9FB706D"
+  },
+  "commands": [
+    "npx electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\""
+  ],
+  "focusEvents": [],
+  "cleanup": [
+    {
+      "pid": 48740,
+      "name": "cmd.exe",
+      "created": "2026-10-02T02:44:52.3921260Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 43352,
+      "name": "node.exe",
+      "created": "2026-10-02T02:44:50.8996800Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 42376,
+      "name": "electron.exe",
+      "created": "2026-10-02T02:44:53.3008010Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 41640,
+      "name": "electron.exe",
+      "created": "2026-10-02T02:44:53.0783640Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 40444,
+      "name": "node.exe",
+      "created": "2026-10-02T02:44:51.0806130Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 35056,
+      "name": "node.exe",
+      "created": "2026-10-02T02:44:52.4508010Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33764,
+      "name": "electron.exe",
+      "created": "2026-10-02T02:44:52.5619620Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33444,
+      "name": "powershell.exe",
+      "created": "2026-10-02T02:44:53.1362660Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 33396,
+      "name": "electron.exe",
+      "created": "2026-10-02T02:44:53.0777150Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 30128,
+      "name": "conhost.exe",
+      "created": "2026-10-02T02:44:53.2240510Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 26200,
+      "name": "cmd.exe",
+      "created": "2026-10-02T02:44:50.8631090Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 10464,
+      "name": "cmd.exe",
+      "created": "2026-10-02T02:44:50.7716350Z",
+      "stillSameIdentity": false
+    },
+    {
+      "pid": 9620,
+      "name": "conhost.exe",
+      "created": "2026-10-02T02:44:50.7876350Z",
+      "stillSameIdentity": false
+    }
+  ],
+  "error": null,
+  "frozenFrom": "S4-source with other repository runtime files copied at launch",
+  "frozenHashes": {
+    "scripts/tests/running-presence.test.mjs": "EE2F9EE016B10C62D68F2066C6312D4F8E60819098FE84464C81464F435FB2A6",
+    "electron/assets/icon.icns": "439119AF59D7FB58E4940AB7B091493453860127090EB34DF669F9D1CDA7F1A7",
+    "scripts/giphy-search.mjs": "A8B54C570D3B8EF321B6B33EFAE4ADAB4583895F515E3B26EE0286E4D0649FA7",
+    "scripts/tests/electron-lifecycle.test.mjs": "F730010062D05E1E6DC3F0E1BC797901751E426B14A933D97B03E1B8F1098D5D",
+    "scripts/tests/studio-server.test.mjs": "DB80AE1297C6387EDF7DE6BB0A0BCEE131276CE81E8014CEF501282F81F48985",
+    "scripts/presence-config.mjs": "06B46B43B65EFAA05F7A4BA5A6A92E400D5778DDCFE8FB59C9DB1852DBE36068",
+    "electron/assets/icon.ico": "94BD2FA9FF5602D40DCD6FBC0FDA30F8E8A1AFDE708F37C82063EFB213D480E9",
+    "scripts/app-presence.mjs": "B7DD19ADFE1D9606DFF4EB1A6B7D8ABE60662643C60979584B601C7AEC98DA9D",
+    "scripts/tests/electron-tray-window.test.mjs": "4D7B96AAEFA8C390165E7C06FAC082034757915A083C13445FB217106B36204B",
+    "scripts/character-art.mjs": "97AD50FCF2692528BEB35C0B617C392DC17662A1787E8D70BDB5F56D460341A0",
+    "scripts/tests/character-art.test.mjs": "DD94A14262268CB4288D5CECE39E30E840107599B2C5AD224A24B018CCF72573",
+    "scripts/codex-session.mjs": "40316EEC3709FA9E2F6D44E2CC1B02CA2F750F27BD5181437BF906BCEC6B9E89",
+    "scripts/studio-server.mjs": "81C04FBDFD969F883FE91D9B11BB20FB927FECD0571D2F6611164B34E9FB706D",
+    "scripts/setup-giphy-key.mjs": "CCDB6635055AA4D3B0FAE5D9C477A35AE8A25298CA71B9D65E261ADD3D77AA90",
+    "scripts/tests/electron-packaging.test.mjs": "74A5D3249C69ED0B2D300BF25CFA4C067AE4653918CEA25131583E45BC2A004D",
+    "scripts/tests/persistence-boundary.test.mjs": "11269E183CBAE43DBA616207ADA00DCAF66519CFD942823FAF57F5E1BF4DE63E",
+    "scripts/tests/presence-config.test.mjs": "A0BA5FD19C95D7DE48D6239BA6949A937A60CC7454804188F5EFBDF4FBD3A00B",
+    "scripts/tests/studio-boundary.test.mjs": "81CB9203DC14442051727518146FFE653D4E8FF16834CF86D88E143B9C213387",
+    "scripts/tests/discord-application.test.mjs": "3F0478C36902769A6F6089F17A08B7BDBF4F0BC38A587A28DDCB1589F1D6BB64",
+    "scripts/tests/studio-apps.test.mjs": "8ED394ED9D0779D32531AB0466B8116F4F4AD31142D710655E801D6C8CACEE3B",
+    "electron/preload.cjs": "C1FF1A28EEDD6D888B0EE4C4CEA2C1A740BBB8368CAB47280BCE404F5800FC77",
+    "electron/assets/logo-ghost.svg": "A7A4DD3F357554D99B6F8D8E740F810D62184C5C8200E0FE1CBC675EE9D830BA",
+    "scripts/studio-ci.css": "9D923E928E8B1C816D6EDD9BAE27C3722AD291B514E4712363C8AA6A2DBE745A",
+    "scripts/tests/electron-host.test.mjs": "5E855A863BE7C165CD89398E29077D06F9E8695D5B6770152EFF307376A9E10D",
+    "scripts/presence-scheduler.mjs": "0FCFD5911C7CD840FD6CB61266288FAAB3BEB05B28AD7266B4B026CA81BCF9AF",
+    "electron/security.mjs": "1E7079F0D88BEFE14D584B85D06721B961914B0727F6F3BC97D2630D0A2C869E",
+    "scripts/app-secrets.mjs": "0CD02A5F6BF6790C1468B05C38491F3ECF8E43AF511FF761FAA3D8C4535C4D53",
+    "scripts/installed-apps.mjs": "97084C6C3B321E4F325A252CFFACC280B008A1EA552331BEC37C19EDDFD748C5",
+    "electron/assets/tray.png": "9A0C8483B5D175F2C029EB0DD32F398AA32EB05189E1535E56B0148B2B31E5BD",
+    "scripts/windows-apps.ps1": "2E1D81744EC27E6AB6722872C0AC70EEF3F20A470EED6DD956683E5A9B878D8C",
+    "scripts/discord-presence-studio.html": "15B79564FD958598B4C5EEC029532EDDD2B4ADD5EC568F8DC4E9FF14439C019E",
+    "scripts/tests/app-presence.test.mjs": "5C66D4576FD21CF7B40384C54A10A95659438133EF4DD258D0FF982AC00B2F5E",
+    "scripts/discord-presence-poc.mjs": "F1029608B3F6667A4048BF8B226ABF99A5B94E8F351A635647258CAB3E99D05A",
+    "electron/tray-window.mjs": "6EA9D4E039CF3A5CC357CE46F1E25D00DB7FCFF5C269C653FFA93AA68BE0CDC5",
+    "scripts/application-badges.mjs": "98C0A09949493DB73C27D8F90253842DA9DAB70E6F06E6C1927C19F80ECD2784",
+    "scripts/tests/windows-autostart.test.mjs": "2FA05F488DBE02C597AC6B1B67E964C76315F7B6B277A807E8F65B09AAA9EB94",
+    "electron/lifecycle.mjs": "C28BDCB816472F9B33656B46AABD91F9A9E155A3DDE554C2F02549B65AD0E61A",
+    "scripts/discord-application.mjs": "158D5BFF85E441242A5BC445E1853E9BCFF29F7E199D3A5BF95D78449E27CFA7",
+    "package.json": "97AE197B83FB571C9F8EC565D33DAC1AE9893595CF861110E3BB5BB5380A985D",
+    "electron/main.js": "EE230751EECA2BDA29B53A92440904F2CBCB6251A8B62511689383F96FA1CCC6",
+    "scripts/tests/electron-security.test.mjs": "1EEA0C4460A9A9D8AC2D29AC2F3FA67E73C7C0433CF888AF3C6A03D65B64D7A4",
+    "scripts/local-config-store.mjs": "02BE495A1D59BCE42B1E5B49F5907F9BD8721431637716C40963F589688F2B58",
+    "scripts/tests/local-config-store.test.mjs": "F725B115D95232F218A9A478E5B61FAD6E3EB3021EF2E87C74E6CFC67ABE47C9",
+    "scripts/windows-apps.mjs": "28F3727EC58C10DA4DDD21EE96BB274B343D43DD7367E10CBB9543A256A72679",
+    "scripts/tests/giphy-search.test.mjs": "D69F652BB4329DEAD4B1CFA255540A01DA969ECE43F5743B6900693B3C0B0C20",
+    "scripts/tests/app-secrets.test.mjs": "34A0C74AA3BAA9D745D0F43A4BBAF86600A79DDF7CE751EE09F0610CA8A1C9D6",
+    "scripts/tests/presence-scheduler.test.mjs": "AEDD92223BC39AED83EC58A6E5A63B2832F95F5714EAD70BE2F80C6B57FC2CDC",
+    "scripts/tests/windows-apps.test.mjs": "E07D86919235BBF63EA428740C067EE1321AF19717E3EF48DC8375BF85DD8BDB",
+    "scripts/tests/codex-session.test.mjs": "B6E3ECD8FBE61F5348311515F224C34B84B9A7B83807190F2E4BC8667CB2E87B",
+    "scripts/discord-presence-studio.mjs": "25799EA51239E260A2F413D2A02476B0F49EE8959BF979C32AA28E9323F5BF5E",
+    "electron/assets/icon.png": "911F7E3FD843BEAFC9C92A8083507BD89DB633CC2AB00EB68D41271530FCAE3C",
+    "scripts/installed-apps.ps1": "E088CF200A5738D43A9E543D1A713E76EBEA851D8C569681DE7B7B6446B9AF13",
+    "scripts/windows-autostart.mjs": "7F7BEDB9D41A99AF3C299346750A0D5A0AB7E9967D35FE3EE13D2E166687A07B"
+  },
+  "minimized": false,
+  "rootPid": 10464,
+  "runtimeSetup": {
+    "ready": false,
+    "needsDiscordApplicationId": true,
+    "needsGiphyApiKey": true,
+    "secrets": {
+      "filePath": "C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\secrets.json",
+      "warning": null,
+      "discord": {
+        "configured": false,
+        "source": null,
+        "clientId": null
+      },
+      "giphy": {
+        "configured": false,
+        "source": null
+      }
+    }
+  },
+  "visibleWindowCount": 0,
+  "treeAtStart": [
+    {
+      "ProcessId": 10464,
+      "ParentProcessId": 31144,
+      "Name": "cmd.exe",
+      "CreationDate": "2026-10-02T09:44:50.771635+07:00",
+      "CommandLine": "\"C:\\WINDOWS\\system32\\cmd.exe\" /d /s /c \"\"C:\\Program Files\\nodejs\\npx.cmd\" electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\"\""
+    },
+    {
+      "ProcessId": 9620,
+      "ParentProcessId": 10464,
+      "Name": "conhost.exe",
+      "CreationDate": "2026-10-02T09:44:50.787635+07:00",
+      "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+      "ProcessId": 40444,
+      "ParentProcessId": 10464,
+      "Name": "node.exe",
+      "CreationDate": "2026-10-02T09:44:51.080613+07:00",
+      "CommandLine": "\"C:\\Program Files\\nodejs\\\\node.exe\"  \"C:\\Program Files\\nodejs\\\\node_modules\\npm\\bin\\npx-cli.js\" electron . --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\""
+    },
+    {
+      "ProcessId": 48740,
+      "ParentProcessId": 40444,
+      "Name": "cmd.exe",
+      "CreationDate": "2026-10-02T09:44:52.392126+07:00",
+      "CommandLine": "C:\\WINDOWS\\system32\\cmd.exe /d /s /c electron . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data"
+    },
+    {
+      "ProcessId": 35056,
+      "ParentProcessId": 48740,
+      "Name": "node.exe",
+      "CreationDate": "2026-10-02T09:44:52.450801+07:00",
+      "CommandLine": "\"node\"   \"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\app\\node_modules\\.bin\\\\..\\electron\\cli.js\" . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data"
+    },
+    {
+      "ProcessId": 33764,
+      "ParentProcessId": 35056,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T09:44:52.561962+07:00",
+      "CommandLine": "C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe . --user-data-dir=C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data"
+    },
+    {
+      "ProcessId": 33396,
+      "ParentProcessId": 33764,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T09:44:53.077715+07:00",
+      "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=th --service-sandbox-type=none --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\" --field-trial-handle=1968,i,7346164741222460781,18056059972073972376,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1972,i,17215426153621040768,880070343568740731,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2104 /prefetch:11"
+    },
+    {
+      "ProcessId": 41640,
+      "ParentProcessId": 33764,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T09:44:53.078364+07:00",
+      "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=gpu-process --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\" --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --field-trial-handle=1968,i,7346164741222460781,18056059972073972376,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1972,i,17215426153621040768,880070343568740731,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1964 /prefetch:2"
+    },
+    {
+      "ProcessId": 33444,
+      "ParentProcessId": 33764,
+      "Name": "powershell.exe",
+      "CreationDate": "2026-10-02T09:44:53.136266+07:00",
+      "CommandLine": "powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\app\\scripts\\windows-apps.ps1"
+    },
+    {
+      "ProcessId": 30128,
+      "ParentProcessId": 33444,
+      "Name": "conhost.exe",
+      "CreationDate": "2026-10-02T09:44:53.224051+07:00",
+      "CommandLine": "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4"
+    },
+    {
+      "ProcessId": 42376,
+      "ParentProcessId": 33764,
+      "Name": "electron.exe",
+      "CreationDate": "2026-10-02T09:44:53.300801+07:00",
+      "CommandLine": "\"C:\\letmecook-lab\\spotify-vibe\\node_modules\\electron\\dist\\electron.exe\" --type=renderer --user-data-dir=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\electron-user-data\" --app-user-model-id=electron.app.Electron --app-path=\"C:\\Users\\golfp\\AppData\\Local\\Temp\\vibe-p4-2\\app\" --no-sandbox --no-zygote --video-capture-use-gpu-memory-buffer --lang=th --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --launch-time-ticks=79028543237 --field-trial-handle=1968,i,7346164741222460781,18056059972073972376,262144 --enable-features=AllowWindowCaptureExclusionInRemoteSessions,PdfUseShowSaveFilePicker --disable-features=DropInputEventsWhilePaintHolding,LocalNetworkAccessChecks,NetworkServiceSandbox,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --pseudonymization-salt-handle=1972,i,17215426153621040768,880070343568740731,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=3564 /prefetch:1"
+    }
+  ],
+  "start": "2026-10-02T02:45:03.8212386Z",
+  "end": "2026-10-02T02:55:04.6654768Z",
+  "rows": 120,
+  "cleanupAt": "2026-10-02T09:55:13.4543073+07:00",
+  "electronRunItemPresent": false,
+  "isolationDirectoryRemoved": true
+}

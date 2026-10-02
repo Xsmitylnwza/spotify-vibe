@@ -1,0 +1,220 @@
+{
+  "checkedAt": "2026-10-02T02:56:46.9700112Z",
+  "checks": [
+    {
+      "pid": 48740,
+      "created": "2026-10-02T02:44:52.392126Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 43352,
+      "created": "2026-10-02T02:44:50.89968Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 42376,
+      "created": "2026-10-02T02:44:53.300801Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 41640,
+      "created": "2026-10-02T02:44:53.078364Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 40444,
+      "created": "2026-10-02T02:44:51.080613Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 35056,
+      "created": "2026-10-02T02:44:52.450801Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 33764,
+      "created": "2026-10-02T02:44:52.561962Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 33444,
+      "created": "2026-10-02T02:44:53.136266Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 33396,
+      "created": "2026-10-02T02:44:53.077715Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 30128,
+      "created": "2026-10-02T02:44:53.224051Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 26200,
+      "created": "2026-10-02T02:44:50.863109Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 10464,
+      "created": "2026-10-02T02:44:50.771635Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 9620,
+      "created": "2026-10-02T02:44:50.787635Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 48660,
+      "created": "2026-10-02T02:41:24.662743Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 45836,
+      "created": "2026-10-02T02:41:23.794517Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 44916,
+      "created": "2026-10-02T02:41:19.475888Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 44724,
+      "created": "2026-10-02T02:41:24.450369Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 44560,
+      "created": "2026-10-02T02:41:23.717905Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 44528,
+      "created": "2026-10-02T02:41:24.5111Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 44216,
+      "created": "2026-10-02T02:41:24.445308Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 40616,
+      "created": "2026-10-02T02:41:19.76846Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 38288,
+      "created": "2026-10-02T02:41:20.292066Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 35228,
+      "created": "2026-10-02T02:41:23.919664Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 33028,
+      "created": "2026-10-02T02:41:19.824877Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 27884,
+      "created": "2026-10-02T02:41:24.690848Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 18264,
+      "created": "2026-10-02T02:41:19.52824Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 6680,
+      "created": "2026-10-02T02:44:16.13786Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 46468,
+      "created": "2026-10-02T02:38:17.151446Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 44936,
+      "created": "2026-10-02T02:38:16.623808Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 43352,
+      "created": "2026-10-02T02:38:11.76079Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 40100,
+      "created": "2026-10-02T02:38:08.810984Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 39332,
+      "created": "2026-10-02T02:38:16.367663Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 39052,
+      "created": "2026-10-02T02:38:16.780889Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 38488,
+      "created": "2026-10-02T02:38:09.187337Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 35696,
+      "created": "2026-10-02T02:38:08.786395Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 34960,
+      "created": "2026-10-02T02:38:08.91534Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 26800,
+      "created": "2026-10-02T02:38:11.387501Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 25680,
+      "created": "2026-10-02T02:38:08.955007Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 14640,
+      "created": "2026-10-02T02:38:16.35899Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 11992,
+      "created": "2026-10-02T02:38:16.452389Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 4632,
+      "created": "2026-10-02T02:38:16.912406Z",
+      "sameIdentityPresent": false
+    },
+    {
+      "pid": 2884,
+      "created": "2026-10-02T02:38:11.29119Z",
+      "sameIdentityPresent": false
+    }
+  ],
+  "identityCount": 42,
+  "remainingSameIdentities": 0,
+  "listenerCount": 0,
+  "electronRunItemPresent": false,
+  "isolatedDirsPresent": []
+}
