@@ -82,3 +82,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner bug: sidebar scrolls/gap | D1 | owner | #31 one scroll owner; sent to D1-M7 | — | owner |
 | 2026-10-02 | P3-L7 (task_d84e7d9b58b5) imagegen ghost options | P3 / design | Codex gpt-6.1-sol + $imagegen | Accepted: 13 options 1024px + contact sheet (64/32 previews) + prompts; coordinator viewed sheet. Worker top picks 07, 01, 09. Owner to choose; chosen raster to be redrawn as SVG | (this commit) | coordinator visual check |
 | 2026-10-02 | Owner logo pick #32: option 09 Swooping ghost | P3 | owner | P3-L8 vectorize dispatched (Sonnet, lean) | — | owner |
+| 2026-10-02 | P3-L8 vectorize logo 09 | P3 / design | Sonnet | Done: ghost-09.svg + tray, final-09.html; mockup logo swapped | (this commit) | owner to view |
