@@ -2831,12 +2831,16 @@ function reemitToast() {
 
       function scheduleSave() {
         clearTimeout(saveTimer);
+        saveTimer = null;
         if (!validateForm()) {
           setSaveState('warning', 'กรอกช่องที่จำเป็นให้ครบ', 'แก้ข้อความที่แจ้งไว้เพื่อกลับมาบันทึกอัตโนมัติ');
           return;
         }
         setSaveState('dirty', 'มีการแก้ไขที่ยังไม่บันทึก', 'กำลังจะบันทึกอัตโนมัติ…');
-        saveTimer = setTimeout(() => void saveConfig(false), 650);
+        saveTimer = setTimeout(() => {
+          saveTimer = null;
+          void saveConfig(false);
+        }, 650);
       }
 
       // Best-effort flush: closing/reloading the tab within the 650 ms debounce
@@ -2862,6 +2866,7 @@ function reemitToast() {
 
       async function useSelectedScene() {
         clearTimeout(saveTimer);
+        saveTimer = null;
         if (!validateForm({ reveal: true, focusFirst: true })) {
           setSaveState('warning', 'กรอกช่องที่จำเป็นให้ครบ', 'แก้ข้อความที่แจ้งไว้ก่อนแสดง Scene นี้');
           showMessage('แก้ช่องที่ไฮไลต์ไว้ก่อนแสดง Scene นี้บน Discord', 'error');
@@ -3144,6 +3149,7 @@ function reemitToast() {
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         clearTimeout(saveTimer);
+        saveTimer = null;
         void saveConfig(true);
       });
       useButton.addEventListener('click', () => void useSelectedScene());
