@@ -14,11 +14,16 @@ export function createRealAppServer({ catalog = createDeviceCatalog(directory), 
   const staticServer = createProfileServer(async () => (await fetch(liveBase + '/api/discord-profile')).json());
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
-    if (!['/api/device-apps', '/api/device-workspace', '/api/mock-live'].includes(url.pathname)) { staticServer.emit('request', req, res); return; }
+    if (!['/api/device-apps', '/api/device-workspace', '/api/mock-live', '/api/gifs'].includes(url.pathname)) { staticServer.emit('request', req, res); return; }
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('Content-Type', 'application/json');
     const reply = (status, data) => res.writeHead(status).end(JSON.stringify(data));
     if (req.headers.host !== `127.0.0.1:${server.address().port}` || (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`)) { reply(403, { error: 'Use the local app URL' }); return; }
     try {
+      if (url.pathname === '/api/gifs') {
+        if (req.method !== 'GET') { reply(405, { error: 'Method not allowed' }); return; }
+        const upstream = await fetch(liveBase + url.pathname + url.search, { signal: AbortSignal.timeout(20000) });
+        reply(upstream.status, await upstream.json()); return;
+      }
       if (req.method === 'GET' && url.pathname === '/api/device-apps') { reply(200, await catalog({ refresh: url.searchParams.get('refresh') === '1' })); return; }
       if (req.method === 'GET' && url.pathname === '/api/device-workspace') {
         await saving;

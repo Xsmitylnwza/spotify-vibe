@@ -48,6 +48,7 @@ test('empty optional details and state send without inventing replacement text',
   await controller.command('send', { ...scene, details: '', state: '' });
   assert.equal(calls[1].args.activity.details, undefined);
   assert.equal(calls[1].args.activity.state, undefined);
+  assert.equal(calls[1].args.activity.assets.large_text, undefined);
   await controller.command('end');
 });
 test('failed send never claims applied and releases client', async () => {
@@ -82,4 +83,65 @@ test('HTTP live writes require local origin and explicit JSON header', async t =
   assert.equal((await fetch(base + '/api/mock-live', { ...opts, headers: { 'Content-Type': 'application/json' } })).status, 403);
   assert.equal((await fetch(base + '/api/mock-live', opts)).status, 200);
   assert.equal((await (await fetch(base + '/api/mock-live')).json()).active, true);
+});
+
+test('app icon without public URL publishes explicit fallback and no timestamp fields', async () => {
+  const { controller, calls } = fake();
+  const result = await controller.command('send', { ...scene, largeImage: '@app' });
+  assert.equal(result.scene.imageFallback, 'app_icon_no_public_url');
+  assert.equal(result.scene.publishedImage, calls[1].args.activity.assets.large_image);
+  assert.equal(Object.hasOwn(calls[1].args.activity, 'timestamps'), false);
+  await controller.command('end');
+});
+
+for (const [label, input, image, reason] of [
+  ['public app icon', { largeImage: '@app', appPublicIcon: 'https://example.com/orca.png' }, 'https://example.com/orca.png', null],
+  ['local app icon', { largeImage: '@app', appPublicIcon: 'data:image/png;base64,AAAA' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
+  ['pre-resolved app icon', { largeImage: '', largeImageSource: 'app-icon' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
+  ['built-in', { largeImage: 'builtin:hinata-poster' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', null],
+  ['link', { largeImage: 'https://example.com/art.gif' }, 'https://example.com/art.gif', null],
+]) test(`exact SET_ACTIVITY payload: ${label}`, async () => {
+  const { controller, calls } = fake();
+  const result = await controller.command('send', { ...scene, ...input });
+  assert.deepEqual(calls[1], { cmd: 'SET_ACTIVITY', args: { pid: process.pid, activity: {
+    type: 2, name: 'Vibe', details: 'Live test', details_url: undefined,
+    state: 'Manual control', state_url: undefined,
+    assets: { large_image: image, large_text: 'Live test', large_url: undefined, small_image: undefined, small_text: undefined, small_url: undefined },
+    buttons: [{ label: 'Portfolio', url: 'https://example.com' }], instance: false,
+  } } });
+  assert.equal(result.scene.publishedImage, image);
+  assert.equal(result.scene.imageFallback, reason);
+  assert.equal(result.scene.timestamps, null);
+  await controller.command('end');
+});
+
+test('timestamps only appear for explicit elapsed/remaining Scene timers', async () => {
+  const { controller, calls } = fake();
+  for (const timerMode of ['none', 'elapsed', 'remaining']) {
+    const before = Date.now();
+    const result = await controller.command('send', { ...scene, timerMode, timerMinutes: 5 });
+    const payload = calls.at(-1).args.activity;
+    if (timerMode === 'none') assert.equal(Object.hasOwn(payload, 'timestamps'), false);
+    else {
+      const key = timerMode === 'elapsed' ? 'start' : 'end';
+      const delta = key === 'end' ? 300000 : 0;
+      assert.deepEqual(Object.keys(payload.timestamps), [key]);
+      assert.ok(payload.timestamps[key] >= before + delta && payload.timestamps[key] <= Date.now() + delta);
+      assert.deepEqual(result.scene.timestamps, payload.timestamps);
+    }
+  }
+  await controller.command('end');
+});
+
+test('small app icon fallback omits badge; public small icon publishes the same URL', async () => {
+  const { controller, calls } = fake();
+  let result = await controller.command('send', { ...scene, smallImage: '@app' });
+  assert.equal(result.scene.publishedSmallImage, '');
+  assert.equal(result.scene.smallImageFallback, 'app_icon_no_public_url');
+  assert.equal(calls.at(-1).args.activity.assets.small_image, undefined);
+  result = await controller.command('send', { ...scene, smallImage: '@app', appPublicIcon: 'https://example.com/icon.png' });
+  assert.equal(result.scene.smallImageFallback, null);
+  assert.equal(result.scene.publishedSmallImage, 'https://example.com/icon.png');
+  assert.equal(calls.at(-1).args.activity.assets.small_image, result.scene.publishedSmallImage);
+  await controller.command('end');
 });

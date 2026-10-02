@@ -1,11 +1,17 @@
-// Explicit manual live test. No config, secrets, autostart, detectors, or storage.
+// Explicit manual live test. GIPHY credentials are read only; no profile writes.
 import { createServer } from 'node:http';
-import { resolve } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
+import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { createProfileServer, readProfile } from './profile-server.mjs';
 import { createLiveController } from './live-controller.mjs';
+import { loadAppSecrets } from '../../../../../scripts/app-secrets.mjs';
+import { createCachedGiphySearch } from '../../../../../scripts/giphy-search.mjs';
 
-export function createLiveServer(controller = createLiveController()) {
+export function createLiveServer(controller = createLiveController(), { env = process.env, fetchImpl = globalThis.fetch, loadSecrets = loadAppSecrets } = {}) {
+  const dataDirectory = env.PRESENCE_CONFIG_PATH ? dirname(env.PRESENCE_CONFIG_PATH)
+    : process.platform === 'win32' && env.APPDATA ? join(env.APPDATA, 'Spotify Vibe') : join(homedir(), '.spotify-vibe');
+  let search = null, searchKey = null;
   const staticServer = createProfileServer(async () => {
     const user = controller.getUser();
     if (!user) return readProfile();
@@ -14,11 +20,24 @@ export function createLiveServer(controller = createLiveController()) {
       avatarUrl: avatar ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith('a_') ? 'gif' : 'png'}?size=128` : `https://cdn.discordapp.com/embed/avatars/${(BigInt(id) >> 22n) % 6n}.png` } };
   });
   const server = createServer(async (req, res) => {
-    if (req.url?.split('?')[0] !== '/api/mock-live') { staticServer.emit('request', req, res); return; }
+    const url = new URL(req.url, 'http://127.0.0.1');
+    if (!['/api/mock-live', '/api/gifs'].includes(url.pathname)) { staticServer.emit('request', req, res); return; }
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Content-Type', 'application/json');
     const reply = (status, data) => res.writeHead(status).end(JSON.stringify(data));
     if (req.headers.host !== `127.0.0.1:${server.address().port}` || (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`)) { reply(403, { error: 'Use the local live mockup URL' }); return; }
+    if (url.pathname === '/api/gifs') {
+      if (req.method !== 'GET') { reply(405, { error: 'Method not allowed' }); return; }
+      try {
+        const secrets = await loadSecrets({ filePath: env.PRESENCE_SECRETS_PATH || join(dataDirectory, 'app-secrets.json'), environmentGiphyApiKey: env.GIPHY_API_KEY || '' });
+        const key = secrets.giphyApiKey;
+        if (!key) { reply(409, { error: 'no_key' }); return; }
+        if (!search || key !== searchKey) { search = createCachedGiphySearch({ apiKey: key, fetchImpl }); searchKey = key; }
+        const result = await search({ query: url.searchParams.get('q') || '', offset: url.searchParams.get('offset') || 0 });
+        reply(200, { results: result.items.map(item => ({ id: item.id, url: item.originalUrl, previewUrl: item.previewUrl, width: item.width, height: item.height })), next: result.pagination.nextOffset });
+      } catch (error) { reply(error.statusCode || 502, { error: error.code || 'GIPHY_SEARCH_FAILED' }); }
+      return;
+    }
     if (req.method === 'GET') { reply(200, controller.snapshot()); return; }
     if (req.method !== 'POST') { reply(405, { error: 'Method not allowed' }); return; }
     if (req.headers['x-vibe-mock-live'] !== '1' || req.headers['content-type'] !== 'application/json') { reply(403, { error: 'Live test request required' }); return; }

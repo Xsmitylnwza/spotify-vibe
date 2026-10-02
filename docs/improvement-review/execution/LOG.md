@@ -95,3 +95,7 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner decision #39 Now = on/off + preview; Pause removed | D1 | owner | D1-M16 dispatched | — | owner |
 | 2026-10-02 | D1-M16 minimal Now (#39) | P2 / design | Sonnet | Done; Pause removed everywhere; tests 30/30; not browser-viewed | (this commit) | owner to view |
 | 2026-10-02 | Owner batch #40-#44 | D1 | owner | D1-M17 Sonnet (renderer: side-by-side previews, skeletons, enable toggle, picker UI) + D1-B1 Codex (truthful publish debug, GIF API) dispatched in parallel, file-disjoint | — | owner |
+| 2026-10-02 | Owner: restore live Settings + icon refresh | D1 | owner | D1-M18 new Sonnet (owner-requested) dispatched; scoped to settingsView + appended CSS to avoid colliding with D1-M17 | — | owner |
+| 2026-10-02 | D1-M17 renderer batch (#40,#41,#43,#44 UI) | P2 / design | Sonnet | Done; 31/32 tests (1 failing = Codex in-progress file). Commit deferred until D1-B1 + D1-M18 finish (shared folder) | — | pending |
+| 2026-10-02 | D1-B1 contract confirmed | P2 / server | Codex | Missing public large icon -> publishes builtin hinata poster (explicit), small -> no badge; fallback reasons exposed. Renderer follow-up queued after M18 | — | — |
+| 2026-10-02 | D1-B1 (Codex) truthful publish + GIF API; D1-M18 (Sonnet) live Settings restored; coordinator redesign of Now + image picker (coordinator.css) | P2 | Codex / Sonnet / Opus | Done; mockup servers restarted (were running pre-fix code: timer + fallback) | (this commit) | owner to view |

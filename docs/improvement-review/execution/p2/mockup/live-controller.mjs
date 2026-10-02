@@ -1,7 +1,35 @@
 import RPC from 'discord-rpc';
 import { DEFAULT_DISCORD_APPLICATION_ID } from '../../../../../scripts/discord-application.mjs';
 import { createDiscordActivity } from '../../../../../scripts/presence-config.mjs';
-import { defaultArtBaseUrl } from '../../../../../scripts/character-art.mjs';
+import { defaultArtBaseUrl, resolveDiscordArt } from '../../../../../scripts/character-art.mjs';
+
+export function resolvePublishedScene(scene) {
+  const resolved = { ...scene, timerMode: scene.timerMode || 'none' };
+  for (const [field, source, published, fallback] of [
+    ['largeImage', 'largeImageSource', 'publishedImage', 'imageFallback'],
+    ['smallImage', 'smallImageSource', 'publishedSmallImage', 'smallImageFallback'],
+  ]) {
+    const appIcon = scene[field] === '@app' || scene[source] === 'app-icon';
+    let reference = scene[field] || '';
+    resolved[fallback] = null;
+    if (appIcon) {
+      reference = scene.appPublicIcon || (scene[field] !== '@app' ? scene[field] : '') || '';
+      let publicUrl = false;
+      try {
+        const url = new URL(reference);
+        publicUrl = url.protocol === 'https:' && !url.username && !url.password &&
+          !['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+      } catch {}
+      if (!publicUrl) {
+        reference = field === 'largeImage' ? 'builtin:hinata-poster' : '';
+        resolved[fallback] = 'app_icon_no_public_url';
+      }
+    }
+    resolved[field] = resolveDiscordArt(reference, defaultArtBaseUrl);
+    resolved[published] = resolved[field];
+  }
+  return resolved;
+}
 
 function deadline(promise, ms) {
   let timer;
@@ -31,8 +59,15 @@ export function createLiveController(createClient = () => new RPC.Client({ trans
   async function command(action, scene) {
     const operation = queue.then(async () => {
       // Validate before touching IPC; invalid edits leave the last applied activity intact.
-      const activity = action === 'send' ? createDiscordActivity({ ...scene, details: scene.details?.trim() || '__', state: scene.state?.trim() || '__' }, new Date(), { artBaseUrl: defaultArtBaseUrl }) : null;
+      const publishedScene = action === 'send' ? resolvePublishedScene(scene) : null;
+      const activity = action === 'send' ? createDiscordActivity({ ...publishedScene, details: scene.details?.trim() || '__', state: scene.state?.trim() || '__' }, new Date(), { artBaseUrl: defaultArtBaseUrl }) : null;
       if (activity) { activity.details = scene.details?.trim() || undefined; activity.state = scene.state?.trim() || undefined; }
+      // Validation placeholders must never become visible hover text either.
+      if (activity?.assets) {
+        if (!scene.largeImageText?.trim() && !scene.details?.trim()) activity.assets.large_text = undefined;
+        if (!scene.smallImageText?.trim() && !scene.state?.trim()) activity.assets.small_text = undefined;
+      }
+      if (activity && !activity.timestamps) delete activity.timestamps;
       if (!['connect', 'send', 'hide', 'end'].includes(action)) throw new Error('Unknown live action');
       try {
         if (action === 'connect') {
@@ -43,7 +78,7 @@ export function createLiveController(createClient = () => new RPC.Client({ trans
           const target = await connect();
           const ack = await deadline(target.request('SET_ACTIVITY', { pid: process.pid, activity }), 10000);
           if (client !== target) throw new Error('Discord disconnected before acknowledgement');
-          state = { connected: true, active: true, scene: { ...scene, largeImage: activity.assets?.large_image || '', smallImage: activity.assets?.small_image || '' }, lastSuccessAt: new Date().toISOString(), error: null };
+          state = { connected: true, active: true, scene: { ...publishedScene, timestamps: activity.timestamps || null, largeImage: activity.assets?.large_image || '', smallImage: activity.assets?.small_image || '' }, lastSuccessAt: new Date().toISOString(), error: null };
           return { ...snapshot(), acknowledged: true, activity: ack?.activity || activity };
         }
         if (client) await deadline(client.clearActivity(), 5000);

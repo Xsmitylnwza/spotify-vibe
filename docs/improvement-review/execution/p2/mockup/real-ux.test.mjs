@@ -41,20 +41,27 @@ test('known app icons resolve to public image sources; unknown apps have an expl
 });
 
 test('LIVE Now (#39): switch + reason line + preview only; app icon resolves in both preview tabs; picker shows generic app tile', () => {
-  const run = renderer(); run("LIVE.active=true; LIVE.scene={id:'coding',sceneName:'Coding',largeImage:'',smallImage:''}; REAL.presenceEnabled=true; Object.assign(sceneBy('coding'),{art:'@app',small:'',vars:false}); REAL.selectedAppId='device-code'");
+  const run = renderer(); run("REAL.ready=true; LIVE.checked=true; LIVE.active=true; LIVE.scene={id:'coding',sceneName:'Coding',largeImage:'',smallImage:''}; REAL.presenceEnabled=true; Object.assign(sceneBy('coding'),{art:'@app',small:'',vars:false}); REAL.selectedAppId='device-code'");
   for (const view of ['popout', 'list']) { run("S.pvView='" + view + "'"); const html = run('nowView()');
     assert.ok(!html.includes('<select')); assert.ok(!html.includes('Choose a Scene')); assert.ok(!html.includes('vs-pill')); assert.ok(!html.includes('mk-scthumb'));
     assert.ok(!html.includes('scenepick')); assert.ok(!html.includes('mk-paired')); assert.ok(!html.includes('data-act="pinpair"')); assert.ok(!html.includes('refreshapps')); assert.ok(!html.includes('pairadd'));
     assert.ok(html.includes('class="mk-now-switch"')); assert.ok(html.includes('data-bind="presence"')); assert.match(html, /Following[\s\S]*Visual Studio Code[\s\S]*Auto/);
-    assert.ok(html.includes('https://example.com/code.png')); assert.ok(html.includes('data-act="pvview"')); }
+    assert.ok(html.includes('https://example.com/code.png')); assert.ok(!html.includes('data-act="pvview"')); assert.ok(html.includes('mk-pv-popout')); assert.ok(html.includes('mk-pv-list')); }
   run("REAL.selectedAppId=''"); let html = run('nowView()'); assert.match(html, /Pinned: <b>Coding<\/b>/); assert.ok(html.includes('data-act="backauto"'));
   run('REAL.presenceEnabled=false; LIVE.active=false'); html = run('nowView()'); assert.ok(html.includes('Hidden')); assert.ok(!html.includes('data-act="backauto"'));
   run('LIVE.error="boom"; LIVE.connected=false'); html = run('nowView()'); assert.ok(html.includes('boom')); assert.ok(html.includes('data-act="livecheck"'));
   run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin'}");
-  const tab = run('imgTab()'); assert.ok(tab.includes('mk-generic-app')); assert.ok(!tab.includes('https://example.com/code.png')); assert.ok(tab.includes('follows the paired app'));
+  const tab = run('imgTab()'); assert.ok(tab.includes('mk-pk3-app')); assert.ok(!tab.includes('https://example.com/code.png')); assert.match(tab, /follows the paired app/i);
 });
 test('Pause is gone from the product; demo Now shows only switch + reason + preview', () => {
   assert.ok(!/paused|Pause/.test(source.replace(/pause: sv\(.*\n/, '')));
   const run = renderer(); run('REAL.enabled=false; LIVE.enabled=false; S.mode="pinned"; S.pinned="coding"');
   const html = run('nowView()'); assert.ok(html.includes('Pinned: <b>')); assert.ok(html.includes('data-act="backauto"')); assert.ok(!html.includes('vs-pill'));
+});
+
+test('#43 Scene enabled toggle replaces Show now; #44 picker home has Upload/App icon tiles and no tab bar', () => {
+  const run = renderer(); run("REAL.ready=true; S.scenes.forEach(s => s.enabled=false)");
+  const html = run('scenesView()'); assert.ok(!html.includes('sumshow')); assert.ok(html.includes('data-bind="sceneon"')); assert.ok(html.includes('is-disabled'));
+  run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin',chooser:true}");
+  const inner = run('imgInner()'); assert.ok(inner.includes('mk-pk3')); assert.ok(!inner.includes('role="tablist"')); assert.ok(inner.includes('data-arg="gif"')); assert.ok(inner.includes('data-arg="upload"')); assert.ok(inner.includes('data-arg="link"'));
 });
