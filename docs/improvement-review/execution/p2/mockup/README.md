@@ -267,3 +267,6 @@ Verified in the browser tab: opening the drawer from a rule's Edit Scene button 
 
 
 > **Note (capture stopped by the owner):** the last screenshot re-capture (after #29/#30 and the sidebar fix) was stopped before it finished, so `screens/` holds only part of the new set and some older shots may no longer match. Per the new "speed over evidence" rule, review the mockup in the browser (`index.html`); re-capture only for gate G1.
+
+## D1-M11 — Now status card shows current Scene (decision #35)
+Read-only Scene thumbnail + bold name + reason line (app icon "from Figma" / Pinned / Paused); Scene select and "Choose a Scene…" copy removed. Compact "Pin…" button opens an inline Scene list with thumbnails (`scenepick`/`pickscene`); "Back to Auto" shown when pinned (`backauto`). No paired app: "No paired app is open". Show-on-Discord toggle and state chip kept. Checks: node --check OK, node --test 26/26 (real-ux test updated: no `realscene` select). No screenshots.

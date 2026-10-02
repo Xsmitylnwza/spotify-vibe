@@ -27,7 +27,7 @@ test('real master switch remains enabled while disconnected, busy, and catalog l
   const run = renderer(); run('REAL.ready=false; LIVE.checked=false; LIVE.connected=false; LIVE.busy=true; REAL.presenceEnabled=true');
   const html = run('nowView()');
   const toggle = html.match(/<input[^>]+data-bind="presence"[^>]*>/)[0];
-  assert.ok(!toggle.includes('disabled')); assert.ok(toggle.includes('checked')); assert.ok(!html.includes('mk-live-panel')); assert.ok(html.includes('data-bind="realscene"'));
+  assert.ok(!toggle.includes('disabled')); assert.ok(toggle.includes('checked')); assert.ok(!html.includes('mk-live-panel')); assert.ok(!html.includes('data-bind="realscene"')); assert.ok(!html.includes('<select class="vs-select" data-bind="realscene"')); assert.ok(html.includes('data-act="scenepick"'));
 });
 test('app icon can be selected directly from image gallery and editor has no redundant Send', () => {
   const run = renderer(); run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin'}");

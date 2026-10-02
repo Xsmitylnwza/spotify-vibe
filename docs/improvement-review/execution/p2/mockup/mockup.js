@@ -140,6 +140,7 @@ function curScene() {
     default: return null;
   }
 }
+const reasonApp = a => `${icoOf(a)}<span>${T('from ', 'จาก ')}${esc(a.name)}</span>`;
 const activeRuleId = () => (S.mode === 'auto' || S.mode === 'discordoff' ? 'r1' : S.mode === 'autohide' ? 'r7' : null);
 const subst = (s, c) => s.replace(/\{app\}/g, c.app).replace(/\{window\}/g, c.win);
 function sceneApp(sc) {
@@ -186,20 +187,30 @@ function nowView() {
   const link = sc ? `<button type="button" class="mk-scenelink" data-act="editscene" data-arg="${sc.id}" data-k="edit-now" title="${T('Edit this Scene', 'แก้ Scene นี้')}">${esc(sc.name)}</button>` : '';
   const btn = (cls, act, arg, ico, txt, extra = '') => `<button class="vs-btn ${cls}" type="button" data-act="${act}" ${arg ? `data-arg="${arg}"` : ''} ${extra}>${ico}${txt}</button>`;
   let icon, text, chip, ctl = '';
-  if (mode === 'auto') { icon = icoOf(appBy('figma')); text = `${link}<small>${T('Following Figma', 'ตามแอป Figma')}</small>`; chip = ['good', T('Auto', 'อัตโนมัติ')]; }
-  else if (mode === 'pinned') { icon = tile(I.pin); text = `${link}<small>${T('Pinned until you unpin', 'แสดงต่อจนกว่าจะเลิกปักหมุด')}</small>`; chip = ['accent', T('Pinned', 'ปักไว้')]; }
-  else if (mode === 'paused') { icon = tile(I.pause); text = `${link}<small>${T('Automatic switching paused', 'พักการสลับอัตโนมัติ')}</small>`; chip = ['warn', T('Paused', 'หยุดสลับ')]; }
+  if (mode === 'auto') { text = `${link}<small>${reasonApp(appBy('figma'))}</small>`; chip = ['good', T('Auto', 'อัตโนมัติ')]; }
+  else if (mode === 'pinned') { text = `${link}<small>${T('Pinned', 'ปักไว้')}</small>`; chip = ['accent', T('Pinned', 'ปักไว้')]; }
+  else if (mode === 'paused') { text = `${link}<small>${T('Paused', 'หยุดสลับ')}</small>`; chip = ['warn', T('Paused', 'หยุดสลับ')]; }
   else if (mode === 'hidden') { icon = tile(I.hide); text = T('Hidden from Discord', 'ซ่อนจาก Discord'); chip = ['neutral', T('Hidden', 'ซ่อนอยู่')]; }
   else if (mode === 'autohide') { icon = tile(I.hide); text = T('Hidden while MyBank Desktop is open', 'ซ่อนขณะที่ MyBank Desktop เปิดอยู่'); chip = ['neutral', T('Hidden by rule', 'ซ่อนตามกฎ')]; ctl = btn('', 'gotoprivacy', '', '', T('Privacy settings', 'ตั้งค่าความเป็นส่วนตัว')); }
-  else if (mode === 'none') { icon = tile(I.search); text = T('No paired app is open — nothing is shown', 'ไม่มีแอปที่จับคู่เปิดอยู่ — จึงไม่แสดงอะไร'); chip = ['neutral', T('Not shown', 'ไม่แสดง')]; ctl = btn('', 'screen', 'scenes', '', T('Manage in Scenes', 'จัดการใน Scene')); }
+  else if (mode === 'none') { icon = tile(I.search); text = T('No paired app is open', 'ไม่มีแอปที่จับคู่เปิดอยู่'); chip = ['neutral', T('Not shown', 'ไม่แสดง')]; ctl = btn('', 'screen', 'scenes', '', T('Manage in Scenes', 'จัดการใน Scene')); }
   else if (mode === 'discordoff') { icon = tile(I.warn); text = T('Discord isn’t running — open Discord Desktop', 'Discord ไม่ได้เปิด — เปิด Discord Desktop'); chip = ['warn', T('Discord closed', 'Discord ปิดอยู่')]; ctl = btn('vs-btn-primary', 'mode', 'auto', '', T('Check again', 'ตรวจสอบอีกครั้ง')); }
   else { icon = tile(I.warn); text = T('Can’t reach the Vibe companion', 'ติดต่อ Vibe companion ไม่ได้'); chip = ['warn', T('Not connected', 'ติดต่อไม่ได้')]; ctl = btn('vs-btn-primary', 'mode', 'auto', '', T('Reconnect', 'เชื่อมต่อใหม่')); }
   if (mode === 'paused') ctl = btn('', 'mode', 'auto', I.play, T('Resume automatic switching', 'กลับไปสลับอัตโนมัติ'));
   const available = !['discordoff', 'unreachable'].includes(mode);
   if (LIVE.enabled) {
-    text = `${link || esc((LIVE.scene || {}).sceneName || T('Choose a Scene', 'เลือก Scene'))}<small>${REAL.enabled ? (sceneApp(sc || {})?.name ? T('Using ', 'ใช้แอป ') + esc(sceneApp(sc).name) : T('Choose a Scene below or pair an app', 'เลือก Scene ด้านล่าง หรือจับคู่แอป')) : T('Manual control · no automatic app switching', 'ควบคุมด้วยมือ · ยังไม่สลับตามแอปอัตโนมัติ')}</small>`;
+    text = `${link || esc((LIVE.scene || {}).sceneName || T('No Scene', 'ยังไม่มี Scene'))}<small>${REAL.enabled ? (REAL.selectedAppId && sceneApp(sc || {}) ? reasonApp(sceneApp(sc)) : T('Pinned', 'ปักไว้')) : T('Manual control · no automatic app switching', 'ควบคุมด้วยมือ · ยังไม่สลับตามแอปอัตโนมัติ')}</small>`;
     chip = REAL.enabled ? (REAL.presenceEnabled ? ['good', LIVE.active && LIVE.scene?.id === sc?.id && !LIVE.busy ? T('Showing', 'กำลังแสดง') : T('On', 'เปิดอยู่')] : ['neutral', T('Off', 'ปิดอยู่')]) : LIVE.active ? ['good', T('Live', 'ส่งจริงแล้ว')] : ['neutral', T('Not sent', 'ยังไม่ส่ง')];
-    if (REAL.enabled) ctl = `<label class="mk-scene-select"><span>${T('Scene', 'Scene')}</span><select class="vs-select" data-bind="realscene" aria-label="${T('Scene to show on Discord', 'Scene ที่ต้องการแสดงบน Discord')}">${S.scenes.map(s => `<option value="${s.id}" ${s.id === sc?.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></label>${LIVE.error ? `<p class="field-error" role="alert">${esc(LIVE.error)}</p>${!LIVE.connected ? `<button class="vs-btn vs-btn-sm" data-act="livecheck">${T('Reconnect Discord', 'เชื่อมต่อ Discord ใหม่')}</button>` : ''}` : ''}`;
+    if (REAL.enabled) ctl = LIVE.error ? `<p class="field-error" role="alert">${esc(LIVE.error)}</p>${!LIVE.connected ? `<button class="vs-btn vs-btn-sm" data-act="livecheck">${T('Reconnect Discord', 'เชื่อมต่อ Discord ใหม่')}</button>` : ''}` : '';
+  }
+  const sceneMode = sc && (REAL.enabled || ['auto', 'pinned', 'paused'].includes(mode));
+  if (sceneMode) icon = `<img class="mk-scthumb" src="${artSrc(sc.art, sc)}" alt="">`;
+  if (REAL.enabled && !sc) text = T('No Scene yet', 'ยังไม่มี Scene');
+  const isPinned = REAL.enabled ? !REAL.selectedAppId : mode === 'pinned';
+  if (sceneMode && (REAL.enabled || mode === 'auto' || mode === 'pinned' || mode === 'paused')) {
+    const back = (isPinned || mode === 'paused') && (!REAL.enabled || S.rules.some(r => r.kind === 'app' && APPS.some(x => x.id === r.app)));
+    const pk = `<button type="button" class="vs-btn vs-btn-sm" data-act="scenepick" data-k="scenepick" aria-expanded="${!!S.pickOpen}">${I.pin}${isPinned ? T('Change…', 'เปลี่ยน…') : T('Pin…', 'ปักหมุด…')}</button>${back && mode !== 'paused' ? `<button type="button" class="vs-btn vs-btn-sm" data-act="backauto">${T('Back to Auto', 'กลับสู่อัตโนมัติ')}</button>` : ''}`;
+    const list = S.pickOpen ? `<ul class="mk-pickscene" role="list">${S.scenes.map(x => `<li><button type="button" class="mk-pickrow ${x.id === sc.id ? 'is-on' : ''}" data-act="pickscene" data-arg="${x.id}" ${x.id === sc.id ? 'aria-current="true"' : ''}><img src="${artSrc(x.art, x)}" alt=""><span>${esc(x.name)}</span></button></li>`).join('')}</ul>` : '';
+    ctl = pk + list + ctl;
   }
   const enabled = REAL.enabled ? REAL.presenceEnabled : LIVE.enabled ? LIVE.active : mode !== 'hidden';
   const power = `<label class="mk-presence-power"><span>${T('Show on Discord', 'แสดงบน Discord')}</span><span class="vs-switch"><input type="checkbox" role="switch" data-bind="presence" aria-label="${T('Show on Discord', 'แสดงบน Discord')}" ${enabled ? 'checked' : ''} ${!REAL.enabled && (!available || (LIVE.enabled && (LIVE.busy || !LIVE.checked))) ? 'disabled' : ''}><span></span></span></label>`;
@@ -825,6 +836,9 @@ const ACT = {
   livesend: a => { void liveCommand('send', a ? sceneBy(a) : curScene() || sceneBy(S.pinned) || S.scenes[0]); return 'overlay'; },
   liveend: () => { void liveCommand(REAL.enabled ? 'hide' : 'end'); return 'overlay'; },
   refreshapps: () => { void loadDeviceApps(true); return 'overlay'; },
+  scenepick: () => { S.pickOpen = !S.pickOpen; },
+  pickscene: a => { S.pickOpen = false; if (REAL.enabled) { REAL.touched = true; REAL.selectedSceneId = a; REAL.selectedAppId = ''; scheduleSave(); return; } if (LIVE.enabled) { void liveCommand('send', sceneBy(a)); S.pinned = a; return 'overlay'; } S.pinned = a; S.pinnedRule = (S.rules.find(r => r.scene === a) || {}).id || ''; setMode('pinned'); },
+  backauto: () => { S.pickOpen = false; if (REAL.enabled) { const r = S.rules.find(r => r.kind === 'app' && APPS.some(x => x.id === r.app && x.foreground)) || S.rules.find(r => r.kind === 'app' && APPS.some(x => x.id === r.app)); if (r) { REAL.touched = true; REAL.selectedSceneId = r.scene; REAL.selectedAppId = r.app; scheduleSave(); } return; } setMode('auto'); },
   usescene: a => { REAL.touched = true; REAL.selectedSceneId = a; REAL.selectedAppId = ''; scheduleSave(); if (S.drawer) buildDrawer(); else render(); return 'overlay'; },
   realadd: (a, el) => { if (REAL.ready) { openDrawer(a || S.scenes[0].id, el); openPicker('app', null, { scene: a || S.scenes[0].id, mode: 'pair', host: 'l2' }); } return 'overlay'; },
   livecheck: () => { void checkLiveState(); return 'overlay'; },

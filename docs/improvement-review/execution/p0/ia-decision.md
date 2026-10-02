@@ -83,6 +83,9 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 35 | Status card content | Status card is read-only: shows the Scene that is showing now (thumb + bold name) and why (paired app icon + "from Figma", or "Pinned" / "Paused"). No Scene dropdown. Choosing another Scene only via **Pin…** (opens a Scene picker); Pause and Show-on-Discord toggle stay. Nothing shown → one line + no dropdown. |
 
+| 36 | Starting data | The real app ships with **no sample Scenes**; the library starts empty and first-run step 3 creates the first Scene. Mockup sample Scenes are demo data only. Existing owners keep their saved Scenes. |
+| 37 | Library row chips | Remove the "On Discord" and "Not used" chips: the dashed "+ app" already signals unused, and the live Scene is marked by the existing left accent bar + a small green dot on its thumbnail. Page copy no longer mentions "Rules on Now". |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
