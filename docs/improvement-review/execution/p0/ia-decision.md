@@ -75,6 +75,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 31 | Shell & scrolling | One scroll owner: full-height shell; sidebar fixed to the viewport with its background full height, nav top + account panel pinned bottom; only main content scrolls; on narrow the bottom nav stays fixed with content padding (fixes owner-reported sidebar gap and UX M11). |
 
+| 32 | Logo (final) | **Option 09 "Swooping ghost"** from execution/p3/logo/generated/ (owner pick). Redraw as SVG (app icon + single-colour tray) before applying to app assets in P3. Supersedes earlier logo choices. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
