@@ -96,6 +96,9 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 | 43 | Enable Scene | Replace "Show now" in Scene rows with an **on/off toggle** per Scene meaning "enabled for auto" (disabled Scenes never show automatically, pairing kept); success toast on enable/disable. Pinning stays via the summary modal / tray. |
 | 44 | Image picker | Discord-style picker: two big tiles **Upload image** (then choose: from computer → image host #27, or **GIF search** via our GIPHY-backed API) and **App icon** (follows the paired app); below, a **catalog grid** of built-in art + recent images to pick directly. Link entry becomes a small "Paste link" action. Replaces the tab bar. |
 
+| 45 | Dynamic app icons | Most convenient path: when an app is paired, its extracted icon is uploaded **automatically** to a public image host and the https URL is cached per app; App icon images then switch dynamically with the active app. **One-time consent** ("Upload app icons automatically so Discord can show them") on first pairing; can be turned off in Settings. Popular apps use pre-hosted icons (no upload). Default host: an anonymous, key-less host with direct https links (provider configurable). Failures keep the default artwork + the truthful note (#42). |
+| 46 | Updates | Sidebar always shows the **app version** (e.g. "v1.0.7"). When a newer release exists, the sidebar shows an **Update** button (with the new version); clicking downloads in the background with progress, then becomes **Restart to update**. No silent install. Release pipeline must guarantee tag == package.json version and lockfile sync; verified end-to-end with a local feed before relying on it. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
