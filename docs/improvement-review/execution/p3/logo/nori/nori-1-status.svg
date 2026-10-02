@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Nori 1 · Status dot</title>
+  <defs><linearGradient id="n1bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFA45E"/><stop offset="1" stop-color="#EF5B6E"/></linearGradient></defs>
+  <rect width="64" height="64" rx="15" fill="url(#n1bg)"/>
+  <circle cx="30" cy="36" r="19" fill="#2A1B33"/>
+  <circle cx="23.500" cy="35" r="4.600" fill="#FFF6EA"/><circle cx="36.500" cy="35" r="4.600" fill="#FFF6EA"/>
+  <circle cx="24.300" cy="35.700" r="2.300" fill="#2A1B33"/><circle cx="37.300" cy="35.700" r="2.300" fill="#2A1B33"/>
+  <path d="M26 44q4 3.400 8 0" fill="none" stroke="#FFF6EA" stroke-width="2.600" stroke-linecap="round"/>
+  <circle cx="47" cy="18" r="8.500" fill="#FFD25C" stroke="#FFF6EA" stroke-width="2.500"/>
+  <circle cx="47" cy="18" r="3" fill="#FFF6EA"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Nori 3 tray (single colour)</title>
+  <defs>
+    <mask id="n3m"><rect width="64" height="64" fill="#fff"/>
+      <circle cx="19.500" cy="38" r="5.400" fill="#000"/>
+      <path d="M31 38.500q3.800-5 7.600 0" fill="none" stroke="#000" stroke-width="3.400" stroke-linecap="round"/>
+      <path d="M22.500 48.500q5 4 10 0" fill="none" stroke="#000" stroke-width="3.200" stroke-linecap="round"/>
+    </mask>
+    <mask id="n3b"><rect width="64" height="64" fill="#fff"/>
+      <rect x="3" y="17" width="46" height="45" rx="19" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="currentColor">
+    <rect x="18" y="3" width="42" height="42" rx="12" mask="url(#n3b)"/>
+    <rect x="5" y="20" width="40" height="40" rx="16" mask="url(#n3m)"/>
+  </g>
+</svg>
