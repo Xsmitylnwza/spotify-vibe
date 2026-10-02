@@ -67,6 +67,7 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 | 25 | Delete Scene | Delete action inside the Scene editor; confirm names the Scene and lists affected rules (remove or reassign); removed only after successful save; Undo toast; last Scene cannot be deleted. |
 | 26 | Image picker | Large/small image fields use an image well + picker: **Built-in art · GIF search (GIPHY) · Link (https, live preview + validation) · Upload from computer**. |
 | 27 | Upload hosting | Upload sends the file to a **public image host** (owner choice) so Discord viewers can see it: explicit per-upload confirmation that the image becomes public; host configured in Settings > Image hosting (provider/API key like GIPHY, stored in secrets); no silent uploads; local thumbnail kept only as cache. Provider choice finalized in implementation (must allow anonymous/API upload, https direct links, acceptable ToS). |
+| 28 | Rendering | **No full re-render on any interaction.** Overlays never rebuild the page behind; modal/drawer frame, header, stepper and footer stay mounted while only the step body cross-fades and height animates; selections toggle state on existing nodes; lists/Now/editor use keyed incremental updates preserving scroll and focus. (Implementation rule for P2 renderer too.) |
 
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
