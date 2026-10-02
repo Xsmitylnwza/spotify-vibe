@@ -737,3 +737,11 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-livedot { position: absolute; right: -3px; bottom: -3px; width: 10px; height: 10px; border-radius: 50%; background: #2faa5c; border: 2px solid var(--vs-surface, #fff); box-sizing: content-box; }
 .mk-empty-scenes { padding: 28px 16px; text-align: center; }
 .mk-empty-scenes strong { display: block; margin-bottom: 4px; }
+
+/* Summary modal after Done (decision #38) */
+.mk-sum { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px 20px; text-align: center; }
+.mk-sum h2 { margin: 0; font-size: 20px; }
+.mk-sum .vs-hint { margin: 0; }
+.mk-sum-th img { width: 72px; height: 72px; border-radius: 14px; object-fit: cover; border: 1px solid var(--vs-hairline); }
+.mk-sum .vs-form-actions { margin-top: 8px; flex-wrap: wrap; }
+.mk-ovd:has(.mk-sum) { width: min(420px, 100%); }

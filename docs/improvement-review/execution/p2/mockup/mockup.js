@@ -675,7 +675,7 @@ function openDrawer(id, opener) {
   if (REAL.enabled && !REAL.ready) { toast(T('Loading your Scenes and apps…', 'กำลังโหลด Scene และแอปของคุณ…')); return; }
   rememberFocus(opener);
   if (id === 'new') { const n = mkScene({ id: 'new' + Date.now(), name: '', l1: '', l2: '', isNew: true }); S.scenes.push(n); id = n.id; }
-  S.drawer = { id, dirty: false }; S.save = 'saved'; S.saveAt = '09:41';
+  S.drawer = { id, dirty: false }; S.doneErr = false; S.save = 'saved'; S.saveAt = '09:41';
   buildDrawer(true); $('#root').inert = true; const f = $('#sc-name', layer()); (f || $('.mk-drawer', layer())).focus({ preventScroll: true });
 }
 function secHead(h, hint) { return `<h3>${h}</h3>${hint ? `<p class="vs-hint">${hint}</p>` : ''}`; }
@@ -724,7 +724,7 @@ function buildDrawer(first) {
     </div>
     <aside class="mk-prev" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="vs-preview-label"><span>${T('Preview — how others see you on Discord', 'ตัวอย่าง — คนอื่นเห็นคุณบน Discord แบบนี้')}</span>${live ? `<span class="vs-pill vs-pill-good">${T('On Discord now', 'กำลังแสดงบน Discord')}</span>` : `<span class="vs-pill vs-pill-neutral">${T('Preview only', 'ตัวอย่างเท่านั้น')}</span>`}</div><div id="dpreview"></div><p class="vs-preview-foot" id="dprevnote"></p></aside>
    </div>
-   <div class="mk-drawer-foot"><div class="vs-savebar" id="savebar" role="status" aria-live="polite"><span class="vs-savebar-dot" aria-hidden="true"></span><span class="vs-savebar-text" id="savetext"></span><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="retry">${T('Retry', 'ลองใหม่')}</button></div>${REAL.enabled && sc.id !== REAL.selectedSceneId ? `<button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="usescene" data-arg="${sc.id}">${T('Use this Scene', 'ใช้ Scene นี้')}</button>` : ''}${LIVE.enabled && !REAL.enabled ? `<button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="livesend" data-arg="${sc.id}" ${LIVE.busy ? 'disabled' : ''}>${T('Send to Discord', 'ส่งไป Discord')}</button>` : ''}<button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="closedrawer">${T('Done', 'เสร็จ')}</button></div></div>`;
+   <div class="mk-drawer-foot"><div class="vs-savebar" id="savebar" role="status" aria-live="polite"><span class="vs-savebar-dot" aria-hidden="true"></span><span class="vs-savebar-text" id="savetext"></span><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="retry">${T('Retry', 'ลองใหม่')}</button></div>${S.doneErr && S.save === 'failed' ? `<p class="field-error" role="alert" style="margin:0">${T('Couldn’t save this Scene. Fix the problem or retry, then press Done.', 'บันทึก Scene นี้ไม่สำเร็จ แก้ไขหรือลองใหม่ แล้วกดเสร็จ')}</p>` : ''}<button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="donedrawer">${T('Done', 'เสร็จ')}</button></div></div>`;
   if (first || !$('.mk-drawer', layer())) { layer().innerHTML = html; trap($('.mk-drawer', layer())); enterLayer(); } else morphInto(layer(), html);
   updateDrawer(); const nb = $('.mk-drawer-body', layer()); if (nb && !first) nb.scrollTop = top;
 }
@@ -1134,6 +1134,23 @@ function openDelete(opener) {
   S.ov = { kind: 'del', id: sc.id, mode: 'reassign', to: others[0].id, busy: false, err: false };
   showOv('del', T('Delete Scene', 'ลบ Scene'), delInner(), 'del'); ovFocus('[data-act=closeov]');
 }
+function sceneWhen(id) {
+  const names = S.rules.filter(r => r.scene === id && r.kind !== 'hide').map(r => r.kind === 'web' ? '“' + r.contains + '”' : appBy(r.app).name);
+  if (!names.length) return '';
+  const j = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + T(' or ', ' หรือ ') + names[names.length - 1];
+  return j;
+}
+function summaryInner() {
+  const sc = sceneBy(S.ov.id), apps = sceneWhen(sc.id), esn = esc(sc.name);
+  return `<div class="mk-sum"><span class="mk-sum-th"><img src="${artSrc(sc.art, sc)}" alt=""></span><h2>${T(esn + ' saved', 'บันทึก ' + esn + ' แล้ว')}</h2>
+  <p class="vs-hint">${apps ? T('Shows when ' + esc(apps) + ' is open', 'แสดงเมื่อเปิด ' + esc(apps)) : T('Not paired — it won’t show automatically', 'ยังไม่ได้จับคู่ — จะไม่แสดงอัตโนมัติ')}</p>
+  <div class="vs-form-actions" style="justify-content:center"><button class="vs-btn vs-btn-primary" type="button" data-act="sumshow" data-arg="${sc.id}">${T('Show on Discord now', 'แสดงบน Discord ตอนนี้')}</button>${apps ? '' : `<button class="vs-btn" type="button" data-act="sumadd" data-arg="${sc.id}">${I.plus}${T('Add app', 'เพิ่มแอป')}</button>`}<button class="vs-btn vs-btn-ghost" type="button" data-act="closeov">${T('Close', 'ปิด')}</button></div></div>`;
+}
+function openSummary(id) {
+  if (!sceneBy(id)) return;
+  S.ov = { kind: 'sum', id }; S.ovReturn = $(`[data-k="lib-${id}"]`) ? 'lib-' + id : (S.lastFocus || 'newscene');
+  showOv('sum', T('Scene saved', 'บันทึก Scene แล้ว'), summaryInner(), S.ovReturn); ovFocus('[data-act=sumshow]');
+}
 function delInner() {
   const o = S.ov, sc = sceneBy(o.id), aff = S.rules.filter(r => r.scene === o.id), others = S.scenes.filter(s => s.id !== o.id);
   return `<div class="gif-dialog-head"><div><h2>${T('Delete “' + esc(sc.name) + '”?', 'ลบ “' + esc(sc.name) + '” หรือไม่?')}</h2><p>${T('This Scene will be removed from your library.', 'Scene นี้จะถูกลบออกจากคลังของคุณ')}</p></div><button class="vs-icon-btn" type="button" data-act="closeov" aria-label="${T('Close', 'ปิด')}" ${o.busy ? 'disabled' : ''}>✕</button></div>
@@ -1204,6 +1221,12 @@ function hostingCard(card) {
 Object.assign(ACT, {
   openimg: (a, el) => { openImg(a, el); return 'overlay'; },
   imgclear: a => { applyImage(a, '', ''); const b = $(`[data-k="well-${a}"]`, layer()); b && b.focus({ preventScroll: true }); return 'overlay'; },
+  donedrawer: () => {
+    if (S.save === 'failed') { S.doneErr = true; buildDrawer(); return 'overlay'; }
+    const id = S.drawer && S.drawer.id; closeDrawer(); setTimeout(() => openSummary(id), 0); return 'overlay';
+  },
+  sumshow: a => { closeOverlay(); if (REAL.enabled) REAL.presenceEnabled = true; const r = ACT.pickscene(a); if (r !== 'overlay') render({ fade: true }); else render(); renderDev(); return 'overlay'; },
+  sumadd: a => { closeOverlay(); setTimeout(() => { openDrawer(a, $(`[data-k="lib-${a}"]`)); const p = $('#pairsec'); p && p.scrollIntoView({ block: 'center' }); if (!REAL.enabled || REAL.ready) openPicker('app', null, { scene: a, mode: 'pair', host: 'l2' }); }, 260); return 'overlay'; },
   closeov: () => { closeOverlay(); return 'overlay'; },
   ovtab: a => { S.ov.tab = a; if (a === 'gif') { S.ov.q = S.ov.q || ''; } renderOv(`#ovt-${a}`, true); if (a === 'gif' && S.set.giphy) searchGifs(S.ov.q); return 'overlay'; },
   pickimg: a => { pickImg(a); return 'overlay'; },

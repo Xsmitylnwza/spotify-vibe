@@ -273,3 +273,6 @@ Read-only Scene thumbnail + bold name + reason line (app icon "from Figma" / Pin
 
 ## D1-M12 — Scene library cleanup + empty start (#36, #37)
 Library rows lose the "On Discord"/"Not used" chips; live Scene = left accent bar + green dot on thumbnail. Scenes description no longer mentions Rules on Now (EN+TH). Live/real mode starts with no Scenes/rules (saved workspace still loads over it): library shows "No Scenes yet" + New Scene, first-run step 3 shows "Create your first Scene" (name → `frcreate`). Pure demo keeps the demo Scenes. Checks: node --check OK, node --test 26/26; no screenshots.
+
+## D1-M13 — Summary modal after Done (#38)
+Editor footer keeps only primary "Done" (`donedrawer`; "Use this Scene"/"Send to Discord" removed; X/backdrop still `closedrawer`). Done closes the drawer and opens a compact centered modal: thumbnail, "<Scene> saved", when-it-shows line (1/2/n apps or "Not paired"), actions Show on Discord now (`sumshow` → pins via `pickscene`; real mode also turns presence on), + Add app only when unpaired (`sumadd` reopens editor at pairing section with picker open), Close. Escape/backdrop close; focus returns to the Scene row. If save failed, Done stays in the editor with an inline error. Checks: node --check OK, node --test 26/26; no screenshots.
