@@ -88,6 +88,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 38 | After Done | Pressing **Done** closes the editor and opens a compact summary modal: Scene thumb + "<Scene> saved" + when it shows ("Shows when VS Code is open" / "Not paired — won't show automatically") + actions **Show on Discord now** (primary), **+ Add app** (only if unpaired), **Close**. The editor footer keeps a single primary (Done); "Use this Scene" moves into the modal. |
 
+| 39 | Now = on/off + what shows | **Supersedes #3, #30, #34, #35 for Now.** Now has only: a large **Show on Discord** switch (on/off = old Hide), one reason line ("Following Orca · Auto" / "Pinned: Coding · Back to Auto" link / "No paired app is open"), and the centred fixed-size Discord preview with small Profile/Member tabs. **Pause is removed** from the product. Removed from Now: state chip, Scene card, Change…, Paired apps panel and per-row Pin. Pinning a Scene happens from Scenes (summary modal "Show on Discord now" / row action) or the tray menu. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
