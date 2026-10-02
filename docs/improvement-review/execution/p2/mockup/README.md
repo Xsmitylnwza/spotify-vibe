@@ -1,8 +1,22 @@
-# D1-M — Clickable mockup of the new Studio journey
+# D1-M / D1-M2 — Clickable mockup of the new Studio journey
 
 Mockup only. Nothing under `scripts/`, `electron/` or `public/` was edited (files were *copied* into this folder). Fake data, no network, no build, vanilla HTML/CSS/JS.
 
-**Direction change applied (owner, high priority):** the current Studio look is kept as-is. `studio-ci.css` is an unmodified copy of `scripts/studio-ci.css`; every screen is built from its real `vs-*` components, the real sidebar/nav icons, the real ghost logo (`electron/assets/logo-ghost.svg`, as `assets/logo-ghost.svg`) and real art (`public/art/*`, copied into `assets/art/`). Only the content/arrangement follows the new journey, plus contrast and spacing polish. The Nori mark is **not** used.
+**Direction change applied (owner, high priority):** the current Studio look is kept as-is. `studio-ci.css` is an unmodified copy of `scripts/studio-ci.css`; every screen is built from its real `vs-*` components, the real sidebar/nav icons, the ghost logo (now `p3/logo/final/ghost-final-d.svg`; the original `assets/logo-ghost.svg` is the favicon) and real art (`public/art/*`, copied into `assets/art/`). Only the content/arrangement follows the new journey, plus contrast and spacing polish. The Nori mark is **not** used.
+
+## D1-M2 revision (decisions #15–#19)
+
+| Decision | What the mockup does |
+| --- | --- |
+| **#15 No dizzy motion** | Opening *Edit Scene* only builds the side panel; the page behind is not re-rendered, scrolled or animated. The panel and backdrop use a 0.12 s opacity fade (none under `prefers-reduced-motion`). The old fade-up/slide on cards, dialogs and the first-run card is switched off in `mockup-extra.css`. On close the page is re-rendered only if something changed, at the same scroll position. Rebuilding the panel (e.g. toggling a segment) keeps its scroll position. |
+| **#16 Every field, in sections** | Scene (name, internal) · Activity (type, name) · Details line (text, link) · State line (text, link) · `{app}`/`{window}` opt-in (+ privacy note) · Large image (source: built-in art or GIF/https link, hover text, click link) · Small image (same + "None") · Buttons 1–2 (label, https link). No "Advanced" fold; no timer. Fields map to `presence-config.mjs` `validateScene` (activityType, activityName, details/detailsUrl, state/stateUrl, largeImage/Text/Url, smallImage/Text/Url, buttons). https validation shows an inline error. |
+| **#17 Preview always visible** | Panel is 960 px wide: form scrolls on the left, sticky Discord preview on the right. At ≤860 px the preview becomes a compact sticky card at the top of the panel (user row and buttons trimmed) and the form scrolls under it. |
+| **#18 Field help** | Every field has a circled **?** (focusable button). Hover, keyboard focus or tap shows a TH/EN tooltip (what it changes, where on the card) and outlines/glows that exact area of the preview (heading, first line, second line, large image, small badge, each button). Focusing a field itself also highlights its area. Escape closes the tooltip first, then the panel. Deep link example: `?screen=now&open=drawer&tip=details`. |
+| **#19 IBM Plex only** | `mockup-extra.css` bundles IBM Plex Sans, IBM Plex Sans Thai and IBM Plex Mono from `assets/fonts/` (woff2, OFL, no network) and maps `--vs-font-serif` to the sans stack, so Fraunces/serif is gone everywhere (first-run title, hero titles). Plex Mono is used for exe names and URLs. The Discord-like font is kept only inside the preview card. **For the real app: bundle Plex locally (same files) instead of the Google Fonts `<link>`** — offline, CSP-safe, no flash of fallback. |
+
+Brand mark: `assets/ghost-final-d.svg` (copy of `p3/logo/final/ghost-final-d.svg`) in the sidebar, first run and tray mock.
+
+Screenshots were re-captured for the whole set (fonts/logo changed everything). Editor-specific ones: `30-drawer-top`, `31-…-text-fields-vars`, `32-…-images`, `33-…-buttons`, `34-…-tooltip-highlight-details`, `35-…-tooltip-highlight-small-image`, `36/37` saving / failed, `71` dark + tooltip, `74/75` Thai (tooltip / top); narrow `m-30…m-37, m-71, m-74, m-75`.
 
 ## How to open
 
@@ -11,7 +25,7 @@ Double-click `index.html` (or `file:///C:/letmecook-lab/spotify-vibe/docs/improv
 - **Dev toolbar** (dark strip at top, prototype only): jump to any screen, flip the **Now** state (8 states), open *Add rule* / *Web rule*, make the next drawer save fail, simulate "Discord closed" in first run, reset first run. `hide` collapses it.
 - Real controls work: Pin / Pause / Hide / Back to Auto / Resume, rule Scene dropdowns, remove rule (+Undo), add rule, Edit Scene → drawer (Esc/✕/Done close it; focus returns to the opener), TH/EN and light/dark (sidebar on desktop; top strip on narrow widths, plus Settings), `Ctrl+Alt+H` toggles Hide (hotkey stand-in), Settings → Change hotkey records a combo.
 - URL params for deep links: `screen=first|now|scenes|settings|tray`, `state=auto|pinned|paused|hidden|autohide|none|discordoff|unreachable`, `lang=en|th`, `theme=light|dark`, `step=1..3`, `open=drawer|drawervars|drawerfail|drawersaving|picker|picksearch|pickerweb`, `dev=0`.
-- Files: `index.html`, `studio-ci.css` (copy, unchanged), `mockup-extra.css` (only what the new journey needs + contrast polish), `mockup.js`, `assets/`, `screens/`.
+- Files: `index.html`, `studio-ci.css` (copy, unchanged), `mockup-extra.css` (only what the new journey needs + contrast polish + Plex), `mockup.js`, `assets/`, `screens/`.
 
 ## Which decision each screen implements, and which real components it reuses
 
@@ -23,7 +37,7 @@ Double-click `index.html` (or `file:///C:/letmecook-lab/spotify-vibe/docs/improv
 | **App rules** list: App → Scene dropdown, Edit Scene, remove (Undo), *Active* marker, auto-hide row on top, web rows | #1 #14c #14f | row styled like `#appMappingList .vs-mapping` (that rule is ID-scoped → `.mk-rule`), `.vs-icon-btn-danger`, `.vs-pill-good` |
 | **Add rule — app** (running apps first, search installed, system entries hidden with a toggle, Browse for .exe…, "Then": Scene or Hide) | #6 #14c | `.gif-picker`/`.vs-dialog`/`.gif-dialog-head`, `.vs-segmented`, `.vs-app-search`, `.vs-tile-icon/.vs-tile-running` tile grid (`.mk-tile` = `#applicationTiles .vs-tile`), `.vs-switch`, `.vs-quiet-link` |
 | **Add rule — web tab** (title contains, live match list, privacy note) | #14f | same dialog + `.vs-field/.vs-input/.vs-select` |
-| **Scene editor drawer**: live preview, name, activity type, 2 text lines, opt-in `{app}`/`{window}` + privacy note, main art; **Advanced** collapsed (buttons, links, small art); saving/saved/failed(+Retry); **no timer** | #7 #9 #14e | `.vs-preview-label/.vs-dc-card`, `.vs-field/.vs-label/.vs-input`, `.vs-segmented`, `.vs-switch`, `.vs-look` (variable chips), `details.vs-disclosure`, `.vs-savebar` (data-state saved/saving/error), `.vs-icon-btn`; the drawer shell itself is new = `.vs-dialog` surface + `.gif-dialog-head` pattern |
+| **Scene editor drawer**: live preview, name, activity type, 2 text lines, opt-in `{app}`/`{window}` + privacy note, main art; all fields in sections (see D1-M2), sticky preview; saving/saved/failed(+Retry); **no timer** | #7 #9 #14e #15–#18 | `.vs-preview-label/.vs-dc-card`, `.vs-field/.vs-label/.vs-input`, `.vs-segmented`, `.vs-switch`, `.vs-look` (variable chips), `details.vs-disclosure`, `.vs-savebar` (data-state saved/saving/error), `.vs-icon-btn`; the drawer shell itself is new = `.vs-dialog` surface + `.gif-dialog-head` pattern |
 | **Scene library** → row opens the same drawer ("On Discord" marker, "Used by …") | #1 #7 | `#sceneList .vs-scene-row`, `.vs-scene-icon/.vs-scene-meta`, `.vs-pill` |
 | **Settings**: Discord connection (zero-config; App ID under Advanced), startup + ✕ behaviour, global hotkey, export/import (preview, merge/replace), history (toggle, retention, today's list, Clear + confirm), language & theme, Quit (confirm) | #10 #12 #14b #14d #14g | `.vs-card/.vs-card-head`, `.vs-keystatus/.vs-statuspill`, `.vs-row/.vs-row-copy`, `.vs-switch`, `.vs-select`, `details.vs-disclosure`, `.vs-pair-bar`, `.vs-section-label`, `.vs-btn-danger`, `.vs-toggle-cluster/.vs-seg` |
 | **Tray menu** (Pin ▸ Scenes, Pause, Hide + hotkey, Open, Quit; same state as Now) and **one-time "still running" notice** after pressing ✕ on the faux window | #14a #10 | OS chrome is mocked (`.mk-wmenu`, `.mk-wtoast`); window uses the real `.vs-titlebar/.vs-winbtn-close`; tray icon = real ghost |
@@ -57,3 +71,5 @@ New components (no existing equivalent), each styled like its nearest sibling in
 10. **Hotkey/tray failure modes**: if `Ctrl+Alt+H` is taken, the mock only promises an inline message; also the ghost mark at 16 px in the tray (real `tray.png`) was not re-checked here.
 
 Verified in the browser tab: opening the drawer from a rule's Edit Scene button and closing it with ✕ returns focus to that button (DOM check); all 55 screenshots were captured at the exact requested viewport (PNG dimensions checked) and a sample of each group was viewed.
+
+Known gap: the narrow dark/Thai set (m-70, m-71, m-72, m-74, m-75) was not re-captured after the D1-M2 change (capture timed out); the desktop set and the other narrow shots were.

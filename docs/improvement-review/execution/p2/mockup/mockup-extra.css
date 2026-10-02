@@ -166,3 +166,77 @@ body.nodev .vs-sidebar { height: 100vh; }
 .mk-ob-body { margin-bottom: 16px; gap: 12px; }
 .vs-onboard .vs-dc-card { max-width: none; }
 @media (max-width: 760px) { .vs-onboard { padding: 20px 16px; } }
+
+/* ================= D1-M2 ================= */
+/* #19 Typography: IBM Plex only, bundled locally (assets/fonts, OFL). Serif is removed everywhere. */
+@font-face { font-family: "IBM Plex Sans"; font-weight: 400; font-display: swap; src: url(assets/fonts/ibm-plex-sans-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 500; font-display: swap; src: url(assets/fonts/ibm-plex-sans-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-weight: 600; font-display: swap; src: url(assets/fonts/ibm-plex-sans-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans Thai"; font-weight: 400; font-display: swap; unicode-range: U+0E01-0E5B, U+200B-200D, U+25CC; src: url(assets/fonts/ibm-plex-sans-thai-thai-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans Thai"; font-weight: 500; font-display: swap; unicode-range: U+0E01-0E5B, U+200B-200D, U+25CC; src: url(assets/fonts/ibm-plex-sans-thai-thai-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Sans Thai"; font-weight: 600; font-display: swap; unicode-range: U+0E01-0E5B, U+200B-200D, U+25CC; src: url(assets/fonts/ibm-plex-sans-thai-thai-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap; src: url(assets/fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2"); }
+:root { --vs-font-sans: "IBM Plex Sans", "IBM Plex Sans Thai", system-ui, sans-serif; --vs-font-serif: var(--vs-font-sans); --mk-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+.vs-ob-title, .vs-empty-title, .vs-now-scene { font-family: var(--vs-font-sans); font-weight: 600; letter-spacing: -0.01em; }
+button, input, select, textarea { font-family: inherit; }
+.mk-kbd, .vs-rules small code, .mk-mono, .mk-rule .mk-label small[data-mono], .mk-item small { font-family: var(--mk-mono); }
+.mk-rule .mk-label small, .mk-tile small { font-family: var(--mk-mono); font-size: 11.5px; }
+.vs-dc-card { font-family: "gg sans", "Noto Sans", Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* brand mark: final ghost (p3/logo/final/ghost-final-d.svg) */
+.vs-brand-mark.mk-logo { background: none; border: 0; }
+.vs-brand-mark.mk-logo img, .vs-ob-mark.mk-logo img { width: 100%; height: 100%; display: block; border-radius: 10px; }
+.vs-ob-mark.mk-logo { background: none; border: 0; }
+
+/* #15 nothing moves: no fade-up/slide on cards, rows or dialogs; overlays only fade (and not at all with reduced motion) */
+.vs-card, #sceneList .vs-scene-row, #sceneList .vs-scene-row:nth-child(n), .vs-dialog, .gif-dialog, .vs-savebar, .vs-onboard, .mk-toast { animation: none !important; }
+html { scroll-behavior: auto; }
+.mk-drawer { animation: none; }
+.mk-drawer.mk-fade, .mk-backdrop.mk-fade { animation: mk-fade .12s linear; }
+@keyframes mk-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mk-drawer.mk-fade, .mk-backdrop.mk-fade { animation: none; } }
+
+/* #17 wide editor, form left, sticky preview right; compact sticky preview on top when narrow */
+.mk-drawer { width: min(960px, 100vw); }
+.mk-drawer-body { padding: 0; display: grid; grid-template-columns: minmax(0, 1fr) 340px; align-items: start; overflow-y: auto; }
+.mk-form { padding: var(--vs-s5) var(--vs-s6) var(--vs-s8); min-width: 0; }
+.mk-prev { position: sticky; top: 0; align-self: start; padding: var(--vs-s5) var(--vs-s6) var(--vs-s5) 0; }
+.mk-prev .vs-dc-card { max-width: none; }
+.mk-sec { border-top: 1px solid var(--vs-hairline-soft); padding-top: var(--vs-s5); margin-top: var(--vs-s5); }
+.mk-sec:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.mk-sec > h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.mk-sec > .vs-hint { margin: 0 0 12px; }
+.mk-sec .vs-field { margin-bottom: 12px; }
+.mk-sec .vs-input[data-mono] { font-family: var(--mk-mono); font-size: 13px; }
+.mk-sec .vs-label { display: flex; align-items: center; gap: 6px; }
+.field-error { margin-top: 4px; }
+@media (max-width: 860px) {
+  .mk-drawer-body { grid-template-columns: minmax(0, 1fr); }
+  .mk-prev { order: -1; z-index: 3; padding: 10px var(--vs-s4); background: var(--vs-surface); border-bottom: 1px solid var(--vs-hairline); }
+  .mk-prev .vs-preview-label, .mk-prev .vs-preview-foot { display: none; }
+  .mk-prev .vs-dc-user { display: none; }
+  .mk-prev .vs-dc-card { padding: 10px 12px; }
+  .mk-prev .vs-dc-art { width: 56px; height: 56px; flex-basis: 56px; }
+  .mk-prev .vs-dc-badge { width: 22px; height: 22px; }
+  .mk-prev .vs-dc-buttons { margin-top: 8px; }
+  .mk-prev .vs-dc-buttons a { min-height: 26px; font-size: 13px; padding: 0 12px; }
+  .mk-prev .vs-dc-activity { margin-bottom: 6px; }
+  .mk-form { padding: var(--vs-s4) var(--vs-s4) var(--vs-s8); }
+  .mk-drawer-head { padding: 12px var(--vs-s4); }
+  .mk-drawer-head .vs-subcopy { display: none; }
+}
+
+/* #18 field help "?" + preview highlight */
+.mk-help { width: 18px; height: 18px; flex: none; border-radius: 50%; border: 1px solid var(--vs-hairline); background: var(--vs-tint); color: var(--vs-ink2); font-size: 11px; font-weight: 700; line-height: 1; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: help; }
+.mk-help:hover, .mk-help:focus-visible, .mk-help[aria-expanded="true"] { border-color: var(--vs-accent); color: var(--vs-accent-deep); }
+#mkTip { position: fixed; z-index: 500; max-width: 300px; background: var(--vs-surface); border: 1px solid var(--vs-hairline); border-radius: var(--vs-r-md); padding: 12px 14px; box-shadow: var(--vs-shadow-pop); pointer-events: none; }
+#mkTip[hidden] { display: none; }
+#mkTip b { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+#mkTip span { display: block; font-size: 12px; color: var(--vs-ink2); line-height: 1.5; }
+#mkTip em { display: block; margin-top: 6px; font-style: normal; font-size: 11.5px; color: var(--vs-accent-deep); font-weight: 500; }
+[data-pv] { border-radius: 6px; transition: box-shadow .12s linear, background-color .12s linear; }
+.mk-hl { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5865f2, 0 0 14px 4px rgba(88,101,242,.7); background-color: rgba(88,101,242,.22); position: relative; z-index: 1; }
+.vs-dc-line1[data-pv], .vs-dc-line2[data-pv], .vs-dc-activity[data-pv] { padding: 1px 4px; margin: -1px -4px; }
+.mk-linked { text-decoration: underline; text-decoration-color: #00a8fc; text-underline-offset: 3px; }
+.mk-seg-sm { margin-bottom: 10px; }
+.mk-tray .ghost img, .mk-wmenu .mh .ghost img { display: block; width: 100%; height: 100%; border-radius: 5px; }

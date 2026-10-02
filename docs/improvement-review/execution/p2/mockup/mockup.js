@@ -33,12 +33,13 @@ const SYSTEM = [
   { id: 's4', name: 'Administrative Tools', exe: 'mmc.exe', g: '!' },
 ];
 const TABS = [{ title: 'Landing page v3 – Figma' }, { title: 'lofi hip hop radio – YouTube' }, { title: 'Inbox (3) – Mail' }];
-const ART = { a1: 'poster.png', a2: 'chill-poster.png', a3: 'gaming-poster.png', a4: 'avatar-1.svg' };
+const ART = { a1: 'poster.png', a2: 'chill-poster.png', a3: 'gaming-poster.png', a4: 'avatar-1.svg', a5: 'idle.gif' };
 const ARTS = Object.keys(ART);
 const TYPES = [['playing', 'Playing', 'กำลังเล่น'], ['listening', 'Listening', 'กำลังฟัง'], ['watching', 'Watching', 'กำลังดู'], ['competing', 'Competing', 'กำลังแข่ง']];
 const GHOST = '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><mask id="vs-ghost-mask"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#vs-ghost-mask)"/></svg>';
 function ghostSvg() { const id = 'gm' + (ghostSvg.n = (ghostSvg.n || 0) + 1); return GHOST.replace('id="vs-ghost-mask"', `id="${id}"`).replace('url(#vs-ghost-mask)', `url(#${id})`); }
 
+const mkScene = o => Object.assign({ name: '', type: 'playing', actName: 'Vibe', l1: '', l1url: '', l2: '', l2url: '', art: 'a1', artText: '', artUrl: '', small: '', smallText: '', smallUrl: '', vars: false, btns: [{ label: '', url: '' }, { label: '', url: '' }] }, o);
 const S = {
   lang: 'en', theme: 'light', screen: 'now', mode: 'auto', prevMode: 'auto',
   pinned: 'coding', frozen: 'coding', menuOpen: false, noticeSeen: false, noticeHidden: false, trayTab: 'menu',
@@ -64,6 +65,7 @@ const S = {
   set: { autostart: true, hotkey: 'Ctrl + Alt + H', capture: false, hist: true, retention: '30', histCleared: false, confirmClear: false, confirmQuit: false, imp: false, appId: '' },
   lastFocus: null,
 };
+S.scenes = S.scenes.map(mkScene); Object.assign(S.scenes[0], { artText: 'Hinata at his desk', smallText: 'Online', l1url: 'https://example.com/work' });
 const appBy = id => [...APPS, ...INSTALLED, ...SYSTEM].find(a => a.id === id) || { id, name: id, exe: id + '.exe', g: id.slice(0, 2) };
 const sceneBy = id => S.scenes.find(s => s.id === id);
 const T = (en, th) => (S.lang === 'th' ? th : en);
@@ -109,12 +111,12 @@ function dcCard(sc, o = {}) {
   const ctx = { app: o.app || 'Figma', win: o.win || 'Landing page v3 – Figma' };
   const hd = { playing: T('Playing', 'กำลังเล่น'), listening: T('Listening to', 'กำลังฟัง'), watching: T('Watching', 'กำลังดู'), competing: T('Competing in', 'กำลังแข่งใน') }[sc.type];
   const l1 = sc.vars ? subst(sc.l1, ctx) : sc.l1, l2 = sc.vars ? subst(sc.l2, ctx) : sc.l2;
-  const b = sc.btns.filter(x => x.label);
-  return `<div class="vs-dc-card" style="${o.ghost ? 'opacity:.6' : ''}" role="img" aria-label="${esc(hd + ' Vibe. ' + l1 + '. ' + l2)}">${user}
-    <div class="vs-dc-activity">${hd} Vibe</div>
-    <div class="vs-dc-body"><div class="vs-dc-art"><img src="${A_}${ART[sc.art]}" alt="">${sc.small ? `<div class="vs-dc-badge"><img src="${A_}${ART[sc.small]}" alt=""></div>` : ''}</div>
-    <div class="vs-dc-lines"><span class="vs-dc-line1">${esc(l1 || '—')}</span><span class="vs-dc-line2">${esc(l2 || ' ')}</span></div></div>
-    ${b.length ? `<div class="vs-dc-buttons ${b.length > 1 ? 'two' : ''}">${b.map(x => `<a>${esc(x.label)}</a>`).join('')}</div>` : ''}</div>`;
+  const b = sc.btns.map((x, i) => [x, i]).filter(x => x[0].label);
+  return `<div class="vs-dc-card" style="${o.ghost ? 'opacity:.6' : ''}" role="img" aria-label="${esc(hd + ' ' + sc.actName + '. ' + l1 + '. ' + l2)}">${user}
+    <div class="vs-dc-activity" data-pv="act">${hd} ${esc(sc.actName || 'Vibe')}</div>
+    <div class="vs-dc-body"><div class="vs-dc-art" data-pv="large" title="${esc(sc.artText)}"><img src="${artSrc(sc.art)}" alt="">${sc.small ? `<div class="vs-dc-badge" data-pv="small" title="${esc(sc.smallText)}"><img src="${artSrc(sc.small)}" alt=""></div>` : ''}</div>
+    <div class="vs-dc-lines"><span class="vs-dc-line1 ${sc.l1url ? 'mk-linked' : ''}" data-pv="details">${esc(l1 || '—')}</span><span class="vs-dc-line2 ${sc.l2url ? 'mk-linked' : ''}" data-pv="state">${esc(l2 || ' ')}</span></div></div>
+    ${b.length ? `<div class="vs-dc-buttons ${b.length > 1 ? 'two' : ''}">${b.map(x => `<a data-pv="btn${x[1]}">${esc(x[0].label)}</a>`).join('')}</div>` : ''}</div>`;
 }
 
 /* ---------- Now ---------- */
@@ -258,7 +260,7 @@ function firstView() {
       <div class="${sent === 'fail' ? 'vs-alert is-bad' : 'vs-pair-bar'}" role="status" aria-live="polite" style="margin:0">${sent === 'ok' ? `<span class="vs-pill vs-pill-good">${T('On Discord', 'อยู่บน Discord')}</span>` : sent === 'sending' ? `<span class="vs-pill vs-pill-neutral">${T('Sending…', 'กำลังส่ง…')}</span>` : sent === 'fail' ? '' : `<span class="vs-pill vs-pill-neutral">${T('Not on Discord yet', 'ยังไม่อยู่บน Discord')}</span>`}<span>${sent === 'idle' ? T('Press “Show on Discord” to try it.', 'กด “แสดงบน Discord” เพื่อลอง') : sent === 'sending' ? T('Waiting for Discord to confirm…', 'รอ Discord ยืนยัน…') : sent === 'ok' ? T('Discord confirmed — it’s on your profile now.', 'Discord ยืนยันแล้ว — แสดงบนโปรไฟล์ของคุณตอนนี้') : T('Discord didn’t accept it. Your text is kept; try again.', 'Discord ไม่รับข้อมูล ข้อความของคุณยังอยู่ ลองอีกครั้ง')}</span></div></div>
       <div class="vs-ob-actions"><button class="vs-btn" type="button" data-act="frstep" data-arg="2">${T('Back', 'ย้อนกลับ')}</button><button class="vs-btn" type="button" data-act="frsend" ${sent === 'sending' ? 'disabled' : ''}>${sent === 'ok' ? T('Send again', 'ส่งอีกครั้ง') : T('Show on Discord', 'แสดงบน Discord')}</button><button class="vs-btn vs-btn-primary" type="button" data-act="frfinish" ${sent === 'ok' ? '' : 'disabled'}>${T('Finish — go to Now', 'เสร็จสิ้น — ไปที่หน้าตอนนี้')}</button></div>`;
   }
-  return `<div class="vs-scrim"></div><div class="vs-onboard" role="dialog" aria-modal="true" aria-labelledby="obt"><div class="vs-ob-mark" aria-hidden="true">${ghostSvg()}</div>${steps}<h2 class="vs-ob-title" id="obt">${title}</h2><p class="vs-ob-sub">${sub}</p>${body}</div>`;
+  return `<div class="vs-scrim"></div><div class="vs-onboard" role="dialog" aria-modal="true" aria-labelledby="obt"><div class="vs-ob-mark mk-logo" aria-hidden="true"><img src="assets/ghost-final-d.svg" alt=""></div>${steps}<h2 class="vs-ob-title" id="obt">${title}</h2><p class="vs-ob-sub">${sub}</p>${body}</div>`;
 }
 
 /* ---------- Tray ---------- */
@@ -266,7 +268,7 @@ function trayView() {
   const sc = curScene(), nowLine = { auto: T('Auto · ', 'อัตโนมัติ · ') + (sc && sc.name), pinned: T('Pinned · ', 'ปักไว้ · ') + (sc && sc.name), paused: T('Paused · ', 'หยุดสลับ · ') + (sc && sc.name), hidden: T('Hidden', 'ซ่อนอยู่'), autohide: T('Hidden by rule', 'ซ่อนตามกฎ'), none: T('Nothing shown', 'ไม่แสดงอะไร'), discordoff: T('Discord not running', 'Discord ไม่ได้เปิด'), unreachable: T('Not connected', 'ติดต่อไม่ได้') }[S.mode];
   const tabs = `<div class="vs-segmented" role="tablist" style="align-self:flex-start"><button type="button" role="tab" class="${S.trayTab === 'menu' ? 'is-on' : ''}" aria-selected="${S.trayTab === 'menu'}" data-act="traytab" data-arg="menu">${T('Tray menu', 'เมนูถาดระบบ')}</button><button type="button" role="tab" class="${S.trayTab === 'notice' ? 'is-on' : ''}" aria-selected="${S.trayTab === 'notice'}" data-act="traytab" data-arg="notice">${T('Close (✕) notice', 'ประกาศเมื่อกดปิด (✕)')}</button></div>`;
   const on = m => (S.mode === m ? 'on' : '');
-  const menu = `<div class="mk-wmenu" role="menu" aria-label="Vibe tray menu"><div class="mh"><span class="ghost">${ghostSvg()}</span><div><b>Vibe Studio</b><small>${T('Now: ', 'ตอนนี้: ')}${esc(nowLine)}</small></div></div>
+  const menu = `<div class="mk-wmenu" role="menu" aria-label="Vibe tray menu"><div class="mh"><span class="ghost"><img src="assets/ghost-final-d.svg" alt="" width="100%" height="100%"></span><div><b>Vibe Studio</b><small>${T('Now: ', 'ตอนนี้: ')}${esc(nowLine)}</small></div></div>
     <button type="button" role="menuitem" data-act="screen" data-arg="now">${T('Open Studio', 'เปิด Studio')}</button><hr>
     <button type="button" role="menuitem" class="${S.mode === 'pinned' ? 'on' : ''}">${T('Pin a Scene', 'ปักซีน')} <span class="k">▸</span></button>
     <div class="sub">${S.scenes.slice(0, 4).map(s => `<button type="button" role="menuitem" data-act="pin" data-arg="${s.id}" class="${S.mode === 'pinned' && S.pinned === s.id ? 'on' : ''}">${esc(s.name)}</button>`).join('')}</div>
@@ -274,7 +276,7 @@ function trayView() {
     <button type="button" role="menuitem" class="${on('hidden')}" data-act="mode" data-arg="${S.mode === 'hidden' ? 'auto' : 'hidden'}">${T('Hide from Discord', 'ซ่อนจาก Discord')} <span class="k">${esc(S.set.hotkey.replace(/ /g, ''))}</span></button>
     ${S.mode === 'pinned' || S.mode === 'paused' ? `<button type="button" role="menuitem" data-act="mode" data-arg="auto">${T('Back to Auto', 'กลับสู่อัตโนมัติ')}</button>` : ''}<hr>
     <button type="button" role="menuitem" data-act="toast" data-arg="${T('The real app asks to confirm before quitting', 'ในโปรแกรมจริงจะถามยืนยันก่อนออก')}">${T('Quit Vibe', 'ออกจาก Vibe')}</button></div>`;
-  const taskbar = `<div class="mk-taskbar"><span>⊞ &nbsp; ${T('Search', 'ค้นหา')}</span><div class="mk-tray" aria-hidden="true"><span class="tr"></span><span class="tr"></span><span class="ghost">${ghostSvg()}</span><span>09:41</span></div></div>`;
+  const taskbar = `<div class="mk-taskbar"><span>⊞ &nbsp; ${T('Search', 'ค้นหา')}</span><div class="mk-tray" aria-hidden="true"><span class="tr"></span><span class="tr"></span><span class="ghost"><img src="assets/ghost-final-d.svg" alt="" width="100%" height="100%"></span><span>09:41</span></div></div>`;
   let stage;
   if (S.trayTab === 'menu') stage = `<div class="mk-desk">${menu}${taskbar}</div>`;
   else if (!S.noticeHidden) stage = `<div class="mk-desk"><div class="mk-fakewin"><div class="vs-titlebar"><div class="vs-titlebar-drag">${ghostSvg()}Vibe Studio</div><div class="vs-titlebar-controls"><button class="vs-winbtn vs-winbtn-close" type="button" data-act="fakeclose" data-k="fakeclose" aria-label="${T('Close window', 'ปิดหน้าต่าง')}"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 1l8 8M9 1L1 9"/></svg></button></div></div><div class="pad"><b>${T('Studio window', 'หน้าต่าง Studio')}</b><p class="vs-hint">${T('Press ✕ to see what happens the first time.', 'กด ✕ เพื่อดูสิ่งที่เกิดขึ้นครั้งแรก')}</p></div></div>${taskbar}</div>`;
@@ -296,7 +298,7 @@ function render() {
   const navLink = n => `<a class="vs-nav-link" href="#" data-act="screen" data-arg="${n[0]}" aria-current="${S.screen === n[0] || (S.screen === 'first' && n[0] === 'now') ? 'page' : 'false'}">${NAV_ICO[n[0]]}<span>${T(n[1], n[2])}</span></a>`;
   const bottomLink = n => `<a class="bottom-link" href="#" data-act="screen" data-arg="${n[0]}" ${S.screen === n[0] ? 'aria-current="page"' : ''}>${NAV_ICO[n[0]].replace('viewBox="0 0 20 20"', 'viewBox="0 0 20 20" width="20" height="20"')}<span>${T(n[1], n[2])}</span></a>`;
   const view = S.screen === 'first' ? nowView() : { now: nowView, scenes: scenesView, settings: settingsView, tray: trayView }[S.screen]();
-  root.innerHTML = `<div class="vs-app"><aside class="vs-sidebar"><div class="vs-brand"><span class="vs-brand-mark" aria-hidden="true">${ghostSvg()}</span><span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">${T('Your Discord corner', 'มุม Discord ของคุณ')}</span></span></div>
+  root.innerHTML = `<div class="vs-app"><aside class="vs-sidebar"><div class="vs-brand"><span class="vs-brand-mark mk-logo" aria-hidden="true"><img src="assets/ghost-final-d.svg" alt=""></span><span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">${T('Your Discord corner', 'มุม Discord ของคุณ')}</span></span></div>
     <p class="vs-nav-label" aria-hidden="true">${T('MENU', 'เมนู')}</p><nav class="vs-nav" aria-label="${T('Main', 'หลัก')}">${NAVS.map(navLink).join('')}</nav>
     <div class="vs-side-foot"><div class="vs-side-status">${connPill()}</div><div class="vs-side-utils">${cluster()}</div><div class="vs-side-foot-row"><span class="vs-foot-note">${T('The companion runs in the background', 'companion ทำงานในเบื้องหลัง')}</span></div></div></aside>
     <div class="vs-main"><div class="vs-mobile-status">${connPill()}${cluster()}</div><main class="vs-page" id="main" tabindex="-1">${view}</main></div></div>
@@ -323,6 +325,7 @@ function rememberFocus(el) { const k = el && el.closest && el.closest('[data-k]'
 function restoreFocus() { const k = S.lastFocus; let t = k && $(`[data-k="${k}"]`); if (!t) t = $('#main'); if (t) t.focus(); }
 function trap(c) {
   c.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && tipFor) { e.stopPropagation(); const b = tipFor; hideTip(); b.focus(); return; }
     if (e.key === 'Escape') { e.stopPropagation(); c.dataset.kind === 'drawer' ? closeDrawer() : closePicker(); return; }
     if (e.key !== 'Tab') return;
     const f = [...c.querySelectorAll('button:not([disabled]),input,select,textarea,summary')].filter(x => x.offsetParent !== null);
@@ -331,46 +334,104 @@ function trap(c) {
   });
 }
 
-/* ---------- Scene drawer ---------- */
+/* ---------- Scene editor (side panel). Opens with a short fade only; the page behind is never re-rendered or moved. ---------- */
+const HELP = {
+  name: ['Scene name', 'ชื่อ Scene', 'Only for you — how this Scene is listed in Studio. It never appears on Discord.', 'ใช้ดูเองใน Studio เท่านั้น ไม่แสดงบน Discord', null, 'not shown on Discord', 'ไม่แสดงบน Discord'],
+  actType: ['Activity type', 'ประเภทกิจกรรม', 'Sets the verb in the card heading: Playing, Listening to, Watching or Competing in.', 'กำหนดคำนำในหัวการ์ด เช่น กำลังเล่น กำลังฟัง กำลังดู', 'act', 'card heading', 'หัวการ์ด'],
+  actName: ['Activity name', 'ชื่อกิจกรรม', 'The name after the verb in the heading, e.g. “Playing Vibe”. 2–128 characters.', 'ชื่อที่ต่อท้ายคำนำในหัวการ์ด เช่น “กำลังเล่น Vibe” 2–128 ตัวอักษร', 'act', 'card heading', 'หัวการ์ด'],
+  details: ['Details line', 'ข้อความบรรทัดแรก', 'The first, bold line of text next to the image. 2–128 characters.', 'ข้อความตัวหนาบรรทัดแรกข้างรูป 2–128 ตัวอักษร', 'details', 'first text line', 'ข้อความบรรทัดแรก'],
+  detailsUrl: ['Details link', 'ลิงก์บรรทัดแรก', 'Optional https link. Makes the first line clickable on Discord.', 'ลิงก์ https (ไม่บังคับ) ทำให้บรรทัดแรกกดได้บน Discord', 'details', 'first text line', 'ข้อความบรรทัดแรก'],
+  state: ['State line', 'ข้อความบรรทัดที่สอง', 'The second line of text under Details. 2–128 characters.', 'ข้อความบรรทัดที่สองใต้บรรทัดแรก 2–128 ตัวอักษร', 'state', 'second text line', 'ข้อความบรรทัดที่สอง'],
+  stateUrl: ['State link', 'ลิงก์บรรทัดที่สอง', 'Optional https link. Makes the second line clickable on Discord.', 'ลิงก์ https (ไม่บังคับ) ทำให้บรรทัดที่สองกดได้บน Discord', 'state', 'second text line', 'ข้อความบรรทัดที่สอง'],
+  vars: ['App / window name', 'ชื่อแอป / หน้าต่าง', 'When on, {app} and {window} in your text are replaced live. {window} is a window title and is visible to anyone who sees your profile.', 'เมื่อเปิด {app} และ {window} ในข้อความจะถูกแทนที่ทันที {window} คือชื่อหน้าต่าง ซึ่งทุกคนที่เห็นโปรไฟล์จะเห็น', 'details', 'both text lines', 'ข้อความทั้งสองบรรทัด'],
+  large: ['Large image', 'ภาพใหญ่', 'The main picture: built-in art, a GIF or an https image link.', 'ภาพหลัก: ภาพในตัว GIF หรือลิงก์ภาพ https', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
+  largeText: ['Large image hover text', 'ข้อความเมื่อชี้ภาพใหญ่', 'Shown as a tooltip when someone hovers the big image. 2–128 characters.', 'แสดงเป็นทูลทิปเมื่อชี้ที่ภาพใหญ่ 2–128 ตัวอักษร', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
+  largeUrl: ['Large image link', 'ลิงก์ภาพใหญ่', 'Optional https link opened when the big image is clicked.', 'ลิงก์ https (ไม่บังคับ) ที่เปิดเมื่อกดภาพใหญ่', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
+  small: ['Small image', 'ภาพเล็ก', 'A small round badge on the corner of the big image.', 'ป้ายกลมเล็กที่มุมของภาพใหญ่', 'small', 'round badge on the image', 'ป้ายกลมที่มุมภาพ'],
+  smallText: ['Small image hover text', 'ข้อความเมื่อชี้ภาพเล็ก', 'Tooltip when someone hovers the small badge. 2–128 characters.', 'ทูลทิปเมื่อชี้ที่ป้ายเล็ก 2–128 ตัวอักษร', 'small', 'round badge on the image', 'ป้ายกลมที่มุมภาพ'],
+  smallUrl: ['Small image link', 'ลิงก์ภาพเล็ก', 'Optional https link opened when the badge is clicked.', 'ลิงก์ https (ไม่บังคับ) ที่เปิดเมื่อกดป้ายเล็ก', 'small', 'round badge on the image', 'ป้ายกลมที่มุมภาพ'],
+  btn0: ['Button 1', 'ปุ่มที่ 1', 'A button under the card. Label up to 32 characters; link must be https.', 'ปุ่มใต้การ์ด ข้อความไม่เกิน 32 ตัวอักษร ลิงก์ต้องเป็น https', 'btn0', 'button under the card', 'ปุ่มใต้การ์ด'],
+  btn1: ['Button 2', 'ปุ่มที่ 2', 'A second button next to the first. Discord allows two buttons at most.', 'ปุ่มที่สองข้างปุ่มแรก Discord อนุญาตสูงสุดสองปุ่ม', 'btn1', 'button under the card', 'ปุ่มใต้การ์ด'],
+};
+const helpBtn = k => `<button type="button" class="mk-help" data-help="${k}" aria-label="${T('What is this?', 'ช่องนี้คืออะไร')}: ${esc(HELP[k][S.lang === 'th' ? 1 : 0])}" aria-expanded="false">?</button>`;
+let tipFor = null;
+function highlight(area) { document.querySelectorAll('.mk-hl').forEach(e => e.classList.remove('mk-hl')); if (area) document.querySelectorAll(`#dpreview [data-pv="${area}"]`).forEach(e => e.classList.add('mk-hl')); }
+function showTip(btn) {
+  const k = btn.dataset.help, h = HELP[k], th = S.lang === 'th'; let tip = $('#mkTip');
+  if (!tip) { tip = document.createElement('div'); tip.id = 'mkTip'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip); }
+  tip.innerHTML = `<b>${esc(h[th ? 1 : 0])}</b><span>${esc(h[th ? 3 : 2])}</span><em>${h[4] ? T('Highlighted in the preview: ', 'ไฮไลต์ในตัวอย่าง: ') : ''}${esc(h[th ? 6 : 5])}</em>`;
+  tip.hidden = false; btn.setAttribute('aria-describedby', 'mkTip'); btn.setAttribute('aria-expanded', 'true');
+  const r = btn.getBoundingClientRect(), tw = tip.offsetWidth, tH = tip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left - 8), innerWidth - tw - 8); let y = r.bottom + 8; if (y + tH > innerHeight - 8) y = r.top - tH - 8;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px'; tipFor = btn; highlight(h[4]);
+}
+function hideTip() { const tip = $('#mkTip'); if (tip) tip.hidden = true; if (tipFor) { tipFor.removeAttribute('aria-describedby'); tipFor.setAttribute('aria-expanded', 'false'); } tipFor = null; highlight(null); }
+const isUrl = v => /^[a-z]+:\/\//i.test(v || '');
+const artSrc = v => (isUrl(v) ? v : A_ + (ART[v] || ART.a1));
+
 function openDrawer(id, opener) {
   rememberFocus(opener);
-  if (id === 'new') { const n = { id: 'new' + Date.now(), name: '', type: 'playing', l1: '', l2: '', art: 'a1', small: '', vars: false, btns: [{ label: '', url: '' }, { label: '', url: '' }], isNew: true }; S.scenes.push(n); id = n.id; }
-  S.drawer = { id }; S.save = 'saved'; S.saveAt = '09:41';
-  buildDrawer(); $('#root').inert = true; const f = $('#sc-name', layer()); (f || $('.mk-drawer', layer())).focus();
+  if (id === 'new') { const n = mkScene({ id: 'new' + Date.now(), name: '', l1: '', l2: '', isNew: true }); S.scenes.push(n); id = n.id; }
+  S.drawer = { id, dirty: false }; S.save = 'saved'; S.saveAt = '09:41';
+  buildDrawer(true); $('#root').inert = true; const f = $('#sc-name', layer()); (f || $('.mk-drawer', layer())).focus({ preventScroll: true });
 }
-function buildDrawer() {
+function secHead(h, hint) { return `<h3>${h}</h3>${hint ? `<p class="vs-hint">${hint}</p>` : ''}`; }
+function fld(id, label, key, field, val, o = {}) {
+  return `<div class="vs-field"><label class="vs-label" for="${id}">${label}${key ? helpBtn(key) : ''}</label><input class="vs-input" type="text" id="${id}" value="${esc(val)}" data-bind="sc" data-f="${field}" ${o.hl ? `data-hl="${o.hl}"` : ''} ${o.url ? 'data-url="1" data-mono="1" placeholder="https://…"' : ''} ${o.ph ? `placeholder="${esc(o.ph)}"` : ''} ${o.max ? `maxlength="${o.max}"` : ''}>${o.url ? '<p class="field-error" hidden></p>' : ''}</div>`;
+}
+function imageSection(prefix, sc, title, hint, key, textKey, urlKey, artField, textField, urlField, area) {
+  const v = sc[artField], mode = S.drawer[prefix + 'Mode'] || (isUrl(v) ? 'url' : 'art');
+  const picker = mode === 'url' ? `<div class="vs-field"><label class="vs-label" for="${prefix}-url">${T('GIF or image link (https)', 'ลิงก์ GIF หรือภาพ (https)')}</label><input class="vs-input" type="text" id="${prefix}-url" data-mono="1" data-url="1" placeholder="https://…" value="${esc(isUrl(v) ? v : '')}" data-bind="sc" data-f="${artField}" data-hl="${area}"><p class="field-error" hidden></p></div>`
+    : `<div class="mk-arts" role="group" aria-label="${title}">${prefix === 'sm' ? `<button class="mk-art-btn mk-none" type="button" data-act="art" data-arg="${prefix}:" aria-pressed="${!v}">${T('None', 'ไม่มี')}</button>` : ''}${ARTS.map(a => `<button class="mk-art-btn" type="button" data-act="art" data-arg="${prefix}:${a}" aria-pressed="${v === a}" aria-label="${T('Built-in art', 'ภาพในตัว')} ${a.slice(1)}"><img src="${A_}${ART[a]}" alt=""></button>`).join('')}</div>`;
+  return `<section class="mk-sec" data-sec="${prefix}">${secHead(title, hint)}
+    <div class="vs-field"><span class="vs-label" id="${prefix}-lbl">${T('Image source', 'แหล่งภาพ')}${helpBtn(key)}</span><div class="vs-segmented mk-seg-sm" role="radiogroup" aria-labelledby="${prefix}-lbl"><button type="button" role="radio" aria-checked="${mode === 'art'}" class="${mode === 'art' ? 'is-on' : ''}" data-act="imgmode" data-arg="${prefix}:art">${T('Built-in art', 'ภาพในตัว')}</button><button type="button" role="radio" aria-checked="${mode === 'url'}" class="${mode === 'url' ? 'is-on' : ''}" data-act="imgmode" data-arg="${prefix}:url">${T('GIF / https link', 'GIF / ลิงก์ https')}</button></div>${picker}</div>
+    ${fld(prefix + '-text', T('Hover text', 'ข้อความเมื่อชี้'), textKey, textField, sc[textField], { hl: area, max: 128 })}${fld(prefix + '-link', T('Click link', 'ลิงก์เมื่อกด'), urlKey, urlField, sc[urlField], { hl: area, url: 1 })}</section>`;
+}
+function buildDrawer(first) {
   const sc = sceneBy(S.drawer.id); if (!sc) return;
+  const old = $('.mk-drawer-body', layer()), top = old ? old.scrollTop : 0;
   const live = curScene() && curScene().id === sc.id && ['auto', 'pinned', 'paused'].includes(S.mode);
-  layer().innerHTML = `<div class="mk-backdrop" data-act="closedrawer"></div>
-  <div class="mk-drawer" role="dialog" aria-modal="true" aria-labelledby="dtitle" data-kind="drawer" tabindex="-1">
-   <div class="mk-drawer-head"><div><h2 id="dtitle">${sc.isNew ? T('New Scene', 'Scene ใหม่') : T('Edit Scene', 'แก้ไข Scene')}</h2><p class="vs-subcopy">${T('Changes save as you type. Close to go back where you were.', 'บันทึกขณะที่คุณพิมพ์ ปิดเพื่อกลับไปที่เดิม')}</p></div><button class="vs-icon-btn" type="button" data-act="closedrawer" aria-label="${T('Close and go back', 'ปิดและย้อนกลับ')}">✕</button></div>
+  const fade = first ? 'mk-fade' : '';
+  layer().innerHTML = `<div class="mk-backdrop ${fade}" data-act="closedrawer"></div>
+  <div class="mk-drawer ${fade}" role="dialog" aria-modal="true" aria-labelledby="dtitle" data-kind="drawer" tabindex="-1">
+   <div class="mk-drawer-head"><div><h2 id="dtitle">${sc.isNew ? T('New Scene', 'Scene ใหม่') : T('Edit Scene', 'แก้ไข Scene')}</h2><p class="vs-subcopy">${T('Every field Discord supports. Changes save as you type; the preview stays beside the form.', 'ทุกช่องที่ Discord รองรับ บันทึกขณะพิมพ์ และตัวอย่างอยู่ข้างฟอร์มตลอด')}</p></div><button class="vs-icon-btn" type="button" data-act="closedrawer" aria-label="${T('Close and go back', 'ปิดและย้อนกลับ')}">✕</button></div>
    <div class="mk-drawer-body">
-    <div class="vs-preview-label"><span>${T('Preview', 'ตัวอย่าง Discord')}</span>${live ? `<span class="vs-pill vs-pill-good">${T('On Discord now — updates after save', 'กำลังแสดงบน Discord — อัปเดตหลังบันทึก')}</span>` : `<span class="vs-pill vs-pill-neutral">${T('Preview only', 'ตัวอย่างเท่านั้น')}</span>`}</div><div id="dpreview"></div><p class="vs-preview-foot" id="dprevnote"></p>
-    <div class="vs-field" style="margin-top:24px"><label class="vs-label" for="sc-name">${T('Scene name', 'ชื่อ Scene')}</label><input class="vs-input" type="text" id="sc-name" value="${esc(sc.name)}" data-bind="sc" data-f="name" placeholder="${T('e.g. Deep work', 'เช่น โฟกัสทำงาน')}"></div>
-    <div class="vs-field" role="radiogroup" aria-labelledby="typelbl"><span class="vs-label" id="typelbl">${T('Activity type', 'ประเภทกิจกรรม')}</span><div class="vs-segmented" style="flex-wrap:wrap">${TYPES.map(t => `<button type="button" role="radio" aria-checked="${sc.type === t[0]}" class="${sc.type === t[0] ? 'is-on' : ''}" data-act="stype" data-arg="${t[0]}">${t[S.lang === 'th' ? 2 : 1]}</button>`).join('')}</div></div>
-    <div class="vs-field"><label class="vs-label" for="sc-l1">${T('Text line 1', 'ข้อความบรรทัดที่ 1')}</label><input class="vs-input" type="text" id="sc-l1" value="${esc(sc.l1)}" data-bind="sc" data-f="l1" maxlength="128"></div>
-    <div class="vs-field"><label class="vs-label" for="sc-l2">${T('Text line 2', 'ข้อความบรรทัดที่ 2')}</label><input class="vs-input" type="text" id="sc-l2" value="${esc(sc.l2)}" data-bind="sc" data-f="l2" maxlength="128">
-      <div class="mk-var-row" style="margin-top:12px"><span class="vs-label" style="margin:0"><label for="sc-vars">${T('Insert app or window name', 'ใส่ชื่อแอปหรือหน้าต่าง')}</label></span><label class="vs-switch"><input type="checkbox" id="sc-vars" data-bind="scvars" ${sc.vars ? 'checked' : ''}><span></span></label></div>
-      <p class="vs-hint">${T('Off by default for each Scene.', 'ปิดไว้เป็นค่าเริ่มต้นในแต่ละซีน')}</p>
+    <div class="mk-form">
+     <section class="mk-sec">${secHead(T('Scene', 'Scene'), T('Only you see this name.', 'มีแต่คุณที่เห็นชื่อนี้'))}${fld('sc-name', T('Scene name', 'ชื่อ Scene'), 'name', 'name', sc.name, { max: 40, ph: T('e.g. Deep work', 'เช่น โฟกัสทำงาน') })}</section>
+     <section class="mk-sec">${secHead(T('Activity', 'กิจกรรม'), T('The heading of the card, e.g. “Playing Vibe”.', 'หัวการ์ด เช่น “กำลังเล่น Vibe”'))}
+      <div class="vs-field" role="radiogroup" aria-labelledby="typelbl"><span class="vs-label" id="typelbl">${T('Activity type', 'ประเภทกิจกรรม')}${helpBtn('actType')}</span><div class="vs-segmented" style="flex-wrap:wrap">${TYPES.map(t => `<button type="button" role="radio" aria-checked="${sc.type === t[0]}" class="${sc.type === t[0] ? 'is-on' : ''}" data-act="stype" data-arg="${t[0]}" data-hl="act">${t[S.lang === 'th' ? 2 : 1]}</button>`).join('')}</div></div>
+      ${fld('sc-act', T('Activity name', 'ชื่อกิจกรรม'), 'actName', 'actName', sc.actName, { hl: 'act', max: 128 })}</section>
+     <section class="mk-sec">${secHead(T('Details line', 'ข้อความบรรทัดแรก'), T('Bold first line.', 'ตัวหนาบรรทัดแรก'))}${fld('sc-l1', T('Details text', 'ข้อความ'), 'details', 'l1', sc.l1, { hl: 'details', max: 128 })}${fld('sc-l1u', T('Details link', 'ลิงก์'), 'detailsUrl', 'l1url', sc.l1url, { hl: 'details', url: 1 })}</section>
+     <section class="mk-sec">${secHead(T('State line', 'ข้อความบรรทัดที่สอง'), T('Second line under Details.', 'บรรทัดที่สองใต้บรรทัดแรก'))}${fld('sc-l2', T('State text', 'ข้อความ'), 'state', 'l2', sc.l2, { hl: 'state', max: 128 })}${fld('sc-l2u', T('State link', 'ลิงก์'), 'stateUrl', 'l2url', sc.l2url, { hl: 'state', url: 1 })}
+      <div class="mk-var-row"><span class="vs-label" style="margin:0"><label for="sc-vars">${T('Insert app or window name', 'ใส่ชื่อแอปหรือหน้าต่าง')}</label>${helpBtn('vars')}</span><label class="vs-switch"><input type="checkbox" id="sc-vars" data-bind="scvars" ${sc.vars ? 'checked' : ''}><span></span></label></div>
       <div class="vs-looks"><button class="vs-look" type="button" data-act="ins" data-arg="{app}" ${sc.vars ? '' : 'disabled'}>{app}</button><button class="vs-look" type="button" data-act="ins" data-arg="{window}" ${sc.vars ? '' : 'disabled'}>{window}</button></div>
-      <div class="mk-note">${I.lock}<span>${T('{app} is the program name. {window} is the title of the window you’re using — it can include document names, chat names or web pages, and it goes to Discord for anyone who can see your profile. History keeps it only while history is on.', '{app} คือชื่อโปรแกรม {window} คือชื่อหน้าต่างที่คุณใช้อยู่ อาจมีชื่อเอกสาร ชื่อแชต หรือหน้าเว็บ และจะส่งไปยัง Discord ให้ทุกคนที่เห็นโปรไฟล์ของคุณเห็น ประวัติจะเก็บไว้เฉพาะเมื่อเปิดประวัติอยู่')}</span></div></div>
-    <div class="vs-field"><span class="vs-label" id="artlbl">${T('Main artwork', 'ภาพหลัก')}</span><div class="mk-arts" role="group" aria-labelledby="artlbl">${ARTS.map(a => `<button class="mk-art-btn" type="button" data-act="art" data-arg="${a}" aria-pressed="${sc.art === a}" aria-label="${T('Artwork', 'ภาพ')} ${a.slice(1)}"><img src="${A_}${ART[a]}" alt=""></button>`).join('')}</div><p class="vs-hint">${T('Approved artwork only.', 'เฉพาะภาพที่อนุมัติแล้ว')}</p></div>
-    <details class="vs-disclosure"><summary>${T('Advanced', 'ขั้นสูง')} <span class="option-status">${T('buttons, links, small artwork', 'ปุ่ม ลิงก์ ภาพเล็ก')}</span></summary><div class="vs-disclosure-body">
-      ${sc.btns.map((b, i) => `<div class="vs-field"><span class="vs-label">${T('Button', 'ปุ่ม')} ${i + 1}</span><div class="mk-two"><input class="vs-input" type="text" aria-label="${T('Button label', 'ข้อความปุ่ม')} ${i + 1}" placeholder="${T('Label', 'ข้อความ')}" value="${esc(b.label)}" data-bind="btn" data-i="${i}" data-f="label" maxlength="32"><input class="vs-input" type="text" aria-label="${T('Button link', 'ลิงก์ปุ่ม')} ${i + 1}" placeholder="https://…" value="${esc(b.url)}" data-bind="btn" data-i="${i}" data-f="url"></div></div>`).join('')}
-      <div class="vs-field"><span class="vs-label" id="smlbl">${T('Small artwork', 'ภาพเล็ก')}</span><div class="mk-arts" role="group" aria-labelledby="smlbl"><button class="mk-art-btn mk-none" type="button" data-act="small" data-arg="" aria-pressed="${!sc.small}">${T('None', 'ไม่มี')}</button>${ARTS.map(a => `<button class="mk-art-btn" type="button" data-act="small" data-arg="${a}" aria-pressed="${sc.small === a}" aria-label="${T('Small artwork', 'ภาพเล็ก')} ${a.slice(1)}"><img src="${A_}${ART[a]}" alt=""></button>`).join('')}</div></div></div></details>
+      <div class="mk-note">${I.lock}<span>${T('{app} is the program name. {window} is the title of the window you’re using — it can include document names, chat names or web pages, and it goes to Discord for anyone who can see your profile. Off by default for each Scene; history keeps it only while history is on.', '{app} คือชื่อโปรแกรม {window} คือชื่อหน้าต่างที่คุณใช้อยู่ อาจมีชื่อเอกสาร ชื่อแชต หรือหน้าเว็บ และจะส่งไปยัง Discord ให้ทุกคนที่เห็นโปรไฟล์ของคุณเห็น ปิดไว้เป็นค่าเริ่มต้นในแต่ละ Scene ประวัติเก็บเฉพาะเมื่อเปิดประวัติอยู่')}</span></div></section>
+     ${imageSection('lg', sc, T('Large image', 'ภาพใหญ่'), T('The main picture beside the text.', 'ภาพหลักข้างข้อความ'), 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large')}
+     ${imageSection('sm', sc, T('Small image', 'ภาพเล็ก'), T('Optional round badge on the corner of the large image.', 'ป้ายกลมที่มุมภาพใหญ่ (ไม่บังคับ)'), 'small', 'smallText', 'smallUrl', 'small', 'smallText', 'smallUrl', 'small')}
+     <section class="mk-sec">${secHead(T('Buttons', 'ปุ่ม'), T('Up to two. Links must be https.', 'สูงสุดสองปุ่ม ลิงก์ต้องเป็น https'))}
+      ${sc.btns.map((b, i) => `<div class="vs-field"><span class="vs-label">${T('Button', 'ปุ่ม')} ${i + 1}${helpBtn('btn' + i)}</span><div class="mk-two"><input class="vs-input" type="text" aria-label="${T('Button label', 'ข้อความปุ่ม')} ${i + 1}" placeholder="${T('Label', 'ข้อความ')}" value="${esc(b.label)}" data-bind="btn" data-i="${i}" data-f="label" data-hl="btn${i}" maxlength="32"><input class="vs-input" type="text" data-mono="1" data-url="1" aria-label="${T('Button link', 'ลิงก์ปุ่ม')} ${i + 1}" placeholder="https://…" value="${esc(b.url)}" data-bind="btn" data-i="${i}" data-f="url" data-hl="btn${i}"></div><p class="field-error" hidden></p></div>`).join('')}</section>
+    </div>
+    <aside class="mk-prev" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="vs-preview-label"><span>${T('Preview', 'ตัวอย่าง Discord')}</span>${live ? `<span class="vs-pill vs-pill-good">${T('On Discord now', 'กำลังแสดงบน Discord')}</span>` : `<span class="vs-pill vs-pill-neutral">${T('Preview only', 'ตัวอย่างเท่านั้น')}</span>`}</div><div id="dpreview"></div><p class="vs-preview-foot" id="dprevnote"></p></aside>
    </div>
    <div class="mk-drawer-foot"><div class="vs-savebar" id="savebar" role="status" aria-live="polite"><span class="vs-savebar-dot" aria-hidden="true"></span><span class="vs-savebar-text" id="savetext"></span><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="retry">${T('Retry', 'ลองใหม่')}</button></div><button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="closedrawer">${T('Done', 'เสร็จ')}</button></div></div>`;
-  trap($('.mk-drawer', layer())); updateDrawer();
+  trap($('.mk-drawer', layer())); updateDrawer(); const nb = $('.mk-drawer-body', layer()); if (nb) nb.scrollTop = top;
 }
 function updateDrawer() {
   const sc = sceneBy(S.drawer && S.drawer.id); if (!sc) return;
+  const hl = document.querySelector('#dpreview .mk-hl'); const area = hl ? hl.dataset.pv : null;
   $('#dpreview', layer()).innerHTML = dcCard(sc, { app: 'Figma', win: 'Landing page v3 – Figma' });
+  if (area) highlight(area);
   $('#dprevnote', layer()).textContent = sc.vars ? T('Preview uses sample values: {app} = Figma, {window} = “Landing page v3 – Figma”.', 'ตัวอย่างใช้ค่าสมมติ: {app} = Figma, {window} = “Landing page v3 – Figma”') : '';
+  layer().querySelectorAll('input[data-url]').forEach(inp => {
+    const err = inp.closest('.vs-field').querySelector('.field-error'); const bad = inp.value && !/^https:\/\/\S+$/i.test(inp.value);
+    inp.setAttribute('aria-invalid', bad ? 'true' : 'false'); if (err) { err.hidden = !bad; err.textContent = bad ? T('Must start with https://', 'ต้องขึ้นต้นด้วย https://') : ''; }
+  });
   const bar = $('#savebar', layer()), k = S.save;
   bar.dataset.state = k === 'failed' ? 'error' : k;
   $('#savetext', layer()).textContent = k === 'saving' ? T('Saving…', 'กำลังบันทึก…') : k === 'failed' ? T('Couldn’t save — your changes are still here', 'บันทึกไม่สำเร็จ — การแก้ไขของคุณยังอยู่') : T('Saved', 'บันทึกแล้ว') + ' · ' + S.saveAt;
 }
 function scheduleSave() {
+  if (S.drawer) S.drawer.dirty = true;
   S.save = 'saving'; updateDrawer(); clearTimeout(S.saveTimer);
   S.saveTimer = setTimeout(() => {
     if (S.failNext) { S.failNext = false; S.save = 'failed'; renderDev(); }
@@ -379,9 +440,12 @@ function scheduleSave() {
   }, 900);
 }
 function closeDrawer() {
-  const sc = S.drawer && sceneBy(S.drawer.id);
-  if (sc && sc.isNew && !sc.name && !sc.l1 && !sc.l2) S.scenes = S.scenes.filter(s => s !== sc); else if (sc) { sc.isNew = false; if (!sc.name) sc.name = T('Untitled Scene', 'Scene ไม่มีชื่อ'); }
-  clearTimeout(S.saveTimer); S.drawer = null; layer().innerHTML = ''; $('#root').inert = false; render(); restoreFocus();
+  hideTip();
+  const sc = S.drawer && sceneBy(S.drawer.id); let dirty = S.drawer && S.drawer.dirty;
+  if (sc && sc.isNew && !sc.name && !sc.l1 && !sc.l2) { S.scenes = S.scenes.filter(s => s !== sc); dirty = true; } else if (sc) { if (sc.isNew) dirty = true; sc.isNew = false; if (!sc.name) { sc.name = T('Untitled Scene', 'Scene ไม่มีชื่อ'); dirty = true; } }
+  clearTimeout(S.saveTimer); S.drawer = null; layer().innerHTML = ''; $('#root').inert = false;
+  if (dirty) { const y = scrollY; render(); scrollTo(0, y); } /* only when something changed; same scroll position, no animation */
+  restoreFocus();
 }
 
 /* ---------- Add-rule picker (real .gif-picker + .vs-dialog shell) ---------- */
@@ -440,7 +504,7 @@ function toast(msg, undo) {
 /* ---------- actions ---------- */
 let removed = null, lastText = null;
 function setMode(m) { if (m === 'hidden' && S.mode !== 'hidden') S.prevMode = S.mode === 'pinned' || S.mode === 'paused' ? S.mode : 'auto'; if (m === 'paused') S.frozen = (curScene() || sceneBy('design')).id; S.mode = m; S.menuOpen = false; }
-const keep = (sel) => { buildDrawer(); const e = $(sel, layer()); e && e.focus(); };
+const keep = (sel) => { buildDrawer(); const e = $(sel, layer()); e && e.focus({ preventScroll: true }); };
 const ACT = {
   screen: a => { S.screen = a; S.menuOpen = false; },
   lang: a => { S.lang = a; }, theme: a => { S.theme = a; }, mode: a => setMode(a),
@@ -467,8 +531,8 @@ const ACT = {
   finishskip: () => { S.screen = 'now'; S.mode = 'none'; },
   closedrawer: () => { closeDrawer(); return 'overlay'; },
   stype: a => { sceneBy(S.drawer.id).type = a; keep(`[data-act="stype"][data-arg="${a}"]`); scheduleSave(); return 'overlay'; },
-  art: a => { sceneBy(S.drawer.id).art = a; keep(`[data-act="art"][data-arg="${a}"]`); scheduleSave(); return 'overlay'; },
-  small: a => { sceneBy(S.drawer.id).small = a; keep(`[data-act="small"][data-arg="${a}"]`); scheduleSave(); return 'overlay'; },
+  imgmode: a => { const [p, m] = a.split(':'); S.drawer[p + 'Mode'] = m; keep(`[data-act="imgmode"][data-arg="${a}"]`); return 'overlay'; },
+  art: a => { const [p, v] = a.split(':'), sc = sceneBy(S.drawer.id); sc[p === 'lg' ? 'art' : 'small'] = v; keep(`[data-act="art"][data-arg="${a}"]`); scheduleSave(); return 'overlay'; },
   ins: a => { const t = lastText || $('#sc-l1'), sc = sceneBy(S.drawer.id), f = t.id === 'sc-l2' ? 'l2' : 'l1', pos = t.selectionStart ?? t.value.length; t.value = t.value.slice(0, pos) + a + t.value.slice(t.selectionEnd ?? pos); sc[f] = t.value; t.focus(); t.setSelectionRange(pos + a.length, pos + a.length); updateDrawer(); scheduleSave(); return 'overlay'; },
   retry: () => { scheduleSave(); return 'overlay'; },
   closepicker: () => { closePicker(); return 'overlay'; },
@@ -540,6 +604,13 @@ function devAct(a) {
   renderDev(); if (a !== 'picker' && a !== 'pickerweb') render();
 }
 
+/* ---------- field help (#18): hover / focus / tap, Escape closes; also highlights the preview area ---------- */
+document.addEventListener('mouseover', e => { const h = e.target.closest && e.target.closest('.mk-help'); if (h && tipFor !== h) showTip(h); });
+document.addEventListener('mouseout', e => { const h = e.target.closest && e.target.closest('.mk-help'); if (h && document.activeElement !== h) hideTip(); });
+document.addEventListener('focusin', e => { const t = e.target; if (t.classList && t.classList.contains('mk-help')) showTip(t); else { if (tipFor) hideTip(); if (t.dataset && t.dataset.hl && S.drawer) highlight(t.dataset.hl); } });
+document.addEventListener('focusout', e => { const t = e.target; if (t.classList && t.classList.contains('mk-help')) hideTip(); else if (t.dataset && t.dataset.hl) highlight(null); });
+document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('.mk-help'); if (h) { e.preventDefault(); tipFor === h && h.getAttribute('aria-expanded') === 'true' && e.detail === 0 ? hideTip() : showTip(h); } }, true);
+
 /* ---------- boot ---------- */
 (function boot() {
   const q = new URLSearchParams(location.search);
@@ -560,6 +631,8 @@ function devAct(a) {
   if (o === 'picksearch') openPicker('app', null, { q: 'blen', app: 'blender' });
   if (o === 'pickerweb') openPicker('web', null);
   if (q.get('scenesdrawer')) { S.screen = 'scenes'; render(); openDrawer('music', null); }
+  if (q.get('tip')) { const hb = $(`.mk-help[data-help="${q.get('tip')}"]`, layer()); if (hb) { hb.scrollIntoView({ block: 'nearest' }); requestAnimationFrame(() => showTip(hb)); } }
+  if (q.get('formscroll')) { const nb = $('.mk-drawer-body', layer()); if (nb) nb.scrollTop = +q.get('formscroll'); }
   if (q.get('adv')) { const d = $('.mk-drawer details', layer()); if (d) d.open = true; }
   if (q.get('scrollidx')) { const e = document.querySelectorAll('.vs-page > .vs-card')[+q.get('scrollidx')]; if (e) e.scrollIntoView(); }
 })();
