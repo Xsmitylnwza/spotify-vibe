@@ -211,7 +211,10 @@ function nowView() {
   else reason = `${T('Can’t reach the Vibe companion', 'ติดต่อ Vibe companion ไม่ได้')} · ${link('mode', 'auto', T('Reconnect', 'เชื่อมต่อใหม่'))}`;
   const sw = `<label class="mk-now-switch"><span class="mk-now-switch-t">${T('Show on Discord', 'แสดงบน Discord')}</span><span class="vs-switch mk-bigsw"><input type="checkbox" role="switch" data-bind="presence" aria-label="${T('Show on Discord', 'แสดงบน Discord')}" ${enabled ? 'checked' : ''} ${!REAL.enabled && (!available || (LIVE.enabled && (LIVE.busy || !LIVE.checked))) ? 'disabled' : ''}><span></span></span></label>`;
   const none = title => ({ title, sub: mode === 'discordoff' ? T('Nothing to show until Discord starts.', 'ไม่มีอะไรให้แสดงจนกว่า Discord จะเปิด') : undefined });
-  const actual = LIVE.active && LIVE.scene ? (REAL.enabled && sceneBy(LIVE.scene.id)) || mkScene({ id: LIVE.scene.id, name: LIVE.scene.sceneName, type: LIVE.scene.activityType, actName: LIVE.scene.activityName, l1: LIVE.scene.details, l2: LIVE.scene.state, art: LIVE.scene.largeImage, small: LIVE.scene.smallImage, btns: LIVE.scene.buttons || [] }) : null;
+  /* #42 truthful preview: render exactly what Discord acknowledged (published images), never the local app icon */
+  const L = LIVE.scene || {};
+  const actual = LIVE.active && LIVE.scene ? mkScene({ id: L.id, name: L.sceneName, type: L.activityType, actName: L.activityName, l1: L.details, l2: L.state, art: L.publishedImage || L.largeImage, small: L.publishedSmallImage !== undefined ? L.publishedSmallImage : L.smallImage, btns: L.buttons || [] }) : null;
+  const fallbackNote = LIVE.active && (L.imageFallback || L.smallImageFallback) ? `<p class="mk-stage-note" role="note">${T('Discord can’t show this app’s icon because it isn’t online, so it shows the default artwork. Upload the icon to use it.', 'Discord แสดงไอคอนแอปนี้ไม่ได้เพราะไม่มีลิงก์สาธารณะ จึงแสดงภาพเริ่มต้นแทน อัปโหลดไอคอนเพื่อใช้งาน')}</p>` : '';
   const pv = view => LIVE.enabled ? dcCard(actual, { view, title: T('No live activity', 'ไม่มีกิจกรรมจริง') }) : mode === 'unreachable' ? dcCard(sc, { ghost: true, view }) : mode === 'discordoff' ? dcCard(null, Object.assign(none(T('Discord not running', 'Discord ไม่ได้เปิด')), { view })) : sc ? dcCard(sc, { view }) : dcCard(null, { title: mode === 'hidden' || mode === 'autohide' ? T('Hidden', 'ซ่อนอยู่') : T('No activity', 'ไม่มีกิจกรรม'), view });
   const col = (v, label) => `<figure class="mk-pvcol mk-pv-${v}"><figcaption>${label}</figcaption>${v === 'list' ? `<div class="mk-mlist">${pv(v)}<p class="mk-mlist-h" aria-hidden="true">${T('OFFLINE — 3', 'ออฟไลน์ — 3')}</p><div class="mk-mlist-ghost" aria-hidden="true"><i></i><span></span></div><div class="mk-mlist-ghost is-mid" aria-hidden="true"><i></i><span></span></div><div class="mk-mlist-ghost is-short" aria-hidden="true"><i></i><span></span></div></div>` : pv(v)}</figure>`;
   const tone = LIVE.error || mode === 'discordoff' || mode === 'unreachable' ? 'warn' : !enabled ? 'off' : sc || LIVE.active ? 'on' : 'idle';
@@ -226,7 +229,7 @@ function nowView() {
     </div>
     <div class="mk-stage" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}">
       <p class="mk-stage-cap">${T('How others see you on Discord', 'คนอื่นเห็นคุณบน Discord แบบนี้')}</p>
-      <div class="mk-pvgrid">${skel ? `${sk('mk-sk-card')}${sk('mk-sk-card')}` : col('popout', T('Profile', 'โปรไฟล์')) + col('list', T('Member list', 'รายชื่อสมาชิก'))}</div>
+      ${fallbackNote}<div class="mk-pvgrid">${skel ? `${sk('mk-sk-card')}${sk('mk-sk-card')}` : col('popout', T('Profile', 'โปรไฟล์')) + col('list', T('Member list', 'รายชื่อสมาชิก'))}</div>
     </div>
   </section>
   </div>`;

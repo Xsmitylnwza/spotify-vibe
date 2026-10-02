@@ -41,7 +41,7 @@ test('known app icons resolve to public image sources; unknown apps have an expl
 });
 
 test('LIVE Now (#39): switch + reason line + preview only; app icon resolves in both preview tabs; picker shows generic app tile', () => {
-  const run = renderer(); run("REAL.ready=true; LIVE.checked=true; LIVE.active=true; LIVE.scene={id:'coding',sceneName:'Coding',largeImage:'',smallImage:''}; REAL.presenceEnabled=true; Object.assign(sceneBy('coding'),{art:'@app',small:'',vars:false}); REAL.selectedAppId='device-code'");
+  const run = renderer(); run("REAL.ready=true; LIVE.checked=true; LIVE.active=true; LIVE.scene={id:'coding',sceneName:'Coding',largeImage:'https://example.com/code.png',publishedImage:'https://example.com/code.png',smallImage:''}; REAL.presenceEnabled=true; Object.assign(sceneBy('coding'),{art:'@app',small:'',vars:false}); REAL.selectedAppId='device-code'");
   for (const view of ['popout', 'list']) { run("S.pvView='" + view + "'"); const html = run('nowView()');
     assert.ok(!html.includes('<select')); assert.ok(!html.includes('Choose a Scene')); assert.ok(!html.includes('vs-pill')); assert.ok(!html.includes('mk-scthumb'));
     assert.ok(!html.includes('scenepick')); assert.ok(!html.includes('mk-paired')); assert.ok(!html.includes('data-act="pinpair"')); assert.ok(!html.includes('refreshapps')); assert.ok(!html.includes('pairadd'));
@@ -64,4 +64,10 @@ test('#43 Scene enabled toggle replaces Show now; #44 picker home has Upload/App
   const html = run('scenesView()'); assert.ok(!html.includes('sumshow')); assert.ok(html.includes('data-bind="sceneon"')); assert.ok(html.includes('is-disabled'));
   run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin',chooser:true}");
   const inner = run('imgInner()'); assert.ok(inner.includes('mk-pk3')); assert.ok(!inner.includes('role="tablist"')); assert.ok(inner.includes('data-arg="gif"')); assert.ok(inner.includes('data-arg="upload"')); assert.ok(inner.includes('data-arg="link"'));
+});
+
+test('#42 Now preview renders the PUBLISHED image and warns when the app icon fell back', () => {
+  const run = renderer(); run("REAL.ready=true; LIVE.checked=true; LIVE.active=true; REAL.presenceEnabled=true; LIVE.scene={id:'coding',sceneName:'Coding',activityType:'competing',activityName:'Orca',largeImage:'https://cdn.example/poster.png',publishedImage:'https://cdn.example/poster.png',imageFallback:'app_icon_no_public_url',smallImage:''}; Object.assign(sceneBy('coding'),{art:'@app'})");
+  const html = run('nowView()');
+  assert.ok(html.includes('https://cdn.example/poster.png')); assert.ok(html.includes('mk-stage-note'));
 });

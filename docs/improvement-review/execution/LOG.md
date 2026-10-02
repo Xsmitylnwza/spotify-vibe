@@ -99,3 +99,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | D1-M17 renderer batch (#40,#41,#43,#44 UI) | P2 / design | Sonnet | Done; 31/32 tests (1 failing = Codex in-progress file). Commit deferred until D1-B1 + D1-M18 finish (shared folder) | — | pending |
 | 2026-10-02 | D1-B1 contract confirmed | P2 / server | Codex | Missing public large icon -> publishes builtin hinata poster (explicit), small -> no badge; fallback reasons exposed. Renderer follow-up queued after M18 | — | — |
 | 2026-10-02 | D1-B1 (Codex) truthful publish + GIF API; D1-M18 (Sonnet) live Settings restored; coordinator redesign of Now + image picker (coordinator.css) | P2 | Codex / Sonnet / Opus | Done; mockup servers restarted (were running pre-fix code: timer + fallback) | (this commit) | owner to view |
+| 2026-10-02 | Coordinator: Now preview renders published payload + fallback note (#42) | P2 | Opus | tests 46/46 | (this commit) | owner to view |
