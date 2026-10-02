@@ -4,6 +4,35 @@ Mockup only. Nothing under `scripts/`, `electron/` or `public/` was edited (file
 
 **Direction change applied (owner, high priority):** the current Studio look is kept as-is. `studio-ci.css` is an unmodified copy of `scripts/studio-ci.css`; every screen is built from its real `vs-*` components, the real sidebar/nav icons, the ghost logo (now `p3/logo/final/ghost-final-d.svg`; the original `assets/logo-ghost.svg` is the favicon) and real art (`public/art/*`, copied into `assets/art/`). Only the content/arrangement follows the new journey, plus contrast and spacing polish. The Nori mark is **not** used.
 
+## D1-M7 Apps are paired inside the Scene editor (decision #29, supersedes the Now rules table of #1)
+
+- **Editor → "Shows when these apps are open"** (right after Scene name and Activity). Chips with the app icon + name; a web-tab rule shows the browser icon with the globe badge and "title contains “…”". × removes a chip (it collapses with the #20 animation, a toast offers **Undo** for 5 s, focus goes to *Add app*). **+ Add app** opens the existing picker (running apps first, search installed, system entries hidden, Browse for .exe…, web-tab tab) **pre-targeted to this Scene**: no Scene select, no hide toggle, primary button *Add app*. The picker sits in its own layer above the editor, so the editor node and its scroll are untouched (checked in the Orca tab).
+- **One app/tab = one Scene.** If the selected app or tab already belongs to another Scene the dialog shows an inline warning — **“Move Visual Studio Code from Coding to this Scene?”** — and the primary button becomes *Move here* (Cancel closes). Moving re-targets the existing rule; a toast offers Undo. Selecting something this Scene already has shows "already shown by this Scene" and disables the button.
+- **Empty state:** "Not shown automatically yet — add an app".
+- **Now:** the App-rules table is gone (see D1-M7b for the simplified Now). One-line summary card: stacked app icons + **“6 apps paired · 1 auto-hide rule”**, **Manage in Scenes** and **Privacy settings** (the status card also gets an *Edit this Scene* button, since the table's *Edit Scene* buttons are gone). Updates go through the keyed DOM morph (#28).
+- **Settings → Privacy** (new card, before History): the **Auto-hide rules** list (e.g. MyBank Desktop → Hide from Discord while open) with remove (+Undo) and **Add auto-hide rule** (same picker in `hide` mode: app or web tab, no Scene), plus the privacy notes (window titles are read only for the foreground window; `{window}` goes to Discord and is off by default; history stays local — see History). The Now "auto-hide" state and summary link here.
+- **Library:** rows keep the icon stack (#24). The dashed **+ app** now opens the Scene's editor scrolled to the pairing section **with the picker already open** (focus returns to *Add app* when the picker closes).
+- **First run** is unchanged: step 2 picks the app, step 3 picks the Scene; Finish pairs the app to that Scene (if the app already belongs to another Scene its rule is moved, keeping one-app-one-Scene).
+
+Verified in the Orca tab (script): editor and its scroll container stay the same nodes while the picker opens/closes; add → Move confirm → Move re-targets the rule and shows a chip (3 chips), Undo restores it (2); removing a chip shows the exit state, then 1 chip / 6 rules, Undo restores 2 / 7; Library "+ app" opens drawer + picker titled “Add app to “Focus (names the app)””.
+
+Screenshots: `26`/`26b` (editor pairing section EN/TH), `27`/`27b` (move confirm EN/TH), `28` (empty state), `29` (library "+ app" flow), `10`/`72` (Now summary EN/TH), `57`/`57b` (Settings → Privacy EN/TH), `58` (Add auto-hide picker); narrow equivalents `m-…`.
+
+
+## D1-M7b Now simplified (#30), rules table gone, sidebar pinned
+
+**Now (#30).** One focal point: the Discord preview. Layout: title → **one status line** (app icon + “Showing **Design** · following Figma” + one state chip: Auto / Pinned / Paused / Hidden / Hidden by rule / Not shown) → the preview, centred (small Profile popout / Member list toggle) → **one control row** → the one-line pairing summary. Removed: the headline + explanation paragraph, the Why / Also open / Discord facts, the "Connected as" duplicate (the account panel has it), the "You can close this window…" paragraph (only the one-time close notice remains) and the kicker/sub-copy. Above the preview there is one line of copy plus the small preview caption.
+- Control row = three equal buttons with consistent icons: **Pin… · Pause · Hide**; contextual labels — pinned: **Back to Auto** replaces Pause; paused: **Resume**; hidden: single **Show again**.
+- Non-normal states replace the status line with one short message and one action: Discord not running → *Check again*; companion unreachable → *Reconnect* (preview dimmed, "Last known"); nothing shown → *Manage in Scenes*; hidden by auto-hide rule → *Privacy settings*. No banners or extra paragraphs.
+- The Scene name in the status line is a quiet link that opens its editor.
+
+**App rules table removed everywhere.** No "App rules"/"Add rule" card remains on Now, only the pairing summary (stacked icons, "6 apps paired · 1 auto-hide rule", *Manage in Scenes*, *Privacy settings*). Dead paths were deleted (`addrule`, `scrollrules`, the free-mode picker branch, the old hero/`modeInfo`); the old rules rows now exist only as the **auto-hide list in Settings → Privacy**. The prototype toolbar's old *Add rule* / *Web rule* are now **Pair app (editor)** and **Pair web tab (editor)** (open the Design Scene's editor with the pairing picker) and **Auto-hide rule (Settings)** (opens Settings with the auto-hide picker).
+
+**Sidebar pinned (bug).** The shell now uses a sticky, full-viewport-height sidebar (`top: var(--dev-h)`, `height: calc(100dvh - var(--dev-h))`, own background, nav at the top, account panel at the bottom) and the prototype toolbar is sticky with its measured height exported as `--dev-h`, so nothing is offset and no strip appears under the account panel. The document is the only scroll owner; at ≤760 px the bottom nav stays fixed and content scrolls behind it with bottom padding. Screenshots scrolled to the bottom at 1280×640: `95` (Settings, light), `95b` (Settings, dark, TH), `95c` (Scenes, dark), `95d` (Now).
+
+Screenshots: Now in every state, EN `10`–`17` and TH `10t`–`17t`, member list `18`/`19`; narrow `m-10`…`m-18`.
+
+
 ## D1-M6 Modals never cut off (first-run step 3 could not be submitted)
 
 **Bug:** at 1280×800 the first-run step 3 (Scene chips + preview + Line 1/2 + status) was taller than the window; the footer (Back / Show on Discord / Finish) sat below the fold and the modal did not scroll.
@@ -180,3 +209,5 @@ New components (no existing equivalent), each styled like its nearest sibling in
 
 Verified in the browser tab: opening the drawer from a rule's Edit Scene button and closing it with ✕ returns focus to that button (DOM check); all 55 screenshots were captured at the exact requested viewport (PNG dimensions checked) and a sample of each group was viewed.
 
+
+> **Note (capture stopped by the owner):** the last screenshot re-capture (after #29/#30 and the sidebar fix) was stopped before it finished, so `screens/` holds only part of the new set and some older shots may no longer match. Per the new "speed over evidence" rule, review the mockup in the browser (`index.html`); re-capture only for gate G1.

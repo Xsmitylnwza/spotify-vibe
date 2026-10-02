@@ -530,3 +530,61 @@ img.mk-flash { animation: mk-fade var(--mk-dur) var(--mk-ease) both; }
 
 /* Settings: Reconnect only when Discord is not connected, beside the status pill (owner 2026-10-02) */
 .mk-conn-off { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ================= D1-M7: apps are paired inside the Scene editor (#29) ================= */
+.mk-pairs { display: flex; flex-wrap: wrap; gap: 8px; }
+.mk-chip { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 4px 4px 4px 6px; border: 1px solid var(--vs-hairline); border-radius: 999px; background: var(--vs-surface); font-size: 13px; overflow: hidden; white-space: nowrap; transition: opacity var(--mk-dur) var(--mk-ease), transform var(--mk-dur) var(--mk-ease), max-width var(--mk-dur) var(--mk-ease), padding var(--mk-dur) var(--mk-ease), margin var(--mk-dur) var(--mk-ease), border-color var(--mk-dur) var(--mk-ease); }
+.mk-chip .mk-st-i { overflow: visible; }
+.mk-chip-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.mk-chip-x { width: 24px; height: 24px; flex: none; border: 0; border-radius: 50%; background: transparent; color: var(--vs-ink3); display: inline-grid; place-items: center; transition: background-color var(--mk-dur-fast) var(--mk-ease), color var(--mk-dur-fast) var(--mk-ease), transform 100ms var(--mk-ease); }
+.mk-chip-x:hover { background: var(--vs-bad-bg); color: var(--vs-bad-t); }
+.mk-chip-x:active { transform: scale(.94); }
+.mk-chip-x svg { width: 12px; height: 12px; }
+.mk-chip-out { opacity: 0; transform: scale(.9); max-width: 0; padding-left: 0; padding-right: 0; margin-left: -4px; border-width: 0; }
+@keyframes mk-chip-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+.mk-chip-in { animation: mk-chip-in var(--mk-dur) var(--mk-ease) both; }
+.mk-pair-empty { margin: 0; padding: 10px 14px; border: 1.5px dashed var(--vs-hairline); border-radius: var(--vs-r-md); color: var(--vs-ink2); font-size: 13px; width: 100%; }
+/* Now: compact pairing summary */
+.mk-sumcard { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 16px 20px; margin-top: 24px; }
+.mk-sum-t { display: flex; flex-direction: column; min-width: 0; flex: 1 1 220px; line-height: 1.35; }
+.mk-sum-t b { font-size: 14px; font-weight: 600; }
+.mk-sum-t small { font-size: 12px; color: var(--vs-ink2); }
+.mk-sum-l { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.mk-sumcard .mk-st-i:first-child { margin-left: 0; }
+/* Settings -> Privacy */
+.mk-privnotes { list-style: none; margin: 16px 0 0; padding: 14px 0 0; border-top: 1px solid var(--vs-hairline-soft); display: flex; flex-direction: column; gap: 10px; }
+.mk-privnotes li { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: var(--vs-ink2); }
+.mk-privnotes svg { margin-top: 2px; }
+@media (prefers-reduced-motion: reduce) { .mk-chip-in { animation: none; } }
+
+/* ================= D1-M7b: Now = status line + preview + one control row (#30); sidebar pinned to the viewport ================= */
+:root { --dev-h: 0px; }
+#dev { position: sticky; top: 0; }
+.vs-app { min-height: calc(100dvh - var(--dev-h)); align-items: flex-start; }
+.vs-main { align-self: stretch; }
+.vs-sidebar { position: sticky; top: var(--dev-h); height: calc(100dvh - var(--dev-h)); align-self: flex-start; background: var(--vs-bg); }
+body.nodev .vs-app { min-height: 100dvh; }
+body.nodev .vs-sidebar { top: 0; height: 100dvh; }
+@media (max-width: 760px) { #dev { position: static; } .vs-app { align-items: stretch; } }
+
+.mk-now { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
+.mk-statusline { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 15px; }
+.mk-statusline .mk-ico, .mk-statusline .mk-ico-fb { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 8px; }
+.mk-stico { width: 28px; height: 28px; border-radius: 8px; flex: none; display: inline-grid; place-items: center; background: var(--vs-sunken); border: 1px solid var(--vs-hairline); color: var(--vs-ink2); }
+.mk-st-text { min-width: 0; }
+.mk-scenelink { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--vs-ink); text-decoration: underline; text-decoration-color: var(--vs-hairline); text-underline-offset: 3px; cursor: pointer; border-radius: 4px; transition: text-decoration-color var(--mk-dur-fast) var(--mk-ease), color var(--mk-dur-fast) var(--mk-ease); }
+.mk-scenelink:hover { color: var(--vs-accent-deep); text-decoration-color: var(--vs-accent); }
+.mk-previewbox { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mk-previewbox .vs-preview-label { width: 100%; margin-bottom: 4px; }
+.mk-previewbox .mk-pvwrap { align-items: center; }
+.mk-previewbox .mk-pvt { align-self: center; }
+.mk-previewbox .dcp { margin: 0 auto; }
+.mk-previewbox .vs-preview-foot { text-align: center; max-width: 340px; }
+.mk-ctlrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: min(100%, 440px); }
+.mk-ctlrow .vs-btn, .mk-ctlrow .mk-pop, .mk-ctlrow .mk-pop > .vs-btn { width: 100%; }
+.mk-ctlrow .vs-btn { min-height: 42px; white-space: nowrap; }
+.mk-ctlrow.is-single { grid-template-columns: minmax(0, 220px); justify-content: center; }
+.mk-now .mk-sumcard { align-self: stretch; margin-top: 8px; text-align: left; }
+.mk-now .mk-menu { left: 0; }
+@media (max-width: 560px) { .mk-ctlrow .vs-btn { padding-left: 10px; padding-right: 10px; font-size: 13px; } }
+.mk-now .dcp, .mk-now .mk-pvwrap, .mk-now .vs-preview-label { text-align: left; } .mk-now .vs-preview-label { text-align: center; }
