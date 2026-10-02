@@ -14,6 +14,9 @@ const T={
  c:{name:'Catch-light + tiny star outside the eye',
    spark:`<circle cx="25.5" cy="28.9" r="1" fill="#fff" stroke="none"/><path d="${star(30.2,24.6,2.6)}" fill="${INK}" stroke="${INK}" stroke-width=".5"/>`,
    tray:`<path d="${star(30.6,24.4,3.4)}"/>`},
+ d:{name:'Catch-light + wink sparkle (owner choice)',
+   spark:`<circle cx="25.5" cy="28.9" r="1" fill="#fff" stroke="none"/><path d="${star(46.4,25.4,2.7)}" fill="${INK}" stroke="${INK}" stroke-width=".5"/>`,
+   tray:`<path d="${star(46,24.6,3.1)}"/>`},
 };
 const defs=`<linearGradient id="bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
 <radialGradient id="gl" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
@@ -36,10 +39,10 @@ const sheet=`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>G
 *{box-sizing:border-box}body{margin:0;padding:24px;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,sans-serif}
 h1{font-size:20px;margin:0 0 4px}p.sub{color:var(--mut);margin:0 0 18px}
 h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:24px 0 10px}
-.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 .cell{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0}
 .lbl{font-weight:700;font-size:12px;color:var(--mut);align-self:flex-start}
-svg.s256{width:200px;height:200px}svg.s48{width:48px;height:48px}svg.s32{width:32px;height:32px}svg.s16{width:16px;height:16px}svg.s24{width:24px;height:24px}
+svg.s256{width:160px;height:160px}svg.s48{width:48px;height:48px}svg.s32{width:32px;height:32px}svg.s16{width:16px;height:16px}svg.s24{width:24px;height:24px}
 .sizes{display:flex;align-items:flex-end;gap:18px}
 .strip{width:100%;border-radius:10px;padding:12px;display:flex;gap:14px;align-items:center;justify-content:center}
 .light{background:#f3f3f5;color:#1f1f24}.dark{background:#202127;color:#e9e9ee}
@@ -52,8 +55,8 @@ svg.s256{width:200px;height:200px}svg.s48{width:48px;height:48px}svg.s32{width:3
 .bn{font-weight:600;font-size:13px;line-height:1.3;display:block}.bs{font-size:11px;opacity:.65;display:block}
 .brandrow{display:flex;flex-direction:column;gap:8px;width:100%}
 </style></head><body>
-<h1>Ghost final — direction 1 + eye sparkle</h1><p class="sub">CURRENT · ghost-v2-1 (bolt) · a catch-light · b star glint · c catch-light + star. Concept only. Tray: a drops the sparkle, b/c cut it out of the silhouette.</p>
-<h2>App icon — 200 (256 spec, scaled to fit) / 48 / 32 / 16 px</h2><div class="grid">${row(it=>`<div class="cell"><div class="lbl">${it.k}</div><div class="sizes">${sv(it.m,'s256')}</div><div class="sizes">${[48,32,16].map(s=>sv(it.m,'s'+s)).join('')}</div></div>`)}</div>
+<h1>Ghost final — direction 1 + eye sparkle</h1><p class="sub">CURRENT · ghost-v2-1 (bolt) · a catch-light · b star glint · c catch-light + star · d wink sparkle (owner choice). Concept only. Tray: a drops the sparkle, b/c/d cut it out of the silhouette.</p>
+<h2>App icon — 160 (256 spec, scaled to fit) / 48 / 32 / 16 px</h2><div class="grid">${row(it=>`<div class="cell"><div class="lbl">${it.k}</div><div class="sizes">${sv(it.m,'s256')}</div><div class="sizes">${[48,32,16].map(s=>sv(it.m,'s'+s)).join('')}</div></div>`)}</div>
 <h2>Tray — 16 / 24 px, single colour, light + dark</h2><div class="grid">${row(it=>`<div class="cell"><div class="lbl">${it.k}</div>${['light','dark'].map(m=>`<div class="strip ${m}">${sv(it.t,'s16')}${sv(it.t,'s24')}${sv(it.t,'s16')}</div>`).join('')}</div>`)}</div>
 <h2>In-app brand mark — "Vibe Studio" light / dark</h2><div class="grid">${row(it=>`<div class="cell"><div class="lbl">${it.k}</div><div class="brandrow">${['light','dark'].map(m=>`<div class="brand ${m}"><div class="mark">${sv(it.t,'')}</div><div class="mark full">${sv(it.m,'')}</div><div><span class="bn">Vibe Studio</span><span class="bs">Discord presence</span></div></div>`).join('')}</div></div>`)}</div>
 </body></html>`;
