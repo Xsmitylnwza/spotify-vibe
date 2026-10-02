@@ -1,0 +1,796 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Ghost logo refinement — CURRENT vs A/B/C</title>
+<style>
+:root{--bg:#f4f5fb;--ink:#1b1d3a;--mut:#6a6e92;--card:#fff;--line:#dfe1f2;--acc:#5865F2}
+*{box-sizing:border-box}body{margin:0;padding:28px;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,sans-serif}
+h1{font-size:20px;margin:0 0 4px}p.sub{color:var(--mut);margin:0 0 22px}
+h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:26px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:60px}
+.lbl{font-weight:700;font-size:12px;color:var(--mut);align-self:flex-start}
+.s256{width:256px;height:256px}.s48{width:48px;height:48px}.s32{width:32px;height:32px}.s16{width:16px;height:16px}.s24{width:24px;height:24px}
+.sizes{display:flex;align-items:flex-end;gap:16px}
+.strip{width:100%;border-radius:10px;padding:12px;display:flex;gap:18px;align-items:center;justify-content:center}
+.light{background:#f3f3f5;color:#1f1f24}.dark{background:#202127;color:#e9e9ee}
+.strip.tb{border:1px solid rgba(128,128,128,.25)}
+.brand{width:100%;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px}
+.brand.light{background:#fff;color:#1b1d3a;border:1px solid var(--line)}.brand.dark{background:#17182c;color:#ecedff}
+.mark{width:34px;height:34px;flex:0 0 34px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.mark svg{width:24px;height:24px;display:block}
+.light .mark{background:#eceeff;border:1px solid #cfd3ff;color:#4651C4}.dark .mark{background:#262a5c;border:1px solid #3c4290;color:#aeb6ff}
+.mark.full{background:none;border:0;width:34px;height:34px}.mark.full svg{width:34px;height:34px}
+.bn{font-weight:600;font-size:14px;line-height:1.3;display:block}.bs{font-size:12px;opacity:.65;display:block}
+.note{font-size:12px;color:var(--mut)}
+</style></head><body>
+<h1>Ghost logo refinement — polish of the ORIGINAL</h1>
+<p class="sub">CURRENT = recreated from electron/assets/logo-ghost.svg + icon.png. A minimal tidy-up · B moderate refinement · C bolder polish. Concept only.</p>
+<section><h2>App icon — 256 / 48 / 32 / 16 px</h2><div class="grid"><div class="cell"><div class="lbl">CURRENT</div><div class="sizes"><svg class="s256" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="i0-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7BF7"/><stop offset="1" stop-color="#4651C4"/></linearGradient>
+<mask id="i0-m"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs>
+<rect width="64" height="64" rx="15" fill="url(#i0-bg)"/><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="#F8F7F4" mask="url(#i0-m)"/></svg></div><div class="sizes"><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="i1-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7BF7"/><stop offset="1" stop-color="#4651C4"/></linearGradient>
+<mask id="i1-m"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs>
+<rect width="64" height="64" rx="15" fill="url(#i1-bg)"/><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="#F8F7F4" mask="url(#i1-m)"/></svg><svg class="s32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="i2-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7BF7"/><stop offset="1" stop-color="#4651C4"/></linearGradient>
+<mask id="i2-m"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs>
+<rect width="64" height="64" rx="15" fill="url(#i2-bg)"/><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="#F8F7F4" mask="url(#i2-m)"/></svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="i3-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7BF7"/><stop offset="1" stop-color="#4651C4"/></linearGradient>
+<mask id="i3-m"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs>
+<rect width="64" height="64" rx="15" fill="url(#i3-bg)"/><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="#F8F7F4" mask="url(#i3-m)"/></svg></div></div><div class="cell"><div class="lbl">A</div><div class="sizes"><svg class="s256" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation A</title>
+  <defs>
+    <linearGradient id="i4-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7483FA"/><stop offset="1" stop-color="#4650C6"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i4-bg)"/>
+  
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="#F8F7F4" stroke="#F8F7F4" stroke-width="1.4" stroke-linejoin="round"/>
+  
+  <g fill="#4650C6" stroke="#4650C6" stroke-width="0.8" stroke-linejoin="round">
+    <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+    <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+  </g>
+  <g fill="none" stroke="#4650C6" stroke-linecap="round">
+    <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" stroke-width="2.6"/>
+    <path d="M27 40Q31.5 43.2 36.5 39.6" stroke-width="1.9"/>
+  </g>
+</svg></div><div class="sizes"><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation A</title>
+  <defs>
+    <linearGradient id="i5-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7483FA"/><stop offset="1" stop-color="#4650C6"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i5-bg)"/>
+  
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="#F8F7F4" stroke="#F8F7F4" stroke-width="1.4" stroke-linejoin="round"/>
+  
+  <g fill="#4650C6" stroke="#4650C6" stroke-width="0.8" stroke-linejoin="round">
+    <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+    <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+  </g>
+  <g fill="none" stroke="#4650C6" stroke-linecap="round">
+    <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" stroke-width="2.6"/>
+    <path d="M27 40Q31.5 43.2 36.5 39.6" stroke-width="1.9"/>
+  </g>
+</svg><svg class="s32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation A</title>
+  <defs>
+    <linearGradient id="i6-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7483FA"/><stop offset="1" stop-color="#4650C6"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i6-bg)"/>
+  
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="#F8F7F4" stroke="#F8F7F4" stroke-width="1.4" stroke-linejoin="round"/>
+  
+  <g fill="#4650C6" stroke="#4650C6" stroke-width="0.8" stroke-linejoin="round">
+    <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+    <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+  </g>
+  <g fill="none" stroke="#4650C6" stroke-linecap="round">
+    <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" stroke-width="2.6"/>
+    <path d="M27 40Q31.5 43.2 36.5 39.6" stroke-width="1.9"/>
+  </g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation A</title>
+  <defs>
+    <linearGradient id="i7-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7483FA"/><stop offset="1" stop-color="#4650C6"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i7-bg)"/>
+  
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="#F8F7F4" stroke="#F8F7F4" stroke-width="1.4" stroke-linejoin="round"/>
+  
+  <g fill="#4650C6" stroke="#4650C6" stroke-width="0.8" stroke-linejoin="round">
+    <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+    <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+  </g>
+  <g fill="none" stroke="#4650C6" stroke-linecap="round">
+    <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" stroke-width="2.6"/>
+    <path d="M27 40Q31.5 43.2 36.5 39.6" stroke-width="1.9"/>
+  </g>
+</svg></div></div><div class="cell"><div class="lbl">B</div><div class="sizes"><svg class="s256" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation B</title>
+  <defs>
+    <linearGradient id="i8-bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
+    <radialGradient id="i8-glow" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i8-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7E8FB"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i8-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i8-glow)"/>
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i8-gh)" stroke="url(#i8-gh)" stroke-width="2.2" stroke-linejoin="round"/>
+  
+  <g fill="#3F49B8" stroke="#3F49B8" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+    <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+  </g>
+  <g fill="none" stroke="#3F49B8" stroke-linecap="round">
+    <path d="M36.4 33.8Q40.5 37.6 44.8 33" stroke-width="2.8"/>
+    <path d="M27.3 40Q31.7 43.3 36.7 39.6" stroke-width="2.1"/>
+  </g>
+</svg></div><div class="sizes"><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation B</title>
+  <defs>
+    <linearGradient id="i9-bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
+    <radialGradient id="i9-glow" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i9-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7E8FB"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i9-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i9-glow)"/>
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i9-gh)" stroke="url(#i9-gh)" stroke-width="2.2" stroke-linejoin="round"/>
+  
+  <g fill="#3F49B8" stroke="#3F49B8" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+    <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+  </g>
+  <g fill="none" stroke="#3F49B8" stroke-linecap="round">
+    <path d="M36.4 33.8Q40.5 37.6 44.8 33" stroke-width="2.8"/>
+    <path d="M27.3 40Q31.7 43.3 36.7 39.6" stroke-width="2.1"/>
+  </g>
+</svg><svg class="s32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation B</title>
+  <defs>
+    <linearGradient id="i10-bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
+    <radialGradient id="i10-glow" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i10-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7E8FB"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i10-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i10-glow)"/>
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i10-gh)" stroke="url(#i10-gh)" stroke-width="2.2" stroke-linejoin="round"/>
+  
+  <g fill="#3F49B8" stroke="#3F49B8" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+    <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+  </g>
+  <g fill="none" stroke="#3F49B8" stroke-linecap="round">
+    <path d="M36.4 33.8Q40.5 37.6 44.8 33" stroke-width="2.8"/>
+    <path d="M27.3 40Q31.7 43.3 36.7 39.6" stroke-width="2.1"/>
+  </g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation B</title>
+  <defs>
+    <linearGradient id="i11-bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
+    <radialGradient id="i11-glow" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i11-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7E8FB"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i11-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i11-glow)"/>
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i11-gh)" stroke="url(#i11-gh)" stroke-width="2.2" stroke-linejoin="round"/>
+  
+  <g fill="#3F49B8" stroke="#3F49B8" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+    <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+  </g>
+  <g fill="none" stroke="#3F49B8" stroke-linecap="round">
+    <path d="M36.4 33.8Q40.5 37.6 44.8 33" stroke-width="2.8"/>
+    <path d="M27.3 40Q31.7 43.3 36.7 39.6" stroke-width="2.1"/>
+  </g>
+</svg></div></div><div class="cell"><div class="lbl">C</div><div class="sizes"><svg class="s256" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation C</title>
+  <defs>
+    <linearGradient id="i12-bg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".55" stop-color="#5360E4"/><stop offset="1" stop-color="#3A42B2"/></linearGradient>
+    <radialGradient id="i12-glow" cx="0.28" cy="0.08" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i12-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F2FF"/><stop offset="1" stop-color="#D5D9FB"/></linearGradient>
+    <filter id="i12-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.6" flood-color="#1C2160" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i12-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i12-glow)"/>
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="14.4" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i12-gh)" stroke="url(#i12-gh)" stroke-width="3" stroke-linejoin="round" filter="url(#i12-sh)"/>
+  <path d="M18.5 28C18.5 21 23 15.6 29 13.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="#343DA8" stroke="#343DA8" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+    <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+  </g>
+  <g fill="none" stroke="#343DA8" stroke-linecap="round">
+    <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" stroke-width="3.2"/>
+    <path d="M27.5 40.2Q31.8 43.4 36.8 39.7" stroke-width="2.1"/>
+  </g>
+</svg></div><div class="sizes"><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation C</title>
+  <defs>
+    <linearGradient id="i13-bg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".55" stop-color="#5360E4"/><stop offset="1" stop-color="#3A42B2"/></linearGradient>
+    <radialGradient id="i13-glow" cx="0.28" cy="0.08" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i13-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F2FF"/><stop offset="1" stop-color="#D5D9FB"/></linearGradient>
+    <filter id="i13-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.6" flood-color="#1C2160" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i13-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i13-glow)"/>
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="14.4" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i13-gh)" stroke="url(#i13-gh)" stroke-width="3" stroke-linejoin="round" filter="url(#i13-sh)"/>
+  <path d="M18.5 28C18.5 21 23 15.6 29 13.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="#343DA8" stroke="#343DA8" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+    <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+  </g>
+  <g fill="none" stroke="#343DA8" stroke-linecap="round">
+    <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" stroke-width="3.2"/>
+    <path d="M27.5 40.2Q31.8 43.4 36.8 39.7" stroke-width="2.1"/>
+  </g>
+</svg><svg class="s32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation C</title>
+  <defs>
+    <linearGradient id="i14-bg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".55" stop-color="#5360E4"/><stop offset="1" stop-color="#3A42B2"/></linearGradient>
+    <radialGradient id="i14-glow" cx="0.28" cy="0.08" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i14-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F2FF"/><stop offset="1" stop-color="#D5D9FB"/></linearGradient>
+    <filter id="i14-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.6" flood-color="#1C2160" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i14-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i14-glow)"/>
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="14.4" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i14-gh)" stroke="url(#i14-gh)" stroke-width="3" stroke-linejoin="round" filter="url(#i14-sh)"/>
+  <path d="M18.5 28C18.5 21 23 15.6 29 13.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="#343DA8" stroke="#343DA8" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+    <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+  </g>
+  <g fill="none" stroke="#343DA8" stroke-linecap="round">
+    <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" stroke-width="3.2"/>
+    <path d="M27.5 40.2Q31.8 43.4 36.8 39.7" stroke-width="2.1"/>
+  </g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation C</title>
+  <defs>
+    <linearGradient id="i15-bg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".55" stop-color="#5360E4"/><stop offset="1" stop-color="#3A42B2"/></linearGradient>
+    <radialGradient id="i15-glow" cx="0.28" cy="0.08" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i15-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F2FF"/><stop offset="1" stop-color="#D5D9FB"/></linearGradient>
+    <filter id="i15-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.6" flood-color="#1C2160" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i15-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i15-glow)"/>
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="14.4" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i15-gh)" stroke="url(#i15-gh)" stroke-width="3" stroke-linejoin="round" filter="url(#i15-sh)"/>
+  <path d="M18.5 28C18.5 21 23 15.6 29 13.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="#343DA8" stroke="#343DA8" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+    <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+  </g>
+  <g fill="none" stroke="#343DA8" stroke-linecap="round">
+    <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" stroke-width="3.2"/>
+    <path d="M27.5 40.2Q31.8 43.4 36.8 39.7" stroke-width="2.1"/>
+  </g>
+</svg></div></div></div></section>
+<section><h2>Tray — single colour, 24 / 16 px (light + dark strips)</h2><div class="grid"><div class="cell"><div class="lbl">CURRENT</div><div class="strip tb light"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i16-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i16-ghost)"/>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i17-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i17-ghost)"/>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i18-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i18-ghost)"/>
+</svg></div><div class="strip tb dark"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i19-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i19-ghost)"/>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i20-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i20-ghost)"/>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i21-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i21-ghost)"/>
+</svg></div></div><div class="cell"><div class="lbl">A</div><div class="strip tb light"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i22-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i22-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i23-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i23-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i24-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i24-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg></div><div class="strip tb dark"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i25-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i25-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i26-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i26-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i27-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i27-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg></div></div><div class="cell"><div class="lbl">B</div><div class="strip tb light"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i28-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i28-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i29-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i29-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i30-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i30-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg></div><div class="strip tb dark"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i31-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i31-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i32-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i32-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i33-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i33-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg></div></div><div class="cell"><div class="lbl">C</div><div class="strip tb light"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i34-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i34-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i35-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i35-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i36-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i36-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg></div><div class="strip tb dark"><svg class="s24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i37-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i37-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg><svg class="s16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i38-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i38-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg><svg class="s48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i39-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i39-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg></div></div></div></section>
+<section><h2>In-app brand mark (sidebar, tinted chip 24px glyph)</h2><div class="grid"><div class="cell"><div class="lbl">CURRENT</div><div class="brand light"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i40-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i40-ghost)"/>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="i41-ghost">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/>
+      <path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/>
+    </mask>
+  </defs>
+  <path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#i41-ghost)"/>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div><div class="cell"><div class="lbl">A</div><div class="brand light"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i42-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i42-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation A</title>
+  <defs>
+    <mask id="i43-kA" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.2) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="0.9" stroke-linejoin="round">
+        <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+        <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+        <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i43-kA)"><path transform="translate(32 32) scale(1.2) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div><div class="cell"><div class="lbl">B</div><div class="brand light"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i44-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i44-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="i45-kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i45-kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div><div class="cell"><div class="lbl">C</div><div class="brand light"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i46-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i46-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation C</title>
+  <defs>
+    <mask id="i47-kC" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.24) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+        <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+        <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+        <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" fill="none" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#i47-kC)"><path transform="translate(32 32) scale(1.24) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div></div></section>
+<section><h2>In-app brand mark (full-colour tile, 34px)</h2><div class="grid"><div class="cell"><div class="lbl">CURRENT</div><div class="brand light"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="i48-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7BF7"/><stop offset="1" stop-color="#4651C4"/></linearGradient>
+<mask id="i48-m"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs>
+<rect width="64" height="64" rx="15" fill="url(#i48-bg)"/><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="#F8F7F4" mask="url(#i48-m)"/></svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="i49-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B7BF7"/><stop offset="1" stop-color="#4651C4"/></linearGradient>
+<mask id="i49-m"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs>
+<rect width="64" height="64" rx="15" fill="url(#i49-bg)"/><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="#F8F7F4" mask="url(#i49-m)"/></svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div><div class="cell"><div class="lbl">A</div><div class="brand light"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation A</title>
+  <defs>
+    <linearGradient id="i50-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7483FA"/><stop offset="1" stop-color="#4650C6"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i50-bg)"/>
+  
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="#F8F7F4" stroke="#F8F7F4" stroke-width="1.4" stroke-linejoin="round"/>
+  
+  <g fill="#4650C6" stroke="#4650C6" stroke-width="0.8" stroke-linejoin="round">
+    <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+    <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+  </g>
+  <g fill="none" stroke="#4650C6" stroke-linecap="round">
+    <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" stroke-width="2.6"/>
+    <path d="M27 40Q31.5 43.2 36.5 39.6" stroke-width="1.9"/>
+  </g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation A</title>
+  <defs>
+    <linearGradient id="i51-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7483FA"/><stop offset="1" stop-color="#4650C6"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i51-bg)"/>
+  
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="#F8F7F4" stroke="#F8F7F4" stroke-width="1.4" stroke-linejoin="round"/>
+  
+  <g fill="#4650C6" stroke="#4650C6" stroke-width="0.8" stroke-linejoin="round">
+    <path d="M33.6 14.2 27.6 22.9H31.3L29.7 29.2 36.4 20.2H32.6Z"/>
+    <rect x="20.5" y="30.5" width="6" height="6" rx="1.5" transform="rotate(-9 23.5 33.5)"/>
+  </g>
+  <g fill="none" stroke="#4650C6" stroke-linecap="round">
+    <path d="M36.6 33.6Q40.6 37.2 44.6 33.2" stroke-width="2.6"/>
+    <path d="M27 40Q31.5 43.2 36.5 39.6" stroke-width="1.9"/>
+  </g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div><div class="cell"><div class="lbl">B</div><div class="brand light"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation B</title>
+  <defs>
+    <linearGradient id="i52-bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
+    <radialGradient id="i52-glow" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i52-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7E8FB"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i52-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i52-glow)"/>
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i52-gh)" stroke="url(#i52-gh)" stroke-width="2.2" stroke-linejoin="round"/>
+  
+  <g fill="#3F49B8" stroke="#3F49B8" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+    <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+  </g>
+  <g fill="none" stroke="#3F49B8" stroke-linecap="round">
+    <path d="M36.4 33.8Q40.5 37.6 44.8 33" stroke-width="2.8"/>
+    <path d="M27.3 40Q31.7 43.3 36.7 39.6" stroke-width="2.1"/>
+  </g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation B</title>
+  <defs>
+    <linearGradient id="i53-bg" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7C8BFF"/><stop offset="1" stop-color="#434DC2"/></linearGradient>
+    <radialGradient id="i53-glow" cx="0.3" cy="0.12" r="0.8"><stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i53-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E7E8FB"/></linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i53-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i53-glow)"/>
+  
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i53-gh)" stroke="url(#i53-gh)" stroke-width="2.2" stroke-linejoin="round"/>
+  
+  <g fill="#3F49B8" stroke="#3F49B8" stroke-width="1.2" stroke-linejoin="round">
+    <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+    <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+  </g>
+  <g fill="none" stroke="#3F49B8" stroke-linecap="round">
+    <path d="M36.4 33.8Q40.5 37.6 44.8 33" stroke-width="2.8"/>
+    <path d="M27.3 40Q31.7 43.3 36.7 39.6" stroke-width="2.1"/>
+  </g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div><div class="cell"><div class="lbl">C</div><div class="brand light"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation C</title>
+  <defs>
+    <linearGradient id="i54-bg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".55" stop-color="#5360E4"/><stop offset="1" stop-color="#3A42B2"/></linearGradient>
+    <radialGradient id="i54-glow" cx="0.28" cy="0.08" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i54-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F2FF"/><stop offset="1" stop-color="#D5D9FB"/></linearGradient>
+    <filter id="i54-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.6" flood-color="#1C2160" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i54-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i54-glow)"/>
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="14.4" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i54-gh)" stroke="url(#i54-gh)" stroke-width="3" stroke-linejoin="round" filter="url(#i54-sh)"/>
+  <path d="M18.5 28C18.5 21 23 15.6 29 13.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="#343DA8" stroke="#343DA8" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+    <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+  </g>
+  <g fill="none" stroke="#343DA8" stroke-linecap="round">
+    <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" stroke-width="3.2"/>
+    <path d="M27.5 40.2Q31.8 43.4 36.8 39.7" stroke-width="2.1"/>
+  </g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div><div class="brand dark"><span class="mark full"><svg class="" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost — variation C</title>
+  <defs>
+    <linearGradient id="i55-bg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".55" stop-color="#5360E4"/><stop offset="1" stop-color="#3A42B2"/></linearGradient>
+    <radialGradient id="i55-glow" cx="0.28" cy="0.08" r="0.85"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="i55-gh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F2FF"/><stop offset="1" stop-color="#D5D9FB"/></linearGradient>
+    <filter id="i55-sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.6" flood-color="#1C2160" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#i55-bg)"/>
+  <rect width="64" height="64" rx="15" fill="url(#i55-glow)"/>
+  <rect x=".6" y=".6" width="62.8" height="62.8" rx="14.4" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="url(#i55-gh)" stroke="url(#i55-gh)" stroke-width="3" stroke-linejoin="round" filter="url(#i55-sh)"/>
+  <path d="M18.5 28C18.5 21 23 15.6 29 13.6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="#343DA8" stroke="#343DA8" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M34.3 13 26.8 23.4H31L29 30.4 37.4 19.4H32.9Z"/>
+    <rect x="20" y="30" width="7.4" height="7.4" rx="2.7" transform="rotate(-9 23.7 33.7)"/>
+  </g>
+  <g fill="none" stroke="#343DA8" stroke-linecap="round">
+    <path d="M36.2 33.8Q40.5 37.8 44.9 32.9" stroke-width="3.2"/>
+    <path d="M27.5 40.2Q31.8 43.4 36.8 39.7" stroke-width="2.1"/>
+  </g>
+</svg></span><span><span class="bn">Vibe Studio</span><span class="bs">มุม Discord ของคุณ</span></span></div></div></div></section>
+</body></html>

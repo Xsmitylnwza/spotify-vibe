@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Vibe Studio ghost tray — variation B</title>
+  <defs>
+    <mask id="kB" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <g transform="translate(32 32) scale(1.22) translate(-32 -32.2)" fill="#000" stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+        <path d="M33.9 13.6 27.3 23.2H31.2L29.4 29.8 36.8 19.8H32.7Z"/>
+        <ellipse cx="23.5" cy="33.6" rx="3.1" ry="3.5" transform="rotate(-9 23.5 33.6)"/>
+        <path d="M36.4 33.8Q40.5 37.6 44.8 33" fill="none" stroke-width="3.6999999999999997" stroke-linecap="round"/>
+      </g>
+    </mask>
+  </defs>
+  <g mask="url(#kB)"><path transform="translate(32 32) scale(1.22) translate(-32 -32.2)" d="M32 11C21.4 11 13.5 19.4 13.5 31V51.5L22.75 44.5 32 51.5 41.25 44.5 50.5 51.5V31C50.5 19.4 42.6 11 32 11Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></g>
+</svg>
