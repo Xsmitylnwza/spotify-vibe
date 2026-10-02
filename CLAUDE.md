@@ -42,6 +42,12 @@ Routing rules:
   (`turn_start_unobserved`); after confirming `[Pasted Content …]` in
   `worker-read --source terminal`, send one bare Enter with
   `orca terminal send --terminal <handle> --enter`.
+- **Split work wide (owner rule, 2026-10-02):** Codex runs are slow, so cut
+  work into small file-disjoint tasks and run several Codex workers in
+  parallel (one writer per file set; use a separate worktree if two tasks must
+  touch the same file). Start the reviewer of a finished task while other
+  implementers keep running. Measurement time is wall-clock — start
+  independent code tasks alongside it rather than waiting.
 - Always verify screenshots by viewing a sample, and recompute reported
   numbers from raw data, before accepting evidence.
 
