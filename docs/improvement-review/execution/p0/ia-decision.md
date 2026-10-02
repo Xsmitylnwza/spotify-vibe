@@ -49,6 +49,12 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 | 18 | Field help | Every field gets a circled **?** icon; hover/focus shows what the field changes and where it appears on the Discord card, and **highlights that area in the preview**. Keyboard and touch accessible. |
 | 19 | Typography | **IBM Plex only**: IBM Plex Sans + IBM Plex Sans Thai (+ Plex Mono for code/paths). Drop Fraunces (serif) — the serif/sans mix felt inconsistent. Bundle fonts locally instead of Google Fonts (offline, CSP). Discord preview card keeps a Discord-like font only inside the card. |
 
+## Decisions (owner, round 6)
+
+| # | Topic | Decision |
+| --- | --- | --- |
+| 20 | Interaction motion | Every interaction gets a **short, smooth transition** instead of an instant swap (owner: instant render feels odd), while respecting #15 (no large movement, page behind never slides). One motion system: durations ~120–220 ms, one standard ease-out curve, opacity + tiny translate (≤ 8 px) / scale (0.98–1) only. Covers: route/screen changes (cross-fade), drawer/modal/tooltip enter-exit, button/press feedback, state chips and Now-state changes (cross-fade text, not jump), list rows add/remove (height + fade), save status transitions, toggles. Under `prefers-reduced-motion` → instant or opacity-only. No animation may delay input or block focus. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
