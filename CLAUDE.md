@@ -48,6 +48,12 @@ Routing rules:
   touch the same file). Start the reviewer of a finished task while other
   implementers keep running. Measurement time is wall-clock — start
   independent code tasks alongside it rather than waiting.
+- **Speed over evidence for design iteration (owner rule, 2026-10-02):** for
+  mockups/visual iterations do NOT ask workers to capture or view screenshot
+  sets or re-capture old screens — implement, check the page loads, report in
+  3 lines; the owner reviews in the browser. The coordinator does not view
+  screenshots either unless something looks wrong. Screenshot evidence is only
+  for acceptance gates (G1) or when the owner asks.
 - Always verify screenshots by viewing a sample, and recompute reported
   numbers from raw data, before accepting evidence.
 
