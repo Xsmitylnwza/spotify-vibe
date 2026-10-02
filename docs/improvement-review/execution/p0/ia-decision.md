@@ -81,6 +81,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 34 | Now layout | Two columns filling the width: left = status hero (chip, one line, Pin/Pause/Hide) + "Paired apps" tile grid (icon → Scene, running dot, active highlighted, click opens Scene editor); right = fixed-size preview panel with Profile/Member tabs in its header (switch cross-fades inside the box; no page re-layout). No duplicate Manage buttons. Stacks below 1024 px. Refines #30. |
 
+| 35 | Status card content | Status card is read-only: shows the Scene that is showing now (thumb + bold name) and why (paired app icon + "from Figma", or "Pinned" / "Paused"). No Scene dropdown. Choosing another Scene only via **Pin…** (opens a Scene picker); Pause and Show-on-Discord toggle stay. Nothing shown → one line + no dropdown. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
