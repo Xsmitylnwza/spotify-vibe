@@ -4,6 +4,33 @@ Mockup only. Nothing under `scripts/`, `electron/` or `public/` was edited (file
 
 **Direction change applied (owner, high priority):** the current Studio look is kept as-is. `studio-ci.css` is an unmodified copy of `scripts/studio-ci.css`; every screen is built from its real `vs-*` components, the real sidebar/nav icons, the ghost logo (now `p3/logo/final/ghost-final-d.svg`; the original `assets/logo-ghost.svg` is the favicon) and real art (`public/art/*`, copied into `assets/art/`). Only the content/arrangement follows the new journey, plus contrast and spacing polish. The Nori mark is **not** used.
 
+## D1-M6 Modals never cut off (first-run step 3 could not be submitted)
+
+**Bug:** at 1280×800 the first-run step 3 (Scene chips + preview + Line 1/2 + status) was taller than the window; the footer (Back / Show on Discord / Finish) sat below the fold and the modal did not scroll.
+
+**Fix, for every modal/dialog:**
+- Max height = viewport minus margin (`calc(100dvh - 32px)`, `-24px` on narrow); layout = **fixed header + scrolling body (`overflow:auto`, `overscroll-behavior: contain`) + footer that is always visible**.
+- **First run:** header = logo + stepper (hidden logo under 700 px height); body = title/sub + step content in `.mk-ob-scroll`; footer = `.mk-ob-foot` (Back / primary / Skip), separate from the body, so #28 still holds (frame, header, stepper and footer stay mounted; only the body cross-fades; the frame height animates).
+- **Step 3 at ≥ 720 px:** the modal widens to 880 px (animated) and the step is two columns — chips, Line 1, Line 2 and the status on the left, the preview card (scaled 0.85) on the right — so it fits **without scrolling at 1280×800 and 1280×640**. Under 720 px it stacks, the body scrolls and the footer stays pinned; the primary button goes full-width on its own row, Back/Show/Skip below.
+- **Image picker, delete confirm, add rule:** the panel scrolls and the action row (`.vs-form-actions`) is `position: sticky; bottom: 0` with its own background, so Apply / Upload / Cancel / Delete / Add rule never scroll away.
+- **Enter submits:** pressing Enter in a first-run text field clicks the enabled primary action — *Show on Discord* first, then *Finish* once Discord confirmed.
+- Toasts sit **below** every overlay (z-index) and ignore pointer events except their Undo button, so they can't cover dialog buttons.
+- Motion (#20) unchanged.
+
+**Check list (Orca tab, script-driven: each footer button must be inside the viewport *and* be the element hit at its centre point):**
+
+| Step / modal | 1280×800 | 1280×640 | 390×844 |
+| --- | --- | --- | --- |
+| First run 1, 2, 3 (Back / Continue / Show / Finish / Skip) | ✓ all visible + hit | ✓ all visible + hit | ✓ all visible + hit |
+| Enter in step 3 sends, then Finish enabled | ✓ | ✓ | ✓ |
+| Add rule (Cancel / Add rule) | ✓ all visible + hit | ✓ all visible + hit | ✓ all visible + hit |
+| Image picker — Link tab, Upload confirm | ✓ all visible + hit | ✓ all visible + hit | ✓ all visible + hit |
+| Delete confirm | ✓ all visible + hit | ✓ all visible + hit | ✓ all visible + hit |
+
+Screenshots of step 3 at the three sizes: `04-first-run-3-scene-idle` (1280×800), `04b-first-run-3-short-window` (1280×640), `m-04-first-run-3-scene-idle` (390×844), and the confirmed state `05-…`/`m-05-…`.
+
+Result of the final script run: every footer/action button (first run steps 1–3 incl. Finish after send, Add rule, image Link + Upload-confirm, Delete confirm) was inside the viewport and the element hit at its centre at 1280×800, 1280×640 and 390×844.
+
 ## Render rules (no full re-render anywhere)
 
 Owner bug: in the first-run modal, picking an app tile or pressing Continue/Back flashed the page behind *and* the whole modal. Rules now applied across the mockup:
