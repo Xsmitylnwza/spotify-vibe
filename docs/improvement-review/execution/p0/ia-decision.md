@@ -39,6 +39,16 @@ Inputs: `journey-audit-a.md`, `journey-audit-b.md`, `footprint-baseline.md`, P4-
 
 Feature constraints: all local, no new network services. (e)/(f)/(g) read window titles — privacy: opt-in, never sent unless the owner's Scene text uses them, history stored locally with bounded retention and a clear button. Footprint budget from P4 must hold (window-title reads only for the foreground window, no extra polling loop).
 
+## Decisions (owner, round 5 — mockup feedback)
+
+| # | Topic | Decision |
+| --- | --- | --- |
+| 15 | Opening the editor | No full-page re-render and no moving/sliding animation (owner felt dizzy). The page behind stays still; the editor appears with at most a short fade (none under reduced motion). |
+| 16 | Editor fields | **Show every supported Discord field** (supersedes the "Advanced collapsed" part of #9), grouped in clear sections: activity type + name; Details line (+ link); State line (+ link); Large image (+ hover text, + link); Small image (+ hover text, + link); Buttons (up to 2: label + URL). Timer stays removed. |
+| 17 | Preview placement | Preview must stay visible while editing: wider editor with the form on one side and a **sticky preview** on the other (stacked sticky preview on narrow widths). Never scroll back up to see the result. |
+| 18 | Field help | Every field gets a circled **?** icon; hover/focus shows what the field changes and where it appears on the Discord card, and **highlights that area in the preview**. Keyboard and touch accessible. |
+| 19 | Typography | **IBM Plex only**: IBM Plex Sans + IBM Plex Sans Thai (+ Plex Mono for code/paths). Drop Fraunces (serif) — the serif/sans mix felt inconsistent. Bundle fonts locally instead of Google Fonts (offline, CSP). Discord preview card keeps a Discord-like font only inside the card. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
