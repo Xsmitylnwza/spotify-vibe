@@ -98,6 +98,7 @@ for (const [label, input, image, reason] of [
   ['public app icon', { largeImage: '@app', appPublicIcon: 'https://example.com/orca.png' }, 'https://example.com/orca.png', null],
   ['local app icon', { largeImage: '@app', appPublicIcon: 'data:image/png;base64,AAAA' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
   ['pre-resolved app icon', { largeImage: '', largeImageSource: 'app-icon' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
+  ['failed cached icon overrides stale renderer URL', { largeImage: 'https://stale.test/icon.png', largeImageSource: 'app-icon', appPublicIcon: '' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
   ['built-in', { largeImage: 'builtin:hinata-poster' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', null],
   ['link', { largeImage: 'https://example.com/art.gif' }, 'https://example.com/art.gif', null],
 ]) test(`exact SET_ACTIVITY payload: ${label}`, async () => {

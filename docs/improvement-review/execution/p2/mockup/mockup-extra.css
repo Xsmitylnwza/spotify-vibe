@@ -838,3 +838,23 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-icon-refresh.is-spinning svg{animation:mk-spin 0.9s linear infinite}
 @keyframes mk-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.mk-icon-refresh.is-spinning svg{animation:none;opacity:.5}}
+
+/* D1-M19 */
+.mk-ver { display: block; margin: -4px 0 6px 52px; font-size: 11px; color: var(--vs-muted, #7a7f87); letter-spacing: .02em; }
+.mk-upd { position: relative; display: flex; align-items: center; gap: 8px; width: calc(100% - 16px); margin: 0 8px 8px; padding: 8px 12px; min-height: 36px; overflow: hidden; border: 0; border-radius: 10px; background: var(--vs-accent, #5865f2); color: var(--vs-on-accent, #fff); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.mk-upd:disabled { cursor: progress; background: color-mix(in srgb, var(--vs-accent, #5865f2) 55%, transparent); }
+.mk-upd[data-st="error"] { background: var(--vs-danger, #c0392b); }
+.mk-upd-bar { position: absolute; inset: 0 auto 0 0; background: var(--vs-accent, #5865f2); transition: width .3s ease; }
+.mk-upd-t, .mk-upd svg { position: relative; }
+.mk-upd-badge { display: none; position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--vs-accent, #5865f2); }
+.mk-upd:focus-visible { outline: 2px solid var(--vs-focus, currentColor); outline-offset: 2px; }
+body.sidebar-collapsed .mk-ver { display: none; }
+body.sidebar-collapsed .mk-upd { width: 40px; justify-content: center; padding: 8px; margin: 0 auto 8px; }
+body.sidebar-collapsed .mk-upd-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+body.sidebar-collapsed .mk-upd-badge { display: block; }
+.mk-icst { flex: none; width: 8px; height: 8px; border-radius: 50%; }
+.mk-icst.is-fail { background: var(--vs-warn, #e0a100); }
+.mk-icst.is-consent { background: transparent; border: 1.5px solid var(--vs-warn, #e0a100); }
+.mk-icst.is-up { width: 10px; height: 10px; border: 2px solid var(--vs-hairline, #ccc); border-top-color: var(--vs-accent, #5865f2); animation: mk-icst-spin .8s linear infinite; }
+@keyframes mk-icst-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .mk-icst.is-up { animation: none; } .mk-upd-bar { transition: none; } }

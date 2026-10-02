@@ -5,16 +5,28 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { createProfileServer } from './profile-server.mjs';
-import { createDeviceCatalog, appIdentity } from './device-apps.mjs';
+import { createDeviceCatalog, appIdentity, createIconHosting } from './device-apps.mjs';
 
 const directory = join(tmpdir(), 'vibe-real-app-demo');
-export function createRealAppServer({ catalog = createDeviceCatalog(directory), dataDirectory = directory, liveBase = 'http://127.0.0.1:17348' } = {}) {
+export function createRealAppServer({ dataDirectory = directory, catalog = createDeviceCatalog(dataDirectory), liveBase = 'http://127.0.0.1:17348', iconHosting = createIconHosting(dataDirectory), fetchImpl = globalThis.fetch } = {}) {
   const file = join(dataDirectory, 'workspace.json');
   let saving = Promise.resolve();
+  let knownApps = new Map();
+  async function workspace() {
+    await saving;
+    try { return JSON.parse(await readFile(file, 'utf8')); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  }
+  async function pairedIcons(saved) {
+    if (!saved) return;
+    if (!knownApps.size) {
+      const found = await catalog(); knownApps = new Map([...found.installed, ...found.running].map(a => [a.id, a]));
+    }
+    await iconHosting.pair(saved.rules.map(r => knownApps.get(r.app)).filter(Boolean));
+  }
   const staticServer = createProfileServer(async () => (await fetch(liveBase + '/api/discord-profile')).json());
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
-    if (!['/api/device-apps', '/api/device-workspace', '/api/mock-live', '/api/gifs'].includes(url.pathname)) { staticServer.emit('request', req, res); return; }
+    if (!['/api/device-apps', '/api/device-workspace', '/api/mock-live', '/api/gifs', '/api/icon-hosting'].includes(url.pathname)) { staticServer.emit('request', req, res); return; }
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('Content-Type', 'application/json');
     const reply = (status, data) => res.writeHead(status).end(JSON.stringify(data));
     if (req.headers.host !== `127.0.0.1:${server.address().port}` || (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`)) { reply(403, { error: 'Use the local app URL' }); return; }
@@ -24,7 +36,13 @@ export function createRealAppServer({ catalog = createDeviceCatalog(directory), 
         const upstream = await fetch(liveBase + url.pathname + url.search, { signal: AbortSignal.timeout(20000) });
         reply(upstream.status, await upstream.json()); return;
       }
-      if (req.method === 'GET' && url.pathname === '/api/device-apps') { reply(200, await catalog({ refresh: url.searchParams.get('refresh') === '1' })); return; }
+      if (req.method === 'GET' && url.pathname === '/api/icon-hosting') { reply(200, await iconHosting.settings()); return; }
+      if (req.method === 'GET' && url.pathname === '/api/device-apps') {
+        const found = await catalog({ refresh: url.searchParams.get('refresh') === '1' });
+        knownApps = new Map([...found.installed, ...found.running].map(a => [a.id, a]));
+        await pairedIcons(await workspace());
+        reply(200, { ...found, running: await Promise.all(found.running.map(iconHosting.decorate)), installed: await Promise.all(found.installed.map(iconHosting.decorate)) }); return;
+      }
       if (req.method === 'GET' && url.pathname === '/api/device-workspace') {
         await saving;
         try { reply(200, JSON.parse(await readFile(file, 'utf8'))); } catch (error) { if (error.code === 'ENOENT') reply(200, null); else throw error; }
@@ -38,8 +56,26 @@ export function createRealAppServer({ catalog = createDeviceCatalog(directory), 
         req.setTimeout(0); body = Buffer.concat(chunks).toString('utf8');
       }
       if (url.pathname === '/api/mock-live' && ['GET', 'POST'].includes(req.method)) {
-        const upstream = await fetch(liveBase + '/api/mock-live', { method: req.method, headers: req.method === 'POST' ? { 'Content-Type': 'application/json', 'X-Vibe-Mock-Live': '1' } : {}, body, signal: AbortSignal.timeout(20000) });
+        if (req.method === 'POST') {
+          const input = JSON.parse(body);
+          if (input.action === 'send' && input.scene) {
+            const saved = await workspace();
+            const id = input.scene.appId || saved?.selectedAppId;
+            const paired = saved?.rules.some(r => r.app === id && r.scene === input.scene.id);
+            if (paired) {
+              await pairedIcons(saved);
+              const app = knownApps.get(id);
+              input.scene.appPublicIcon = app ? (await iconHosting.decorate(app)).publicIcon : '';
+            }
+          }
+          body = JSON.stringify(input);
+        }
+        const upstream = await fetchImpl(liveBase + '/api/mock-live', { method: req.method, headers: req.method === 'POST' ? { 'Content-Type': 'application/json', 'X-Vibe-Mock-Live': '1' } : {}, body, signal: AbortSignal.timeout(20000) });
         reply(upstream.status, await upstream.json()); return;
+      }
+      if (url.pathname === '/api/icon-hosting' && req.method === 'POST') {
+        const result = await iconHosting.setConsent(JSON.parse(body).consent);
+        await pairedIcons(await workspace()); reply(200, result); return;
       }
       if (url.pathname === '/api/device-workspace' && req.method === 'PUT') {
         const input = JSON.parse(body);
@@ -52,6 +88,8 @@ export function createRealAppServer({ catalog = createDeviceCatalog(directory), 
         const snapshot = { version: 1, scenes: input.scenes, rules: input.rules, apps: input.apps, presenceEnabled: input.presenceEnabled === true, selectedSceneId, selectedAppId: appIds.has(input.selectedAppId) ? input.selectedAppId : '', savedAt: new Date().toISOString() };
         const operation = saving.then(async () => { await mkdir(dataDirectory, { recursive: true }); await writeFile(file + '.tmp', JSON.stringify(snapshot), 'utf8'); await rename(file + '.tmp', file); });
         saving = operation.catch(() => {}); await operation;
+        // Detached discovery/upload never turns a successful workspace save into a failure.
+        void pairedIcons(snapshot).catch(() => {});
         reply(200, { savedAt: snapshot.savedAt }); return;
       }
       reply(405, { error: 'Method not allowed' });

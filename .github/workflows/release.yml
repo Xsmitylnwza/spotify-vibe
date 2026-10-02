@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Verify tag and lockfile versions
+        run: node electron/release-version.mjs
+
       - run: npm ci
 
       - run: npm test

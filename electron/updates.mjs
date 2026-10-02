@@ -1,0 +1,80 @@
+// Shared production updater logic; host adapters keep feed and shutdown testable.
+export function createUpdates({ updater, currentVersion, enabled, publish, restart, installFailed = () => false, checkTimeoutMs = 60_000 }) {
+  const value = { currentVersion, state: 'idle', availableVersion: null, percent: 0, error: null };
+  let pending = null;
+  const snapshot = () => ({
+    ...value,
+    // Compatibility for the existing banner while the sidebar migrates.
+    available: value.availableVersion,
+    checking: value.state === 'checking', downloading: value.state === 'downloading',
+    downloaded: value.state === 'downloaded', progress: value.percent,
+  });
+  const emit = () => publish(snapshot());
+  const fail = error => {
+    value.state = 'error';
+    value.error = error?.message || 'Update failed';
+    emit();
+  };
+  if (enabled) {
+    updater.autoDownload = false;
+    updater.autoInstallOnAppQuit = false;
+    updater.logger = null;
+    updater.on('update-available', info => {
+      Object.assign(value, { state: 'available', availableVersion: info.version, percent: 0, error: null });
+      emit();
+    });
+    updater.on('update-not-available', () => {
+      Object.assign(value, { state: 'idle', availableVersion: null, percent: 0, error: null });
+      emit();
+    });
+    updater.on('download-progress', progress => {
+      value.state = 'downloading';
+      value.percent = Math.max(0, Math.min(100, Math.round(progress?.percent || 0)));
+      emit();
+    });
+    updater.on('update-downloaded', info => {
+      Object.assign(value, { state: 'downloaded', availableVersion: info.version, percent: 100, error: null });
+      emit();
+    });
+    updater.on('error', error => { if (!installFailed(error)) fail(error); });
+  }
+  function operation(stage, run) {
+    if (pending) return pending;
+    value.state = stage;
+    value.error = null;
+    emit();
+    pending = Promise.resolve().then(run).then(() => ({ ok: true }), error => {
+      fail(error);
+      return { ok: false, error: value.error };
+    }).finally(() => {
+      pending = null;
+      // Events usually finish the state; adapters that emit no event must settle too.
+      if (value.state === stage) { value.state = value.availableVersion ? 'available' : 'idle'; emit(); }
+    });
+    return pending;
+  }
+  return {
+    snapshot, fail,
+    check() {
+      // A scheduled check must never invalidate a downloaded installer or download.
+      if (!enabled || pending || value.state === 'downloaded') return Promise.resolve({ ok: false });
+      return operation('checking', async () => {
+        let timer;
+        try {
+          await Promise.race([updater.checkForUpdates(), new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error('update check timed out')), checkTimeoutMs);
+          })]);
+        } finally { clearTimeout(timer); }
+      });
+    },
+    download() {
+      if (!enabled || pending || !value.availableVersion || value.state === 'downloaded') return Promise.resolve({ ok: false });
+      value.percent = 0;
+      return operation('downloading', () => updater.downloadUpdate());
+    },
+    restartToUpdate() {
+      if (!enabled || value.state !== 'downloaded') return { ok: false };
+      return restart();
+    },
+  };
+}

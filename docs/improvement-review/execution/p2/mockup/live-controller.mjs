@@ -13,7 +13,7 @@ export function resolvePublishedScene(scene) {
     let reference = scene[field] || '';
     resolved[fallback] = null;
     if (appIcon) {
-      reference = scene.appPublicIcon || (scene[field] !== '@app' ? scene[field] : '') || '';
+      reference = Object.hasOwn(scene, 'appPublicIcon') ? scene.appPublicIcon : (scene[field] !== '@app' ? scene[field] : '') || '';
       let publicUrl = false;
       try {
         const url = new URL(reference);

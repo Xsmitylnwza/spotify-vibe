@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('vibeStudio', {
   getOpenAtLogin: () => ipcRenderer.invoke('vibe:get-open-at-login'),
   setOpenAtLogin: (enabled) => ipcRenderer.invoke('vibe:set-open-at-login', Boolean(enabled)),
   checkForUpdates: () => ipcRenderer.invoke('vibe:check-for-updates'),
+  download: () => ipcRenderer.invoke('vibe:download-update'),
+  restartToUpdate: () => ipcRenderer.invoke('vibe:quit-and-install'),
   downloadUpdate: () => ipcRenderer.invoke('vibe:download-update'),
   quitAndInstall: () => ipcRenderer.invoke('vibe:quit-and-install'),
   quit: () => ipcRenderer.invoke('vibe:quit'),

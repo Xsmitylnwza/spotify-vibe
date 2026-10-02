@@ -7,7 +7,7 @@ import vm from 'node:vm';
 
 const scenario = process.argv[2];
 if (!scenario) {
-  for (const name of ['ipc', 'navigation', 'installer', 'installer-hung', 'startup-hung', 'startup-late', 'startup-deadline', 'startup-late-cleanup', 'startup-late-cleanup-timeout']) {
+  for (const name of ['ipc', 'updates', 'navigation', 'installer', 'installer-hung', 'startup-hung', 'startup-late', 'startup-deadline', 'startup-late-cleanup', 'startup-late-cleanup-timeout']) {
     test(`actual Electron main host boundary: ${name}`, () => {
       const result = spawnSync(process.execPath, ['--experimental-vm-modules', import.meta.filename, name], { encoding: 'utf8', timeout: 10000 });
       assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -17,6 +17,7 @@ if (!scenario) {
   const handlers = new Map();
   const windows = [];
   const timers = new Map();
+  const intervals = [];
   let quit = 0, stops = 0, loads = 0, trayDestroyed = 0, stopComplete = false, releaseStop, startOptions, resolveStart;
   const updater = new EventEmitter();
   updater.quitAndInstall = () => { if (scenario === 'installer') updater.emit('error', new Error('installer refused')); };
@@ -46,7 +47,7 @@ if (!scenario) {
   } };
   const context = vm.createContext({ console, URL, process: { env: { PRESENCE_STUDIO_PORT: '47394', PRESENCE_AUTOSTART_DISABLE: '1' }, argv: [], platform: 'win32' },
     setTimeout: (fn, delay) => { const key = {}; timers.set(key, { fn, delay }); return key; }, clearTimeout: key => timers.delete(key),
-    setInterval: () => ({}), clearInterval: () => {} });
+    setInterval: (fn, delay) => { intervals.push({ fn, delay }); return {}; }, clearInterval: () => {} });
   const modules = new Map();
   const host = {
     electron: { app, BrowserWindow: Window, Tray, Menu: { setApplicationMenu() {}, buildFromTemplate: x => x }, ipcMain: { handle: (name, fn) => handlers.set(name, fn) },
@@ -84,6 +85,27 @@ if (!scenario) {
     event.senderFrame.url = handle.url;
     assert.equal(handlers.get('vibe:get-version')(event), '1');
     await handlers.get('vibe:quit')(event); assert.equal(quit, 1);
+  } else if (scenario === 'updates') {
+    assert.equal(updater.autoDownload, false);
+    assert.equal(updater.autoInstallOnAppQuit, false);
+    assert.equal(intervals[0].delay, 6 * 60 * 60 * 1000);
+    let checks = 0, downloads = 0, installs = 0;
+    updater.checkForUpdates = async () => { checks++; updater.emit('update-available', { version: '2' }); };
+    updater.downloadUpdate = async () => { downloads++; updater.emit('download-progress', { percent: 50 }); updater.emit('update-downloaded', { version: '2' }); };
+    updater.quitAndInstall = (silent, force) => { installs++; assert.equal(silent, false); assert.equal(force, true); app.quit(); };
+    const state = () => handlers.get('vibe:get-update-state')(event);
+    assert.equal(state().currentVersion, '1');
+    assert.equal(state().state, 'idle');
+    await handlers.get('vibe:quit-and-install')(event); assert.equal(installs, 0);
+    await fire(20_000);
+    assert.equal(checks, 1); assert.equal(downloads, 0);
+    assert.equal(state().state, 'available'); assert.equal(state().availableVersion, '2');
+    await intervals[0].fn(); await flush(); assert.equal(checks, 2);
+    await handlers.get('vibe:download-update')(event);
+    assert.equal(downloads, 1); assert.equal(state().state, 'downloaded'); assert.equal(state().percent, 100);
+    await intervals[0].fn(); await flush(); assert.equal(checks, 2);
+    await handlers.get('vibe:quit-and-install')(event); await flush();
+    assert.equal(stops, 1); assert.equal(installs, 1); assert.equal(quit, 1);
   } else if (scenario === 'navigation') {
     for (const name of ['will-navigate', 'will-redirect']) {
       for (const url of ['https://foreign.example/', 'javascript:alert(1)', 'file:///tmp/a', 'data:text/html,test']) {
