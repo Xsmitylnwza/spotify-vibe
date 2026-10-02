@@ -86,6 +86,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 | 36 | Starting data | The real app ships with **no sample Scenes**; the library starts empty and first-run step 3 creates the first Scene. Mockup sample Scenes are demo data only. Existing owners keep their saved Scenes. |
 | 37 | Library row chips | Remove the "On Discord" and "Not used" chips: the dashed "+ app" already signals unused, and the live Scene is marked by the existing left accent bar + a small green dot on its thumbnail. Page copy no longer mentions "Rules on Now". |
 
+| 38 | After Done | Pressing **Done** closes the editor and opens a compact summary modal: Scene thumb + "<Scene> saved" + when it shows ("Shows when VS Code is open" / "Not paired — won't show automatically") + actions **Show on Discord now** (primary), **+ Add app** (only if unpaired), **Close**. The editor footer keeps a single primary (Done); "Use this Scene" moves into the modal. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).

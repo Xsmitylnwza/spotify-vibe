@@ -258,15 +258,14 @@ function ruleRow(r) { /* auto-hide rules only (Settings > Privacy) */
 /* ---------- Scenes ---------- */
 function scenesView() {
   const rows = S.scenes.map(s => {
-    const live = curScene() && curScene().id === s.id && ['auto', 'pinned', 'paused'].includes(S.mode), unused = !S.rules.some(r => r.scene === s.id);
-    const chip = live ? `<span class="vs-pill vs-pill-accent">${T('On Discord', 'กำลังแสดง')}</span>` : unused ? `<span class="vs-pill vs-pill-neutral">${T('Not used', 'ไม่ได้ใช้')}</span>` : '';
+    const live = curScene() && curScene().id === s.id && ['auto', 'pinned', 'paused'].includes(S.mode);
     const tl = TYPES.find(t => t[0] === s.type)[S.lang === 'th' ? 2 : 1];
-    return `<div data-key="sc-${s.id}" class="vs-scene-row mk-srow ${live ? 'is-live' : ''} ${S.fresh === s.id ? 'mk-row-in' : ''}"><button type="button" class="mk-srow-main" data-act="editscene" data-arg="${s.id}" data-k="lib-${s.id}"><span class="vs-scene-icon">${s.art ? `<img src="${artSrc(s.art, s)}" alt="">` : ''}</span>
+    return `<div data-key="sc-${s.id}" class="vs-scene-row mk-srow ${live ? 'is-live' : ''} ${S.fresh === s.id ? 'mk-row-in' : ''}"><button type="button" class="mk-srow-main" data-act="editscene" data-arg="${s.id}" data-k="lib-${s.id}"><span class="vs-scene-icon">${s.art ? `<img src="${artSrc(s.art, s)}" alt="">` : ''}${live ? `<span class="mk-livedot" role="img" aria-label="${T('Showing on Discord now', 'กำลังแสดงบน Discord')}"></span>` : ''}</span>
       <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name)}</span><span class="vs-scene-sub">${esc(tl)} · ${esc(s.l1 || '—')}${s.l2 ? ' · ' + esc(s.l2) : ''}</span></span></button>
-      <span class="mk-srow-r">${stackHtml(s.id)}<span class="mk-chipslot">${chip}</span></span></div>`;
+      <span class="mk-srow-r">${stackHtml(s.id)}</span></div>`;
   }).join('');
-  return `${pageHead(T('Library', 'คลัง'), T('Scenes', 'Scene ทั้งหมด'), T('A Scene is the text and artwork that appears on Discord. Rules on Now decide when each one is used.', 'Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord กฎในหน้าตอนนี้เป็นตัวกำหนดว่าจะใช้อันไหนเมื่อไร'))}
-  <section class="vs-card vs-library" aria-labelledby="slt"><div class="vs-card-head mk-head-row"><h2 id="slt">${T('Scene library', 'คลัง Scene')}</h2><button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="newscene" data-k="newscene">${I.plus}${T('New Scene', 'สร้าง Scene ใหม่')}</button></div><div id="sceneList">${rows}</div>
+  return `${pageHead(T('Library', 'คลัง'), T('Scenes', 'Scene ทั้งหมด'), T('A Scene is the text and artwork that appears on Discord. Pair apps inside a Scene to show it automatically.', 'Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord จับคู่แอปใน Scene เพื่อให้แสดงอัตโนมัติ'))}
+  <section class="vs-card vs-library" aria-labelledby="slt"><div class="vs-card-head mk-head-row"><h2 id="slt">${T('Scene library', 'คลัง Scene')}</h2><button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="newscene" data-k="newscene">${I.plus}${T('New Scene', 'สร้าง Scene ใหม่')}</button></div><div id="sceneList">${rows || `<div class="mk-empty-scenes"><strong>${T('No Scenes yet', 'ยังไม่มี Scene')}</strong><p class="vs-hint">${T('Create your first Scene, then pair an app with it.', 'สร้าง Scene แรก แล้วจับคู่แอปกับ Scene นั้น')}</p></div>`}</div>
   <div class="vs-toolbar"><span class="vs-hint">${T('Select a Scene to edit it. The icons show which apps use it; “+ app” adds a rule.', 'เลือก Scene เพื่อแก้ไข ไอคอนแสดงแอปที่ใช้ Scene นี้ “+ แอป” เพิ่มกฎ')}</span></div></section>`;
 }
 
@@ -316,6 +315,10 @@ function firstView() {
     body = `<div class="mk-ob-body"><div class="mk-tiles" role="radiogroup" aria-label="${T('Running apps', 'แอปที่กำลังทำงาน')}">${APPS.filter(a => a.id !== 'mybank').map(a => `<button class="mk-tile" type="button" role="radio" aria-checked="${f.app === a.id}" aria-pressed="${f.app === a.id}" data-act="frapp" data-arg="${a.id}"><span class="vs-tile-icon">${icoOf(a, 1)}<span class="vs-tile-running" title="${T('Running now', 'กำลังทำงาน')}"></span></span><strong>${esc(a.name)}</strong></button>`).join('')}</div>
       <div class="vs-actions"><button class="vs-btn vs-btn-sm" type="button" data-act="toast" data-arg="Picked C:\\Tools\\sync.exe">${I.folder}${T('Browse for .exe…', 'เลือกไฟล์ .exe…')}</button><span class="vs-hint" style="margin:0">${T('System apps are hidden.', 'ซ่อนแอประบบแล้ว')}</span></div></div>`;
     foot = act(1, `<button class="vs-btn vs-btn-primary" type="button" data-act="frstep" data-arg="3">${T('Continue', 'ต่อไป')}</button>`);
+  } else if (!S.scenes.length) {
+    const a = appBy(f.app); title = T('Create your first Scene', 'สร้าง Scene แรกของคุณ'); sub = T(`When ${a.name} is open, Discord will show this.`, `เมื่อเปิด ${a.name} Discord จะแสดงสิ่งนี้`);
+    body = `<div class="mk-ob-body"><div class="vs-field"><label class="vs-label" for="frname">${T('Scene name', 'ชื่อ Scene')}</label><input class="vs-input" type="text" id="frname" data-bind="frname" value="${esc(f.newName || '')}" placeholder="${T('e.g. Design', 'เช่น Design')}"></div></div>`;
+    foot = act(2, `<button class="vs-btn vs-btn-primary" type="button" data-act="frcreate" ${(f.newName || '').trim() ? '' : 'disabled'}>${T('Create Scene', 'สร้าง Scene')}</button>`);
   } else {
     const sc = sceneBy(f.scene), a = appBy(f.app), sent = f.sent;
     title = T('Pick a Scene and see it on Discord', 'เลือกซีนแล้วดูบน Discord ทันที'); sub = T(`When ${a.name} is open, Discord will show this.`, `เมื่อเปิด ${a.name} Discord จะแสดงสิ่งนี้`);
@@ -886,6 +889,7 @@ const ACT = {
   clearhist: () => { S.set.histCleared = true; S.set.confirmClear = false; toast(T('History cleared', 'ล้างประวัติแล้ว')); },
   askquit: () => { S.set.confirmQuit = !S.set.confirmQuit; },
   quit: () => { S.set.confirmQuit = false; S.mode = 'unreachable'; S.screen = 'now'; toast(T('Vibe quit — Discord now shows nothing.', 'ออกจาก Vibe แล้ว — Discord ไม่แสดงอะไร')); },
+  frcreate: () => { const f = S.fr, n = mkScene({ id: 'sc' + Date.now(), name: (f.newName || '').trim() }); S.scenes.push(n); f.scene = n.id; f.sent = 'idle'; },
   frstep: a => { S.fr.step = +a; }, frdiscord: a => { S.fr.discord = a; }, frapp: a => { S.fr.app = a; }, frscene: a => { const ae = document.activeElement; if (ae && ae.tagName === 'INPUT') ae.blur(); S.fr.scene = a; S.fr.sent = 'idle'; },
   frsend: () => { S.fr.sent = 'sending'; setTimeout(() => { S.fr.sent = S.fr.discord === 'ok' ? 'ok' : 'fail'; if (S.screen === 'first') render(); }, 1100); },
   frfinish: () => { const f = S.fr; if (f.sent !== 'ok') f.sent = 'ok'; { const ex = S.rules.find(r => r.app === f.app && r.kind === 'app'); if (ex) ex.scene = f.scene; else S.rules.unshift({ id: 'rn' + Date.now(), kind: 'app', app: f.app, scene: f.scene }); } S.screen = 'now'; S.mode = 'auto'; toast(T('All set — Vibe runs in the background now.', 'เสร็จแล้ว — Vibe ทำงานเบื้องหลังต่อไป')); },
@@ -939,6 +943,7 @@ document.addEventListener('input', e => {
   const t = e.target, b = t.dataset.bind; if (!b) return;
   if (b === 'sc') { sceneBy(S.drawer.id)[t.dataset.f] = t.value; updateDrawer(); scheduleSave(); }
   else if (b === 'btn') { sceneBy(S.drawer.id).btns[+t.dataset.i][t.dataset.f] = t.value; updateDrawer(); scheduleSave(); }
+  else if (b === 'frname') { S.fr.newName = t.value; const btn = $('[data-act="frcreate"]'); if (btn) btn.disabled = !t.value.trim(); }
   else if (b === 'frline') { sceneBy(S.fr.scene)[t.dataset.line] = t.value; S.fr.sent = 'idle'; const id = t.id, pos = t.selectionStart; render(); const n = $('#' + id); n.focus(); n.setSelectionRange(pos, pos); }
   else if (b === 'pairsearch') { S.pairQuery = t.value; const list = $('.mk-ptiles'); if (list) list.scrollTop = 0; render(); }
   else if (b === 'pq') { S.picker.q = t.value; updatePicker(); }
@@ -1267,6 +1272,7 @@ document.addEventListener('keydown', e => {
   S.screen = q.get('screen') || 'first';
   LIVE.enabled = (q.get('live') === '1' || ['17348', '17349'].includes(location.port)) && location.hostname === '127.0.0.1';
   REAL.enabled = (q.get('real') === '1' || location.port === '17349') && LIVE.enabled;
+  if (LIVE.enabled) { S.scenes = []; S.rules = []; S.pinned = ''; S.frozen = ''; } /* live mode never seeds demo Scenes; only the pure demo keeps them */
   if (REAL.enabled) { APPS.length = 0; INSTALLED.length = 0; SYSTEM.length = 0; TABS.length = 0; S.rules = []; S.mode = 'none'; S.scenes.forEach(sc => { sc.vars = false; }); IMGTABS.splice(0, IMGTABS.length, ...IMGTABS.filter(t => ['app', 'builtin', 'link'].includes(t[0]))); }
   else if (q.get('apps') || S.screen === 'now') seedPairedApps(q.get('apps') || 36);
   if (q.get('state')) { S.mode = q.get('state'); if (S.mode === 'pinned') S.pinned = 'coding'; }

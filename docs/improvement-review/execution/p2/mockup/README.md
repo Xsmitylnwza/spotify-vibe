@@ -270,3 +270,6 @@ Verified in the browser tab: opening the drawer from a rule's Edit Scene button 
 
 ## D1-M11 — Now status card shows current Scene (decision #35)
 Read-only Scene thumbnail + bold name + reason line (app icon "from Figma" / Pinned / Paused); Scene select and "Choose a Scene…" copy removed. Compact "Pin…" button opens an inline Scene list with thumbnails (`scenepick`/`pickscene`); "Back to Auto" shown when pinned (`backauto`). No paired app: "No paired app is open". Show-on-Discord toggle and state chip kept. Checks: node --check OK, node --test 26/26 (real-ux test updated: no `realscene` select). No screenshots.
+
+## D1-M12 — Scene library cleanup + empty start (#36, #37)
+Library rows lose the "On Discord"/"Not used" chips; live Scene = left accent bar + green dot on thumbnail. Scenes description no longer mentions Rules on Now (EN+TH). Live/real mode starts with no Scenes/rules (saved workspace still loads over it): library shows "No Scenes yet" + New Scene, first-run step 3 shows "Create your first Scene" (name → `frcreate`). Pure demo keeps the demo Scenes. Checks: node --check OK, node --test 26/26; no screenshots.
