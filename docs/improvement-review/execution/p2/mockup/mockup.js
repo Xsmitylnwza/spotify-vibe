@@ -50,7 +50,7 @@ const idLine = on => on ? T('Connected as ', 'เชื่อมต่อเป�
 const GEAR = '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="4.2"/><circle cx="10" cy="10" r="1.1" fill="currentColor" stroke="none"/><path d="M16.2 10h1.6M10 16.2v1.6M3.8 10H2.2M10 3.8V2.2M14.4 14.4l1.1 1.1M5.6 14.4l-1.1 1.1M5.6 5.6L4.5 4.5M14.4 5.6l1.1-1.1"/></svg>';
 function acctStatus() {
   const n = (curScene() || {}).name || '';
-  return { auto: [T('Showing: ', 'กำลังแสดง: ') + n, 'on'], pinned: [T('Pinned: ', 'ปักไว้: ') + n, 'on'], paused: [T('Paused', 'หยุดสลับ'), 'warn'], hidden: [T('Hidden', 'ซ่อนอยู่'), 'warn'], autohide: [T('Hidden by rule', 'ซ่อนตามกฎ'), 'warn'], none: [T('Nothing to show', 'ไม่มีอะไรแสดง'), 'on'], discordoff: [T('Discord not running', 'Discord ไม่ได้เปิด'), 'off'], unreachable: [T('Companion not responding', 'companion ไม่ตอบสนอง'), 'off'] }[S.mode];
+  return { auto: [T('Showing ', 'กำลังแสดง ') + n, 'on'], pinned: [T('Pinned: ', 'ปักไว้: ') + n, 'on'], hidden: [T('Hidden', 'ซ่อนอยู่'), 'warn'], autohide: [T('Hidden by rule', 'ซ่อนตามกฎ'), 'warn'], none: [T('Nothing shown', 'ไม่แสดงอะไร'), 'on'], discordoff: [T('Discord not running', 'Discord ไม่ได้เปิด'), 'off'], unreachable: [T('Companion not responding', 'companion ไม่ตอบสนอง'), 'off'] }[S.mode];
 }
 /* Discord-style account bar: avatar + status dot, name, one-line status, gear -> Settings. Narrow: avatar + gear only. */
 function acctPanel(compact) {
@@ -111,7 +111,7 @@ function seedPairedApps(count) {
 const icoOf = (a, lg) => a.icon ? `<img class="mk-ico ${lg ? 'mk-ico-lg' : ''}" src="${esc(a.icon)}" alt="">` : a.img ? `<img class="mk-ico ${lg ? 'mk-ico-lg' : ''}" src="${A_}${a.img}" alt="">` : `<span class="mk-ico-fb ${lg ? 'mk-ico-lg' : ''}" aria-hidden="true">${esc(a.g || a.name.slice(0, 2))}</span>`;
 const sv = (d, w = 14) => `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const I = {
-  pin: sv('<path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/>'), pause: sv('<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>'),
+  pin: sv('<path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/>'),
   hide: sv('<path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3.2 3.9M6.6 7.6A17 17 0 0 0 2.5 12S6 18 12 18a9.6 9.6 0 0 0 4-.9M9.9 9.9a3 3 0 0 0 4.2 4.2"/>'),
   plus: sv('<path d="M12 5v14M5 12h14"/>'), x: sv('<path d="M6 6l12 12M18 6L6 18"/>'), edit: sv('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
   search: sv('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>', 16), play: sv('<path d="M7 4l13 8-13 8z"/>'), globe: sv('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>', 16),
@@ -136,7 +136,6 @@ function curScene() {
   switch (S.mode) {
     case 'auto': case 'discordoff': case 'unreachable': return sceneBy((S.rules.find(r => r.id === 'r1') || {}).scene) || S.scenes[0];
     case 'pinned': return sceneBy(S.pinned);
-    case 'paused': return sceneBy(S.frozen);
     default: return null;
   }
 }
@@ -180,54 +179,40 @@ const pvToggle = () => `<div class="vs-segmented mk-pvt" role="radiogroup" aria-
 const dcWrap = (sc, o = {}) => `<div class="mk-pvwrap">${dcCard(sc, Object.assign({ view: S.pvView }, o))}${pvToggle()}${S.pvView === 'list' && sc ? `<p class="vs-preview-foot">${T('The member list only shows the activity type and name. Other fields appear in the profile popout.', 'รายชื่อสมาชิกแสดงเฉพาะประเภทและชื่อกิจกรรม ช่องอื่นดูได้ในโปรไฟล์ป๊อปอัป')}</p>` : ''}</div>`;
 
 /* ---------- Now ---------- */
-/* Now (#30): one focal point = the Discord preview. Status line + preview + one control row + pairing summary. */
+/* Now (#39): Show on Discord switch + one reason line + centred fixed-size preview with Profile/Member tabs. */
 function nowView() {
   const mode = S.mode, sc = REAL.enabled ? realSelectedScene() : curScene();
-  const tile = g => `<span class="mk-stico" aria-hidden="true">${g}</span>`;
-  const link = sc ? `<button type="button" class="mk-scenelink" data-act="editscene" data-arg="${sc.id}" data-k="edit-now" title="${T('Edit this Scene', 'แก้ Scene นี้')}">${esc(sc.name)}</button>` : '';
-  const btn = (cls, act, arg, ico, txt, extra = '') => `<button class="vs-btn ${cls}" type="button" data-act="${act}" ${arg ? `data-arg="${arg}"` : ''} ${extra}>${ico}${txt}</button>`;
-  let icon, text, chip, ctl = '';
-  if (mode === 'auto') { text = `${link}<small>${reasonApp(appBy('figma'))}</small>`; chip = ['good', T('Auto', 'อัตโนมัติ')]; }
-  else if (mode === 'pinned') { text = `${link}<small>${T('Pinned', 'ปักไว้')}</small>`; chip = ['accent', T('Pinned', 'ปักไว้')]; }
-  else if (mode === 'paused') { text = `${link}<small>${T('Paused', 'หยุดสลับ')}</small>`; chip = ['warn', T('Paused', 'หยุดสลับ')]; }
-  else if (mode === 'hidden') { icon = tile(I.hide); text = T('Hidden from Discord', 'ซ่อนจาก Discord'); chip = ['neutral', T('Hidden', 'ซ่อนอยู่')]; }
-  else if (mode === 'autohide') { icon = tile(I.hide); text = T('Hidden while MyBank Desktop is open', 'ซ่อนขณะที่ MyBank Desktop เปิดอยู่'); chip = ['neutral', T('Hidden by rule', 'ซ่อนตามกฎ')]; ctl = btn('', 'gotoprivacy', '', '', T('Privacy settings', 'ตั้งค่าความเป็นส่วนตัว')); }
-  else if (mode === 'none') { icon = tile(I.search); text = T('No paired app is open', 'ไม่มีแอปที่จับคู่เปิดอยู่'); chip = ['neutral', T('Not shown', 'ไม่แสดง')]; ctl = btn('', 'screen', 'scenes', '', T('Manage in Scenes', 'จัดการใน Scene')); }
-  else if (mode === 'discordoff') { icon = tile(I.warn); text = T('Discord isn’t running — open Discord Desktop', 'Discord ไม่ได้เปิด — เปิด Discord Desktop'); chip = ['warn', T('Discord closed', 'Discord ปิดอยู่')]; ctl = btn('vs-btn-primary', 'mode', 'auto', '', T('Check again', 'ตรวจสอบอีกครั้ง')); }
-  else { icon = tile(I.warn); text = T('Can’t reach the Vibe companion', 'ติดต่อ Vibe companion ไม่ได้'); chip = ['warn', T('Not connected', 'ติดต่อไม่ได้')]; ctl = btn('vs-btn-primary', 'mode', 'auto', '', T('Reconnect', 'เชื่อมต่อใหม่')); }
-  if (mode === 'paused') ctl = btn('', 'mode', 'auto', I.play, T('Resume automatic switching', 'กลับไปสลับอัตโนมัติ'));
   const available = !['discordoff', 'unreachable'].includes(mode);
-  if (LIVE.enabled) {
-    text = `${link || esc((LIVE.scene || {}).sceneName || T('No Scene', 'ยังไม่มี Scene'))}<small>${REAL.enabled ? (REAL.selectedAppId && sceneApp(sc || {}) ? reasonApp(sceneApp(sc)) : T('Pinned', 'ปักไว้')) : T('Manual control · no automatic app switching', 'ควบคุมด้วยมือ · ยังไม่สลับตามแอปอัตโนมัติ')}</small>`;
-    chip = REAL.enabled ? (REAL.presenceEnabled ? ['good', LIVE.active && LIVE.scene?.id === sc?.id && !LIVE.busy ? T('Showing', 'กำลังแสดง') : T('On', 'เปิดอยู่')] : ['neutral', T('Off', 'ปิดอยู่')]) : LIVE.active ? ['good', T('Live', 'ส่งจริงแล้ว')] : ['neutral', T('Not sent', 'ยังไม่ส่ง')];
-    if (REAL.enabled) ctl = LIVE.error ? `<p class="field-error" role="alert">${esc(LIVE.error)}</p>${!LIVE.connected ? `<button class="vs-btn vs-btn-sm" data-act="livecheck">${T('Reconnect Discord', 'เชื่อมต่อ Discord ใหม่')}</button>` : ''}` : '';
-  }
-  const sceneMode = sc && (REAL.enabled || ['auto', 'pinned', 'paused'].includes(mode));
-  if (sceneMode) icon = `<img class="mk-scthumb" src="${artSrc(sc.art, sc)}" alt="">`;
-  if (REAL.enabled && !sc) text = T('No Scene yet', 'ยังไม่มี Scene');
-  const isPinned = REAL.enabled ? !REAL.selectedAppId : mode === 'pinned';
-  if (sceneMode && (REAL.enabled || mode === 'auto' || mode === 'pinned' || mode === 'paused')) {
-    const back = (isPinned || mode === 'paused') && (!REAL.enabled || S.rules.some(r => r.kind === 'app' && APPS.some(x => x.id === r.app)));
-    const pk = `<button type="button" class="vs-btn vs-btn-sm" data-act="scenepick" data-k="scenepick" aria-expanded="${!!S.pickOpen}">${I.pin}${isPinned ? T('Change…', 'เปลี่ยน…') : T('Pin…', 'ปักหมุด…')}</button>${back && mode !== 'paused' ? `<button type="button" class="vs-btn vs-btn-sm" data-act="backauto">${T('Back to Auto', 'กลับสู่อัตโนมัติ')}</button>` : ''}`;
-    const list = S.pickOpen ? `<ul class="mk-pickscene" role="list">${S.scenes.map(x => `<li><button type="button" class="mk-pickrow ${x.id === sc.id ? 'is-on' : ''}" data-act="pickscene" data-arg="${x.id}" ${x.id === sc.id ? 'aria-current="true"' : ''}><img src="${artSrc(x.art, x)}" alt=""><span>${esc(x.name)}</span></button></li>`).join('')}</ul>` : '';
-    ctl = pk + list + ctl;
-  }
   const enabled = REAL.enabled ? REAL.presenceEnabled : LIVE.enabled ? LIVE.active : mode !== 'hidden';
-  const power = `<label class="mk-presence-power"><span>${T('Show on Discord', 'แสดงบน Discord')}</span><span class="vs-switch"><input type="checkbox" role="switch" data-bind="presence" aria-label="${T('Show on Discord', 'แสดงบน Discord')}" ${enabled ? 'checked' : ''} ${!REAL.enabled && (!available || (LIVE.enabled && (LIVE.busy || !LIVE.checked))) ? 'disabled' : ''}><span></span></span></label>`;
+  const link = (act, arg, txt) => `<button type="button" class="vs-quiet-link" data-act="${act}" ${arg ? `data-arg="${arg}"` : ''}>${txt}</button>`;
+  const hasApp = S.rules.some(r => r.kind === 'app' && APPS.some(x => x.id === r.app));
+  const backLink = link('backauto', '', T('Back to Auto', 'กลับสู่อัตโนมัติ'));
+  const pinnedLine = n => `${T('Pinned: ', 'ปักไว้: ')}<b>${esc(n)}</b>${!REAL.enabled || hasApp ? ' · ' + backLink : ''}`;
+  let reason;
+  if (REAL.enabled || LIVE.enabled) {
+    if (LIVE.error) reason = `<span class="field-error" role="alert">${esc(LIVE.error)}</span>${!LIVE.connected ? ' ' + link('livecheck', '', T('Reconnect Discord', 'เชื่อมต่อ Discord ใหม่')) : ''}`;
+    else if (!enabled) reason = T('Hidden', 'ซ่อนอยู่');
+    else if (!sc) reason = T('No Scene yet — create one in Scenes', 'ยังไม่มี Scene — สร้างได้ในหน้า Scene');
+    else if (REAL.enabled && REAL.selectedAppId && sceneApp(sc)) reason = `${T('Following ', 'ตามแอป ')}${icoOf(sceneApp(sc))}<b>${esc(sceneApp(sc).name)}</b> · ${T('Auto', 'อัตโนมัติ')}`;
+    else if (REAL.enabled) reason = pinnedLine(sc.name);
+    else reason = T('Manual control · no automatic app switching', 'ควบคุมด้วยมือ · ยังไม่สลับตามแอปอัตโนมัติ');
+  } else if (mode === 'auto') reason = `${T('Following ', 'ตามแอป ')}${icoOf(appBy('figma'))}<b>Figma</b> · ${T('Auto', 'อัตโนมัติ')}`;
+  else if (mode === 'pinned') reason = pinnedLine((sc || {}).name || '');
+  else if (mode === 'hidden') reason = T('Hidden', 'ซ่อนอยู่');
+  else if (mode === 'autohide') reason = `${T('Hidden while MyBank Desktop is open', 'ซ่อนขณะที่ MyBank Desktop เปิดอยู่')} · ${link('gotoprivacy', '', T('Privacy settings', 'ตั้งค่าความเป็นส่วนตัว'))}`;
+  else if (mode === 'none') reason = T('No paired app is open', 'ไม่มีแอปที่จับคู่เปิดอยู่');
+  else if (mode === 'discordoff') reason = `${T('Discord isn’t running — open Discord Desktop', 'Discord ไม่ได้เปิด — เปิด Discord Desktop')} · ${link('mode', 'auto', T('Check again', 'ตรวจสอบอีกครั้ง'))}`;
+  else reason = `${T('Can’t reach the Vibe companion', 'ติดต่อ Vibe companion ไม่ได้')} · ${link('mode', 'auto', T('Reconnect', 'เชื่อมต่อใหม่'))}`;
+  const sw = `<label class="mk-now-switch"><span class="mk-now-switch-t">${T('Show on Discord', 'แสดงบน Discord')}</span><span class="vs-switch mk-bigsw"><input type="checkbox" role="switch" data-bind="presence" aria-label="${T('Show on Discord', 'แสดงบน Discord')}" ${enabled ? 'checked' : ''} ${!REAL.enabled && (!available || (LIVE.enabled && (LIVE.busy || !LIVE.checked))) ? 'disabled' : ''}><span></span></span></label>`;
   const none = title => ({ title, sub: mode === 'discordoff' ? T('Nothing to show until Discord starts.', 'ไม่มีอะไรให้แสดงจนกว่า Discord จะเปิด') : undefined });
   const actual = LIVE.active && LIVE.scene ? (REAL.enabled && sceneBy(LIVE.scene.id)) || mkScene({ id: LIVE.scene.id, name: LIVE.scene.sceneName, type: LIVE.scene.activityType, actName: LIVE.scene.activityName, l1: LIVE.scene.details, l2: LIVE.scene.state, art: LIVE.scene.largeImage, small: LIVE.scene.smallImage, btns: LIVE.scene.buttons || [] }) : null;
   const pv = view => LIVE.enabled ? dcCard(actual, { view, title: T('No live activity', 'ไม่มีกิจกรรมจริง') }) : mode === 'unreachable' ? dcCard(sc, { ghost: true, view }) : mode === 'discordoff' ? dcCard(null, Object.assign(none(T('Discord not running', 'Discord ไม่ได้เปิด')), { view })) : sc ? dcCard(sc, { view }) : dcCard(null, { title: mode === 'hidden' || mode === 'autohide' ? T('Hidden', 'ซ่อนอยู่') : T('No activity', 'ไม่มีกิจกรรม'), view });
-  const label = LIVE.enabled ? T('Preview · last Scene accepted by Discord', 'ตัวอย่าง · Scene ล่าสุดที่ Discord รับแล้ว') : mode === 'unreachable' ? T('Last known · may be out of date', 'ข้อมูลล่าสุด · อาจไม่ตรงปัจจุบัน') : T('Preview — how others see you on Discord', 'ตัวอย่าง — คนอื่นเห็นคุณบน Discord แบบนี้');
-  const lay = (v, extra = '') => `<div class="mk-pvlayer ${S.pvView === v || (v === 'popout' && S.pvView !== 'list') ? 'is-on' : ''}" data-view="${v}" ${(S.pvView === 'list') === (v === 'list') ? '' : 'inert aria-hidden="true"'}>${pv(v)}${extra}</div>`;
-  return `<div class="vs-page-head" style="margin-bottom:16px"><h1 class="vs-title" style="margin:0">${T('Now', 'ตอนนี้')}</h1></div>
+  const lay = v => `<div class="mk-pvlayer ${S.pvView === v || (v === 'popout' && S.pvView !== 'list') ? 'is-on' : ''}" data-view="${v}" ${(S.pvView === 'list') === (v === 'list') ? '' : 'inert aria-hidden="true"'}>${pv(v)}</div>`;
+  return `<div class="mk-nowcol">
   ${LIVE.enabled && !REAL.enabled ? livePanel() : ''}
-  <div class="mk-nowgrid"><div class="mk-nowleft">
-    <section class="vs-card mk-hero" aria-label="${T('Status', 'สถานะ')}"><div class="mk-hero-top"><span class="vs-pill vs-pill-${chip[0]}">${chip[1]}</span>${available ? power : ''}</div>
-      <div class="mk-hero-line" role="status">${icon}<span class="mk-st-text">${text}</span></div>
-      ${ctl ? `<div class="mk-ctlrow is-single">${ctl}</div>` : ''}</section>
-    ${pairedPanel()}</div>
-    <section class="vs-card mk-pvpanel" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="mk-pv-h"><span class="mk-pv-t">${label}</span>${pvToggle()}</div>
-      <div class="mk-pvbody">${lay('popout')}${lay('list', `<p class="vs-preview-foot" style="text-align:center">${T('The member list shows only the activity type and name.', 'รายชื่อสมาชิกแสดงเฉพาะประเภทและชื่อกิจกรรม')}</p>`)}</div></section>
+  <h1 class="vs-title mk-now-h">${T('Now', 'ตอนนี้')}</h1>
+  <section class="vs-card mk-nowcard" aria-label="${T('Status', 'สถานะ')}">${sw}<p class="mk-reason" role="status">${reason}</p></section>
+  <section class="mk-pvpanel mk-pvcenter" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="mk-pvbody">${lay('popout')}${lay('list')}</div>${pvToggle()}</section>
   </div>`;
 }
 function pairedPanel() {
@@ -258,11 +243,11 @@ function ruleRow(r) { /* auto-hide rules only (Settings > Privacy) */
 /* ---------- Scenes ---------- */
 function scenesView() {
   const rows = S.scenes.map(s => {
-    const live = curScene() && curScene().id === s.id && ['auto', 'pinned', 'paused'].includes(S.mode);
+    const live = curScene() && curScene().id === s.id && ['auto', 'pinned'].includes(S.mode);
     const tl = TYPES.find(t => t[0] === s.type)[S.lang === 'th' ? 2 : 1];
     return `<div data-key="sc-${s.id}" class="vs-scene-row mk-srow ${live ? 'is-live' : ''} ${S.fresh === s.id ? 'mk-row-in' : ''}"><button type="button" class="mk-srow-main" data-act="editscene" data-arg="${s.id}" data-k="lib-${s.id}"><span class="vs-scene-icon">${s.art ? `<img src="${artSrc(s.art, s)}" alt="">` : ''}${live ? `<span class="mk-livedot" role="img" aria-label="${T('Showing on Discord now', 'กำลังแสดงบน Discord')}"></span>` : ''}</span>
       <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name)}</span><span class="vs-scene-sub">${esc(tl)} · ${esc(s.l1 || '—')}${s.l2 ? ' · ' + esc(s.l2) : ''}</span></span></button>
-      <span class="mk-srow-r">${stackHtml(s.id)}</span></div>`;
+      <span class="mk-srow-r">${stackHtml(s.id)}${live ? '' : `<button type="button" class="vs-btn vs-btn-sm vs-btn-ghost mk-showrow" data-act="sumshow" data-arg="${s.id}" data-k="show-${s.id}" aria-label="${T('Show on Discord now', 'แสดงบน Discord ตอนนี้')}: ${esc(s.name)}">${I.pin}${T('Show now', 'แสดงตอนนี้')}</button>`}</span></div>`;
   }).join('');
   return `${pageHead(T('Library', 'คลัง'), T('Scenes', 'Scene ทั้งหมด'), T('A Scene is the text and artwork that appears on Discord. Pair apps inside a Scene to show it automatically.', 'Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord จับคู่แอปใน Scene เพื่อให้แสดงอัตโนมัติ'))}
   <section class="vs-card vs-library" aria-labelledby="slt"><div class="vs-card-head mk-head-row"><h2 id="slt">${T('Scene library', 'คลัง Scene')}</h2><button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="newscene" data-k="newscene">${I.plus}${T('New Scene', 'สร้าง Scene ใหม่')}</button></div><div id="sceneList">${rows || `<div class="mk-empty-scenes"><strong>${T('No Scenes yet', 'ยังไม่มี Scene')}</strong><p class="vs-hint">${T('Create your first Scene, then pair an app with it.', 'สร้าง Scene แรก แล้วจับคู่แอปกับ Scene นั้น')}</p></div>`}</div>
@@ -332,16 +317,15 @@ function firstView() {
 
 /* ---------- Tray ---------- */
 function trayView() {
-  const sc = curScene(), nowLine = { auto: T('Auto · ', 'อัตโนมัติ · ') + (sc && sc.name), pinned: T('Pinned · ', 'ปักไว้ · ') + (sc && sc.name), paused: T('Paused · ', 'หยุดสลับ · ') + (sc && sc.name), hidden: T('Hidden', 'ซ่อนอยู่'), autohide: T('Hidden by rule', 'ซ่อนตามกฎ'), none: T('Nothing shown', 'ไม่แสดงอะไร'), discordoff: T('Discord not running', 'Discord ไม่ได้เปิด'), unreachable: T('Not connected', 'ติดต่อไม่ได้') }[S.mode];
+  const sc = curScene(), nowLine = { auto: T('Auto · ', 'อัตโนมัติ · ') + (sc && sc.name), pinned: T('Pinned · ', 'ปักไว้ · ') + (sc && sc.name), hidden: T('Hidden', 'ซ่อนอยู่'), autohide: T('Hidden by rule', 'ซ่อนตามกฎ'), none: T('Nothing shown', 'ไม่แสดงอะไร'), discordoff: T('Discord not running', 'Discord ไม่ได้เปิด'), unreachable: T('Not connected', 'ติดต่อไม่ได้') }[S.mode];
   const tabs = `<div class="vs-segmented" role="tablist" style="align-self:flex-start"><button type="button" role="tab" class="${S.trayTab === 'menu' ? 'is-on' : ''}" aria-selected="${S.trayTab === 'menu'}" data-act="traytab" data-arg="menu">${T('Tray menu', 'เมนูถาดระบบ')}</button><button type="button" role="tab" class="${S.trayTab === 'notice' ? 'is-on' : ''}" aria-selected="${S.trayTab === 'notice'}" data-act="traytab" data-arg="notice">${T('Close (✕) notice', 'ประกาศเมื่อกดปิด (✕)')}</button></div>`;
   const on = m => (S.mode === m ? 'on' : '');
   const menu = `<div class="mk-wmenu" role="menu" aria-label="Vibe tray menu"><div class="mh"><span class="ghost"><img src="assets/ghost-final-d.svg" alt="" width="100%" height="100%"></span><div><b>Vibe Studio</b><small>${T('Now: ', 'ตอนนี้: ')}${esc(nowLine)}</small></div></div>
     <button type="button" role="menuitem" data-act="screen" data-arg="now">${T('Open Studio', 'เปิด Studio')}</button><hr>
     <button type="button" role="menuitem" class="${S.mode === 'pinned' ? 'on' : ''}">${T('Pin a Scene', 'ปักซีน')} <span class="k">▸</span></button>
     <div class="sub">${S.scenes.slice(0, 4).map(s => `<button type="button" role="menuitem" data-act="pin" data-arg="${s.id}" class="${S.mode === 'pinned' && S.pinned === s.id ? 'on' : ''}">${esc(s.name)}</button>`).join('')}</div>
-    <button type="button" role="menuitem" class="${on('paused')}" data-act="mode" data-arg="${S.mode === 'paused' ? 'auto' : 'paused'}">${T('Pause automatic switching', 'หยุดสลับอัตโนมัติ')}</button>
     <button type="button" role="menuitem" class="${on('hidden')}" data-act="mode" data-arg="${S.mode === 'hidden' ? 'auto' : 'hidden'}">${T('Hide from Discord', 'ซ่อนจาก Discord')} <span class="k">${esc(S.set.hotkey.replace(/ /g, ''))}</span></button>
-    ${S.mode === 'pinned' || S.mode === 'paused' ? `<button type="button" role="menuitem" data-act="mode" data-arg="auto">${T('Back to Auto', 'กลับสู่อัตโนมัติ')}</button>` : ''}<hr>
+    ${S.mode === 'pinned' ? `<button type="button" role="menuitem" data-act="mode" data-arg="auto">${T('Back to Auto', 'กลับสู่อัตโนมัติ')}</button>` : ''}<hr>
     <button type="button" role="menuitem" data-act="toast" data-arg="${T('The real app asks to confirm before quitting', 'ในโปรแกรมจริงจะถามยืนยันก่อนออก')}">${T('Quit Vibe', 'ออกจาก Vibe')}</button></div>`;
   const taskbar = `<div class="mk-taskbar"><span>⊞ &nbsp; ${T('Search', 'ค้นหา')}</span><div class="mk-tray" aria-hidden="true"><span class="tr"></span><span class="tr"></span><span class="ghost"><img src="assets/ghost-final-d.svg" alt="" width="100%" height="100%"></span><span>09:41</span></div></div>`;
   let stage;
@@ -355,8 +339,8 @@ function trayView() {
 /* ---------- shell ---------- */
 const NAVS = [['now', 'Now', 'ตอนนี้'], ['scenes', 'Scenes', 'ซีน'], ['settings', 'Settings', 'ตั้งค่า']];
 function connPill() {
-  const m = S.mode, text = { auto: T('Showing: Design', 'กำลังแสดง: Design'), pinned: T('Pinned: ', 'ปักไว้: ') + ((curScene() || {}).name || ''), paused: T('Paused', 'หยุดสลับ'), hidden: T('Hidden', 'ซ่อนอยู่'), autohide: T('Hidden by rule', 'ซ่อนตามกฎ'), none: T('Showing nothing', 'ไม่แสดงอะไร'), discordoff: T('Discord not running', 'Discord ไม่ได้เปิด'), unreachable: T('Companion not responding', 'companion ไม่ตอบสนอง') }[m];
-  const cls = ['auto', 'pinned', 'paused', 'hidden', 'autohide', 'none'].includes(m) ? 'connected' : 'connecting';
+  const m = S.mode, text = { auto: T('Showing: Design', 'กำลังแสดง: Design'), pinned: T('Pinned: ', 'ปักไว้: ') + ((curScene() || {}).name || ''), hidden: T('Hidden', 'ซ่อนอยู่'), autohide: T('Hidden by rule', 'ซ่อนตามกฎ'), none: T('Showing nothing', 'ไม่แสดงอะไร'), discordoff: T('Discord not running', 'Discord ไม่ได้เปิด'), unreachable: T('Companion not responding', 'companion ไม่ตอบสนอง') }[m];
+  const cls = ['auto', 'pinned', 'hidden', 'autohide', 'none'].includes(m) ? 'connected' : 'connecting';
   return `<div class="connection-pill ${cls}"><span class="connection-dot" aria-hidden="true"></span><span id="connectionText">${text}</span></div>`;
 }
 /* ---------- motion (D1-M3): tokens live in mockup-extra.css; JS only orchestrates enter/exit ---------- */
@@ -599,8 +583,8 @@ function discordProfilePanel() {
 }
 
 /* ---------- Dev toolbar ---------- */
-const MODES = ['auto', 'pinned', 'paused', 'hidden', 'autohide', 'none', 'discordoff', 'unreachable'];
-const MODE_NAMES = { auto: 'Auto — following Figma', pinned: 'Pinned (until cancelled)', paused: 'Paused', hidden: 'Hidden', autohide: 'Hidden by auto-hide rule', none: 'Nothing shown (no ruled app)', discordoff: 'Discord not running', unreachable: 'Companion unreachable' };
+const MODES = ['auto', 'pinned', 'hidden', 'autohide', 'none', 'discordoff', 'unreachable'];
+const MODE_NAMES = { auto: 'Auto — following Figma', pinned: 'Pinned (until cancelled)', hidden: 'Hidden', autohide: 'Hidden by auto-hide rule', none: 'Nothing shown (no ruled app)', discordoff: 'Discord not running', unreachable: 'Companion unreachable' };
 function devH() { const d = $('#dev'); document.documentElement.style.setProperty('--dev-h', (document.body.classList.contains('nodev') || !d || getComputedStyle(d).position === 'static' ? 0 : d.offsetHeight) + 'px'); }
 addEventListener('resize', () => devH());
 function renderDev() {
@@ -699,7 +683,7 @@ function pairSection(sc) {
 function buildDrawer(first) {
   const sc = sceneBy(S.drawer.id); if (!sc) return;
   const old = $('.mk-drawer-body', layer()), top = old ? old.scrollTop : 0;
-  const live = curScene() && curScene().id === sc.id && ['auto', 'pinned', 'paused'].includes(S.mode);
+  const live = curScene() && curScene().id === sc.id && ['auto', 'pinned'].includes(S.mode);
   const fade = first ? 'mk-fade' : '';
   const html = `<div class="mk-backdrop ${fade}" data-act="closedrawer"></div>
   <div class="mk-drawer ${fade}" role="dialog" aria-modal="true" aria-labelledby="dtitle" data-kind="drawer" tabindex="-1">
@@ -842,7 +826,7 @@ function toast(msg, undo) {
 
 /* ---------- actions ---------- */
 let removed = null, lastText = null, undoFn = null;
-function setMode(m) { if (m === 'hidden' && S.mode !== 'hidden') S.prevMode = ['discordoff', 'unreachable'].includes(S.mode) ? 'auto' : S.mode; if (m === 'paused') S.frozen = (curScene() || S.scenes[0]).id; S.mode = m; S.menuOpen = false; }
+function setMode(m) { if (m === 'hidden' && S.mode !== 'hidden') S.prevMode = ['discordoff', 'unreachable'].includes(S.mode) ? 'auto' : S.mode; S.mode = m; S.menuOpen = false; }
 const keep = (sel) => { buildDrawer(); const e = $(sel, layer()); e && e.focus({ preventScroll: true }); };
 const ACT = {
   screen: a => { S.screen = a; S.menuOpen = false; S.acctOpen = false; },
@@ -850,7 +834,6 @@ const ACT = {
   livesend: a => { void liveCommand('send', a ? sceneBy(a) : curScene() || sceneBy(S.pinned) || S.scenes[0]); return 'overlay'; },
   liveend: () => { void liveCommand(REAL.enabled ? 'hide' : 'end'); return 'overlay'; },
   refreshapps: () => { void loadDeviceApps(true); return 'overlay'; },
-  scenepick: () => { S.pickOpen = !S.pickOpen; },
   pickscene: a => { S.pickOpen = false; if (REAL.enabled) { REAL.touched = true; REAL.selectedSceneId = a; REAL.selectedAppId = ''; scheduleSave(); return; } if (LIVE.enabled) { void liveCommand('send', sceneBy(a)); S.pinned = a; return 'overlay'; } S.pinned = a; S.pinnedRule = (S.rules.find(r => r.scene === a) || {}).id || ''; setMode('pinned'); },
   backauto: () => { S.pickOpen = false; if (REAL.enabled) { const r = S.rules.find(r => r.kind === 'app' && APPS.some(x => x.id === r.app && x.foreground)) || S.rules.find(r => r.kind === 'app' && APPS.some(x => x.id === r.app)); if (r) { REAL.touched = true; REAL.selectedSceneId = r.scene; REAL.selectedAppId = r.app; scheduleSave(); } return; } setMode('auto'); },
   usescene: a => { REAL.touched = true; REAL.selectedSceneId = a; REAL.selectedAppId = ''; scheduleSave(); if (S.drawer) buildDrawer(); else render(); return 'overlay'; },

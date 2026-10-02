@@ -27,7 +27,7 @@ test('real master switch remains enabled while disconnected, busy, and catalog l
   const run = renderer(); run('REAL.ready=false; LIVE.checked=false; LIVE.connected=false; LIVE.busy=true; REAL.presenceEnabled=true');
   const html = run('nowView()');
   const toggle = html.match(/<input[^>]+data-bind="presence"[^>]*>/)[0];
-  assert.ok(!toggle.includes('disabled')); assert.ok(toggle.includes('checked')); assert.ok(!html.includes('mk-live-panel')); assert.ok(!html.includes('data-bind="realscene"')); assert.ok(!html.includes('<select class="vs-select" data-bind="realscene"')); assert.ok(html.includes('data-act="scenepick"'));
+  assert.ok(!toggle.includes('disabled')); assert.ok(toggle.includes('checked')); assert.ok(!html.includes('mk-live-panel')); assert.ok(!html.includes('data-bind="realscene"')); assert.ok(!html.includes('<select class="vs-select" data-bind="realscene"')); assert.ok(html.includes('class="mk-now-switch"'));
 });
 test('app icon can be selected directly from image gallery and editor has no redundant Send', () => {
   const run = renderer(); run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin'}");
@@ -40,13 +40,21 @@ test('known app icons resolve to public image sources; unknown apps have an expl
   assert.equal(publicAppIcon('C:\\Private.exe', 'Private'), '');
 });
 
-test('LIVE Now: read-only Scene card (no select / old copy) and App icon previews resolve to the paired app icon', () => {
+test('LIVE Now (#39): switch + reason line + preview only; app icon resolves in both preview tabs; picker shows generic app tile', () => {
   const run = renderer(); run("LIVE.active=true; LIVE.scene={id:'coding',sceneName:'Coding',largeImage:'',smallImage:''}; REAL.presenceEnabled=true; Object.assign(sceneBy('coding'),{art:'@app',small:'',vars:false}); REAL.selectedAppId='device-code'");
   for (const view of ['popout', 'list']) { run("S.pvView='" + view + "'"); const html = run('nowView()');
-    assert.ok(!html.includes('<select')); assert.ok(!html.includes('Choose a Scene')); assert.ok(!html.includes('Using ')); assert.ok(!html.includes('mk-scene-select'));
-    assert.ok(html.includes('class="mk-scthumb"')); assert.ok(html.includes('from Visual Studio Code')); assert.ok(html.includes('data-act="scenepick"'));
-    assert.ok(html.includes('https://example.com/code.png')); }
-  run("REAL.selectedAppId=''"); assert.ok(run('nowView()').includes('Pinned')); assert.ok(run('nowView()').includes('data-act="backauto"'));
+    assert.ok(!html.includes('<select')); assert.ok(!html.includes('Choose a Scene')); assert.ok(!html.includes('vs-pill')); assert.ok(!html.includes('mk-scthumb'));
+    assert.ok(!html.includes('scenepick')); assert.ok(!html.includes('mk-paired')); assert.ok(!html.includes('data-act="pinpair"')); assert.ok(!html.includes('refreshapps')); assert.ok(!html.includes('pairadd'));
+    assert.ok(html.includes('class="mk-now-switch"')); assert.ok(html.includes('data-bind="presence"')); assert.match(html, /Following[\s\S]*Visual Studio Code[\s\S]*Auto/);
+    assert.ok(html.includes('https://example.com/code.png')); assert.ok(html.includes('data-act="pvview"')); }
+  run("REAL.selectedAppId=''"); let html = run('nowView()'); assert.match(html, /Pinned: <b>Coding<\/b>/); assert.ok(html.includes('data-act="backauto"'));
+  run('REAL.presenceEnabled=false; LIVE.active=false'); html = run('nowView()'); assert.ok(html.includes('Hidden')); assert.ok(!html.includes('data-act="backauto"'));
+  run('LIVE.error="boom"; LIVE.connected=false'); html = run('nowView()'); assert.ok(html.includes('boom')); assert.ok(html.includes('data-act="livecheck"'));
   run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin'}");
   const tab = run('imgTab()'); assert.ok(tab.includes('mk-generic-app')); assert.ok(!tab.includes('https://example.com/code.png')); assert.ok(tab.includes('follows the paired app'));
+});
+test('Pause is gone from the product; demo Now shows only switch + reason + preview', () => {
+  assert.ok(!/paused|Pause/.test(source.replace(/pause: sv\(.*\n/, '')));
+  const run = renderer(); run('REAL.enabled=false; LIVE.enabled=false; S.mode="pinned"; S.pinned="coding"');
+  const html = run('nowView()'); assert.ok(html.includes('Pinned: <b>')); assert.ok(html.includes('data-act="backauto"')); assert.ok(!html.includes('vs-pill'));
 });

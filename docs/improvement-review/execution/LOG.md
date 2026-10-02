@@ -93,3 +93,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner: Add app multi-select + junk filter | D1 | owner | sent to D1-M14 | — | owner |
 | 2026-10-02 | D1-M14 + D1-M15 live fixes, multi-select, junk filter | P2 / design | Sonnet | Done; tests 29/29; Browse .exe in live mode is a stub | (this commit) | owner to view |
 | 2026-10-02 | Owner decision #39 Now = on/off + preview; Pause removed | D1 | owner | D1-M16 dispatched | — | owner |
+| 2026-10-02 | D1-M16 minimal Now (#39) | P2 / design | Sonnet | Done; Pause removed everywhere; tests 30/30; not browser-viewed | (this commit) | owner to view |
