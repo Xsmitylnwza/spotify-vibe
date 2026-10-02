@@ -127,6 +127,13 @@ below is provisional and will be rewritten after D1:
 Acceptance per slice: Grok journey replay shows fewer steps/page jumps than the
 P0 baseline for the same job, no regressions in other journeys, `npm test` green.
 
+### P2-F — New features (owner request 2026-10-02; see ia-decision.md #14)
+
+After the P2 core journey lands. Each feature = small server/desktop task (Codex) + renderer slice (Sonnet), reviewed separately:
+F-a tray controls (desktop), F-b global hotkey (desktop), F-c auto-hide rules (server rule type + UI), F-d export/import (server + UI),
+F-e text variables `{app}`/`{window}` (server projection + editor), F-f web rules by window title (detector foreground title + rule type),
+F-g local history with bounded retention (server + UI). Privacy and P4 footprint budget are acceptance criteria for e/f/g.
+
 ### P3 — Visual, accessibility, i18n polish (Sonnet renderer)
 
 M9–M12, F18, F19: preview selector mismatch, contrast roles, accessible names,

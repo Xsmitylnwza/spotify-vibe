@@ -29,6 +29,16 @@ Inputs: `journey-audit-a.md`, `journey-audit-b.md`, `footprint-baseline.md`, P4-
 | 10 | Close (X) | **Hide to tray**, with a one-time notice that the companion keeps running; Quit lives in the tray menu (and Settings). |
 | 11 | Logo | **D3 Nori** (mascot). Known risk to address in refinement: headphones read as "music app"; 16 px tray legibility; check against Scene art style. |
 
+## Decisions (owner, round 4)
+
+| # | Topic | Decision |
+| --- | --- | --- |
+| 12 | Discord setup | **Zero-config:** the bundled Discord Application ID (`scripts/discord-application.mjs:2`) is used by default; the ID field moves to Settings → Advanced. No Discord login/OAuth (RPC is local IPC; OAuth `rpc` scope needs Discord approval and conflicts with local-only). |
+| 13 | Visual direction | **Keep current tone (warm neutral + indigo) and refine**; layout follows the new journey; logo Nori introduced without re-theming the app. |
+| 14 | New features (all requested) | (a) **Tray controls**: Pin/Pause/Hide and pick a Scene from the tray menu. (b) **Global hotkey** to hide/show Presence. (c) **Auto-hide rules**: when a chosen app is open (e.g. banking), Presence hides. (d) **Export/Import** Scenes + rules as a file. (e) **Text variables** `{app}`, `{window}` in Scene text, opt-in per Scene. (f) **Web rules**: match browser tab/window title (e.g. Figma in Chrome → Design). (g) **History**: what Discord showed today. |
+
+Feature constraints: all local, no new network services. (e)/(f)/(g) read window titles — privacy: opt-in, never sent unless the owner's Scene text uses them, history stored locally with bounded retention and a clear button. Footprint budget from P4 must hold (window-title reads only for the foreground window, no extra polling loop).
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
