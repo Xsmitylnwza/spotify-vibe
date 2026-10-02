@@ -69,6 +69,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 | 27 | Upload hosting | Upload sends the file to a **public image host** (owner choice) so Discord viewers can see it: explicit per-upload confirmation that the image becomes public; host configured in Settings > Image hosting (provider/API key like GIPHY, stored in secrets); no silent uploads; local thumbnail kept only as cache. Provider choice finalized in implementation (must allow anonymous/API upload, https direct links, acceptable ToS). |
 | 28 | Rendering | **No full re-render on any interaction.** Overlays never rebuild the page behind; modal/drawer frame, header, stepper and footer stay mounted while only the step body cross-fades and height animates; selections toggle state on existing nodes; lists/Now/editor use keyed incremental updates preserving scroll and focus. (Implementation rule for P2 renderer too.) |
 
+| 29 | Where apps are paired | **Supersedes the App-rules-on-Now part of #1.** Apps are paired **inside each Scene's editor** (section "Shows when these apps are open": app/web-tab chips with remove, "+ Add app" opening the #6 picker). One app/tab belongs to one Scene; picking an app already used elsewhere asks to move it. Now keeps only the status card plus a compact summary ("5 apps paired · 1 auto-hide") linking to Scenes. Auto-hide rules (not Scene-bound) move to **Settings → Privacy**. Selection policy (#5) unchanged. |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
