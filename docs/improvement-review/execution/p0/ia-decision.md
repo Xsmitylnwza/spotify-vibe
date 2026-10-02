@@ -57,6 +57,17 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 
 | 21 | Discord identity | **No OAuth login.** Use the local Discord Desktop RPC connection: after `login`, the client READY event provides `user` (id, username, global/display name, avatar). Show **"Connected as @user" with the real avatar** in the shell/Now and use the real avatar + name in the Scene preview. Updates on reconnect/account switch; falls back to the placeholder when Discord is not running. Avatar loaded from Discord's CDN only for display (no token, nothing stored except optional cached display fields). Bundled Application ID stays default (#12). |
 
+## Decisions (owner, round 7 — mockup feedback)
+
+| # | Topic | Decision |
+| --- | --- | --- |
+| 22 | Preview realism | Preview = faithful Discord dark **profile popout** (banner, ringed avatar + status dot, name/@username, activity panel), with a toggle to the **member-list** row. Real identity from #21. |
+| 23 | Sidebar footer | One **Discord-style account panel** (avatar + status dot, display name, short status, gear → Settings). Language/theme move to Settings > Appearance. |
+| 24 | Scene library rows | Bound apps shown as an **icon stack on the right** (+N, tooltips, browser+globe badge for web rules, "+ app" when none); 2-line rows; focal flow artwork → name/detail → right cluster. |
+| 25 | Delete Scene | Delete action inside the Scene editor; confirm names the Scene and lists affected rules (remove or reassign); removed only after successful save; Undo toast; last Scene cannot be deleted. |
+| 26 | Image picker | Large/small image fields use an image well + picker: **Built-in art · GIF search (GIPHY) · Link (https, live preview + validation) · Upload from computer**. |
+| 27 | Upload hosting | Upload sends the file to a **public image host** (owner choice) so Discord viewers can see it: explicit per-upload confirmation that the image becomes public; host configured in Settings > Image hosting (provider/API key like GIPHY, stored in secrets); no silent uploads; local thumbnail kept only as cache. Provider choice finalized in implementation (must allow anonymous/API upload, https direct links, acceptable ToS). |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).

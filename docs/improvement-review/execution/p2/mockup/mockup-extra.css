@@ -329,3 +329,91 @@ html { scroll-behavior: auto; }
 .vs-mobile-status .mk-id { padding: 4px 6px; }
 .vs-mobile-status .mk-id-t small { display: none; }
 @media (prefers-reduced-motion: reduce) { .mk-id-swap { animation: none; } }
+
+/* ================= D1-M4 Discord-faithful preview (dark profile popout + member list). Card is always Discord dark; app UI stays Plex. ================= */
+.mk-pvwrap { display: flex; flex-direction: column; gap: 10px; }
+.mk-pvt { align-self: flex-start; }
+.dcp { --d-bg: #111214; --d-panel: #1e1f22; --d-text: #f2f3f5; --d-sub: #dbdee1; --d-mute: #b5bac1; width: 100%; max-width: 340px; background: var(--d-bg); color: var(--d-sub); border-radius: 8px; border: 1px solid rgba(255,255,255,.08); font-family: "gg sans", "Noto Sans", Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.286; padding-bottom: 12px; box-shadow: 0 8px 16px rgba(0,0,0,.24); }
+.dcp-top { position: relative; height: 106px; }
+.dcp-banner { height: 60px; background: #5865f2; border-radius: 8px 8px 0 0; }
+.dcp-av { position: absolute; left: 16px; top: 22px; width: 80px; height: 80px; border-radius: 50%; background: var(--d-bg); padding: 6px; box-sizing: content-box; margin: -6px; }
+.dcp-av .mk-av { width: 80px; height: 80px; border: 0; background: #2b2d31; }
+.dcp-av .mk-av-off { background: #4e5058; color: #b5bac1; }
+.dcp-dot { position: absolute; right: -2px; bottom: -2px; width: 22px; height: 22px; border-radius: 50%; background: #23a55a; border: 5px solid var(--d-bg); box-sizing: border-box; }
+.dcp-dot.off { background: #80848e; }
+.dcp-id { padding: 0 16px; display: flex; flex-direction: column; gap: 1px; }
+.dcp-id b { font-size: 20px; font-weight: 700; color: var(--d-text); line-height: 1.2; }
+.dcp-id span { font-size: 14px; color: var(--d-sub); }
+.dcp-hr { height: 1px; background: rgba(255,255,255,.08); margin: 12px 16px; }
+.dcp-act { margin: 0 12px; background: var(--d-panel); border-radius: 8px; padding: 12px; }
+.dcp-lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; color: var(--d-text); margin-bottom: 8px; }
+.dcp-row { display: flex; gap: 12px; align-items: center; }
+.dcp-img { position: relative; width: 72px; height: 72px; flex: none; border-radius: 8px; background: #2b2d31; }
+.dcp-img > img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; }
+.dcp-sm { position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px; border-radius: 50%; background: var(--d-panel); padding: 3px; box-sizing: border-box; }
+.dcp-sm img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.dcp-tx { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.dcp-name { font-size: 14px; font-weight: 600; color: var(--d-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dcp-l { font-size: 14px; color: var(--d-sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dcp-link { cursor: pointer; }
+.dcp-link:hover { text-decoration: underline; text-decoration-color: #00a8fc; text-underline-offset: 2px; }
+.dcp-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.dcp-btn { display: flex; align-items: center; justify-content: center; min-height: 32px; border-radius: 3px; background: #4e5058; color: #fff; font-size: 14px; font-weight: 500; padding: 2px 16px; }
+.dcp-none { margin: 0 12px; background: var(--d-panel); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.dcp-none b { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--d-text); }
+/* hover text, styled like Discord tooltips */
+[data-tip]:not([data-tip=""]):hover::after { content: attr(data-tip); position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); background: #0e0f11; color: #dbdee1; font: 600 13px/1.3 "gg sans", "Noto Sans", Arial, sans-serif; padding: 6px 10px; border-radius: 5px; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 8px 16px rgba(0,0,0,.4); pointer-events: none; }
+/* member list row */
+.dcp-list { background: #2b2d31; padding: 8px 8px 10px; max-width: 280px; box-shadow: none; }
+.dcp-mlh { font-size: 12px; font-weight: 700; letter-spacing: .02em; color: #949ba4; padding: 6px 8px 4px; }
+.dcp-mrow { display: flex; align-items: center; gap: 12px; padding: 6px 8px; border-radius: 4px; background: #35373c; }
+.dcp-mav { position: relative; width: 32px; height: 32px; flex: none; }
+.dcp-mav .mk-av { width: 32px; height: 32px; border: 0; background: #1e1f22; }
+.dcp-mav .mk-av-off { background: #4e5058; color: #b5bac1; }
+.dcp-mav .dcp-dot { width: 14px; height: 14px; right: -3px; bottom: -3px; border-width: 3px; border-color: #35373c; }
+.dcp-mt { display: flex; flex-direction: column; min-width: 0; }
+.dcp-mt > b { font-size: 16px; font-weight: 500; color: var(--d-text); line-height: 1.25; }
+.dcp-mt small { font-size: 12px; color: var(--d-mute); line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dcp-mt small b { font-weight: 600; color: var(--d-text); }
+/* compact sticky preview on narrow widths: activity panel only */
+@media (max-width: 860px) {
+  .mk-prev .dcp-top, .mk-prev .dcp-id, .mk-prev .dcp-hr, .mk-prev .mk-pvt, .mk-prev .vs-preview-foot { display: none; }
+  .mk-prev .dcp { padding: 8px 0; max-width: none; }
+  .mk-prev .dcp-act { margin: 0 8px; padding: 10px; }
+  .mk-prev .dcp-img { width: 56px; height: 56px; }
+  .mk-prev .dcp-sm { width: 22px; height: 22px; padding: 2px; right: -5px; bottom: -5px; }
+  .mk-prev .dcp-btns { flex-direction: row; margin-top: 8px; }
+  .mk-prev .dcp-btn { flex: 1; min-height: 28px; }
+  .mk-prev .dcp-list .dcp-mrow { margin: 0; }
+  .mk-prev .dcp-list { padding: 4px 6px; }
+  .mk-prev .dcp-mlh { display: none; }
+}
+
+/* ================= Discord-style account bar (sidebar footer; avatar + gear in the top strip on narrow) ================= */
+.vs-side-foot { padding: 8px; border-top: 1px solid var(--vs-hairline); gap: 0; }
+.mk-acct { position: relative; display: flex; align-items: center; gap: 4px; height: 54px; padding: 0 6px 0 4px; background: var(--vs-sunken); border: 1px solid var(--vs-hairline-soft); border-radius: var(--vs-r-md); width: 100%; }
+.mk-acct-id { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 6px; border: 0; background: transparent; border-radius: var(--vs-r-sm); text-align: left; transition: background-color var(--mk-dur-fast) var(--mk-ease), transform 100ms var(--mk-ease); }
+.mk-acct-id:hover { background: var(--vs-hairline-soft); }
+.mk-acct-id:active { transform: scale(.98); }
+.mk-acct-av { position: relative; width: 34px; height: 34px; flex: none; }
+.mk-acct-av .mk-av { width: 34px; height: 34px; }
+.mk-acct-dot { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--vs-sunken); background: var(--vs-ink3); box-sizing: border-box; transition: background-color var(--mk-dur) var(--mk-ease); }
+.mk-acct-dot[data-s="on"] { background: #23a55a; }
+.mk-acct-dot[data-s="warn"] { background: #f0b232; }
+.mk-acct-dot[data-s="off"] { background: #80848e; }
+.mk-acct-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.mk-acct-n { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-acct-s { font-size: 12px; color: var(--vs-ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-gear { flex: none; border: 0; background: transparent; width: 34px; height: 34px; border-radius: var(--vs-r-sm); }
+.mk-gear:hover { background: var(--vs-hairline-soft); color: var(--vs-ink); }
+.mk-acct-pop { bottom: calc(100% + 8px); top: auto; left: 0; right: 0; min-width: 0; }
+.mk-acct-pop-h { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+.mk-acct-pop-h b { display: block; font-size: 14px; }
+.mk-acct-pop-h small { color: var(--vs-ink2); font-size: 12px; }
+.vs-mobile-status { padding: 8px 16px 0; }
+.mk-acct.compact { height: 48px; background: transparent; border: 0; padding: 0; justify-content: space-between; }
+.mk-acct.compact .mk-acct-id { flex: 0 0 auto; padding: 0 8px 0 0; }
+.mk-acct.compact .mk-acct-t { display: none; }
+.mk-acct.compact .mk-acct-dot { border-color: var(--vs-bg); }
+.mk-acct.compact .mk-acct-pop { bottom: auto; top: calc(100% + 4px); right: auto; width: 260px; }
+.mk-acct.compact .mk-gear { border: 1px solid var(--vs-hairline); background: var(--vs-surface); }

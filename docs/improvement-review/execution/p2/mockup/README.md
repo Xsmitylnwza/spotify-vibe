@@ -4,12 +4,36 @@ Mockup only. Nothing under `scripts/`, `electron/` or `public/` was edited (file
 
 **Direction change applied (owner, high priority):** the current Studio look is kept as-is. `studio-ci.css` is an unmodified copy of `scripts/studio-ci.css`; every screen is built from its real `vs-*` components, the real sidebar/nav icons, the ghost logo (now `p3/logo/final/ghost-final-d.svg`; the original `assets/logo-ghost.svg` is the favicon) and real art (`public/art/*`, copied into `assets/art/`). Only the content/arrangement follows the new journey, plus contrast and spacing polish. The Nori mark is **not** used.
 
+## D1-M4b Discord-style account panel (sidebar footer)
+
+The cluttered footer (connected-as chip, status pill, TH/EN + theme toggles, "companion runs in the background") is replaced by **one ~54 px account bar** modelled on Discord's bottom-left user panel, on a slightly darker surface than the sidebar:
+- round avatar with a **status dot** (green = connected/showing, amber = paused/hidden/hidden-by-rule, grey = Discord not running / companion unreachable), display name (bold) on line 1, short status on line 2 ("Showing: Design", "Pinned: …", "Paused", "Hidden", "Hidden by rule", "Nothing to show", "Discord not running", "Companion not responding"; TH/EN), and a **gear** button at the right → Settings (tooltip "Settings").
+- Clicking avatar/name opens a tiny popover (name,  or "Not connected", status, "Open Discord"); Escape or an outside click closes it (fade + 4 px, exit animates).
+- **TH/EN and theme moved to Settings → Appearance** (reachable at every width). The "companion runs in the background" text is gone from the footer (it stays in the Now card footnote).
+- **Narrow (≤760 px):** the bar becomes avatar (with dot) + gear in the top strip; the bottom nav is unchanged.
+- Motion (#20): status text and the avatar cross-fade in place and the dot colour transitions — the panel is patched, never rebuilt. The mockup has no collapsible sidebar rail, so the collapsed state is not mocked (the bar would reduce to avatar + dot).
+- Screenshots: – (connected, Discord not running, paused in Thai, popover, hidden in dark) and  (Settings → Appearance), plus the narrow set , .
+
+## D1-M4 Discord-faithful preview
+
+**Why isn't the account real?** The mockup is a static prototype with fake data on purpose (`golf` / `@golf`, a placeholder avatar, fake apps/scenes) — it never talks to Discord. The real app (P2) will use the live `state.discordUser = { id, username, displayName, avatarUrl }` that the server already exposes from the local RPC READY event (commit `371fce0`), and fall back to the grey placeholder when Discord is not running.
+
+The preview (Now and the Scene editor use the same component, `dcCard()` in `mockup.js`, styles `.dcp*` in `mockup-extra.css`) is now a replica of Discord Desktop's dark **user profile popout**:
+- Banner strip (solid colour), large round avatar overlapping it with a status-dot ring, bold display name and `@username`, thin divider.
+- Activity panel: section label by type (Playing / Listening to / Watching / Competing in), a 72 px rounded large image with the small image as a circle overlay at the bottom-right, then the activity name (bold), Details and State; Details/State get an underline-on-hover when a link is set; large/small hover texts show as Discord-style dark tooltips on hover; up to two full-width stacked secondary buttons.
+- Discord's own colours (`#111214` / `#1e1f22` / `#f2f3f5` / `#dbdee1` / `#4e5058`, `#23a55a` status), radii and sizes, "gg sans" with fallbacks **only inside the card** (the app UI stays IBM Plex). No Discord logos or wordmarks. The card is always Discord-dark, in light and dark app themes.
+- The card is labelled outside it: "Preview — how others see you on Discord" (TH: "ตัวอย่าง — คนอื่นเห็นคุณบน Discord แบบนี้").
+- A toggle under the card switches **Profile popout ⇄ Member list**; the member list is the compact row (avatar + status dot + name + one-line "Playing **name**"). In that view only the activity type/name are visible, and a note says so. `?pv=list` deep-links it.
+- #18 highlights still map to the right part: heading label + bold activity name (`act`), Details line, State line, large image, small badge, each button; #20 motion unchanged. On narrow widths the sticky preview shows only the activity panel (banner/name hidden) to stay compact.
+
+Screenshots re-captured: all desktop (1280×800) and the narrow (390×844) set, EN and TH; new `18-now-member-list`, `19-now-member-list-th`, and the editor tooltip+highlight shots `34`, `35`, `74` (TH). Because the Orca tab only ticks animation frames when a screenshot is taken, each capture takes a throw-away shot first so transitions finish.
+
 ## D1-M3b Discord identity (decision #21, no OAuth)
 
 Fake identity `golf` / `@golf` with a placeholder avatar (`assets/art/avatar-2.svg`), as it would arrive from the local RPC READY event.
 - **Connected:** sidebar footer shows a round avatar + "Connected as @golf"; Now's *Discord* fact shows avatar + "Connected as @golf"; the Scene preview card (Now, editor, first run) uses the avatar + display name `golf` / `@golf` instead of "Your name"; Settings → Discord connection shows "Connected as @golf" (read from local Discord Desktop, no login, nothing stored) with the Application ID still under *Advanced*.
 - **Discord not running / companion unreachable:** grey placeholder avatar + "Open Discord Desktop" in the sidebar, mobile strip, Now fact, Settings and preview ("Discord user · Not connected").
-- **Switching:** the sidebar identity cross-fades (180 ms, same motion tokens) when the state flips; Now content and preview use the normal cross-fade. On narrow widths the top strip shows the avatar + handle and the TH/EN/theme cluster (the mode pill stays in the Now card).
+- **Switching:** the sidebar identity cross-fades (180 ms, same motion tokens) when the state flips; Now content and preview use the normal cross-fade. (Superseded by D1-M4b: the footer is now the account panel.)
 - Screenshots: `90`, `91`, `92` (desktop) and `m-90`, `m-91` (390 px). The five narrow shots missing earlier (`m-70`, `m-71`, `m-72`, `m-74`, `m-75`) are now captured. Other screenshots predate the identity change (they show "Your name" in the preview) — re-capture before G1.
 
 ## D1-M3 motion system (decision #20, within #15)
@@ -37,7 +61,7 @@ Everything is CSS/JS in the mockup (`mockup-extra.css` tokens + `mockup.js` orch
 
 Input is never delayed: handlers run first and update the DOM synchronously, animations are layered on top (ghosts and leaving layers are `pointer-events:none` / `inert`), and focus moves in the same tick (verified: the drawer's name field is focused in the click handler; closing returns focus to the opener while the panel is still fading).
 
-Verification in the Orca tab: after a nav click the sidebar element is the same node at the same coordinates, one ghost exists during the fade and none afterwards; the drawer is in the DOM and focused immediately and is removed after its exit; removing a rule shrinks 14→13 rows after the collapse. Note: the Orca tab does not tick animation frames until a screenshot is taken, so timing was verified by DOM state plus `screens/80-motion-mid-transition-nav-click.png` (a real mid-fade capture: Now pill fading out, Settings in).
+Verification in the Orca tab: after a nav click the sidebar element is the same node at the same coordinates, one ghost exists during the fade and none afterwards; the drawer is in the DOM and focused immediately and is removed after its exit; removing a rule shrinks 14→13 rows after the collapse. Note: the Orca tab does not tick animation frames until a screenshot is taken, so timing was verified by DOM state plus `screens/80-motion-mid-transition-nav-click.png` (not retained).
 
 ## D1-M2 revision (decisions #15–#19)
 
