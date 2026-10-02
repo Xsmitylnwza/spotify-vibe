@@ -39,6 +39,11 @@ const TYPES = [['playing', 'Playing', 'กำลังเล่น'], ['listenin
 const GHOST = '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><mask id="vs-ghost-mask"><rect width="64" height="64" fill="#fff"/><path d="M22 27l8 1.5-1.5 7-8-1.5Z" fill="#000"/><path d="M39 30Q43 33.5 47 29.5" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M25 38.5Q32.5 44 40 37" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30.5 13l4.5 0-2.5 5.5 4 0-6.5 8.5 2-6-4 0Z" fill="#000"/></mask></defs><path d="M32 10C21 10 14 20 14 31V44l9-6 9 6 9-6 9 6V31C50 20 43 10 32 10Z" fill="currentColor" mask="url(#vs-ghost-mask)"/></svg>';
 function ghostSvg() { const id = 'gm' + (ghostSvg.n = (ghostSvg.n || 0) + 1); return GHOST.replace('id="vs-ghost-mask"', `id="${id}"`).replace('url(#vs-ghost-mask)', `url(#${id})`); }
 
+const DCID = { name: 'golf', handle: '@golf', avatar: 'avatar-2.svg' };
+const idOn = () => !(S.screen === 'first' ? S.fr.discord === 'off' : ['discordoff', 'unreachable'].includes(S.mode));
+const idAv = (on, sz) => on ? `<img class="mk-av ${sz || ''}" src="${A_}${DCID.avatar}" alt="">` : `<span class="mk-av mk-av-off ${sz || ''}" aria-hidden="true"><svg viewBox="0 0 24 24" width="60%" height="60%" fill="currentColor"><circle cx="12" cy="9" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg></span>`;
+const idLine = on => on ? T('Connected as ', 'เชื่อมต่อเป็น ') + `<b>${DCID.handle}</b>` : `<b>${T('Open Discord Desktop', 'เปิด Discord Desktop')}</b>`;
+const idChip = () => { const on = idOn(); return `<div class="mk-id" data-on="${on}" role="status">${idAv(on)}<span class="mk-id-t"><small>${on ? T('Connected as', 'เชื่อมต่อเป็น') : T('Discord not connected', 'ยังไม่เชื่อมต่อ Discord')}</small><b>${on ? DCID.handle : T('Open Discord Desktop', 'เปิด Discord Desktop')}</b></span></div>`; };
 const mkScene = o => Object.assign({ name: '', type: 'playing', actName: 'Vibe', l1: '', l1url: '', l2: '', l2url: '', art: 'a1', artText: '', artUrl: '', small: '', smallText: '', smallUrl: '', vars: false, btns: [{ label: '', url: '' }, { label: '', url: '' }] }, o);
 const S = {
   lang: 'en', theme: 'light', screen: 'now', mode: 'auto', prevMode: 'auto',
@@ -106,7 +111,7 @@ function curScene() {
 const activeRuleId = () => (S.mode === 'auto' || S.mode === 'discordoff' ? 'r1' : S.mode === 'autohide' ? 'r7' : null);
 const subst = (s, c) => s.replace(/\{app\}/g, c.app).replace(/\{window\}/g, c.win);
 function dcCard(sc, o = {}) {
-  const user = `<div class="vs-dc-user"><div class="vs-dc-avatar" aria-hidden="true">Y</div><div><span class="vs-dc-name">${T('Your name', 'ชื่อของคุณ')}</span><span class="vs-dc-sub">${T('Discord profile', 'โปรไฟล์ Discord')}</span></div></div>`;
+  const on = idOn(); const user = `<div class="vs-dc-user"><div class="vs-dc-avatar mk-dcav" aria-hidden="true">${idAv(on)}</div><div><span class="vs-dc-name">${on ? DCID.name : T('Discord user', 'ผู้ใช้ Discord')}</span><span class="vs-dc-sub">${on ? DCID.handle : T('Not connected', 'ยังไม่เชื่อมต่อ')}</span></div></div>`;
   if (!sc) return `<div class="vs-dc-card" role="img" aria-label="${esc(o.title || 'No activity')}">${user}<div class="vs-dc-activity">${esc(o.title || T('No activity', 'ไม่มีกิจกรรม'))}</div><span class="vs-dc-line2">${esc(o.sub || T('Nothing is shown on your profile.', 'ไม่มีอะไรแสดงบนโปรไฟล์ของคุณ'))}</span></div>`;
   const ctx = { app: o.app || 'Figma', win: o.win || 'Landing page v3 – Figma' };
   const hd = { playing: T('Playing', 'กำลังเล่น'), listening: T('Listening to', 'กำลังฟัง'), watching: T('Watching', 'กำลังดู'), competing: T('Competing in', 'กำลังแข่งใน') }[sc.type];
@@ -122,7 +127,7 @@ function dcCard(sc, o = {}) {
 /* ---------- Now ---------- */
 function modeInfo() {
   const sc = curScene(), n = sc && sc.name;
-  const conn = [T('Discord', 'Discord'), T('Connected', 'เชื่อมต่อแล้ว')];
+  const conn = [T('Discord', 'Discord'), `<span class="mk-idv">${idAv(true, 'sm')}${T('Connected as ', 'เชื่อมต่อเป็น ')}${DCID.handle}</span>`];
   return {
     auto: { pill: 'good', badge: T('Auto', 'อัตโนมัติ'), title: T('Showing “' + n + '” on Discord', 'กำลังแสดง “' + n + '” บน Discord'),
       why: T('Because Figma is the app you used most recently, and your rule says Figma → Design.', 'เพราะ Figma คือแอปที่คุณใช้ล่าสุด และกฎของคุณกำหนดว่า Figma → Design'),
@@ -144,10 +149,10 @@ function modeInfo() {
       facts: [[T('Why', 'เหตุผล'), T('No rule matches', 'ไม่มีกฎที่ตรง')], [T('Shows', 'แสดง'), T('Nothing', 'ไม่มีอะไร')], conn] },
     discordoff: { pill: 'warn', badge: T('Discord not running', 'Discord ไม่ได้เปิด'), title: T('Discord isn’t running', 'Discord ไม่ได้เปิดอยู่'),
       why: T('Vibe can’t show anything until Discord is open. When it starts, Vibe will show “Design” (Figma rule) by itself — nothing to do.', 'Vibe แสดงอะไรไม่ได้จนกว่าจะเปิด Discord เมื่อเปิดแล้ว Vibe จะแสดง “Design” (กฎ Figma) ให้เอง ไม่ต้องทำอะไร'),
-      facts: [[T('Why', 'เหตุผล'), T('Rule: Figma → Design', 'กฎ: Figma → Design')], [T('Shows', 'แสดง'), T('Nothing yet', 'ยังไม่มี')], [T('Discord', 'Discord'), T('Not running', 'ไม่ได้เปิด')]] },
+      facts: [[T('Why', 'เหตุผล'), T('Rule: Figma → Design', 'กฎ: Figma → Design')], [T('Shows', 'แสดง'), T('Nothing yet', 'ยังไม่มี')], [T('Discord', 'Discord'), `<span class="mk-idv">${idAv(false, 'sm')}${T('Open Discord Desktop', 'เปิด Discord Desktop')}</span>`]] },
     unreachable: { pill: 'warn', badge: T('Not connected', 'ติดต่อไม่ได้'), title: T('Can’t reach the Vibe companion', 'ติดต่อ Vibe companion ไม่ได้'),
       why: T('Studio can’t tell what Discord shows. The last thing we knew is dimmed on the right and may be wrong.', 'Studio ไม่ทราบว่า Discord แสดงอะไรอยู่ สิ่งที่เห็นทางขวาเป็นข้อมูลล่าสุดที่รู้และอาจไม่ถูกต้อง'),
-      facts: [[T('Why', 'เหตุผล'), T('Unknown', 'ไม่ทราบ')], [T('Shows', 'แสดง'), T('Unknown', 'ไม่ทราบ')], [T('Discord', 'Discord'), T('Unknown', 'ไม่ทราบ')]] },
+      facts: [[T('Why', 'เหตุผล'), T('Unknown', 'ไม่ทราบ')], [T('Shows', 'แสดง'), T('Unknown', 'ไม่ทราบ')], [T('Discord', 'Discord'), `<span class="mk-idv">${idAv(false, 'sm')}${T('Unknown', 'ไม่ทราบ')}</span>`]] },
   }[S.mode];
 }
 function nowView() {
@@ -191,7 +196,7 @@ function ruleRow(r) {
   const kind = web ? T('Web rule', 'กฎเว็บ') : hide ? T('Auto-hide rule', 'กฎซ่อนอัตโนมัติ') : T('App rule', 'กฎแอป');
   const tgt = hide ? `<span class="mk-target">${I.hide}${T('Hide from Discord while open', 'ซ่อนจาก Discord ขณะเปิดอยู่')}</span>`
     : `<select aria-label="${T('Scene for ', 'ซีนของ ')}${esc(name)}" data-bind="rulescene" data-id="${r.id}">${S.scenes.map(s => `<option value="${s.id}" ${s.id === r.scene ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>`;
-  return `<li class="mk-rule ${active ? 'is-active' : ''}"><span class="vs-visually-hidden">${kind}</span><span class="mk-label">${web ? `<span class="mk-ico-fb" aria-hidden="true">${I.globe}</span>` : icoOf(a)}<span style="min-width:0"><strong>${esc(name)}</strong><small>${esc(sub)}</small></span></span><span class="mk-arrow" aria-hidden="true">→</span>${tgt}
+  return `<li class="mk-rule ${active ? 'is-active' : ''} ${S.fresh === r.id ? 'mk-row-in' : ''}" data-rule="${r.id}"><span class="vs-visually-hidden">${kind}</span><span class="mk-label">${web ? `<span class="mk-ico-fb" aria-hidden="true">${I.globe}</span>` : icoOf(a)}<span style="min-width:0"><strong>${esc(name)}</strong><small>${esc(sub)}</small></span></span><span class="mk-arrow" aria-hidden="true">→</span>${tgt}
     <span class="mk-acts">${active ? `<span class="vs-pill vs-pill-good">${T('Active', 'ใช้อยู่')}</span>` : ''}${hide ? '' : `<button class="vs-btn vs-btn-sm vs-btn-ghost" type="button" data-act="editscene" data-arg="${r.scene}" data-k="edit-${r.id}">${I.edit}${T('Edit Scene', 'แก้ซีน')}<span class="vs-visually-hidden"> ${esc(sceneBy(r.scene).name)}</span></button>`}<button class="vs-icon-btn-danger" type="button" data-act="rmrule" data-arg="${r.id}" aria-label="${T('Remove rule', 'ลบกฎ')}: ${esc(name)}">${I.x}</button></span></li>`;
 }
 
@@ -200,7 +205,7 @@ function scenesView() {
   const rows = S.scenes.map(s => {
     const used = S.rules.filter(r => r.scene === s.id).map(r => r.kind === 'web' ? T('tab “' + r.contains + '”', 'แท็บ “' + r.contains + '”') : appBy(r.app).name);
     const live = curScene() && curScene().id === s.id && ['auto', 'pinned', 'paused'].includes(S.mode);
-    return `<button type="button" class="vs-scene-row ${live ? 'is-live' : ''}" data-act="editscene" data-arg="${s.id}" data-k="lib-${s.id}"><span class="vs-scene-icon"><img src="${A_}${ART[s.art]}" alt=""></span>
+    return `<button type="button" class="vs-scene-row ${live ? 'is-live' : ''} ${S.fresh === s.id ? 'mk-row-in' : ''}" data-act="editscene" data-arg="${s.id}" data-k="lib-${s.id}"><span class="vs-scene-icon"><img src="${A_}${ART[s.art]}" alt=""></span>
       <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name)}</span><span class="vs-scene-sub">${esc(s.l1)}${s.l2 ? ' · ' + esc(s.l2) : ''}</span><span class="vs-scene-willshow">${used.length ? T('Used by: ', 'ใช้โดย: ') + esc(used.join(', ')) : T('Not used by any rule yet', 'ยังไม่มีกฎที่ใช้ซีนนี้')}</span></span>
       ${live ? `<span class="vs-pill vs-pill-accent">${T('On Discord', 'กำลังแสดง')}</span>` : ''}<span class="vs-pill vs-pill-neutral">${esc(TYPES.find(t => t[0] === s.type)[S.lang === 'th' ? 2 : 1])}</span></button>`;
   }).join('');
@@ -218,7 +223,7 @@ function settingsView() {
   const s = S.set;
   const card = (title, sub, body) => `<section class="vs-card"><div class="vs-card-head"><h2>${title}</h2>${sub ? `<p class="vs-subcopy">${sub}</p>` : ''}</div>${body}</section>`;
   return `${pageHead(T('Preferences', 'การตั้งค่า'), T('Settings', 'ตั้งค่า'), T('Connection, startup, shortcuts and your data. Everything here is stored on this PC.', 'การเชื่อมต่อ การเริ่มต้น ปุ่มลัด และข้อมูลของคุณ ทั้งหมดเก็บในเครื่องนี้'))}
-  ${card(T('Discord connection', 'การเชื่อมต่อ Discord'), '', `<div class="vs-keystatus"><div class="vs-keystatus-row"><strong>${T('Discord app', 'แอป Discord')}</strong><span class="vs-statuspill ok">${T('Connected', 'เชื่อมต่อแล้ว')}</span></div><p class="vs-caption">${T('Uses Vibe’s built-in Discord application — nothing to set up.', 'ใช้แอปพลิเคชัน Discord ที่มาพร้อม Vibe ไม่ต้องตั้งค่าอะไร')}</p></div>
+  ${card(T('Discord connection', 'การเชื่อมต่อ Discord'), '', `<div class="vs-keystatus"><div class="vs-keystatus-row"><strong class="mk-idv">${idAv(idOn(), 'sm')}<span>${idLine(idOn())}</span></strong><span class="vs-statuspill ${idOn() ? 'ok' : 'warn'}">${idOn() ? T('Connected', 'เชื่อมต่อแล้ว') : T('Not running', 'ไม่ได้เปิด')}</span></div><p class="vs-caption">${T('Read from your local Discord Desktop — no login, no password, nothing stored. Uses Vibe’s built-in Discord application.', 'อ่านจาก Discord Desktop ในเครื่อง — ไม่ต้องล็อกอิน ไม่เก็บรหัสผ่านหรือข้อมูลใด ๆ ใช้แอปพลิเคชัน Discord ที่มาพร้อม Vibe')}</p></div>
     <div class="vs-form-actions" style="margin-top:0"><button class="vs-btn vs-btn-sm" type="button" data-act="toast" data-arg="${T('Reconnected to Discord', 'เชื่อมต่อ Discord ใหม่แล้ว')}">${T('Reconnect', 'เชื่อมต่อใหม่')}</button></div>
     <details class="vs-disclosure"><summary>${T('Advanced', 'ขั้นสูง')}</summary><div class="vs-disclosure-body"><div class="vs-field"><label class="vs-label" for="appid">Discord Application ID</label><input class="vs-input" type="text" id="appid" inputmode="numeric" placeholder="${T('Built-in ID in use — leave empty', 'ใช้ ID ที่มาพร้อมโปรแกรม — เว้นว่างได้')}" value="${esc(s.appId)}" data-bind="appid"><p class="vs-hint">${T('Only if you want your own Discord app name and artwork. Leave empty to use the built-in one.', 'ใช้เมื่ออยากใช้ชื่อและภาพของแอป Discord ของคุณเอง เว้นว่างเพื่อใช้ค่าที่มาพร้อมโปรแกรม')}</p></div></div></details>`)}
   ${card(T('Startup & window', 'เริ่มต้นและหน้าต่าง'), '', `${sw('autostart', T('Start with Windows', 'เริ่มพร้อม Windows'), T('Vibe starts in the tray and shows your Scene without opening this window.', 'Vibe เริ่มในถาดระบบและแสดงซีนโดยไม่ต้องเปิดหน้าต่างนี้'), s.autostart)}
@@ -292,17 +297,61 @@ function connPill() {
   const cls = ['auto', 'pinned', 'paused', 'hidden', 'autohide', 'none'].includes(m) ? 'connected' : 'connecting';
   return `<div class="connection-pill ${cls}"><span class="connection-dot" aria-hidden="true"></span><span id="connectionText">${text}</span></div>`;
 }
-function render() {
+/* ---------- motion (D1-M3): tokens live in mockup-extra.css; JS only orchestrates enter/exit ---------- */
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EASE = 'cubic-bezier(.2,.8,.2,1)';
+function ghostOut() { /* fixed, inert snapshot of the outgoing content; fades out on top, never affects layout or input */
+  if (reduced()) return [];
+  const g = [];
+  document.querySelectorAll('#main, .vs-onboard').forEach(el => {
+    const r = el.getBoundingClientRect(), c = el.cloneNode(true), ob = el.classList.contains('vs-onboard');
+    c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(n => n.removeAttribute('id')); c.setAttribute('aria-hidden', 'true'); c.setAttribute('inert', ''); c.removeAttribute('tabindex');
+    c.classList.add('mk-ghost'); Object.assign(c.style, { position: 'fixed', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', margin: '0', maxHeight: ob ? r.height + 'px' : 'none', transform: 'none', pointerEvents: 'none', zIndex: 5, animation: 'none' });
+    document.body.appendChild(c); g.push(c);
+  });
+  return g;
+}
+function enterIn(g) {
+  if (reduced()) return;
+  g.forEach(c => { const a = c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: EASE, fill: 'forwards' }); a.onfinish = () => c.remove(); setTimeout(() => c.remove(), 500); });
+  document.querySelectorAll('#main, .vs-onboard').forEach(el => el.animate(el.classList.contains('vs-onboard') ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 180, delay: 40, easing: EASE, fill: 'backwards' }));
+}
+function render(opt = {}) { const g = opt.fade ? ghostOut() : []; renderCore(); if (opt.fade) enterIn(g); }
+const FADE = new Set(['screen', 'mode', 'pin', 'trayscreen', 'traytab', 'fakeclose', 'noticeok', 'noticereset', 'frstep', 'frapp', 'frscene', 'frdiscord', 'frfinish', 'finishskip', 'quit', 'import', 'askclear', 'clearhist', 'askquit', 'capture']);
+function leaveLayer(done) { /* exit animation: remove .mk-in, wait for the transition, then drop from the DOM */
+  const L = layer(), parts = L.querySelectorAll('.mk-drawer,.mk-backdrop,.mk-picker .vs-dialog,.gif-picker-backdrop');
+  if (reduced() || !parts.length) { L.innerHTML = ''; done && done(); return; }
+  const tok = L._tok = (L._tok || 0) + 1; L.inert = true; parts.forEach(p => p.classList.remove('mk-in'));
+  const fin = () => { if (L._tok !== tok) return; L.innerHTML = ''; L.inert = false; done && done(); };
+  parts[0].addEventListener('transitionend', fin, { once: true }); setTimeout(fin, 260);
+}
+function enterLayer() { const L = layer(); L._tok = (L._tok || 0) + 1; L.inert = false; void L.offsetWidth; L.querySelectorAll('.mk-drawer,.mk-backdrop,.mk-picker .vs-dialog,.gif-picker-backdrop').forEach(p => p.classList.add('mk-in')); }
+function closeMenu(cb) { const m = $('.mk-menu'); if (!m || reduced()) { S.menuOpen = false; cb && cb(); return; } m.classList.add('mk-out'); setTimeout(() => { S.menuOpen = false; cb && cb(); }, 120); }
+
+/* Reconcile instead of rebuilding: sidebar, top strip and bottom nav keep their DOM (no flash, colour transitions run); only the content swaps. */
+function mount(root, html) {
+  const first = S.screen === 'first', old = root.querySelector('.vs-app');
+  if (!old || root._lang !== S.lang || root._first !== first) { root.innerHTML = html; root._lang = S.lang; root._first = first; return; }
+  const t = document.createElement('template'); t.innerHTML = html; const n = t.content;
+  const same = (a, b, sel) => { const x = a.querySelector(sel), y = b.querySelector(sel); if (x && y && x.innerHTML !== y.innerHTML) x.innerHTML = y.innerHTML; };
+  ['.vs-nav-link', '.bottom-link'].forEach(sel => { const o = root.querySelectorAll(sel), w = n.querySelectorAll(sel); o.forEach((el, i) => { if (w[i]) { const v = w[i].getAttribute('aria-current'); v === null ? el.removeAttribute('aria-current') : el.setAttribute('aria-current', v); } }); });
+  const was = root.querySelector('.mk-id') && root.querySelector('.mk-id').dataset.on;
+  same(root, n, '.vs-side-foot'); same(root, n, '.vs-mobile-status'); same(root, n, '#main');
+  const now = root.querySelector('.mk-id') && root.querySelector('.mk-id').dataset.on; if (was && was !== now && !reduced()) root.querySelectorAll('.mk-id').forEach(e => e.classList.add('mk-id-swap'));
+  const ob = root.querySelector('.vs-onboard'), nb = n.querySelector('.vs-onboard'); if (ob && nb) ob.replaceWith(nb);
+}
+function renderCore() {
   document.documentElement.lang = S.lang; document.documentElement.dataset.theme = S.theme;
   const root = $('#root');
   const navLink = n => `<a class="vs-nav-link" href="#" data-act="screen" data-arg="${n[0]}" aria-current="${S.screen === n[0] || (S.screen === 'first' && n[0] === 'now') ? 'page' : 'false'}">${NAV_ICO[n[0]]}<span>${T(n[1], n[2])}</span></a>`;
   const bottomLink = n => `<a class="bottom-link" href="#" data-act="screen" data-arg="${n[0]}" ${S.screen === n[0] ? 'aria-current="page"' : ''}>${NAV_ICO[n[0]].replace('viewBox="0 0 20 20"', 'viewBox="0 0 20 20" width="20" height="20"')}<span>${T(n[1], n[2])}</span></a>`;
   const view = S.screen === 'first' ? nowView() : { now: nowView, scenes: scenesView, settings: settingsView, tray: trayView }[S.screen]();
-  root.innerHTML = `<div class="vs-app"><aside class="vs-sidebar"><div class="vs-brand"><span class="vs-brand-mark mk-logo" aria-hidden="true"><img src="assets/ghost-final-d.svg" alt=""></span><span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">${T('Your Discord corner', 'มุม Discord ของคุณ')}</span></span></div>
+  const html = `<div class="vs-app"><aside class="vs-sidebar"><div class="vs-brand"><span class="vs-brand-mark mk-logo" aria-hidden="true"><img src="assets/ghost-final-d.svg" alt=""></span><span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">${T('Your Discord corner', 'มุม Discord ของคุณ')}</span></span></div>
     <p class="vs-nav-label" aria-hidden="true">${T('MENU', 'เมนู')}</p><nav class="vs-nav" aria-label="${T('Main', 'หลัก')}">${NAVS.map(navLink).join('')}</nav>
-    <div class="vs-side-foot"><div class="vs-side-status">${connPill()}</div><div class="vs-side-utils">${cluster()}</div><div class="vs-side-foot-row"><span class="vs-foot-note">${T('The companion runs in the background', 'companion ทำงานในเบื้องหลัง')}</span></div></div></aside>
-    <div class="vs-main"><div class="vs-mobile-status">${connPill()}${cluster()}</div><main class="vs-page" id="main" tabindex="-1">${view}</main></div></div>
+    <div class="vs-side-foot"><div class="vs-side-status">${idChip()}${connPill()}</div><div class="vs-side-utils">${cluster()}</div><div class="vs-side-foot-row"><span class="vs-foot-note">${T('The companion runs in the background', 'companion ทำงานในเบื้องหลัง')}</span></div></div></aside>
+    <div class="vs-main"><div class="vs-mobile-status">${idChip()}${cluster()}</div><main class="vs-page" id="main" tabindex="-1">${view}</main></div></div>
     <nav class="vs-bottomnav" aria-label="${T('Main', 'หลัก')}">${NAVS.map(bottomLink).join('')}</nav>${S.screen === 'first' ? firstView() : ''}`;
+  mount(root, html);
   $('#root').inert = !!S.drawer || !!S.picker;
 }
 
@@ -363,9 +412,9 @@ function showTip(btn) {
   tip.hidden = false; btn.setAttribute('aria-describedby', 'mkTip'); btn.setAttribute('aria-expanded', 'true');
   const r = btn.getBoundingClientRect(), tw = tip.offsetWidth, tH = tip.offsetHeight;
   const x = Math.min(Math.max(8, r.left - 8), innerWidth - tw - 8); let y = r.bottom + 8; if (y + tH > innerHeight - 8) y = r.top - tH - 8;
-  tip.style.left = x + 'px'; tip.style.top = y + 'px'; tipFor = btn; highlight(h[4]);
+  tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.classList.add('mk-show'); tipFor = btn; highlight(h[4]);
 }
-function hideTip() { const tip = $('#mkTip'); if (tip) tip.hidden = true; if (tipFor) { tipFor.removeAttribute('aria-describedby'); tipFor.setAttribute('aria-expanded', 'false'); } tipFor = null; highlight(null); }
+function hideTip() { const tip = $('#mkTip'); if (tip) tip.classList.remove('mk-show'); if (tipFor) { tipFor.removeAttribute('aria-describedby'); tipFor.setAttribute('aria-expanded', 'false'); } tipFor = null; highlight(null); }
 const isUrl = v => /^[a-z]+:\/\//i.test(v || '');
 const artSrc = v => (isUrl(v) ? v : A_ + (ART[v] || ART.a1));
 
@@ -414,7 +463,7 @@ function buildDrawer(first) {
     <aside class="mk-prev" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="vs-preview-label"><span>${T('Preview', 'ตัวอย่าง Discord')}</span>${live ? `<span class="vs-pill vs-pill-good">${T('On Discord now', 'กำลังแสดงบน Discord')}</span>` : `<span class="vs-pill vs-pill-neutral">${T('Preview only', 'ตัวอย่างเท่านั้น')}</span>`}</div><div id="dpreview"></div><p class="vs-preview-foot" id="dprevnote"></p></aside>
    </div>
    <div class="mk-drawer-foot"><div class="vs-savebar" id="savebar" role="status" aria-live="polite"><span class="vs-savebar-dot" aria-hidden="true"></span><span class="vs-savebar-text" id="savetext"></span><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="retry">${T('Retry', 'ลองใหม่')}</button></div><button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="closedrawer">${T('Done', 'เสร็จ')}</button></div></div>`;
-  trap($('.mk-drawer', layer())); updateDrawer(); const nb = $('.mk-drawer-body', layer()); if (nb) nb.scrollTop = top;
+  trap($('.mk-drawer', layer())); if (first) enterLayer(); else layer().querySelectorAll('.mk-drawer,.mk-backdrop').forEach(p => p.classList.add('mk-in')); updateDrawer(); const nb = $('.mk-drawer-body', layer()); if (nb) nb.scrollTop = top;
 }
 function updateDrawer() {
   const sc = sceneBy(S.drawer && S.drawer.id); if (!sc) return;
@@ -427,7 +476,7 @@ function updateDrawer() {
     inp.setAttribute('aria-invalid', bad ? 'true' : 'false'); if (err) { err.hidden = !bad; err.textContent = bad ? T('Must start with https://', 'ต้องขึ้นต้นด้วย https://') : ''; }
   });
   const bar = $('#savebar', layer()), k = S.save;
-  bar.dataset.state = k === 'failed' ? 'error' : k;
+  const st = k === 'failed' ? 'error' : k; if (bar.dataset.state && bar.dataset.state !== st) { bar.classList.remove('mk-swap'); void bar.offsetWidth; bar.classList.add('mk-swap'); } bar.dataset.state = st;
   $('#savetext', layer()).textContent = k === 'saving' ? T('Saving…', 'กำลังบันทึก…') : k === 'failed' ? T('Couldn’t save — your changes are still here', 'บันทึกไม่สำเร็จ — การแก้ไขของคุณยังอยู่') : T('Saved', 'บันทึกแล้ว') + ' · ' + S.saveAt;
 }
 function scheduleSave() {
@@ -442,16 +491,16 @@ function scheduleSave() {
 function closeDrawer() {
   hideTip();
   const sc = S.drawer && sceneBy(S.drawer.id); let dirty = S.drawer && S.drawer.dirty;
-  if (sc && sc.isNew && !sc.name && !sc.l1 && !sc.l2) { S.scenes = S.scenes.filter(s => s !== sc); dirty = true; } else if (sc) { if (sc.isNew) dirty = true; sc.isNew = false; if (!sc.name) { sc.name = T('Untitled Scene', 'Scene ไม่มีชื่อ'); dirty = true; } }
-  clearTimeout(S.saveTimer); S.drawer = null; layer().innerHTML = ''; $('#root').inert = false;
-  if (dirty) { const y = scrollY; render(); scrollTo(0, y); } /* only when something changed; same scroll position, no animation */
-  restoreFocus();
+  if (sc && sc.isNew && !sc.name && !sc.l1 && !sc.l2) { S.scenes = S.scenes.filter(s => s !== sc); dirty = true; } else if (sc) { if (sc.isNew) { dirty = true; S.fresh = sc.id; } sc.isNew = false; if (!sc.name) { sc.name = T('Untitled Scene', 'Scene ไม่มีชื่อ'); dirty = true; } }
+  clearTimeout(S.saveTimer); S.drawer = null; $('#root').inert = false;
+  if (dirty) { const y = scrollY; render(); scrollTo(0, y); setTimeout(() => { S.fresh = null; }, 400); } /* only when something changed; same scroll position */
+  restoreFocus(); leaveLayer(); /* focus is already back; the panel fades out on top */
 }
 
 /* ---------- Add-rule picker (real .gif-picker + .vs-dialog shell) ---------- */
 function openPicker(tab, opener, opts = {}) {
   rememberFocus(opener);
-  S.picker = Object.assign({ tab, q: '', app: null, scene: 'design', hide: false, showSys: false, browser: 'Google Chrome', contains: 'Figma' }, opts);
+  S.pickerBuilt = false; S.picker = Object.assign({ tab, q: '', app: null, scene: 'design', hide: false, showSys: false, browser: 'Google Chrome', contains: 'Figma' }, opts);
   buildPicker(); $('#root').inert = true; const m = $('.vs-dialog', layer()); (tab === 'web' ? $('#wcontains', m) : $('#pq', m)).focus();
 }
 function buildPicker() {
@@ -467,7 +516,7 @@ function buildPicker() {
    <div class="mk-note">${I.lock}<span>${T('Vibe reads the title of your active browser tab only to compare it with this text. Nothing is sent anywhere unless a Scene’s text uses {window}.', 'Vibe อ่านชื่อแท็บที่ใช้งานอยู่เพื่อเทียบกับข้อความนี้เท่านั้น ไม่ส่งไปไหน เว้นแต่ข้อความของซีนใช้ {window}')}</span></div>`}
   <div id="pthen"></div>
   <div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="closepicker">${T('Cancel', 'ยกเลิก')}</button><button class="vs-btn vs-btn-primary" type="button" id="padd" data-act="paddgo">${T('Add rule', 'เพิ่มกฎ')}</button></div></div></div></div>`;
-  trap($('.vs-dialog', layer())); updatePicker();
+  trap($('.vs-dialog', layer())); updatePicker(); if (!S.pickerBuilt) { enterLayer(); S.pickerBuilt = true; } else layer().querySelectorAll('.mk-picker .vs-dialog,.gif-picker-backdrop').forEach(p => p.classList.add('mk-in'));
 }
 const pitem = (a, sel, dim) => `<button class="mk-item" type="button" role="radio" aria-checked="${sel}" aria-pressed="${sel}" data-act="ppick" data-arg="${a.id}" ${dim ? 'style="opacity:.65"' : ''}>${icoOf(a)}<span style="min-width:0"><strong style="font-weight:500;display:block">${esc(a.name)}</strong><small class="vs-hint" style="margin:0;display:block">${esc(a.exe)}</small></span>${sel ? `<span class="vs-pill vs-pill-accent">${T('Selected', 'เลือกแล้ว')}</span>` : ''}</button>`;
 function updatePicker() {
@@ -490,7 +539,7 @@ function updatePicker() {
     ${p.hide ? '' : `<div class="vs-field"><label class="vs-label" for="pscene">${T('Show this Scene', 'แสดงซีนนี้')}</label><select class="vs-select" id="pscene" data-bind="pscene" style="width:100%">${S.scenes.map(s => `<option value="${s.id}" ${p.scene === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>`}` : '';
   $('#padd', m).disabled = !showThen;
 }
-function closePicker() { S.picker = null; layer().innerHTML = ''; $('#root').inert = false; restoreFocus(); }
+function closePicker() { S.picker = null; S.pickerBuilt = false; $('#root').inert = false; restoreFocus(); leaveLayer(); }
 
 /* ---------- toast ---------- */
 let toastT;
@@ -498,7 +547,7 @@ function toast(msg, undo) {
   $('#toastbox') && $('#toastbox').remove();
   const box = document.createElement('div'); box.id = 'toastbox';
   box.innerHTML = `<div class="mk-toast" role="status"><span>${esc(msg)}</span>${undo ? `<button type="button" data-act="undo">${T('Undo', 'เลิกทำ')}</button>` : ''}</div>`; document.body.appendChild(box);
-  clearTimeout(toastT); toastT = setTimeout(() => box.remove(), undo ? 6000 : 3200);
+  clearTimeout(toastT); toastT = setTimeout(() => { const t = box.firstChild; if (t && !reduced()) { t.classList.add('mk-out'); setTimeout(() => box.remove(), 160); } else box.remove(); }, undo ? 6000 : 3200);
 }
 
 /* ---------- actions ---------- */
@@ -509,13 +558,14 @@ const ACT = {
   screen: a => { S.screen = a; S.menuOpen = false; },
   lang: a => { S.lang = a; }, theme: a => { S.theme = a; }, mode: a => setMode(a),
   noop: () => toast(T('Prototype: there is no real companion here', 'ตัวอย่าง: ไม่มี companion จริงที่นี่')),
-  pinmenu: () => { S.menuOpen = !S.menuOpen; },
+  pinmenu: () => { if (S.menuOpen) { closeMenu(() => render()); return 'overlay'; } S.menuOpen = true; },
   pin: a => { S.pinned = a; S.mode = 'pinned'; S.menuOpen = false; toast(T('Pinned “' + sceneBy(a).name + '” until you cancel', 'ปักซีน “' + sceneBy(a).name + '” จนกว่าคุณจะยกเลิก')); },
   scrollrules: () => { const r = $('#rules'); r && r.scrollIntoView({ behavior: 'smooth' }); },
   addrule: (a, el) => { openPicker('app', el); return 'overlay'; }, editscene: (a, el) => { openDrawer(a, el); return 'overlay'; }, newscene: (a, el) => { openDrawer('new', el); return 'overlay'; },
-  dup: a => { const s = sceneBy(a), c = JSON.parse(JSON.stringify(s)); c.id = a + '-copy' + Date.now(); c.name = s.name + ' ' + T('(copy)', '(สำเนา)'); S.scenes.push(c); toast(T('Duplicated — not used by any rule yet', 'ทำสำเนาแล้ว — ยังไม่มีกฎที่ใช้')); },
-  rmrule: a => { const i = S.rules.findIndex(r => r.id === a); removed = { r: S.rules[i], i }; S.rules.splice(i, 1); toast(T('Rule removed', 'ลบกฎแล้ว'), true); },
-  undo: () => { if (removed) { S.rules.splice(removed.i, 0, removed.r); removed = null; const b = $('#toastbox'); b && b.remove(); } },
+  dup: a => { const s = sceneBy(a), c = JSON.parse(JSON.stringify(s)); c.id = a + '-copy' + Date.now(); S.fresh = c.id; setTimeout(() => { S.fresh = null; }, 400); c.name = s.name + ' ' + T('(copy)', '(สำเนา)'); S.scenes.push(c); toast(T('Duplicated — not used by any rule yet', 'ทำสำเนาแล้ว — ยังไม่มีกฎที่ใช้')); },
+  rmrule: a => { const i = S.rules.findIndex(r => r.id === a); removed = { r: S.rules[i], i }; S.rules.splice(i, 1); toast(T('Rule removed', 'ลบกฎแล้ว'), true);
+    const li = $(`[data-rule="${a}"]`); if (!li || reduced()) return; li.classList.add('mk-row-out'); li.setAttribute('inert', ''); setTimeout(() => li.remove(), 220); const add = $('[data-k="addrule"]'); add && add.focus(); return 'overlay'; },
+  undo: () => { if (removed) { S.rules.splice(removed.i, 0, removed.r); S.fresh = removed.r.id; removed = null; const b = $('#toastbox'); b && b.remove(); render(); setTimeout(() => { S.fresh = null; }, 400); return 'overlay'; } },
   toast: a => toast(a),
   trayscreen: a => { S.screen = 'tray'; S.trayTab = a; S.noticeHidden = false; S.noticeSeen = false; }, traytab: a => { S.trayTab = a; },
   fakeclose: () => { S.noticeHidden = true; }, noticeok: () => { S.noticeSeen = true; }, noticereset: () => { S.noticeHidden = false; S.noticeSeen = false; },
@@ -543,7 +593,7 @@ const ACT = {
   paddgo: () => { const p = S.picker, id = 'rn' + Date.now();
     if (p.tab === 'web') S.rules.push(p.hide ? { id, kind: 'hide', app: 'chrome', contains: p.contains } : { id, kind: 'web', app: 'chrome', contains: p.contains, scene: p.scene });
     else S.rules.push(p.hide ? { id, kind: 'hide', app: p.app } : { id, kind: 'app', app: p.app, scene: p.scene });
-    closePicker(); render(); toast(T('Rule added', 'เพิ่มกฎแล้ว')); return 'overlay'; },
+    S.fresh = id; closePicker(); render(); setTimeout(() => { S.fresh = null; }, 400); toast(T('Rule added', 'เพิ่มกฎแล้ว')); return 'overlay'; },
 };
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act]');
@@ -553,12 +603,12 @@ document.addEventListener('click', e => {
     const r = fn(el.dataset.arg, el);
     if (r === 'overlay') return;
     if (S.drawer) { buildDrawer(); return; }
-    render(); renderDev();
+    render({ fade: FADE.has(el.dataset.act) }); renderDev();
     if (el.dataset.act === 'pinmenu' && S.menuOpen) { const m = $('.mk-menu button'); m && m.focus(); }
     else if (el.dataset.k) { const t = $(`[data-k="${el.dataset.k}"]`); t && t.focus(); }
     return;
   }
-  if (S.menuOpen && !e.target.closest('.mk-pop')) { S.menuOpen = false; render(); }
+  if (S.menuOpen && !e.target.closest('.mk-pop')) { closeMenu(() => render()); }
   const dv = e.target.closest('[data-dev]'); if (dv) devAct(dv.dataset.dev);
 });
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('#sc-l1,#sc-l2')) lastText = e.target; });
@@ -574,7 +624,7 @@ document.addEventListener('input', e => {
 document.addEventListener('change', e => {
   const t = e.target, b = t.dataset.bind, d = t.dataset.dev;
   if (d) { if (S.drawer) { S.drawer = null; layer().innerHTML = ''; } if (S.picker) { S.picker = null; layer().innerHTML = ''; }
-    if (d === 'screen') S.screen = t.value; if (d === 'mode') { S.mode = t.value; if (S.screen === 'first') S.screen = 'now'; S.menuOpen = false; } render(); renderDev(); return; }
+    if (d === 'screen') S.screen = t.value; if (d === 'mode') { S.mode = t.value; if (S.screen === 'first') S.screen = 'now'; S.menuOpen = false; } render({ fade: true }); renderDev(); return; }
   if (!b) return;
   if (b === 'rulescene') { const k = t.dataset.id; S.rules.find(r => r.id === k).scene = t.value; render(); const n = $(`[data-bind="rulescene"][data-id="${k}"]`); n && n.focus(); toast(T('Rule updated', 'อัปเดตกฎแล้ว')); }
   else if (b === 'scvars') { sceneBy(S.drawer.id).vars = t.checked; keep('#sc-vars'); scheduleSave(); }
@@ -592,8 +642,8 @@ document.addEventListener('keydown', e => {
     if (!mods.length) { toast(T('Add Ctrl, Alt or Shift so it doesn’t clash with typing', 'ใช้ Ctrl, Alt หรือ Shift ร่วมด้วยเพื่อไม่ให้ชนกับการพิมพ์')); return; }
     S.set.hotkey = [...mods, e.key.length === 1 ? e.key.toUpperCase() : e.key].join(' + '); S.set.capture = false; render(); const c = $('[data-k="capture"]'); c && c.focus(); return;
   }
-  if (S.menuOpen && e.key === 'Escape') { S.menuOpen = false; render(); const p = $('[data-k="pin"]'); p && p.focus(); }
-  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'h' && S.screen !== 'first') { setMode(S.mode === 'hidden' ? 'auto' : 'hidden'); render(); renderDev(); toast(S.mode === 'hidden' ? T('Hidden from Discord (hotkey)', 'ซ่อนจาก Discord แล้ว (ปุ่มลัด)') : T('Showing on Discord again', 'แสดงบน Discord อีกครั้ง')); }
+  if (S.menuOpen && e.key === 'Escape') { const p = $('[data-k="pin"]'); p && p.focus(); closeMenu(() => { render(); const q2 = $('[data-k="pin"]'); q2 && q2.focus(); }); }
+  if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'h' && S.screen !== 'first') { setMode(S.mode === 'hidden' ? 'auto' : 'hidden'); render({ fade: true }); renderDev(); toast(S.mode === 'hidden' ? T('Hidden from Discord (hotkey)', 'ซ่อนจาก Discord แล้ว (ปุ่มลัด)') : T('Showing on Discord again', 'แสดงบน Discord อีกครั้ง')); }
 });
 function devAct(a) {
   if (a === 'toggle') $('#dev').classList.toggle('collapsed');

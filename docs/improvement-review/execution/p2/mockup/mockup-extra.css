@@ -240,3 +240,92 @@ html { scroll-behavior: auto; }
 .mk-linked { text-decoration: underline; text-decoration-color: #00a8fc; text-underline-offset: 3px; }
 .mk-seg-sm { margin-bottom: 10px; }
 .mk-tray .ghost img, .mk-wmenu .mh .ghost img { display: block; width: 100%; height: 100%; border-radius: 5px; }
+
+/* ================= D1-M3 motion system (#20, within #15) =================
+   Tokens: 120 / 180 / 220 ms, one ease-out curve. Only opacity, translate <= 8px, scale .98-1.
+   Page chrome (sidebar, top strip, bottom nav) never animates; only content/overlays do. */
+:root { --mk-dur-fast: 120ms; --mk-dur: 180ms; --mk-dur-slow: 220ms; --mk-ease: cubic-bezier(.2, .8, .2, 1); }
+
+/* press feedback + smooth state colours on every control */
+.vs-btn, .vs-look, .vs-segmented button, .vs-seg button, .vs-icon-btn, .vs-icon-btn-danger, .mk-tile, .mk-art-btn, .mk-help, .vs-nav-link, .bottom-link, .vs-skip, .mk-menu button, .mk-item, .vs-scene-row, .vs-quiet-link, .vs-step, .vs-statuspill, .vs-pill {
+  transition: background-color var(--mk-dur-fast) var(--mk-ease), color var(--mk-dur-fast) var(--mk-ease), border-color var(--mk-dur-fast) var(--mk-ease), box-shadow var(--mk-dur-fast) var(--mk-ease), opacity var(--mk-dur-fast) var(--mk-ease), transform 100ms var(--mk-ease);
+}
+.vs-btn:active:not(:disabled), .vs-look:active:not(:disabled), .vs-segmented button:active, .vs-seg button:active, .vs-icon-btn:active, .vs-icon-btn-danger:active, .mk-tile:active, .mk-art-btn:active, .vs-nav-link:active, .bottom-link:active, .mk-menu button:active, .mk-item:active { transform: scale(.98); }
+.vs-switch span, .vs-switch span::before { transition-duration: var(--mk-dur); transition-timing-function: var(--mk-ease); }
+.vs-input, .vs-select, .mk-rule select { transition: border-color var(--mk-dur-fast) var(--mk-ease), box-shadow var(--mk-dur-fast) var(--mk-ease); }
+.connection-dot { transition: background-color var(--mk-dur) var(--mk-ease); }
+.vs-dc-card { transition: opacity var(--mk-dur) var(--mk-ease); }
+
+/* drawer + backdrop: fade, 8px slide inward, exit mirrors enter (class removed -> transition -> DOM removal in JS) */
+.mk-backdrop, .mk-picker .gif-picker-backdrop { opacity: 0; animation: none; transition: opacity var(--mk-dur) var(--mk-ease); }
+.mk-backdrop.mk-in, .mk-picker .gif-picker-backdrop.mk-in { opacity: 1; }
+.mk-drawer { opacity: 0; transform: translateX(8px); animation: none !important; transition: opacity var(--mk-dur-slow) var(--mk-ease), transform var(--mk-dur-slow) var(--mk-ease); }
+.mk-drawer.mk-in { opacity: 1; transform: none; }
+.mk-picker .vs-dialog { opacity: 0; transform: translateY(8px) scale(.98); transition: opacity var(--mk-dur-slow) var(--mk-ease), transform var(--mk-dur-slow) var(--mk-ease); }
+.mk-picker .vs-dialog.mk-in { opacity: 1; transform: none; }
+.mk-drawer.mk-fade, .mk-backdrop.mk-fade { animation: none; }
+
+/* menus, toast, tooltip */
+@keyframes mk-pop-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes mk-pop-out { to { opacity: 0; transform: translateY(-4px) scale(.98); } }
+.mk-menu { transform-origin: top left; animation: mk-pop-in var(--mk-dur-fast) var(--mk-ease) both; }
+.mk-menu.mk-out { animation: mk-pop-out var(--mk-dur-fast) var(--mk-ease) both; pointer-events: none; }
+@keyframes mk-toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes mk-toast-out { to { opacity: 0; transform: translate(-50%, 8px); } }
+.mk-toast { animation: mk-toast-in var(--mk-dur) var(--mk-ease) both !important; }
+.mk-toast.mk-out { animation: mk-toast-out var(--mk-dur-fast) var(--mk-ease) both !important; }
+#mkTip { opacity: 0; visibility: hidden; transform: translateY(4px) scale(.98); transition: opacity var(--mk-dur-fast) var(--mk-ease), transform var(--mk-dur-fast) var(--mk-ease), visibility 0s linear var(--mk-dur-fast); }
+#mkTip.mk-show { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.mk-wmenu, .mk-wtoast, .mk-fakewin { animation: mk-pop-in var(--mk-dur) var(--mk-ease) both; }
+.mk-wmenu { transform-origin: bottom right; }
+
+/* list rows: grow + fade in on add, collapse + fade out on remove (height animates via interpolate-size) */
+@keyframes mk-row-in { from { opacity: 0; height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; } to { opacity: 1; height: auto; } }
+.mk-rule.mk-row-in, #sceneList .vs-scene-row.mk-row-in { animation: mk-row-in var(--mk-dur-slow) var(--mk-ease) both !important; }
+.mk-rule.mk-row-out { height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; overflow: hidden; border-bottom-width: 0; transition: height var(--mk-dur) var(--mk-ease), padding var(--mk-dur) var(--mk-ease), opacity var(--mk-dur-fast) var(--mk-ease); }
+.mk-rule { height: auto; }
+
+/* Now: alert banners grow in (height) instead of popping; hero keeps a stable minimum height */
+@keyframes mk-alert-in { from { opacity: 0; height: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; } to { opacity: 1; height: auto; } }
+.vs-alert { animation: mk-alert-in var(--mk-dur-slow) var(--mk-ease) both; }
+.vs-now-hero { min-height: 380px; }
+@media (max-width: 860px) { .vs-now-hero { min-height: 0; } }
+
+/* save status: tiny pop of the dot + text swap */
+@keyframes mk-dot-pop { from { transform: scale(.4); opacity: .3; } 60% { transform: scale(1.25); } to { transform: none; opacity: 1; } }
+@keyframes mk-text-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.vs-savebar.mk-swap .vs-savebar-dot { animation: mk-dot-pop var(--mk-dur-slow) var(--mk-ease) both; }
+.vs-savebar.mk-swap .vs-savebar-text { animation: mk-text-in var(--mk-dur) var(--mk-ease) both; }
+.vs-savebar { transition: background-color var(--mk-dur) var(--mk-ease), color var(--mk-dur) var(--mk-ease); }
+.vs-savebar-dot { transition: background-color var(--mk-dur) var(--mk-ease); }
+
+/* outgoing-content ghost used for cross-fades is purely visual */
+.mk-ghost { pointer-events: none !important; user-select: none; }
+
+/* reduced motion: no movement at all; overlays and rows only fade (or are instant) */
+@media (prefers-reduced-motion: reduce) {
+  :root { --mk-dur-fast: 1ms; --mk-dur: 1ms; --mk-dur-slow: 1ms; }
+  .mk-drawer, .mk-picker .vs-dialog, #mkTip { transform: none !important; }
+  .mk-menu, .mk-menu.mk-out, .mk-toast, .mk-toast.mk-out, .mk-wmenu, .mk-wtoast, .mk-fakewin, .vs-alert, .mk-rule.mk-row-in, #sceneList .vs-scene-row.mk-row-in, .vs-savebar.mk-swap * { animation: none !important; }
+  .vs-btn:active, .vs-look:active, .vs-segmented button:active, .mk-tile:active { transform: none !important; }
+}
+
+/* ================= #21 Discord identity (from the local RPC connection; placeholder when Discord is not running) ================= */
+.mk-av { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: none; display: inline-block; background: var(--vs-sunken); border: 1px solid var(--vs-hairline); }
+.mk-av.sm { width: 22px; height: 22px; }
+.mk-av-off { display: inline-flex; align-items: center; justify-content: center; color: var(--vs-ink3); background: var(--vs-neutral-bg); }
+.mk-id { display: flex; align-items: center; gap: 10px; padding: 6px 10px; min-width: 0; }
+.mk-id-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.mk-id-t small { font-size: 11.5px; color: var(--vs-ink2); }
+.mk-id-t b { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-id[data-on="false"] .mk-id-t b { color: var(--vs-warn-t); }
+.mk-id-swap { animation: mk-text-in var(--mk-dur) var(--mk-ease) both; }
+.mk-idv { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.vs-keystatus-row .mk-idv b { font-weight: 600; }
+.vs-fact-value .mk-idv { font-size: 13px; }
+.mk-dcav { background: none !important; overflow: hidden; }
+.mk-dcav .mk-av { width: 100%; height: 100%; border: 0; }
+.mk-dcav .mk-av-off { background: #4e5058; color: #b5bac1; }
+.vs-mobile-status .mk-id { padding: 4px 6px; }
+.vs-mobile-status .mk-id-t small { display: none; }
+@media (prefers-reduced-motion: reduce) { .mk-id-swap { animation: none; } }

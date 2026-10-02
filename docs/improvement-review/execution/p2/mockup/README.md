@@ -4,6 +4,41 @@ Mockup only. Nothing under `scripts/`, `electron/` or `public/` was edited (file
 
 **Direction change applied (owner, high priority):** the current Studio look is kept as-is. `studio-ci.css` is an unmodified copy of `scripts/studio-ci.css`; every screen is built from its real `vs-*` components, the real sidebar/nav icons, the ghost logo (now `p3/logo/final/ghost-final-d.svg`; the original `assets/logo-ghost.svg` is the favicon) and real art (`public/art/*`, copied into `assets/art/`). Only the content/arrangement follows the new journey, plus contrast and spacing polish. The Nori mark is **not** used.
 
+## D1-M3b Discord identity (decision #21, no OAuth)
+
+Fake identity `golf` / `@golf` with a placeholder avatar (`assets/art/avatar-2.svg`), as it would arrive from the local RPC READY event.
+- **Connected:** sidebar footer shows a round avatar + "Connected as @golf"; Now's *Discord* fact shows avatar + "Connected as @golf"; the Scene preview card (Now, editor, first run) uses the avatar + display name `golf` / `@golf` instead of "Your name"; Settings → Discord connection shows "Connected as @golf" (read from local Discord Desktop, no login, nothing stored) with the Application ID still under *Advanced*.
+- **Discord not running / companion unreachable:** grey placeholder avatar + "Open Discord Desktop" in the sidebar, mobile strip, Now fact, Settings and preview ("Discord user · Not connected").
+- **Switching:** the sidebar identity cross-fades (180 ms, same motion tokens) when the state flips; Now content and preview use the normal cross-fade. On narrow widths the top strip shows the avatar + handle and the TH/EN/theme cluster (the mode pill stays in the Now card).
+- Screenshots: `90`, `91`, `92` (desktop) and `m-90`, `m-91` (390 px). The five narrow shots missing earlier (`m-70`, `m-71`, `m-72`, `m-74`, `m-75`) are now captured. Other screenshots predate the identity change (they show "Your name" in the preview) — re-capture before G1.
+
+## D1-M3 motion system (decision #20, within #15)
+
+Everything is CSS/JS in the mockup (`mockup-extra.css` tokens + `mockup.js` orchestration); no source edits.
+
+| Token | Value |
+| --- | --- |
+| `--mk-dur-fast` | 120 ms — press feedback, colours, menus, tooltips, exit of small things |
+| `--mk-dur` | 180 ms — content cross-fade, toasts, toggle knob, status colours |
+| `--mk-dur-slow` | 220 ms — drawer / dialog enter, row grow, save-status pop |
+| curve | one ease-out: `cubic-bezier(.2,.8,.2,1)` |
+| properties | opacity, translate ≤ 8 px, scale 0.98–1 only (plus `height` on list rows / alerts via `interpolate-size`) |
+
+| What | Behaviour |
+| --- | --- |
+| Screen changes (nav, tray tabs, first-run steps) | Outgoing content is snapshotted into an inert, fixed ghost that fades out (120 ms) while the new content fades in with a 6 px rise (180 ms, 40 ms delay). The sidebar, top strip and bottom nav are **reconciled, not rebuilt** — same DOM nodes, only the active pill/colours transition — so chrome never moves or flashes. |
+| Now state changes (Auto / Pinned / Paused / Hidden / …) | Same cross-fade of headline, chips, facts and preview. The hero card has a stable `min-height` (380 px desktop) so the page below does not jump; alert banners (Discord closed / companion down) grow in by height instead of popping. |
+| Editor drawer, add-rule dialog, backdrops | Enter: opacity + 8 px (drawer slides 8 px in from the right, dialog rises 8 px and scales from .98). Exit mirrors it: `mk-in` is removed, the transition runs, then the node is deleted after `transitionend` (260 ms safety timeout). The page behind is never re-rendered or moved; the layer is `inert` while it leaves, so it never blocks input. |
+| Menus, tooltips, toasts, tray mock menu/notice | Pin menu and toast fade + 4–8 px with matching exit; `?` tooltip fades/scales via a class (no `display` flip); tray menu/notice use the same pop-in. |
+| Buttons, segmented controls, chips, tiles, art thumbs, nav links | Colour/border/shadow transitions (120 ms) and a `scale(.98)` press (100 ms). Toggle knobs slide (180 ms). |
+| App rules / Scene library | New rows grow from height 0 and fade in (220 ms); removed rules collapse + fade out (180 ms) and are deleted afterwards (Undo re-adds with the grow-in); duplicated/new Scenes grow in. Focus moves immediately (to *Add rule* after a removal). |
+| Save status | *Saving… → Saved / failed*: dot pops (scale .4→1.25→1) and the text rises 3 px/fades in, colours cross-fade. |
+| `prefers-reduced-motion: reduce` | Durations collapse to 1 ms, no translate/scale anywhere, no ghost cross-fade, drawer/dialog/rows/toasts are instant (opacity-only where a class transition remains); exits finish immediately. |
+
+Input is never delayed: handlers run first and update the DOM synchronously, animations are layered on top (ghosts and leaving layers are `pointer-events:none` / `inert`), and focus moves in the same tick (verified: the drawer's name field is focused in the click handler; closing returns focus to the opener while the panel is still fading).
+
+Verification in the Orca tab: after a nav click the sidebar element is the same node at the same coordinates, one ghost exists during the fade and none afterwards; the drawer is in the DOM and focused immediately and is removed after its exit; removing a rule shrinks 14→13 rows after the collapse. Note: the Orca tab does not tick animation frames until a screenshot is taken, so timing was verified by DOM state plus `screens/80-motion-mid-transition-nav-click.png` (a real mid-fade capture: Now pill fading out, Settings in).
+
 ## D1-M2 revision (decisions #15–#19)
 
 | Decision | What the mockup does |
@@ -72,4 +107,3 @@ New components (no existing equivalent), each styled like its nearest sibling in
 
 Verified in the browser tab: opening the drawer from a rule's Edit Scene button and closing it with ✕ returns focus to that button (DOM check); all 55 screenshots were captured at the exact requested viewport (PNG dimensions checked) and a sample of each group was viewed.
 
-Known gap: the narrow dark/Thai set (m-70, m-71, m-72, m-74, m-75) was not re-captured after the D1-M2 change (capture timed out); the desktop set and the other narrow shots were.
