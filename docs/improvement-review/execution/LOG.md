@@ -54,3 +54,5 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | P3-L3 (ctx_18c8ec7d7148) refine original ghost logo, 3 subtle variations | P3 / design | Sonnet 5.5 medium (launch.effective verified) | Running | — | — |
 | 2026-10-02 | P3-L3 ghost refinement A/B/C | P3 / design | Sonnet | Accepted; owner prefers B but finds the ghost face messy -> P3-L4 clean redesign from B | (committed) | owner |
 | 2026-10-02 | P3-L4 (task_94f87a482fd0) clean ghost v2 from B | P3 / design | Sonnet 5.5 medium | Accepted: 4 directions (face+bolt badge, bolt negative space, minimal wink, balanced); screenshots verified by coordinator; worker recommends #4. Owner to choose | (this commit) | coordinator visual check |
+| 2026-10-02 | Owner logo choice | P3 | owner | ghost-v2 #1, bolt -> eye sparkle; P3-L5 dispatched | — | owner |
+| 2026-10-02 | Owner logo pick | P3 | owner | treatment c with star moved to outer corner of the WINK eye -> revision d requested on P3-L5 | — | owner |

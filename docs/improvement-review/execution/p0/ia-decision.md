@@ -27,7 +27,7 @@ Inputs: `journey-audit-a.md`, `journey-audit-b.md`, `footprint-baseline.md`, P4-
 | 8 | First run | **3-step guided setup:** Discord connected? → pick a running app → pick/edit a Scene and see it on Discord immediately → land on Now. |
 | 9 | Editor fields | Visible: Scene name, activity type, two text lines, main artwork. Collapsed "Advanced": buttons, links, small artwork. **Timer is removed from the UI** (owner: not wanted). Existing timer values in saved Scenes are preserved untouched on disk (F09); new Scenes have no timer. |
 | 10 | Close (X) | **Hide to tray**, with a one-time notice that the companion keeps running; Quit lives in the tray menu (and Settings). |
-| 11 | Logo | ~~D3 Nori~~ → **rejected by owner after refinements (looked scary).** Decision: **refine the ORIGINAL ghost logo** (same silhouette, wink, bolt, indigo gradient), polish only. Superseded note: D3 Nori (mascot). Known risk to address in refinement: headphones read as "music app"; 16 px tray legibility; check against Scene art style. |
+| 11 | Logo | ~~D3 Nori~~ → **rejected by owner after refinements (looked scary).** Decision: **refine the ORIGINAL ghost logo** (same silhouette, wink, indigo gradient), polish only. Chosen 2026-10-02: **ghost-v2 direction 1 (round eye + wink + smile) with the bolt replaced by an eye sparkle**; final treatment pending (P3-L5). Superseded note: D3 Nori (mascot). Known risk to address in refinement: headphones read as "music app"; 16 px tray legibility; check against Scene art style. |
 
 ## Decisions (owner, round 4)
 
