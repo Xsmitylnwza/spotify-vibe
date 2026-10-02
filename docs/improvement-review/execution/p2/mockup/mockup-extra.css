@@ -527,3 +527,6 @@ img.mk-flash { animation: mk-fade var(--mk-dur) var(--mk-ease) both; }
 @media (max-width: 760px) { .mk-picker .vs-dialog { max-height: calc(100dvh - 24px); } }
 @media (max-width: 719px) { .mk-ob-foot .vs-ob-actions { flex-wrap: wrap; gap: 8px; } .mk-ob-foot .vs-btn-primary { order: -1; flex: 1 1 100%; } .mk-ob-foot .vs-btn { flex: 1 1 auto; } .mk-ob-foot .vs-skip { order: 3; flex: 0 0 auto; } }
 .mk-toast { z-index: 55 !important; pointer-events: none; } .mk-toast button { pointer-events: auto; }
+
+/* Settings: Reconnect only when Discord is not connected, beside the status pill (owner 2026-10-02) */
+.mk-conn-off { display: inline-flex; align-items: center; gap: 8px; }

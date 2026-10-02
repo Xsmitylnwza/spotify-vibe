@@ -76,3 +76,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner bug: first-run step 3 footer cut off (cannot submit) | D1 | owner | D1-M6 dispatched: fixed header + scrollable body + sticky footer for all modals; side-by-side step 3 | — | owner |
 | 2026-10-02 | P3-L7 (ctx_414d8cb3a55f) imagegen ghost logo options | P3 / design | Codex gpt-6.1-sol medium + $imagegen skill (owner request) | Running | — | — |
 | 2026-10-02 | D1-M6 (task_2fbabecf1f43) modal footer fix | P2 / design | Sonnet | Done: viewport-capped modals, sticky footers, step 3 two-column; verified hit-testing at 3 sizes. Coordinator 2-line follow-up: Finish no longer disabled until Show — primary becomes "Show on Discord & finish" | (this commit) | pending owner |
+| 2026-10-02 | Owner bug: Reconnect shown while connected | D1 | coordinator (small mockup fix) | Reconnect now only when Discord not connected, placed beside the status pill | (this commit) | owner |
