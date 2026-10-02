@@ -55,6 +55,8 @@ Feature constraints: all local, no new network services. (e)/(f)/(g) read window
 | --- | --- | --- |
 | 20 | Interaction motion | Every interaction gets a **short, smooth transition** instead of an instant swap (owner: instant render feels odd), while respecting #15 (no large movement, page behind never slides). One motion system: durations ~120–220 ms, one standard ease-out curve, opacity + tiny translate (≤ 8 px) / scale (0.98–1) only. Covers: route/screen changes (cross-fade), drawer/modal/tooltip enter-exit, button/press feedback, state chips and Now-state changes (cross-fade text, not jump), list rows add/remove (height + fade), save status transitions, toggles. Under `prefers-reduced-motion` → instant or opacity-only. No animation may delay input or block focus. |
 
+| 21 | Discord identity | **No OAuth login.** Use the local Discord Desktop RPC connection: after `login`, the client READY event provides `user` (id, username, global/display name, avatar). Show **"Connected as @user" with the real avatar** in the shell/Now and use the real avatar + name in the Scene preview. Updates on reconnect/account switch; falls back to the placeholder when Discord is not running. Avatar loaded from Discord's CDN only for display (no token, nothing stored except optional cached display fields). Bundled Application ID stays default (#12). |
+
 ## Open topics
 - Language/theme placement (default proposal: Settings, reachable at every window width).
 - Visual direction for the new screens (via mockups).
