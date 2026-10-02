@@ -86,3 +86,5 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | D1-M7 pairing in editor + Now simplification + sidebar fix (#29-#31) | P2 / design | Sonnet | Done; capture stopped per owner; JS loads clean | (this commit) | owner to view |
 | 2026-10-02 | Owner request #33 app icon as image | D1 | owner | D1-M8 dispatched (lean) | — | owner |
 | 2026-10-02 | Owner feedback #34 Now layout | D1 | owner | Sent to D1-M8 | — | owner |
+| 2026-10-02 | Owner: live mockup Now layout broken | D1 | owner | D1-M10 fix dispatched (fresh Sonnet; mockup now live via real-app-server) | — | owner |
+| 2026-10-02 | D1-M10 fix Now layout | P2 / design | Sonnet | Root cause: grid-area names inside a grid without template areas; fixed CSS + Paired header; real-ux test 5/5; no visual check (owner to eyeball) | (this commit) | owner to view |
