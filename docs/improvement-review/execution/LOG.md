@@ -89,3 +89,5 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-02 | Owner: live mockup Now layout broken | D1 | owner | D1-M10 fix dispatched (fresh Sonnet; mockup now live via real-app-server) | — | owner |
 | 2026-10-02 | D1-M10 fix Now layout | P2 / design | Sonnet | Root cause: grid-area names inside a grid without template areas; fixed CSS + Paired header; real-ux test 5/5; no visual check (owner to eyeball) | (this commit) | owner to view |
 | 2026-10-02 | Owner #35 status card read-only | D1 | owner | D1-M11 dispatched | — | owner |
+| 2026-10-02 | D1-M13 summary modal + D1-M14 live fixes dispatched | P2 / design | Sonnet | M13 done; owner found live-mode gaps (select still shown, empty app-icon preview, specific icon on App icon tile) -> M14 | — | owner |
+| 2026-10-02 | Owner: Add app multi-select + junk filter | D1 | owner | sent to D1-M14 | — | owner |

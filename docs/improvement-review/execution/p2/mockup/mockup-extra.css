@@ -603,8 +603,6 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-nowgrid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); grid-template-areas: "left preview"; gap: 20px; align-items: start; }
 .mk-nowleft { grid-area: left; display: grid; gap: 16px; min-width: 0; }
 .mk-nowleft > .vs-card { margin: 0; }
-.mk-scene-select { display: flex; align-items: center; gap: 12px; font-size: 13px; }
-.mk-scene-select .vs-select { flex: 1; min-width: 0; }
 .mk-app-art { position: relative; }
 .mk-igrid[role="listbox"]:has(.mk-app-art) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .mk-app-art > span { position: absolute; left: 4px; right: 4px; bottom: 4px; padding: 5px; border-radius: 5px; background: var(--vs-surface); color: var(--vs-ink); font-size: 12px; font-weight: 600; }
@@ -745,3 +743,6 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-sum-th img { width: 72px; height: 72px; border-radius: 14px; object-fit: cover; border: 1px solid var(--vs-hairline); }
 .mk-sum .vs-form-actions { margin-top: 8px; flex-wrap: wrap; }
 .mk-ovd:has(.mk-sum) { width: min(420px, 100%); }
+
+.mk-generic-app { width: 100%; aspect-ratio: 1; display: grid; place-items: center; border-radius: 12px; background: var(--vs-sunken); border: 1px solid var(--vs-hairline); color: var(--vs-ink2); }
+.mk-app-art { flex-direction: column; gap: 6px; height: auto; } .mk-app-art > span:last-child { font-size: 11px; line-height: 1.25; text-align: center; }

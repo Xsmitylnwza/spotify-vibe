@@ -39,3 +39,14 @@ test('known app icons resolve to public image sources; unknown apps have an expl
   assert.match(publicAppIcon('C:\\Code.exe', 'Code'), /domain=code.visualstudio.com/);
   assert.equal(publicAppIcon('C:\\Private.exe', 'Private'), '');
 });
+
+test('LIVE Now: read-only Scene card (no select / old copy) and App icon previews resolve to the paired app icon', () => {
+  const run = renderer(); run("LIVE.active=true; LIVE.scene={id:'coding',sceneName:'Coding',largeImage:'',smallImage:''}; REAL.presenceEnabled=true; Object.assign(sceneBy('coding'),{art:'@app',small:'',vars:false}); REAL.selectedAppId='device-code'");
+  for (const view of ['popout', 'list']) { run("S.pvView='" + view + "'"); const html = run('nowView()');
+    assert.ok(!html.includes('<select')); assert.ok(!html.includes('Choose a Scene')); assert.ok(!html.includes('Using ')); assert.ok(!html.includes('mk-scene-select'));
+    assert.ok(html.includes('class="mk-scthumb"')); assert.ok(html.includes('from Visual Studio Code')); assert.ok(html.includes('data-act="scenepick"'));
+    assert.ok(html.includes('https://example.com/code.png')); }
+  run("REAL.selectedAppId=''"); assert.ok(run('nowView()').includes('Pinned')); assert.ok(run('nowView()').includes('data-act="backauto"'));
+  run("S.drawer={id:'coding',dirty:false}; S.ov={kind:'img',p:'lg',tab:'builtin'}");
+  const tab = run('imgTab()'); assert.ok(tab.includes('mk-generic-app')); assert.ok(!tab.includes('https://example.com/code.png')); assert.ok(tab.includes('follows the paired app'));
+});
