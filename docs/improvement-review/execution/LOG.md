@@ -107,3 +107,4 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-03 | D1-B3 icon pack (55: 21 extracted + 34 Simple Icons) + resolver tiers; M-P posters P1-P3; M-V1 switch clip; M-V23 scene/pair clips | P2/P6 | Codex + 3x Sonnet | Done; coordinator viewed all 3 posters (mock identity, Fictional demo label). Push of icon pack pending owner decision (licensing of 21 extracted publisher icons) | (this commit) | coordinator check |
 | 2026-10-03 | Owner decision: push all 55 pack icons (b), accepting redistribution risk of 21 extracted icons | P2 | owner | branch improve/flow-ux pushed for raw URLs | — | owner |
 | 2026-10-03 | Owner: clips OK; cover = P1 but stronger; add realistic Discord details | P6 | owner | M-V1b + M-P1b dispatched (Sonnet) | — | owner |
+| 2026-10-03 | M-V1b realistic Discord V1; M-P1b P1 variants a/b/c | P6 | Sonnet x2 | Done | (this commit) | owner to pick |

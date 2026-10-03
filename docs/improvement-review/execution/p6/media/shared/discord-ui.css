@@ -1,0 +1,68 @@
+/* discord-ui.css — reusable Discord-desktop-like UI pieces (dark theme, generic glyphs, no real logos).
+   Everything is scoped under .dui so the font only applies inside the Discord window. See discord-ui-README.md. */
+.dui{--bg0:#1e1f22;--bg1:#2b2d31;--bg2:#313338;--bg3:#383a40;--tx:#f2f3f5;--tx2:#b5bac1;--tx3:#80848e;--green:#23a559;--idle:#f0b232;--dnd:#f23f43;--blurple:#5865f2;
+ font-family:"gg sans","Noto Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;color:var(--tx);font-size:14px;line-height:1.25;position:absolute;background:var(--bg2);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+.dui *{box-sizing:border-box}
+.dui-top{position:absolute;left:0;right:0;top:0;height:28px;background:var(--bg0);display:flex;align-items:center;padding:0 10px;font-size:12px;color:var(--tx3)}
+.dui-top .pill{margin:0 auto;height:18px;width:220px;border-radius:5px;background:#111214;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tx3)}
+.dui-top .wc{letter-spacing:10px;font-size:11px}
+.dui-body{position:absolute;left:0;right:0;top:28px;bottom:0;display:flex}
+/* server rail */
+.dui-rail{width:56px;background:var(--bg0);display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:8px;flex:none}
+.dui-srv{position:relative;width:40px;height:40px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:var(--tx)}
+.dui-srv.on{border-radius:14px;background:var(--blurple)}
+.dui-srv.on::before{content:"";position:absolute;left:-8px;top:10px;width:4px;height:20px;border-radius:0 4px 4px 0;background:#fff}
+.dui-sep{width:26px;height:2px;border-radius:1px;background:var(--bg3)}
+/* channel list */
+.dui-chs{width:176px;background:var(--bg1);flex:none;display:flex;flex-direction:column;position:relative}
+.dui-chs h4{margin:0;height:44px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.dui-cat{padding:16px 8px 4px 12px;font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--tx3)}
+.dui-ch{margin:1px 8px;padding:6px 8px;border-radius:4px;color:var(--tx3);font-size:15px;font-weight:500;display:flex;gap:6px}
+.dui-ch b{font-weight:400;font-size:20px;line-height:15px;color:var(--tx3)}
+.dui-ch.on{background:#404249;color:var(--tx)}.dui-ch.on b{color:var(--tx2)}
+.dui-me{position:absolute;left:0;right:0;bottom:0;height:52px;background:#232428;display:flex;align-items:center;gap:8px;padding:0 8px}
+.dui-me .t{font-size:13px;font-weight:600;line-height:15px}.dui-me .t span{display:block;font-size:11px;font-weight:400;color:var(--tx2)}
+/* avatars + status */
+.dui-av{position:relative;flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg3)}
+.dui-av img{width:100%;height:100%;border-radius:50%;display:block}
+.dui-av i{position:absolute;right:-3px;bottom:-3px;width:14px;height:14px;border-radius:50%;background:var(--green);border:3px solid var(--bg1);box-sizing:border-box}
+.dui-av i.idle{background:var(--idle)}.dui-av i.dnd{background:var(--dnd)}
+/* chat */
+.dui-chat{flex:1;min-width:0;position:relative;background:var(--bg2);display:flex;flex-direction:column}
+.dui-chat h5{margin:0;height:44px;flex:none;padding:0 14px;display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.dui-msgs{flex:1;overflow:hidden;padding:14px 12px;opacity:.38;filter:blur(1.1px)}
+.dui-msg{display:flex;gap:10px;margin-bottom:14px}.dui-msg .dui-av{width:36px;height:36px}
+.dui-msg b{font-size:14px;font-weight:600}.dui-msg small{font-size:11px;color:var(--tx3);margin-left:6px}
+.dui-msg p{margin:2px 0 0;font-size:14px;color:var(--tx2)}
+.dui-input{margin:0 12px 14px;height:40px;flex:none;border-radius:8px;background:#383a40;opacity:.55;display:flex;align-items:center;padding:0 12px;font-size:14px;color:var(--tx3)}
+/* member list */
+.dui-mem{width:184px;background:var(--bg1);flex:none;padding:18px 0 0;position:relative}
+.dui-mem .grp{padding:0 8px 0 16px;margin-bottom:4px;font-size:12px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--tx3)}
+.dui-mrow{margin:0 8px;padding:5px 8px;height:42px;border-radius:4px;display:flex;align-items:center;gap:10px;position:relative}
+.dui-mrow.hl{background:#404249}
+.dui-mrow .n{font-size:15px;font-weight:500;line-height:17px;color:var(--tx2)}.dui-mrow.hl .n{color:var(--tx)}
+.dui-mrow .s{position:relative;height:15px;margin-top:1px;font-size:12px;line-height:15px;color:var(--tx3);white-space:nowrap}
+.dui-mrow .s>span{display:flex;align-items:center;gap:4px}
+.dui-mrow .s img{width:14px;height:14px;border-radius:3px;object-fit:contain}
+.dui-mrow .tx{min-width:0}
+.dui-fade{position:absolute;left:0;top:0}
+.dui-stack{position:relative}
+/* profile popout */
+.dui-pop{position:absolute;width:320px;border-radius:8px;overflow:hidden;background:#111214;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 8px 24px rgba(0,0,0,.55)}
+.dui-pop .ban{height:60px;background:linear-gradient(120deg,#4752c4,#7b5cd6 55%,#c06ad1)}
+.dui-pop .avw{position:absolute;left:16px;top:22px;width:88px;height:88px;border-radius:50%;background:#111214;padding:6px}
+.dui-pop .avw img{width:100%;height:100%;border-radius:50%;display:block}
+.dui-pop .avw i{position:absolute;right:2px;bottom:2px;width:24px;height:24px;border-radius:50%;background:var(--green);border:5px solid #111214;box-sizing:border-box}
+.dui-pop .in{margin:56px 12px 12px;background:#232428;border-radius:8px;padding:12px 14px}
+.dui-pop .dn{font-size:20px;font-weight:700;line-height:24px}
+.dui-pop .hd{font-size:14px;color:var(--tx2);margin-top:1px}
+.dui-pop hr{border:0;height:1px;background:rgba(255,255,255,.1);margin:12px 0}
+.dui-pop h6{margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--tx)}
+.dui-pop .ab{font-size:14px;color:var(--tx2);line-height:18px}
+.dui-pop .ms{font-size:14px;color:var(--tx2)}
+.dui-act{display:flex;gap:12px;align-items:center}
+.dui-big{position:relative;flex:none;width:72px;height:72px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.dui-big .sm{position:absolute;right:-6px;bottom:-6px;width:26px;height:26px;border-radius:50%;background:#232428;padding:2px}
+.dui-big .sm img{width:100%;height:100%;border-radius:50%;object-fit:contain;display:block}
+.dui-act .tx b{display:block;font-size:14px;font-weight:700;line-height:18px}
+.dui-act .tx span{display:block;font-size:14px;line-height:18px;color:var(--tx2)}
