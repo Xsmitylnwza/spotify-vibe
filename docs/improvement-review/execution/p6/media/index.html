@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vibe Studio media review</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0f1014; color: #e9e9ee; font: 15px/1.5 "IBM Plex Sans", "IBM Plex Sans Thai", system-ui, sans-serif; }
+  main { max-width: 1280px; margin: 0 auto; padding: 32px 24px 64px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+  h2 { font-size: 15px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #9aa0ad; margin: 40px 0 14px; }
+  p.sub { color: #9aa0ad; margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+  figure { margin: 0; background: #17181d; border: 1px solid #262833; border-radius: 14px; overflow: hidden; }
+  figure video, figure img { display: block; width: 100%; aspect-ratio: 8 / 5; object-fit: cover; background: #000; }
+  figcaption { padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; }
+  figcaption b { font-weight: 600; }
+  figcaption span { color: #9aa0ad; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Vibe Studio — demo clips &amp; posters</h1>
+  <p class="sub">ทุกชิ้นใช้บัญชี mock “Vibe Demo” และมีป้าย Fictional demo</p>
+
+  <h2>Demo clips</h2>
+  <div class="grid">
+    <figure>
+      <video src="clips/v1-switch/v1-switch.mp4" poster="clips/v1-switch/v1-switch.poster.png" autoplay muted loop playsinline controls></video>
+      <figcaption><b>V1 · Switch apps → status follows</b><span>9 s loop · VS Code ↔ Figma</span></figcaption>
+    </figure>
+    <figure>
+      <video src="clips/v2-v3/v2-scene.mp4" poster="clips/v2-v3/v2-scene.poster.png" autoplay muted loop playsinline controls></video>
+      <figcaption><b>V2 · Make a Scene in 20 seconds</b><span>11.5 s · type → pick art → live preview → Done</span></figcaption>
+    </figure>
+    <figure>
+      <video src="clips/v2-v3/v3-pair.mp4" poster="clips/v2-v3/v3-pair.poster.png" autoplay muted loop playsinline controls></video>
+      <figcaption><b>V3 · Pair apps</b><span>9.5 s · multi-select → chips</span></figcaption>
+    </figure>
+  </div>
+
+  <h2>Cover posters (1600×1000)</h2>
+  <div class="grid">
+    <figure><img src="posters/p1.webp" alt="Poster P1"><figcaption><b>P1 · Desktop ↔ Discord</b></figcaption></figure>
+    <figure><img src="posters/p2.webp" alt="Poster P2"><figcaption><b>P2 · Filmstrip</b></figcaption></figure>
+    <figure><img src="posters/p3.webp" alt="Poster P3"><figcaption><b>P3 · Studio hero</b></figcaption></figure>
+  </div>
+</main>
+</body>
+</html>
