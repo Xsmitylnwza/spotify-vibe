@@ -108,3 +108,5 @@ Reconciliation: P1-D1b (task_b942912e0e12 / ctx_8ac2fc64d505) prompt had been pa
 | 2026-10-03 | Owner decision: push all 55 pack icons (b), accepting redistribution risk of 21 extracted icons | P2 | owner | branch improve/flow-ux pushed for raw URLs | — | owner |
 | 2026-10-03 | Owner: clips OK; cover = P1 but stronger; add realistic Discord details | P6 | owner | M-V1b + M-P1b dispatched (Sonnet) | — | owner |
 | 2026-10-03 | M-V1b realistic Discord V1; M-P1b P1 variants a/b/c | P6 | Sonnet x2 | Done | (this commit) | owner to pick |
+| 2026-10-03 | Owner picks cover P1-a; PX-1 PortfolioX integration dispatched (Sonnet, local only) | P6 | owner/Sonnet | — | — | — |
+| 2026-10-03 | Release finish (PROGRESS.md): R-A logo 09 to app (Sonnet), R-B draft publish fix (Codex), R-C native PS host fix (Codex); owner approved push main after review | release | — | dispatched | — | — |

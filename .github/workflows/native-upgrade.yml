@@ -29,6 +29,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.repository.full_name == github.repository)
     runs-on: windows-latest
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh # Node helpers explicitly pin Windows PowerShell 5.1 + system modules.
     permissions:
       contents: write # only this job may append its verified, run-specific proof asset
     env:

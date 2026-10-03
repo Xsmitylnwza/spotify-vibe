@@ -5,7 +5,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
-import { basename, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, isAbsolute, join, relative, resolve, sep, win32 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repository = 'Xsmitylnwza/spotify-vibe';
@@ -149,8 +149,16 @@ async function previousRelease(candidateTag) {
   return eligible[0].tag_name;
 }
 const publicBytes = async (url) => Buffer.from(await (await response(url)).arrayBuffer());
-function ps(code, env = {}) {
-  return execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `$ErrorActionPreference='Stop'; ${code}`], { encoding: 'utf8', timeout: 30_000, windowsHide: true, env: { ...process.env, ...env } }).trim();
+export function ps(code, env = {}, { execute = execFileSync, parentEnv = process.env } = {}) {
+  const childEnv = { ...parentEnv, ...env };
+  const systemRoot = Object.entries(childEnv).find(([key]) => key.toLowerCase() === 'systemroot')?.[1];
+  assert.ok(systemRoot && win32.isAbsolute(systemRoot), 'Windows PowerShell requires an absolute SystemRoot');
+  const hostDirectory = win32.join(systemRoot, 'System32', 'WindowsPowerShell', 'v1.0');
+  // A pwsh parent exposes PS7 modules that Windows PowerShell 5.1 cannot load.
+  // Replace, rather than filter, inherited/user module paths (Windows keys ignore case).
+  for (const key of Object.keys(childEnv)) if (key.toLowerCase() === 'psmodulepath') delete childEnv[key];
+  childEnv.PSModulePath = win32.join(hostDirectory, 'Modules');
+  return execute(win32.join(hostDirectory, 'powershell.exe'), ['-NoProfile', '-NonInteractive', '-Command', `$ErrorActionPreference='Stop'; ${code}`], { encoding: 'utf8', timeout: 30_000, windowsHide: true, env: childEnv }).trim();
 }
 function processSnapshot() {
   // Full census, identities only: unrelated command lines never leave PowerShell.
@@ -164,8 +172,8 @@ function ownedDetails(item) {
 function fileVersion(path) {
   return ps(`(Get-Item -LiteralPath $env:VIBE_PROOF_FILE).VersionInfo.ProductVersion`, { VIBE_PROOF_FILE: path });
 }
-function signature(path) {
-  return JSON.parse(ps(`$s=Get-AuthenticodeSignature -LiteralPath $env:VIBE_PROOF_FILE; [pscustomobject]@{status=[string]$s.Status;subject=if($s.SignerCertificate){$s.SignerCertificate.Subject}else{$null}} | ConvertTo-Json -Compress`, { VIBE_PROOF_FILE: path }));
+export function signature(path, options = {}) {
+  return JSON.parse(ps(`$s=Get-AuthenticodeSignature -LiteralPath $env:VIBE_PROOF_FILE; [pscustomobject]@{status=[string]$s.Status;subject=if($s.SignerCertificate){$s.SignerCertificate.Subject}else{$null}} | ConvertTo-Json -Compress`, { VIBE_PROOF_FILE: path }, options));
 }
 function ownedStop(process) {
   // Recheck PID, path and creation time immediately before killing to prevent PID reuse.

@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 import { assertReleaseVersion, compareVersions, nextPatch, releaseDecision, withVersion } from '../../electron/release-version.mjs';
-import { assertMainUnchanged } from '../../electron/release-pipeline.mjs';
+import { assertMainUnchanged, publish } from '../../electron/release-pipeline.mjs';
 import { verifyUpdaterFeed, writeReleaseArtifacts, verifyUploadedAssets } from '../../electron/release-artifacts.mjs';
 
 const base = { event: 'main', version: '1.0.7', latestVersion: '1.0.7', sourceSha: 'new', mainSha: 'new', publishedSha: 'old' };
@@ -173,4 +173,123 @@ test('publication accepts exactly five complete assets with matching remote dige
   }
   writeFileSync(join(directory, 'latest.yml'), 'tampered');
   assert.throws(() => verifyUploadedAssets(directory, '1.0.7', assets), /mismatch/);
+});
+
+function publicationFixture(t, { afterCreate, beforeCreate = [], refresh, moveTag = false } = {}) {
+  const { directory, options } = fixture(t);
+  const provenance = writeReleaseArtifacts(options);
+  const state = { release: true, event: 'tag', tag: 'v1.0.7', version: '1.0.7', sourceSha: options.sourceCommit, triggerSha: options.triggerCommit, latest: true };
+  const draft = { id: 402560957, tag_name: state.tag, draft: true, target_commitish: state.sourceSha,
+    body: `Built source: ${state.sourceSha}\nWorkflow: ${provenance.build.url}`,
+    assets: readdirSync(directory).map((name) => {
+      const bytes = readFileSync(join(directory, name));
+      return { name, size: bytes.length, state: 'uploaded', digest: `sha256:${createHash('sha256').update(bytes).digest('hex')}` };
+    }) };
+  const calls = [], commands = [];
+  let created = false;
+  const request = async (path, options = {}) => {
+    calls.push({ path, ...options });
+    if (path.startsWith('releases?')) {
+      const page = Number(new URLSearchParams(path.split('?')[1]).get('page'));
+      const all = created ? (afterCreate ? afterCreate(draft) : [draft]) : beforeCreate;
+      return all.slice((page - 1) * 100, page * 100);
+    }
+    // Model the real failure: draft lookup by tag cannot see this release.
+    if (path.startsWith('releases/tags/')) throw new Error('GitHub draft tag lookup: 404');
+    if (path === `git/ref/tags/${state.tag}`) return { object: { type: 'commit', sha: moveTag && created ? 'c'.repeat(40) : state.sourceSha } };
+    if (path === `releases/${draft.id}`) {
+      if (options.method === 'PATCH') return { ...draft, ...options.body };
+      return refresh ? refresh(draft) : draft;
+    }
+    throw new Error(`Unexpected API call: ${path}`);
+  };
+  const gitCommand = (...args) => {
+    if (args[0] === 'rev-parse') return state.sourceSha;
+    if (args[0] === 'status') return '';
+    throw new Error(`Unexpected git command: ${args.join(' ')}`);
+  };
+  const runCommand = (command, args) => {
+    commands.push({ command, args });
+    assert.equal(command, 'gh');
+    assert.deepEqual(args.slice(0, 3), ['release', 'create', state.tag]);
+    assert.equal(args[args.indexOf('--target') + 1], state.sourceSha);
+    assert.ok(args.includes('--draft'));
+    assert.ok(args.includes('--verify-tag'));
+    assert.equal(created, false, 'must create only once');
+    created = true;
+  };
+  return { run: () => publish({ state, pkg, lock, directory, provenance, request, gitCommand, runCommand }), calls, commands, draft, state };
+}
+
+test('draft publication finds authenticated list entry despite tag endpoint 404 and verifies by id', async (t) => {
+  const f = publicationFixture(t);
+  await f.run();
+  assert.equal(f.commands.length, 1);
+  assert.deepEqual(f.calls.filter((c) => c.method === 'PATCH'), [{ path: `releases/${f.draft.id}`, method: 'PATCH', body: { draft: false, make_latest: 'true' } }]);
+  assert.equal(f.calls.some((c) => c.path.startsWith('releases/tags/')), false);
+  assert.equal(f.calls.filter((c) => c.path === `releases/${f.draft.id}`).length, 2);
+});
+
+test('draft publication searches all authenticated list pages', async (t) => {
+  const f = publicationFixture(t, { afterCreate: (draft) => [...Array.from({ length: 100 }, (_, i) => ({ id: i + 1, tag_name: `v0.0.${i}`, draft: false })), draft] });
+  await f.run();
+  assert.ok(f.calls.some((c) => c.path === 'releases?per_page=100&page=2'));
+  assert.equal(f.calls.filter((c) => c.method === 'PATCH').length, 1);
+});
+
+test('missing uploaded draft fails without publishing or creating a second draft', async (t) => {
+  const f = publicationFixture(t, { afterCreate: () => [] });
+  await assert.rejects(f.run(), /Missing draft/);
+  assert.equal(f.commands.length, 1);
+  assert.equal(f.calls.filter((c) => c.method === 'PATCH').length, 0);
+});
+
+test('two drafts for one tag fail without publication', async (t) => {
+  const f = publicationFixture(t, { afterCreate: (draft) => [draft, { ...draft, id: draft.id + 1 }] });
+  await assert.rejects(f.run(), /Multiple releases/);
+  assert.equal(f.calls.filter((c) => c.method === 'PATCH').length, 0);
+});
+
+test('published release discovered after creation fails without publication', async (t) => {
+  const f = publicationFixture(t, { afterCreate: (draft) => [{ ...draft, draft: false }] });
+  await assert.rejects(f.run(), /already published/);
+  assert.equal(f.calls.filter((c) => c.method === 'PATCH').length, 0);
+});
+
+test('existing draft or published release on any list page blocks all mutations and duplicate creation', async (t) => {
+  for (const draft of [true, false]) {
+    const f = publicationFixture(t, { beforeCreate: [...Array.from({ length: 100 }, (_, i) => ({ tag_name: `v0.0.${i}` })), { tag_name: 'v1.0.7', draft }] });
+    await assert.rejects(f.run(), /Release already exists/);
+    assert.equal(f.commands.length, 0);
+    assert.equal(f.calls.some((c) => c.method), false);
+  }
+});
+
+test('draft asset names, digests, sizes and upload states must match before publishing', async (t) => {
+  for (const corrupt of [
+    (assets) => assets.slice(1),
+    (assets) => [...assets, assets[0]],
+    ...[{ name: 'unexpected.exe' }, { digest: undefined }, { digest: 'sha256:wrong' }, { size: 0 }, { state: 'new' }].map((patch) => (assets) => assets.map((a, i) => i === 0 ? { ...a, ...patch } : a)),
+  ]) {
+    const f = publicationFixture(t, { refresh: (draft) => ({ ...draft, assets: corrupt(draft.assets) }) });
+    await assert.rejects(f.run(), /asset set|digest\/size|upload incomplete/);
+    assert.equal(f.calls.filter((c) => c.method === 'PATCH').length, 0);
+  }
+});
+
+test('unexpected tag, id, draft state or source reservation fails on refreshed release', async (t) => {
+  for (const patch of [{ tag_name: 'v1.0.8' }, { id: 123 }, { draft: false }, { target_commitish: 'main' }, { body: 'Built source: wrong' }]) {
+    const f = publicationFixture(t, { refresh: (draft) => ({ ...draft, ...patch }) });
+    await assert.rejects(f.run(), /Unexpected draft|already published|reservation mismatch/);
+    assert.equal(f.calls.filter((c) => c.method === 'PATCH').length, 0);
+  }
+});
+
+test('unexpected listed source reservation and tag movement fail without publication', async (t) => {
+  const mismatched = publicationFixture(t, { afterCreate: (draft) => [{ ...draft, target_commitish: 'main' }] });
+  await assert.rejects(mismatched.run(), /reservation mismatch/);
+  assert.equal(mismatched.calls.filter((c) => c.method === 'PATCH').length, 0);
+  const moved = publicationFixture(t, { moveTag: true });
+  await assert.rejects(moved.run(), /Tag moved during upload/);
+  assert.equal(moved.calls.filter((c) => c.method === 'PATCH').length, 0);
 });

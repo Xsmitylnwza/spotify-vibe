@@ -34,6 +34,8 @@
     },
     "nsis": {
       "allowToChangeInstallationDirectory": true,
+      "installerIcon": "electron/assets/icon.ico",
+      "uninstallerIcon": "electron/assets/icon.ico",
       "oneClick": false,
       "shortcutName": "Vibe Studio",
       "artifactName": "Vibe-Studio-Setup-${version}.${ext}"
