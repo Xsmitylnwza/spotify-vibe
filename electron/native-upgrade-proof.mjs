@@ -49,6 +49,12 @@ export function updateStage(state) {
   if (state.error || state.state === 'error') throw new Error(`Updater error: ${state.error || state.state}`);
   return state.state || (state.downloaded ? 'downloaded' : state.downloading ? 'downloading' : state.checking ? 'checking' : state.available ? 'available' : 'idle');
 }
+// NSIS reads /D= raw to the end of the command line, so it is last and unquoted; verbatim spawn stops Node quoting it.
+export function nsisSilentArgs(directory, installerPath) {
+  assert.ok(!/[\s"]/.test(installerPath), 'Installer path must not need quoting under verbatim arguments');
+  assert.ok(win32.isAbsolute(directory) && !directory.includes('"'), 'NSIS /D destination must be absolute and unquoted');
+  return ['/S', '/currentuser', `/D=${directory}`];
+}
 export const BRIDGE_READY = "(async () => { if (!window.vibeStudio?.isElectron || document.readyState !== 'complete') return false; try { await window.vibeStudio.getVersion(); return true; } catch { return false; } })()";
 export function automaticProcess(process, baselinePid, installedExe, candidate, requestedAt) {
   return process.pid !== baselinePid && normalized(process.path || '.') === normalized(installedExe)
@@ -361,7 +367,8 @@ async function scenario() {
     };
     const oldRelease = await download(baseline, baselineTag, false), newRelease = await download(latest, candidateTag, true);
     assert.equal((await api('releases/latest')).tag_name, candidateTag, 'Latest changed before installation');
-    const installDirectory = join(root, 'install');
+    // Mirror the default per-user layout (...\Programs\Vibe Studio); otherwise NSIS appends the product folder on update.
+    const installDirectory = join(root, 'install', 'Vibe Studio');
     installedExe = join(installDirectory, 'Vibe Studio.exe');
     const data = join(process.env.APPDATA, 'Spotify Vibe');
     const userData = [join(process.env.APPDATA, 'Vibe Studio'), join(process.env.APPDATA, 'spotify-vibe')];
@@ -387,9 +394,8 @@ async function scenario() {
     ps(`Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class EnvNotice{[DllImport("user32.dll",CharSet=CharSet.Unicode)]public static extern IntPtr SendMessageTimeout(IntPtr h,uint m,IntPtr w,string l,uint f,uint t,out IntPtr r);}'; $result=[IntPtr]::Zero; [void][EnvNotice]::SendMessageTimeout([IntPtr]0xffff,0x001A,[IntPtr]::Zero,'Environment',2,5000,[ref]$result)`);
     proof.isolation.persistedNonSecretEnvironmentKeys = persistedEnvironment;
     log('isolated-profile-seeded', proof.isolation);
-    assert.ok(!/\s/.test(installDirectory), 'NSIS /D destination must have no whitespace to avoid Node argument quoting');
     startingInstall = true;
-    const installer = spawn(oldRelease.installer.path, ['/S', '/currentuser', `/D=${installDirectory}`], { env: appEnvironment, windowsHide: true, stdio: 'ignore' });
+    const installer = spawn(oldRelease.installer.path, nsisSilentArgs(installDirectory, oldRelease.installer.path), { env: appEnvironment, windowsHide: true, stdio: 'ignore', windowsVerbatimArguments: true });
     let installerExit, installerError;
     installer.once('error', (error) => { installerError = error; }); installer.once('exit', (code) => { installerExit = code; });
     await waitFor('baseline silent installer exit', () => { observe(); if (installerError) throw installerError; if (installerExit !== undefined && installerExit !== 0) throw new Error(`Baseline installer exit ${installerExit}`); return installerExit === 0; }, 180_000);
@@ -555,6 +561,8 @@ function validateContract() {
   check(() => assert.equal(accepted({ ...process, commandLine: 'app --updated --type=renderer' }), false));
   check(() => assert.equal(accepted({ ...process, commandLine: 'app' }), false));
   check(() => assert.ok(accepted({ ...process, productVersion: '1.0.8.0' })));
+  check(() => assert.deepEqual(nsisSilentArgs('D:\\ci\\install\\Vibe Studio', 'D:\\ci\\cache\\setup.exe'), ['/S', '/currentuser', '/D=D:\\ci\\install\\Vibe Studio']));
+  check(() => assert.throws(() => nsisSilentArgs('D:\\ci\\install', 'D:\\ci dir\\setup.exe')));
   check(() => assert.equal(accepted({ ...process, productVersion: '1.0.7' }), false));
   check(() => assert.equal(accepted({ ...process, createdAt: '2026-10-03T00:59:59Z' }), false));
   // Feed text is the real inspected public baseline metadata; no fake installer bytes.
