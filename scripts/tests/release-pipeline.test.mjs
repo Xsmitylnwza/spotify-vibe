@@ -108,6 +108,8 @@ test('provenance and checksum assets retain source, build and updater integrity'
   assert.deepEqual(result.package, { version: '1.0.7', lockVersion: '1.0.7', lockRootVersion: '1.0.7' });
   assert.equal(result.verification.nativeUpgrade, 'unverified');
   assert.equal(result.verification.codeSigning, 'unverified');
+  assert.equal(writeReleaseArtifacts({ ...options, codeSigning: 'valid' }).verification.codeSigning, 'valid');
+  assert.throws(() => writeReleaseArtifacts({ ...options, codeSigning: 'signed?' }), /Unknown code signing/);
   assert.equal(readdirSync(directory).length, 5);
   const sums = readFileSync(join(directory, 'SHA256SUMS.txt'), 'utf8').trim().split('\n');
   assert.equal(sums.length, 4);

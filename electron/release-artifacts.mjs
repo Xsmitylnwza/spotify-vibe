@@ -30,11 +30,12 @@ export function verifyUpdaterFeed(feed, version, installer, bytes) {
   }
 }
 
-export function writeReleaseArtifacts({ directory, pkg, lock, sourceCommit, triggerCommit, repository, runId, runAttempt, workflowRef, nodeVersion = process.version, platform = process.platform, createdAt = new Date().toISOString() }) {
+export function writeReleaseArtifacts({ directory, pkg, lock, sourceCommit, triggerCommit, repository, runId, runAttempt, workflowRef, codeSigning = 'unverified', nodeVersion = process.version, platform = process.platform, createdAt = new Date().toISOString() }) {
   const tag = `v${pkg.version}`;
   assertReleaseVersion(tag, pkg, lock);
   if (!/^[a-f0-9]{40}$/.test(sourceCommit) || !/^[a-f0-9]{40}$/.test(triggerCommit)) throw new Error('Provenance requires full commit SHAs');
   if (!repository || !runId || !runAttempt || !workflowRef) throw new Error('Missing build identity');
+  if (!['unverified', 'valid'].includes(codeSigning)) throw new Error('Unknown code signing state');
   const installer = `Vibe-Studio-Setup-${pkg.version}.exe`;
   const names = [installer, `${installer}.blockmap`, 'latest.yml'];
   const packaged = readdirSync(directory).filter((name) => /\.exe(?:\.blockmap)?$/.test(name)).sort();
@@ -51,7 +52,7 @@ export function writeReleaseArtifacts({ directory, pkg, lock, sourceCommit, trig
     schemaVersion: 1, version: pkg.version, tag, repository, sourceCommit, triggerCommit, createdAt,
     build: { runId: String(runId), runAttempt: String(runAttempt), workflowRef, nodeVersion, platform, url: `https://github.com/${repository}/actions/runs/${runId}/attempts/${runAttempt}` },
     package: { version: pkg.version, lockVersion: lock.version, lockRootVersion: lock.packages[''].version },
-    verification: { npmTest: 'passed', windowsBuild: 'passed', updaterFeed: 'verified', codeSigning: 'unverified', nativeUpgrade: 'unverified' },
+    verification: { npmTest: 'passed', windowsBuild: 'passed', updaterFeed: 'verified', codeSigning, nativeUpgrade: 'unverified' },
     artifacts,
   };
   writeFileSync(join(directory, 'release-provenance.json'), JSON.stringify(provenance, null, 2) + '\n');
@@ -77,5 +78,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const state = JSON.parse(readFileSync('.release-state.json', 'utf8'));
   writeReleaseArtifacts({ directory: 'dist', pkg: JSON.parse(readFileSync('package.json', 'utf8')), lock: JSON.parse(readFileSync('package-lock.json', 'utf8')),
     sourceCommit: state.sourceSha, triggerCommit: state.triggerSha, repository: process.env.GITHUB_REPOSITORY,
-    runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT, workflowRef: process.env.GITHUB_WORKFLOW_REF });
+    runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT, workflowRef: process.env.GITHUB_WORKFLOW_REF,
+    // Set only by the release step that verified a Valid Authenticode signature.
+    codeSigning: process.env.VIBE_CODE_SIGNING === 'Valid' ? 'valid' : 'unverified' });
 }

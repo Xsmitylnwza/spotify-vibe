@@ -195,6 +195,29 @@ The autostart launcher is created at:
 - Studio binds to `127.0.0.1` only.
 - GIPHY and Discord credentials are not returned by public config endpoints.
 
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+Windows installers are built from this repository by the [Release workflow](./.github/workflows/release.yml) on GitHub-hosted runners and submitted to SignPath from that same run. Every signing request is approved manually; nothing built outside GitHub Actions is signed. Each release carries `release-provenance.json` (source commit, build run, `codeSigning` state) and `SHA256SUMS.txt`.
+
+| Role | Members |
+| --- | --- |
+| Committers and reviewers | [@Xsmitylnwza](https://github.com/Xsmitylnwza) |
+| Approvers | [@Xsmitylnwza](https://github.com/Xsmitylnwza) |
+
+All team members use multi-factor authentication for GitHub and SignPath.
+
+### Privacy
+
+Vibe Studio collects no telemetry and has no accounts or servers of its own. It talks only to:
+
+- **Discord Desktop on this PC** (local RPC) to set your Rich Presence; the activity you configure is then visible to people who can see your Discord profile. Studio shows your Discord avatar from `cdn.discordapp.com`.
+- **GitHub Releases** to check for and download updates, and `raw.githubusercontent.com` for the app-icon/artwork images that Discord displays.
+- **GIPHY**, only if you add your own GIPHY key and search for a GIF.
+
+Configuration and secrets stay in local files on your PC. Uninstall from Windows Settings → Apps.
+
 ## Development checks
 
 ```bash

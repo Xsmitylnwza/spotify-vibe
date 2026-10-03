@@ -43,6 +43,40 @@ jobs:
       - name: Build Windows without publishing
         if: steps.prepare.outputs.release == 'true'
         run: npm run dist:win
+      # SignPath signing turns on once the repository variable SIGNPATH_ORGANIZATION_ID
+      # is set; each request waits for a manual approval in SignPath. Without it the
+      # build stays unsigned and provenance records codeSigning: unverified.
+      - name: Upload unsigned installer for signing
+        id: unsigned
+        if: steps.prepare.outputs.release == 'true' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-${{ steps.prepare.outputs.tag }}-${{ steps.prepare.outputs.source_sha }}
+          if-no-files-found: error
+          path: dist/Vibe-Studio-Setup-*.exe
+      - name: Sign installer with SignPath (waits for approval)
+        if: steps.prepare.outputs.release == 'true' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: signpath/github-action-submit-signing-request@c92b958760219087e01f8d67a1669ed57afe2627 # v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: dist-signed
+      - name: Verify signature and regenerate updater metadata
+        if: steps.prepare.outputs.release == 'true' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem dist-signed -Filter 'Vibe-Studio-Setup-*.exe'
+          $status = (Get-AuthenticodeSignature -LiteralPath $file.FullName).Status
+          if ("$status" -ne 'Valid') { throw "Signed installer Authenticode status is $status" }
+          node electron/release-signing.mjs dist dist-signed
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "VIBE_CODE_SIGNING=Valid" >> $env:GITHUB_ENV
       - name: Verify updater metadata and retain provenance and checksums
         if: steps.prepare.outputs.release == 'true'
         run: node electron/release-artifacts.mjs
