@@ -36,7 +36,7 @@ test('app icon can be selected directly from image gallery and editor has no red
 });
 test('known app icons resolve to public image sources; unknown apps have an explicit fallback', () => {
   assert.match(publicAppIcon('C:\\Chrome.exe', 'Google Chrome'), /google-chrome\.png$/);
-  assert.match(publicAppIcon('C:\\Code.exe', 'Code'), /domain=code.visualstudio.com/);
+  assert.match(publicAppIcon('C:\\Code.exe', 'Code'), /^https:\/\/raw\.githubusercontent\.com\/Xsmitylnwza\/spotify-vibe\/.*\/public\/art\/apps\/visual-studio-code\.png$/);
   assert.equal(publicAppIcon('C:\\Private.exe', 'Private'), '');
 });
 

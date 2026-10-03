@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { deflateSync } from 'node:zlib';
@@ -29,9 +30,11 @@ test('consent null/false never uploads; consent true coalesces and persists hash
   const hosting = createIconHosting(dir, { uploader });
   await hosting.pair([app()]); assert.equal(calls, 0);
   assert.equal((await hosting.decorate(app())).iconStatus, 'needs-consent');
+  assert.equal((await hosting.decorate(app())).iconSource, 'default');
   await hosting.setConsent(false); await hosting.pair([app()]); assert.equal(calls, 0);
   await hosting.setConsent(true); await Promise.all([hosting.pair([app()]), hosting.pair([app()])]); await hosting.drain();
   assert.equal(calls, 1); assert.equal((await hosting.decorate(app())).iconStatus, 'ready');
+  assert.equal((await hosting.decorate(app())).iconSource, 'upload');
   const restarted = createIconHosting(dir, { uploader }); await restarted.pair([app()]); await restarted.drain(); assert.equal(calls, 1);
   await restarted.pair([app(1)]); await restarted.drain(); assert.equal(calls, 2);
 });
@@ -79,8 +82,46 @@ for (const fail of [false, true]) test(`HTTP pairing background upload and publi
   let found = await (await fetch(base + '/api/device-apps')).json(); assert.equal(found.running[0].iconStatus, 'uploading'); assert.equal(uploads, 1);
   release(); await hosting.drain(); found = await (await fetch(base + '/api/device-apps')).json();
   assert.equal(found.running[0].iconStatus, fail ? 'failed' : 'ready');
+  assert.equal(found.running[0].iconSource, fail ? 'default' : 'upload');
   const result = await (await request('/api/mock-live', 'POST', { action: 'send', scene: { id: 's1', activityType: 'playing', activityName: 'Unique App', details: 'Working', largeImage: '@app', smallImage: '@app', appPublicIcon: 'https://stale.test/old.png' } })).json();
   assert.equal(result.scene.imageFallback, fail ? 'app_icon_no_public_url' : null);
   if (!fail) { assert.equal(payload.assets.large_image, 'https://files.catbox.moe/unique.png'); assert.equal(payload.assets.small_image, payload.assets.large_image); }
   else assert.match(payload.assets.large_image, /hinata/);
+});
+
+test('HTTP pack beats an uploaded cache, skips uploads with every consent state and publishes exact pack URLs', async t => {
+  const dir = await directory(t); let uploads = 0;
+  const packed = { ...app(), exe: 'C:\\Apps\\Code.exe', name: 'Visual Studio Code', publisher: 'Microsoft Corporation' };
+  packed.id = appIdentity(packed.exe);
+  await writeFile(join(dir, 'icon-hosting.json'), JSON.stringify({ consent: true, icons: {
+    [packed.id]: { url: 'https://files.catbox.moe/old.png', sha256: createHash('sha256').update(tinyPng()).digest('hex') },
+  } }));
+  const hosting = createIconHosting(dir, { uploader: async () => { uploads++; return 'https://files.catbox.moe/new.png'; } });
+  for (const consent of [true, false]) {
+    await hosting.setConsent(consent); await hosting.pair([packed]); await hosting.drain();
+    assert.equal((await hosting.decorate(packed)).iconSource, 'pack');
+  }
+  const withoutConsent = createIconHosting(await directory(t), { uploader: async () => { uploads++; } });
+  await withoutConsent.pair([packed]);
+  assert.equal((await withoutConsent.decorate(packed)).iconSource, 'pack');
+  assert.equal(uploads, 0);
+  const client = new EventEmitter(); let payload;
+  client.login = async () => {}; client.request = async (_, args) => { payload = args.activity; return {}; }; client.destroy = client.clearActivity = async () => {};
+  const controller = createLiveController(() => client);
+  const server = createRealAppServer({ dataDirectory: dir, iconHosting: hosting, catalog: async () => ({ running: [packed], installed: [packed] }),
+    fetchImpl: async (_, opts) => { const input = JSON.parse(opts.body); return Response.json(await controller.command(input.action, input.scene)); } });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(async () => { await controller.command('end'); await new Promise(resolve => server.close(resolve)); });
+  const base = `http://127.0.0.1:${server.address().port}`, headers = { 'Content-Type': 'application/json', 'X-Vibe-Mock-Live': '1' };
+  const request = (path, method, body) => fetch(base + path, { method, headers, body: JSON.stringify(body) });
+  await request('/api/device-workspace', 'PUT', { scenes: [{ id: 's1' }], rules: [{ kind: 'app', app: packed.id, scene: 's1' }], apps: [packed], selectedAppId: packed.id });
+  const found = await (await fetch(base + '/api/device-apps')).json();
+  assert.equal(found.running[0].iconSource, 'pack'); assert.equal(found.installed[0].iconSource, 'pack');
+  const packUrl = found.running[0].publicIcon;
+  assert.match(packUrl, /^https:\/\/raw.githubusercontent.com\/Xsmitylnwza\/spotify-vibe\/.*\/public\/art\/apps\/visual-studio-code.png$/);
+  const result = await (await request('/api/mock-live', 'POST', { action: 'send', scene: { id: 's1', activityType: 'playing', activityName: 'Code', largeImage: '@app', smallImage: '@app', appPublicIcon: 'https://stale.test/old.png' } })).json();
+  assert.equal(result.scene.appIconSource, 'pack'); assert.equal(result.scene.imageFallback, null);
+  assert.equal(payload.assets.large_image, packUrl); assert.equal(payload.assets.small_image, packUrl); assert.equal(uploads, 0);
+  const unpaired = await (await request('/api/mock-live', 'POST', { action: 'send', scene: { id: 'other', activityType: 'playing', activityName: 'Unpaired', largeImage: '@app', appPublicIcon: packUrl } })).json();
+  assert.equal(unpaired.scene.imageFallback, 'app_icon_no_public_url'); assert.equal(unpaired.scene.appIconSource, 'default');
 });

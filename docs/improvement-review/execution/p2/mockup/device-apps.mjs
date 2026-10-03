@@ -48,18 +48,18 @@ export function createIconHosting(dataDirectory, { provider = 'catbox', uploader
   const hash = app => createHash('sha256').update(iconPng(app.icon)).digest('hex');
   async function decorate(app) {
     await loaded;
-    const approved = publicAppIcon(app.exe, app.name);
-    if (approved) return { ...app, publicIcon: approved, iconStatus: 'ready' };
+    const approved = publicAppIcon(app.exe, app.name, app.publisher);
+    if (approved) return { ...app, publicIcon: approved, iconStatus: 'ready', iconSource: 'pack' };
     let sha256; try { sha256 = hash(app); } catch {}
     const cached = state.icons[app.id];
-    if (sha256 && cached?.sha256 === sha256 && publicIconUrl(cached.url)) return { ...app, publicIcon: cached.url, iconStatus: 'ready' };
-    return { ...app, publicIcon: '', iconStatus: pending.has(app.id) ? 'uploading' : state.consent !== true ? 'needs-consent' : 'failed' };
+    if (sha256 && cached?.sha256 === sha256 && publicIconUrl(cached.url)) return { ...app, publicIcon: cached.url, iconStatus: 'ready', iconSource: 'upload' };
+    return { ...app, publicIcon: '', iconSource: 'default', iconStatus: pending.has(app.id) ? 'uploading' : state.consent !== true ? 'needs-consent' : 'failed' };
   }
   async function pair(apps) {
     await loaded;
     if (state.consent !== true) return;
     for (const app of apps) {
-      if (publicAppIcon(app.exe, app.name) || pending.has(app.id)) continue;
+      if (publicAppIcon(app.exe, app.name, app.publisher) || pending.has(app.id)) continue;
       let sha256; try { sha256 = hash(app); } catch { continue; }
       if ((state.icons[app.id]?.sha256 === sha256 && publicIconUrl(state.icons[app.id]?.url)) || failed.get(app.id) === sha256) continue;
       const operation = Promise.resolve().then(() => {
@@ -77,12 +77,8 @@ export function createIconHosting(dataDirectory, { provider = 'catbox', uploader
     async drain() { await loaded; await Promise.all([...pending.values()]); await saving; } };
 }
 
-export function publicAppIcon(executable, name) {
-  const approved = applicationBadge(executable, name);
-  if (approved) return approved;
-  const file = executable.replaceAll('/', '\\').split('\\').at(-1).toLowerCase();
-  const sites = { 'code.exe': 'code.visualstudio.com', 'figma.exe': 'figma.com', 'spotify.exe': 'spotify.com', 'obs64.exe': 'obsproject.com', 'blender.exe': 'blender.org', 'firefox.exe': 'mozilla.org', 'msedge.exe': 'microsoft.com', 'notion.exe': 'notion.so', 'slack.exe': 'slack.com' };
-  return sites[file] ? `https://www.google.com/s2/favicons?domain=${sites[file]}&sz=128` : '';
+export function publicAppIcon(executable, name, publisher = '') {
+  return applicationBadge(executable, name, { publisher }) || '';
 }
 
 const HELPER_EXES = new Set(['textinputhost.exe', 'applicationframehost.exe', 'runtimebroker.exe', 'shellexperiencehost.exe', 'searchhost.exe', 'searchapp.exe', 'startmenuexperiencehost.exe', 'systemsettings.exe', 'lockapp.exe', 'taskhostw.exe', 'sihost.exe', 'ctfmon.exe', 'dllhost.exe', 'conhost.exe', 'backgroundtaskhost.exe']);
@@ -101,7 +97,9 @@ export function normalizeDeviceApps(apps) {
   return apps.filter(a => a && typeof a.executable === 'string' && /^[a-z]:\\.*\.exe$/i.test(a.executable)).flatMap(a => {
     const id = appIdentity(a.executable); if (seen.has(id)) return []; seen.add(id);
     const name = String(a.name || a.executable.split('\\').at(-1));
-    return [{ id, name, exe: a.executable, publicIcon: publicAppIcon(a.executable, name), icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '', foreground: !!a.foreground, hidden: isJunkApp(a.executable, name) }];
+    const publisher = String(a.publisher || '');
+    const publicIcon = publicAppIcon(a.executable, name, publisher);
+    return [{ id, name, exe: a.executable, publisher, publicIcon, iconSource: publicIcon ? 'pack' : 'default', icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '', foreground: !!a.foreground, hidden: isJunkApp(a.executable, name) }];
   }).sort((a, b) => Number(b.foreground) - Number(a.foreground) || a.name.localeCompare(b.name));
 }
 export function readRunningApps(watch = watchWindowsApps) {

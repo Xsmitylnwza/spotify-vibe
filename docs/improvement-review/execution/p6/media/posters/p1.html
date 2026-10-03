@@ -1,0 +1,58 @@
+<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><title>Vibe Studio — Desktop ↔ Discord</title>
+<link rel="stylesheet" href="assets/studio-ci.css"><link rel="stylesheet" href="assets/mockup-extra.css"><link rel="stylesheet" href="assets/coordinator.css">
+<style>
+html,body{margin:0;padding:0;width:1600px;height:1000px;overflow:hidden;background:#120e33;font-family:"IBM Plex Sans","IBM Plex Sans Thai",system-ui,sans-serif;color:#fff}
+.poster{position:relative;width:1600px;height:1000px;overflow:hidden;background:
+ radial-gradient(900px 600px at 18% 8%,rgba(102,112,248,.38),transparent 70%),
+ radial-gradient(900px 700px at 95% 100%,rgba(76,67,238,.35),transparent 70%),
+ linear-gradient(160deg,#1a1450 0%,#14103f 45%,#0d0a2a 100%)}
+.poster:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:40px 40px;-webkit-mask-image:linear-gradient(180deg,#000,transparent 75%)}
+.hd{position:absolute;left:72px;top:56px;display:flex;align-items:center;gap:20px;z-index:5}
+.hd .gm{display:block;filter:drop-shadow(0 6px 18px rgba(76,67,238,.55))}
+.hd .wm{font-weight:600;font-size:46px;letter-spacing:-.01em;line-height:1}
+.hd .tg{margin-top:10px;font-size:22px;color:#c8ccff;font-weight:400}
+.fict{position:absolute;right:56px;bottom:18px;z-index:5;font-size:15px;letter-spacing:.04em;color:#b8bdf5;border:1px solid rgba(184,189,245,.35);padding:5px 12px;border-radius:999px;background:rgba(18,14,51,.5)}
+.cap{position:absolute;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:#a9aef0;font-weight:500}
+.fi-tile{display:inline-flex;width:100%;height:100%;align-items:center;justify-content:center;background:#fff;color:#4C43EE;font-weight:600;font-size:11px;border-radius:50%}
+
+.desk{position:absolute;left:72px;top:236px;width:800px;height:690px;border-radius:14px;overflow:hidden;box-shadow:0 30px 70px rgba(5,3,30,.6),0 0 0 1px rgba(255,255,255,.1);background:radial-gradient(500px 360px at 20% 20%,#5f5bd8,transparent 70%),linear-gradient(135deg,#2c2578,#4a3aa8 55%,#2a1f6b)}
+.win{position:absolute;left:44px;top:36px;width:712px;height:560px;background:#f5f6fa;border-radius:10px;box-shadow:0 18px 40px rgba(5,3,30,.5),0 0 0 2px #6670F8;overflow:hidden;color:#23253a}
+.win .tb{height:38px;background:#fff;border-bottom:1px solid #e3e5ee;display:flex;align-items:center;padding:0 14px;gap:10px;font-size:14px}
+.win .tb .fi{width:20px;height:20px;border-radius:6px;background:#23253a;color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.win .tb .ctl{margin-left:auto;letter-spacing:10px;color:#8a8ea6;font-size:13px}
+.win .bd{display:flex;height:calc(100% - 38px)}
+.win .tools{width:46px;background:#fff;border-right:1px solid #e3e5ee;display:flex;flex-direction:column;align-items:center;gap:16px;padding-top:16px}
+.win .tools u{width:18px;height:18px;border:2px solid #8a8ea6;border-radius:4px;display:block}.win .tools u:first-child{border-color:#4C43EE;background:#e7e9ff}
+.win .cv{flex:1;position:relative;background:#e9eaf1;background-image:radial-gradient(#cfd2e0 1px,transparent 1px);background-size:20px 20px;overflow:hidden}
+.board{position:absolute;left:40px;top:34px;width:430px;height:336px;background:#fff;border-radius:6px;box-shadow:0 2px 10px rgba(35,37,58,.15)}
+.board .lb{position:absolute;left:0;top:-22px;font-size:12px;color:#6a6e88}
+.frm{position:absolute;border-radius:6px}.frm i{position:absolute;left:12px;top:14px;height:8px;border-radius:4px;background:#23253a;opacity:.75}.frm b{position:absolute;right:12px;bottom:12px;width:26px;height:26px;border-radius:50%}
+.sel{position:absolute;left:40px;top:34px;width:430px;height:336px;border:2px solid #6670F8;border-radius:2px;pointer-events:none}
+.props{position:absolute;right:0;top:0;width:150px;height:100%;background:#fff;border-left:1px solid #e3e5ee;padding:14px;font-size:12px;color:#6a6e88}
+.props .r{height:8px;border-radius:4px;background:#e3e5ee;margin:12px 0}
+.tk{position:absolute;left:0;right:0;bottom:0;height:52px;background:rgba(18,14,51,.72);display:flex;align-items:center;justify-content:center;gap:16px;border-top:1px solid rgba(255,255,255,.12)}
+.tk img,.tk .tkf{width:30px;height:30px;border-radius:7px;object-fit:contain}
+.tkf{background:#fff;color:#4C43EE;font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;position:relative}
+.tkf:after{content:"";position:absolute;bottom:-9px;left:50%;width:18px;height:3px;margin-left:-9px;border-radius:2px;background:#8794FF}
+.cardw{position:absolute;left:697px;top:213px;zoom:1.5}
+.cardw .dcp{box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08)}
+.link{position:absolute;left:872px;top:622px;width:196px;height:2px;background:linear-gradient(90deg,rgba(135,148,255,.2),#8794FF)}
+.link:before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#8794FF;box-shadow:0 0 0 4px rgba(135,148,255,.25)}
+.lg{position:absolute;left:972px;top:590px;filter:drop-shadow(0 8px 20px rgba(76,67,238,.7))}
+
+</style></head><body><div class="poster">
+<div class="hd"><svg class="gm" style="width:72px;height:72px" viewBox="0 0 64 64"><defs><linearGradient id="ggh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".5" stop-color="#6670F8"/><stop offset="1" stop-color="#4C43EE"/></linearGradient></defs><rect x="1.5" y="1.5" width="61" height="61" rx="14" fill="url(#ggh)"/><path d="M32.5 11.2C22 11 15.5 19 13.8 31C12.5 40 12.8 47 15 51.5C16 53 17.5 52.5 19 51.5L22 47.7C22.8 46.8 23.8 47 24.5 47.8L27 51C27.8 52 28.8 53.5 29.2 53.5C30 53.5 31 52 32 51L33 49.5C33.8 48.8 34.5 48.8 35.2 49.5C37 51 38.8 52 41 52L43 49C44 47.5 44.8 46.5 45.8 46.8C48 47.3 50 47.7 52 47.2C54 46.7 54.5 45.5 53.5 43.5C51 38.5 48.5 36 48 31C47 21 41 11.3 32.5 11.2Z" fill="#fff"/><g fill="#3A34C8"><circle cx="23.4" cy="28.8" r="2.9"/><path d="M42.4 22.4Q42.9 24.3 44.8 24.8Q42.9 25.3 42.4 27.2Q41.9 25.3 40 24.8Q41.9 24.3 42.4 22.4Z"/></g><circle cx="22.6" cy="27.7" r=".95" fill="#fff"/><g fill="none" stroke="#3A34C8" stroke-width="1.5" stroke-linecap="round"><path d="M34.2 29.4Q37.2 25.2 40.5 29"/><path d="M27.4 32.4Q30.6 36.6 33.8 32.4"/></g></svg><div><div class="wm">Vibe Studio</div><div class="tg">Set it once — your Discord status follows the app you’re in.</div></div></div>
+
+<div class="cap" style="left:72px;top:204px">Windows · Figma in focus</div><div class="cap" style="left:1046px;top:204px">Discord · what others see</div>
+<div class="desk"><div class="win"><div class="tb"><span class="fi">Fi</span><span>Landing page v3 – Figma</span><span class="ctl">– ▫ ✕</span></div>
+<div class="bd"><div class="tools"><u></u><u></u><u></u><u></u></div><div class="cv"><div class="board"><span class="lb">Landing page v3</span><div class="frm" style="left:18px;top:18px;width:200px;height:130px;background:#e7e9ff"><i style="width:100px"></i><i style="width:140px;top:65px;opacity:.6"></i><b style="background:#4C43EE"></b></div><div class="frm" style="left:238px;top:18px;width:170px;height:130px;background:#dfe3fb"><i style="width:85px"></i><i style="width:118.99999999999999px;top:65px;opacity:.6"></i><b style="background:#e86a3d"></b></div><div class="frm" style="left:18px;top:168px;width:120px;height:150px;background:#ffe6dc"><i style="width:60px"></i><i style="width:84px;top:75px;opacity:.6"></i><b style="background:#2c9d78"></b></div><div class="frm" style="left:158px;top:168px;width:250px;height:150px;background:#e3f4ee"><i style="width:125px"></i><i style="width:175px;top:75px;opacity:.6"></i><b style="background:#6670F8"></b></div></div><div class="sel"></div><div class="props"><b style="color:#23253a">Design</b><div class="r" style="width:70%"></div><div class="r"></div><div class="r" style="width:50%"></div><div class="r"></div></div></div></div></div>
+<div class="tk"><img src="assets/apps/visual-studio-code.png" alt=""><img src="assets/apps/google-chrome.png" alt=""><span class="tkf">Fi</span><img src="assets/apps/file-explorer.png" alt=""><img src="assets/apps/spotify.svg" alt=""></div></div>
+<div class="link"></div><div class="lg"><svg class="gm" style="width:64px;height:64px" viewBox="0 0 64 64"><defs><linearGradient id="ggl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8794FF"/><stop offset=".5" stop-color="#6670F8"/><stop offset="1" stop-color="#4C43EE"/></linearGradient></defs><rect x="1.5" y="1.5" width="61" height="61" rx="14" fill="url(#ggl)"/><path d="M32.5 11.2C22 11 15.5 19 13.8 31C12.5 40 12.8 47 15 51.5C16 53 17.5 52.5 19 51.5L22 47.7C22.8 46.8 23.8 47 24.5 47.8L27 51C27.8 52 28.8 53.5 29.2 53.5C30 53.5 31 52 32 51L33 49.5C33.8 48.8 34.5 48.8 35.2 49.5C37 51 38.8 52 41 52L43 49C44 47.5 44.8 46.5 45.8 46.8C48 47.3 50 47.7 52 47.2C54 46.7 54.5 45.5 53.5 43.5C51 38.5 48.5 36 48 31C47 21 41 11.3 32.5 11.2Z" fill="#fff"/><g fill="#3A34C8"><circle cx="23.4" cy="28.8" r="2.9"/><path d="M42.4 22.4Q42.9 24.3 44.8 24.8Q42.9 25.3 42.4 27.2Q41.9 25.3 40 24.8Q41.9 24.3 42.4 22.4Z"/></g><circle cx="22.6" cy="27.7" r=".95" fill="#fff"/><g fill="none" stroke="#3A34C8" stroke-width="1.5" stroke-linecap="round"><path d="M34.2 29.4Q37.2 25.2 40.5 29"/><path d="M27.4 32.4Q30.6 36.6 33.8 32.4"/></g></svg></div>
+<div class="cardw"><div class="dcp" style="" role="img" aria-label="Vibe Demo, Playing Design. Designing in Figma. Landing page v3 – Figma">
+    <div class="dcp-top"><div class="dcp-banner"></div><div class="dcp-av"><img class="mk-av " src="assets/art/avatar-2.svg" referrerpolicy="no-referrer" alt=""><span class="dcp-dot " aria-hidden="true"></span></div></div>
+    <div class="dcp-id"><b>Vibe Demo</b><span>@vibe.demo</span></div><div class="dcp-hr"></div>
+    <div class="dcp-act"><div class="dcp-lbl" data-pv="act">Playing</div>
+     <div class="dcp-row"><div class="dcp-img" data-pv="large"><img src="assets/art/app.svg" alt=""><span class="dcp-sm" data-pv="small"><span class="fi-tile">Fi</span></span></div>
+      <div class="dcp-tx"><b class="dcp-name" data-pv="act">Design</b><span class="dcp-l dcp-link" data-pv="details">Designing in Figma</span><span class="dcp-l " data-pv="state">Landing page v3 – Figma</span></div></div>
+     </div></div></div>
+<div class="fict">Fictional demo</div></div></body></html>

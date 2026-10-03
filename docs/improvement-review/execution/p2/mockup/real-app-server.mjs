@@ -62,10 +62,16 @@ export function createRealAppServer({ dataDirectory = directory, catalog = creat
             const saved = await workspace();
             const id = input.scene.appId || saved?.selectedAppId;
             const paired = saved?.rules.some(r => r.app === id && r.scene === input.scene.id);
+            // Only a trusted, paired catalog identity may supply an app icon;
+            // discard renderer-provided URLs even when the pairing is missing.
+            input.scene.appPublicIcon = '';
+            input.scene.appIconSource = 'default';
             if (paired) {
               await pairedIcons(saved);
               const app = knownApps.get(id);
-              input.scene.appPublicIcon = app ? (await iconHosting.decorate(app)).publicIcon : '';
+              const decorated = app ? await iconHosting.decorate(app) : null;
+              input.scene.appPublicIcon = decorated?.publicIcon || '';
+              input.scene.appIconSource = decorated?.iconSource || 'default';
             }
           }
           body = JSON.stringify(input);

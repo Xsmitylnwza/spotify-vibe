@@ -1,0 +1,4 @@
+import http from 'http'; import fs from 'fs'; import path from 'path';
+const roots = { '/m/': 'C:/letmecook-lab/spotify-vibe/docs/improvement-review/execution/p2/mockup/', '/logo/': 'C:/letmecook-lab/spotify-vibe/docs/improvement-review/execution/p3/logo/final-09/', '/apps/': 'C:/letmecook-lab/spotify-vibe/public/art/apps/', '/p/': path.resolve('.') + '/' };
+const mt = { '.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2','.gif':'image/gif' };
+http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]); const k = Object.keys(roots).find(k => u.startsWith(k)); if (!k) { r.statusCode = 404; return r.end(); } const f = roots[k] + u.slice(k.length); fs.readFile(f, (e, d) => { if (e) { r.statusCode = 404; return r.end(); } r.setHeader('content-type', mt[path.extname(f)] || 'application/octet-stream'); r.end(d); }); }).listen(47460);

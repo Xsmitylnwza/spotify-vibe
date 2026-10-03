@@ -1,0 +1,1578 @@
+[
+  {
+    "slug": "google-chrome",
+    "names": [
+      "Google Chrome",
+      "Chrome",
+      "谷歌浏览器"
+    ],
+    "exeNames": [
+      "chrome.exe"
+    ],
+    "publisherHints": [
+      "Google"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Google Chrome",
+      "executableName": "chrome.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "2eac2401e2e66121496061a4a54ffb92ccddab59d1243d7ebad37cea7ade9f54"
+  },
+  {
+    "slug": "microsoft-edge",
+    "names": [
+      "Microsoft Edge",
+      "Edge"
+    ],
+    "exeNames": [
+      "msedge.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Microsoft Edge",
+      "executableName": "msedge.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "c64ba9e0d4fff3507709fc30943428a696749f6f349c836f4bc0e26cdc01e98b"
+  },
+  {
+    "slug": "firefox",
+    "names": [
+      "Mozilla Firefox",
+      "Firefox"
+    ],
+    "exeNames": [
+      "firefox.exe"
+    ],
+    "publisherHints": [
+      "Mozilla"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/firefox.svg",
+      "brandSource": "https://mozilla.design/firefox/logos-usage/",
+      "brandHex": "FF7139",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://mozilla.design/firefox/logos-usage/"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "8032790b3b067aba8995b654398d956d50d7c3aa353ed1115c5de5e31ce4498e"
+  },
+  {
+    "slug": "brave",
+    "names": [
+      "Brave",
+      "Brave Browser"
+    ],
+    "exeNames": [
+      "brave.exe"
+    ],
+    "publisherHints": [
+      "Brave Software"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Brave",
+      "executableName": "brave.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "a4497f0c9c58fa3f3b81ff3c1feea11e004db7ddfca82fa0dbfaba9a79e6aaf5"
+  },
+  {
+    "slug": "opera",
+    "names": [
+      "Opera",
+      "Opera GX"
+    ],
+    "exeNames": [
+      "opera.exe"
+    ],
+    "publisherHints": [
+      "Opera"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/opera.svg",
+      "brandSource": "https://brand.opera.com/1472-2/opera-logos/",
+      "brandHex": "FF1B2D",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://brand.opera.com"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "4640a9ac36d38ca5fe7bd28971069286c5ffbaf9e72959448e5c615bff350982"
+  },
+  {
+    "slug": "vivaldi",
+    "names": [
+      "Vivaldi"
+    ],
+    "exeNames": [
+      "vivaldi.exe"
+    ],
+    "publisherHints": [
+      "Vivaldi"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/vivaldi.svg",
+      "brandSource": "https://vivaldi.com/press",
+      "brandHex": "EF3939",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://vivaldi.com/press"
+    },
+    "license": {
+      "id": "CC-BY-4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "text": "Underlying Vivaldi brand glyph: CC-BY-4.0 per Simple Icons metadata; repository glyph distribution: CC0-1.0. Trademark rights remain with Vivaldi.",
+      "brandLicense": {
+        "type": "CC-BY-4.0"
+      },
+      "attribution": "Vivaldi Technologies AS; glyph distributed by Simple Icons 11.15.0 (CC0); rasterized on brand colour tile."
+    },
+    "sha256": "88b9bf95b6ad66c1971d7282b279dfccc2eef2a3d6f263453bf0576abcb02b8f"
+  },
+  {
+    "slug": "visual-studio-code",
+    "names": [
+      "Visual Studio Code",
+      "VS Code",
+      "VSCode",
+      "Code",
+      "Visual Studio Code - Insiders"
+    ],
+    "exeNames": [
+      "code.exe",
+      "code - insiders.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Visual Studio Code",
+      "executableName": "Code.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "0113e0f9e701eb89b7526c36df88f814e0477dd77f2e236a0db9147302b86fd1"
+  },
+  {
+    "slug": "visual-studio",
+    "names": [
+      "Microsoft Visual Studio",
+      "Visual Studio"
+    ],
+    "exeNames": [
+      "devenv.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/visualstudio.svg",
+      "brandSource": "https://visualstudio.microsoft.com",
+      "brandHex": "5C2D91",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "af449acf286af5899cbafe3e34e319f808897449002f8ac4f5899ceba01ee0df"
+  },
+  {
+    "slug": "cursor",
+    "names": [
+      "Cursor"
+    ],
+    "exeNames": [
+      "cursor.exe"
+    ],
+    "publisherHints": [
+      "Anysphere"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Cursor",
+      "executableName": "Cursor.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "d1f40ad1223a05e8757a6378c97622a93759dd0eb27625992012205690f2edb3"
+  },
+  {
+    "slug": "zed",
+    "names": [
+      "Zed"
+    ],
+    "exeNames": [
+      "zed.exe"
+    ],
+    "publisherHints": [
+      "Zed Industries"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Zed",
+      "executableName": "Zed.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "3ddebca826708962bca76362752dc0ac72c6a1d50a67ce62cbb4cf030805f8a4"
+  },
+  {
+    "slug": "intellij-idea",
+    "names": [
+      "IntelliJ IDEA",
+      "IntelliJ IDEA Community Edition",
+      "IntelliJ IDEA Ultimate"
+    ],
+    "exeNames": [
+      "idea64.exe",
+      "idea.exe"
+    ],
+    "publisherHints": [
+      "JetBrains"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/intellijidea.svg",
+      "brandSource": "https://www.jetbrains.com/idea/",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://www.jetbrains.com/company/brand/"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "55c0adc37db4898310dd66b953cded206eb471a65f77feaa072a4ddb6b9d20d2"
+  },
+  {
+    "slug": "pycharm",
+    "names": [
+      "PyCharm",
+      "PyCharm Community Edition",
+      "PyCharm Professional"
+    ],
+    "exeNames": [
+      "pycharm64.exe",
+      "pycharm.exe"
+    ],
+    "publisherHints": [
+      "JetBrains"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/pycharm.svg",
+      "brandSource": "https://www.jetbrains.com/company/brand/logos/",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://www.jetbrains.com/company/brand/"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "36c613249f9dacd83b8ad56d6fd52159abdd2a99402bac12f37f366461ab8c64"
+  },
+  {
+    "slug": "webstorm",
+    "names": [
+      "WebStorm"
+    ],
+    "exeNames": [
+      "webstorm64.exe",
+      "webstorm.exe"
+    ],
+    "publisherHints": [
+      "JetBrains"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/webstorm.svg",
+      "brandSource": "https://www.jetbrains.com/company/brand/logos",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://www.jetbrains.com/company/brand"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "c9faf2c8f750a1a701f4c5ec2173445e4e2f5dda2033452f407ecb8fa179bac0"
+  },
+  {
+    "slug": "android-studio",
+    "names": [
+      "Android Studio"
+    ],
+    "exeNames": [
+      "studio64.exe",
+      "studio.exe"
+    ],
+    "publisherHints": [
+      "Google"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/androidstudio.svg",
+      "brandSource": "https://developer.android.com/studio",
+      "brandHex": "3DDC84",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "59f9f28633d2a9a4036160ccffbc5571f4c9c4ad14e9358a88434eb1943b65d3"
+  },
+  {
+    "slug": "sublime-text",
+    "names": [
+      "Sublime Text",
+      "Sublime Text 4"
+    ],
+    "exeNames": [
+      "sublime_text.exe"
+    ],
+    "publisherHints": [
+      "Sublime"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/sublimetext.svg",
+      "brandSource": "https://www.sublimetext.com",
+      "brandHex": "FF9800",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "90f5883dd1cf0d8842795468f603c0cf92f0f264533c00190387e6f892919f08"
+  },
+  {
+    "slug": "notepad-plus-plus",
+    "names": [
+      "Notepad++",
+      "Notepad Plus Plus"
+    ],
+    "exeNames": [
+      "notepad++.exe"
+    ],
+    "publisherHints": [
+      "Don Ho"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/notepadplusplus.svg",
+      "brandSource": "https://github.com/notepad-plus-plus/notepad-plus-plus/blob/1f2c63cce173e3e1dc5922637c81a851693e2856/PowerEditor/misc/chameleon/chameleon-pencil.eps",
+      "brandHex": "90E59A",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "ad8cee15f1664066eb535317581c736cbdf638e623984bc17bbcf40745629271"
+  },
+  {
+    "slug": "discord",
+    "names": [
+      "Discord",
+      "Discord PTB",
+      "Discord Canary"
+    ],
+    "exeNames": [
+      "discord.exe",
+      "discordptb.exe",
+      "discordcanary.exe"
+    ],
+    "publisherHints": [
+      "Discord"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Discord",
+      "executableName": "Discord.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "db2826a23d361860d825b48b48648e2410b2573ea1f7aa5d58b80f54b4d7e514"
+  },
+  {
+    "slug": "spotify",
+    "names": [
+      "Spotify"
+    ],
+    "exeNames": [
+      "spotify.exe"
+    ],
+    "publisherHints": [
+      "Spotify"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/spotify.svg",
+      "brandSource": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
+      "brandHex": "1DB954",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "0e841b9d6ebcef4c9a253f8ccd62c4f5fb43fb617bc00730e1d6cb86df5d3ec8"
+  },
+  {
+    "slug": "steam",
+    "names": [
+      "Steam"
+    ],
+    "exeNames": [
+      "steam.exe"
+    ],
+    "publisherHints": [
+      "Valve"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Steam",
+      "executableName": "Steam.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "5a56c83fcf26b7b2d27a04b7dacd62434f120ad4ed20a02b1feccfc4e4bf0465"
+  },
+  {
+    "slug": "epic-games",
+    "names": [
+      "Epic Games",
+      "Epic Games Launcher"
+    ],
+    "exeNames": [
+      "epicgameslauncher.exe"
+    ],
+    "publisherHints": [
+      "Epic Games"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/epicgames.svg",
+      "brandSource": "https://dev.epicgames.com/docs/services/en-US/EpicAccountServices/DesignGuidelines/index.html#epicgamesbrandguidelines",
+      "brandHex": "313131",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://dev.epicgames.com/docs/services/en-US/EpicAccountServices/DesignGuidelines/index.html#epicgamesbrandguidelines"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "1614c4298970f350be7f1be53dc8d5e674b71acfd084fc513df3c8d3a0bd0cd6"
+  },
+  {
+    "slug": "battle-net",
+    "names": [
+      "Battle.net",
+      "Blizzard Battle.net"
+    ],
+    "exeNames": [
+      "battle.net.exe"
+    ],
+    "publisherHints": [
+      "Blizzard"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/battledotnet.svg",
+      "brandSource": "https://battle.net",
+      "brandHex": "4381C3",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "1a469a8b047148c126956c76b36b17b33e7e0db410852f5624ce120bb801e7e2"
+  },
+  {
+    "slug": "riot-client",
+    "names": [
+      "Riot Client",
+      "Riot Games"
+    ],
+    "exeNames": [
+      "riotclientservices.exe",
+      "riotclientux.exe"
+    ],
+    "publisherHints": [
+      "Riot Games"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "League of Legends",
+      "executableName": "RiotClientServices.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "b54a4d5bd6dea43bf9d9f80dfb06e611f689b8f4e1fbad353ee685608c3acd8c"
+  },
+  {
+    "slug": "ubisoft-connect",
+    "names": [
+      "Ubisoft Connect",
+      "Uplay"
+    ],
+    "exeNames": [
+      "ubisoftconnect.exe",
+      "upc.exe",
+      "uplay.exe"
+    ],
+    "publisherHints": [
+      "Ubisoft"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/ubisoft.svg",
+      "brandSource": "https://www.ubisoft.com/en-US/company/overview.aspx",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "bf58d0601504a88642049519f358df8c339aa0019500ea06f564df76938dc5d7"
+  },
+  {
+    "slug": "ea-app",
+    "names": [
+      "EA app",
+      "EA Desktop",
+      "Electronic Arts"
+    ],
+    "exeNames": [
+      "eadesktop.exe"
+    ],
+    "publisherHints": [
+      "Electronic Arts"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/ea.svg",
+      "brandSource": "https://www.ea.com",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "8bdb6d6d7928d21920c8bbe8f7f3ae53560e2a5ebd86f756ecd6e6cc35c6111a"
+  },
+  {
+    "slug": "gog-galaxy",
+    "names": [
+      "GOG Galaxy",
+      "GOG.com"
+    ],
+    "exeNames": [
+      "galaxyclient.exe"
+    ],
+    "publisherHints": [
+      "GOG"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/gogdotcom.svg",
+      "brandSource": "https://www.cdprojekt.com/en/media/logotypes/",
+      "brandHex": "86328A",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "f253859b91a4b7fbd4524959e7d756fcbb06c0a3f991127a4591e1526906b824"
+  },
+  {
+    "slug": "obs-studio",
+    "names": [
+      "OBS Studio",
+      "OBS",
+      "Open Broadcaster Software"
+    ],
+    "exeNames": [
+      "obs64.exe",
+      "obs32.exe"
+    ],
+    "publisherHints": [
+      "OBS Project"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "OBS Studio",
+      "executableName": "obs64.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "167649a9a8d9fa0587bc279d3cf5e4a067c0c4643f340a06c3595a2ca7268f00"
+  },
+  {
+    "slug": "figma",
+    "names": [
+      "Figma"
+    ],
+    "exeNames": [
+      "figma.exe"
+    ],
+    "publisherHints": [
+      "Figma"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/figma.svg",
+      "brandSource": "https://www.figma.com/using-the-figma-brand/",
+      "brandHex": "F24E1E",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://www.figma.com/using-the-figma-brand/"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "f52814d3c9d87afd63be83a886efbc9f76a47c9c85b643f00cb617fa0dcf3eeb"
+  },
+  {
+    "slug": "notion",
+    "names": [
+      "Notion"
+    ],
+    "exeNames": [
+      "notion.exe"
+    ],
+    "publisherHints": [
+      "Notion Labs"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/notion.svg",
+      "brandSource": "https://www.notion.so",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "6d9f074eebf84c8f7b3329b3c8103b83175249cd8715c5d2f8f4acbc5c06c44e"
+  },
+  {
+    "slug": "slack",
+    "names": [
+      "Slack"
+    ],
+    "exeNames": [
+      "slack.exe"
+    ],
+    "publisherHints": [
+      "Slack Technologies"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/slack.svg",
+      "brandSource": "https://slack.com/brand-guidelines",
+      "brandHex": "4A154B",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://slack.com/brand-guidelines"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "725ad94916cae7a77c64fac34b325a52c9bc47be47703f20c754df3bf877df71"
+  },
+  {
+    "slug": "microsoft-teams",
+    "names": [
+      "Microsoft Teams",
+      "Teams",
+      "Microsoft Teams (work or school)",
+      "Microsoft Teams (personal)",
+      "Microsoft Teams (free)",
+      "Microsoft Teams classic",
+      "Microsoft Teams (classic)",
+      "ไมโครซอฟท์ ทีมส์"
+    ],
+    "exeNames": [
+      "teams.exe",
+      "ms-teams.exe",
+      "msteams.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "Registered Windows Appx executable; windows-apps.ps1 ExtractAssociatedIcon method",
+      "application": "Microsoft Teams",
+      "executableName": "ms-teams.exe",
+      "inputSize": [
+        32,
+        32
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted installed application icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by Microsoft. Extraction does not grant a redistribution license."
+    },
+    "sha256": "d7fd7deaaef00fffb57c45a984d0c07d44ecb3c2b45f138e50083be02ea06dac"
+  },
+  {
+    "slug": "zoom",
+    "names": [
+      "Zoom",
+      "Zoom Workplace",
+      "Zoom Meetings"
+    ],
+    "exeNames": [
+      "zoom.exe"
+    ],
+    "publisherHints": [
+      "Zoom"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/zoom.svg",
+      "brandSource": "https://brand.zoom.us/media-library.html",
+      "brandHex": "0B5CFF",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://brand.zoom.us"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "6b81911fbf3528721f4c8af01ccdde195dd55ad47f303fd7ca025a5c12ab39c0"
+  },
+  {
+    "slug": "microsoft-word",
+    "names": [
+      "Microsoft Word",
+      "Word",
+      "Word 2016"
+    ],
+    "exeNames": [
+      "winword.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Word",
+      "executableName": "WINWORD.EXE",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "40422fa946d62b9eafc163647e9bb86ebae4670a7b757033cd4ff95dad3794da"
+  },
+  {
+    "slug": "microsoft-excel",
+    "names": [
+      "Microsoft Excel",
+      "Excel",
+      "Excel 2016"
+    ],
+    "exeNames": [
+      "excel.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Excel",
+      "executableName": "EXCEL.EXE",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "a9931b8572242af9feb04a3ca31ef6a8a9f6d8cd9af333e2c624537cbf15100c"
+  },
+  {
+    "slug": "microsoft-powerpoint",
+    "names": [
+      "Microsoft PowerPoint",
+      "PowerPoint",
+      "PowerPoint 2016"
+    ],
+    "exeNames": [
+      "powerpnt.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "PowerPoint",
+      "executableName": "POWERPNT.EXE",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "36586c860d5ef7dce6e8aaaa90104ffb8b30fc090163f8806f7a38029105b755"
+  },
+  {
+    "slug": "microsoft-outlook",
+    "names": [
+      "Microsoft Outlook",
+      "Outlook",
+      "Outlook (classic)",
+      "Outlook (new)"
+    ],
+    "exeNames": [
+      "outlook.exe",
+      "olk.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Outlook (classic)",
+      "executableName": "OUTLOOK.EXE",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "3d033569ffc5198805c40088019e770c98797e932ef2c4f0e05ef618b1d53961"
+  },
+  {
+    "slug": "microsoft-onenote",
+    "names": [
+      "Microsoft OneNote",
+      "OneNote"
+    ],
+    "exeNames": [
+      "onenote.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "OneNote",
+      "executableName": "ONENOTE.EXE",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "d2a9bfc5801e58a5551aae0a1ef4360a6764d63e64f6667ef5cf2aee873b7386"
+  },
+  {
+    "slug": "microsoft-access",
+    "names": [
+      "Microsoft Access",
+      "Access"
+    ],
+    "exeNames": [
+      "msaccess.exe"
+    ],
+    "publisherHints": [
+      "Microsoft"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Access",
+      "executableName": "MSACCESS.EXE",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "e7a0803c79357c752a90d7508784349f252d1a16b0d030c4855ae8eea8cbcfa8"
+  },
+  {
+    "slug": "adobe-photoshop",
+    "names": [
+      "Adobe Photoshop",
+      "Photoshop"
+    ],
+    "exeNames": [
+      "photoshop.exe"
+    ],
+    "publisherHints": [
+      "Adobe"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/adobephotoshop.svg",
+      "brandSource": "https://www.adobe.com/creativecloud.html",
+      "brandHex": "31A8FF",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://developer.adobe.com/developer-distribution/creative-cloud/docs/guides/branding_guidelines"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "1c7517d4a720edf3d1f5ed32bae887705389394d890fdb2a6c3e67f333692f37"
+  },
+  {
+    "slug": "adobe-illustrator",
+    "names": [
+      "Adobe Illustrator",
+      "Illustrator"
+    ],
+    "exeNames": [
+      "illustrator.exe"
+    ],
+    "publisherHints": [
+      "Adobe"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/adobeillustrator.svg",
+      "brandSource": "https://www.adobe.com/creativecloud.html",
+      "brandHex": "FF9A00",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://developer.adobe.com/developer-distribution/creative-cloud/docs/guides/branding_guidelines"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "713a026710c3783ae8f5dc9cabf852392e07d64b52ce265d8546b0b2a514e0e6"
+  },
+  {
+    "slug": "blender",
+    "names": [
+      "Blender"
+    ],
+    "exeNames": [
+      "blender.exe"
+    ],
+    "publisherHints": [
+      "Blender Foundation"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/blender.svg",
+      "brandSource": "https://www.blender.org/about/logo",
+      "brandHex": "E87D0D",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://www.blender.org/about/logo"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "adf1d3e9ed42d1a59fabd841655faf6c3f82b908bce659d39d65441aa4a4c934"
+  },
+  {
+    "slug": "unity",
+    "names": [
+      "Unity",
+      "Unity Editor",
+      "Unity Hub"
+    ],
+    "exeNames": [
+      "unity.exe",
+      "unity hub.exe"
+    ],
+    "publisherHints": [
+      "Unity Technologies"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/unity.svg",
+      "brandSource": "https://brand.unity.com",
+      "brandHex": "FFFFFF",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://brand.unity.com"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "79a7af19a7660a3c97203125ad7613240018f2a67900ed7a5a78c9853d726241"
+  },
+  {
+    "slug": "unreal-engine",
+    "names": [
+      "Unreal Engine",
+      "Unreal Editor",
+      "UnrealEditor",
+      "UE4Editor"
+    ],
+    "exeNames": [
+      "unrealeditor.exe",
+      "ue4editor.exe"
+    ],
+    "publisherHints": [
+      "Epic Games"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/unrealengine.svg",
+      "brandSource": "https://www.unrealengine.com/en-US/branding",
+      "brandHex": "0E1128",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://www.unrealengine.com/en-US/branding"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "1d11f3c050d2e0e3bcd5c2e12556197035e0614176e90e7b8d9799d785eacb44"
+  },
+  {
+    "slug": "telegram",
+    "names": [
+      "Telegram",
+      "Telegram Desktop"
+    ],
+    "exeNames": [
+      "telegram.exe"
+    ],
+    "publisherHints": [
+      "Telegram"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/telegram.svg",
+      "brandSource": "https://telegram.org/tour/screenshots",
+      "brandHex": "26A5E4",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "0d06bb92c97a8f15a1b0e6d72be3eb7df9a3c0f2329ebee6e66afbf8a781e481"
+  },
+  {
+    "slug": "line",
+    "names": [
+      "LINE",
+      "ไลน์"
+    ],
+    "exeNames": [
+      "line.exe",
+      "linelauncher.exe"
+    ],
+    "publisherHints": [
+      "LINE"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "LINE",
+      "executableName": "LineLauncher.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "fc29cded08a4787850e8d58364708d7ae64251fb1c31cf0887b7394fcd722c45"
+  },
+  {
+    "slug": "whatsapp",
+    "names": [
+      "WhatsApp"
+    ],
+    "exeNames": [
+      "whatsapp.exe"
+    ],
+    "publisherHints": [
+      "WhatsApp",
+      "Meta"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/whatsapp.svg",
+      "brandSource": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
+      "brandHex": "25D366",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "e875d743fc49d244d67488ff3af0bdfbc289e4b24fdfb7dd8166de146d554fc3"
+  },
+  {
+    "slug": "signal",
+    "names": [
+      "Signal",
+      "Signal Desktop"
+    ],
+    "exeNames": [
+      "signal.exe"
+    ],
+    "publisherHints": [
+      "Signal Messenger"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/signal.svg",
+      "brandSource": "https://github.com/signalapp/Signal-Desktop/blob/9db8765b6cf270195e45a7f251374d4e53d54c95/images/signal-logo.svg",
+      "brandHex": "3A76F0",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "b82c5f570ee042296e9e3085129b8ef9eaec386e16af54d2ea9dea65aabbeb63"
+  },
+  {
+    "slug": "vlc",
+    "names": [
+      "VLC",
+      "VLC media player"
+    ],
+    "exeNames": [
+      "vlc.exe"
+    ],
+    "publisherHints": [
+      "VideoLAN"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/vlcmediaplayer.svg",
+      "brandSource": "https://code.videolan.org/videolan/vlc/-/blob/1ce7f686ee17a028d2d79627ae69f22d905f2e23/extras/package/macosx/asset_sources/vlc_app_icon.svg",
+      "brandHex": "FF8800",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "437e2d8a4bf35a10cde5aceaedca71f9cd2cb62340b378af954c5e2ffb0c16e8"
+  },
+  {
+    "slug": "7-zip",
+    "names": [
+      "7-Zip",
+      "7 Zip"
+    ],
+    "exeNames": [
+      "7zfm.exe",
+      "7zg.exe"
+    ],
+    "publisherHints": [
+      "Igor Pavlov"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/7zip.svg",
+      "brandSource": "https://commons.wikimedia.org/wiki/File:7ziplogo.svg",
+      "brandHex": "000000",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "9d58fafef2712d992aab883b9ea08c4f13c3e8ee5092b2fb802b459c874c9109"
+  },
+  {
+    "slug": "docker-desktop",
+    "names": [
+      "Docker Desktop",
+      "Docker"
+    ],
+    "exeNames": [
+      "docker desktop.exe"
+    ],
+    "publisherHints": [
+      "Docker"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/docker.svg",
+      "brandSource": "https://www.docker.com/company/newsroom/media-resources",
+      "brandHex": "2496ED",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "1f926ada37d15117ee5956de100bbf9605e92f9008fa73c140470a173a5021e3"
+  },
+  {
+    "slug": "postman",
+    "names": [
+      "Postman"
+    ],
+    "exeNames": [
+      "postman.exe"
+    ],
+    "publisherHints": [
+      "Postman"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/postman.svg",
+      "brandSource": "https://www.getpostman.com/resources/media-assets/",
+      "brandHex": "FF6C37",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "aa7574b14acd8d51766a2bd63837fc3d2dbd4d14d59299cd2301b0f9d45a9294"
+  },
+  {
+    "slug": "github-desktop",
+    "names": [
+      "GitHub Desktop"
+    ],
+    "exeNames": [
+      "githubdesktop.exe"
+    ],
+    "publisherHints": [
+      "GitHub"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/github.svg",
+      "brandSource": "https://github.com/logos",
+      "brandHex": "181717",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2",
+      "guidelines": "https://github.com/logos"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "d7e3ed8085ea80bedb3d78de978aa26f797c19401edba329d4a441c7f318f4f9"
+  },
+  {
+    "slug": "obsidian",
+    "names": [
+      "Obsidian"
+    ],
+    "exeNames": [
+      "obsidian.exe"
+    ],
+    "publisherHints": [
+      "Dynalist"
+    ],
+    "source": {
+      "type": "simple-icons",
+      "version": "11.15.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/icons/obsidian.svg",
+      "brandSource": "https://obsidian.md",
+      "brandHex": "7C3AED",
+      "rendering": "Official brand glyph from Simple Icons; white/dark glyph on brand-colour tile, resvg 2.6.2"
+    },
+    "license": {
+      "id": "CC0-1.0",
+      "url": "https://github.com/simple-icons/simple-icons/blob/11.15.0/LICENSE.md",
+      "text": "Simple Icons is CC0; brand trademark rights remain with the owner."
+    },
+    "sha256": "0d47bc7fa157b134595129cfe7b767aac811319abc0177ee8ea6c11e47a4008a"
+  },
+  {
+    "slug": "roblox",
+    "names": [
+      "Roblox",
+      "Roblox Player"
+    ],
+    "exeNames": [
+      "robloxplayerbeta.exe",
+      "robloxplayer.exe"
+    ],
+    "publisherHints": [
+      "Roblox"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Roblox Player",
+      "executableName": "RobloxPlayerBeta.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "9e8ae01926366010249130365fad37006ca290f4fc514fbc0bb831c9e0090708"
+  },
+  {
+    "slug": "capcut",
+    "names": [
+      "CapCut"
+    ],
+    "exeNames": [
+      "capcut.exe"
+    ],
+    "publisherHints": [
+      "ByteDance"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "CapCut",
+      "executableName": "CapCut.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "113ce47a15f281aabf7659e178fb2c09571ce5e6bdcb260b408ff72eae3f5004"
+  },
+  {
+    "slug": "claude",
+    "names": [
+      "Claude"
+    ],
+    "exeNames": [
+      "claude.exe"
+    ],
+    "publisherHints": [
+      "Anthropic"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Claude",
+      "executableName": "claude.exe",
+      "inputSize": [
+        48,
+        48
+      ],
+      "rendering": "256px transparent PNG; Lanczos from extracted Start Menu icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "87b8c377544c4fc640c4b42663bd9d31d9321187aedcf4b7005627489e2ff977"
+  }
+]
