@@ -38,7 +38,7 @@
       <span class="vs-update-dot" aria-hidden="true"></span>
       <p><span id="updateBannerCopy">มีเวอร์ชันใหม่ของ Vibe Studio แล้ว</span> <span id="updateBannerVersion"></span></p>
       <div class="vs-update-actions">
-        <button class="vs-btn vs-btn-sm vs-btn-primary" id="updateActionButton" type="button">อัปเดตเลย</button>
+        <button class="vs-btn vs-btn-sm vs-btn-primary" id="updateActionButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg><span id="updateActionLabel">ดาวน์โหลดอัปเดต</span></button>
         <button class="vs-icon-btn vs-update-dismiss" id="updateDismissButton" type="button" aria-label="ปิดแบนเนอร์">✕</button>
       </div>
     </div>
@@ -377,9 +377,10 @@
                 <div class="vs-sysrow-copy"><strong>ภาษา / ธีม</strong><small>Language / theme</small></div>
                 <div id="settingsToggleSlot"></div>
               </div>
-              <div class="vs-sysrow">
+              <div class="vs-sysrow vs-update-row">
                 <div class="vs-sysrow-copy"><strong>เวอร์ชัน</strong><small id="appVersionValue">…</small></div>
                 <button class="vs-btn vs-btn-sm" id="checkUpdatesButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>ตรวจหาอัปเดต</button>
+                <button class="vs-btn vs-btn-sm vs-btn-primary" id="settingsUpdateActionButton" type="button" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg><span id="settingsUpdateActionLabel">ดาวน์โหลดอัปเดต</span></button>
               </div>
               <p class="vs-hint" id="updateCheckStatus" role="status" aria-live="polite" style="margin-top:4px"></p>
               <div class="vs-sysrow">
@@ -938,6 +939,12 @@ const STR = {
 "ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง": "Couldn't check for updates — try again",
 "ตรวจหาอัปเดตไม่สำเร็จ": "Couldn't check for updates",
 "ดาวน์โหลดอัปเดตไม่สำเร็จ": "Update download failed",
+"ดาวน์โหลดอัปเดต": "Download update",
+"อัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง": "Update failed — try again",
+"รีสตาร์ทเพื่อติดตั้งไม่สำเร็จ — ลองใหม่อีกครั้ง": "Restart to install failed — try again",
+"อัปเดตไม่พร้อมใช้งานในแอปนี้": "Updates are unavailable in this app",
+"กำลังรีสตาร์ทเพื่อติดตั้ง…": "Restarting to install…",
+"เวอร์ชันปัจจุบัน {v}": "Current version {v}",
 "เปิดพร้อมระบบ": "Launch at startup",
 "เปิดแอปแบบซ่อนทุกครั้งที่ล็อกอิน": "Start hidden at every login",
 "ปิดหน้าต่างแล้วแอปยังทำงานต่อในถาดระบบ — คลิกขวาที่ไอคอนเพื่อออกจริง": "Closing the window keeps the app running in the tray — right-click the icon to quit for real",
@@ -3714,80 +3721,136 @@ function reemitToast() {
         const bannerVersion = document.querySelector('#updateBannerVersion');
         const actionButton = document.querySelector('#updateActionButton');
         const dismissButton = document.querySelector('#updateDismissButton');
+        const actionLabel = document.querySelector('#updateActionLabel');
+        const settingsAction = document.querySelector('#settingsUpdateActionButton');
+        const settingsActionLabel = document.querySelector('#settingsUpdateActionLabel');
+        const checkButton = document.querySelector('#checkUpdatesButton');
+        const updateCheckStatus = document.querySelector('#updateCheckStatus');
         let dismissedVersion = null;
         let lastState = null;
-        let bannerMode = null; // 'available' | 'downloading' | 'downloaded'
+        let currentVersion = '';
+        let busy = null;
+        let localError = null;
+        let checkedAt = null;
+        let stateRevision = 0;
 
         function renderBanner() {
-          const state = lastState;
-          if (!state) { banner.hidden = true; bannerMode = null; return; }
-          if (state.downloaded) {
-            bannerMode = 'downloaded';
-            banner.hidden = false;
-            bannerCopy.textContent = t('ดาวน์โหลดเสร็จแล้ว — รีสตาร์ทเพื่อติดตั้ง');
-            bannerVersion.textContent = '';
-            actionButton.textContent = t('รีสตาร์ทเลย');
-            actionButton.disabled = false;
-            actionButton.hidden = false;
-            return;
+          const state = lastState || {};
+          const available = state.available || state.availableVersion;
+          const hasError = Boolean(localError || state.error || state.state === 'error');
+          const downloading = state.downloading || state.state === 'downloading';
+          const downloaded = state.downloaded && !state.error && state.state !== 'error';
+          const checking = busy === 'check' || state.checking;
+          const version = state.currentVersion || currentVersion;
+          let copy = version ? t('เวอร์ชันปัจจุบัน {v}', { v: 'v' + version }) : '';
+          let label = t('ดาวน์โหลดอัปเดต');
+          if (hasError) {
+            copy = t(localError || 'อัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง');
+            label = downloaded ? t('รีสตาร์ทเลย') : available ? t('ดาวน์โหลดอัปเดต') : t('ตรวจหาอัปเดต');
+          } else if (busy === 'restart') {
+            copy = t('กำลังรีสตาร์ทเพื่อติดตั้ง…');
+          } else if (downloading || busy === 'download') {
+            copy = t('กำลังดาวน์โหลดอัปเดต…') + ' ' + (state.progress || 0) + '%';
+          } else if (checking) {
+            copy = t('กำลังตรวจหาอัปเดต…');
+          } else if (downloaded) {
+            copy = t('ดาวน์โหลดเสร็จแล้ว — รีสตาร์ทเพื่อติดตั้ง');
+            label = t('รีสตาร์ทเลย');
+          } else if (available) {
+            copy = t('มีเวอร์ชันใหม่ของ Vibe Studio แล้ว');
+          } else if (checkedAt) {
+            copy = t('เป็นเวอร์ชันล่าสุดแล้ว · ตรวจเมื่อ {t}', { t: checkedAt });
           }
-          if (state.available && dismissedVersion !== state.available) {
-            banner.hidden = false;
-            bannerVersion.textContent = state.available ? '(v' + state.available + ')' : '';
-            if (state.downloading) {
-              bannerMode = 'downloading';
-              bannerCopy.textContent = t('กำลังดาวน์โหลดอัปเดต…') + ' ' + (state.progress || 0) + '%';
-              actionButton.hidden = true;
-            } else {
-              bannerMode = 'available';
-              bannerCopy.textContent = t('มีเวอร์ชันใหม่ของ Vibe Studio แล้ว');
-              actionButton.textContent = t('อัปเดตเลย');
-              actionButton.disabled = false;
-              actionButton.hidden = false;
-            }
-            return;
+          const actionable = Boolean(hasError || available || downloaded || downloading || busy === 'download');
+          banner.hidden = !actionable || (!hasError && !downloaded && !downloading && !busy && dismissedVersion === available);
+          bannerCopy.textContent = copy;
+          bannerVersion.textContent = (version ? 'v' + version : '') + (available ? ' → v' + available : '');
+          updateCheckStatus.textContent = copy + (available ? ' · v' + available : '');
+          actionLabel.textContent = label;
+          settingsActionLabel.textContent = label;
+          for (const button of [actionButton, settingsAction]) {
+            button.hidden = !actionable;
+            button.disabled = Boolean(busy || downloading || checking);
           }
-          banner.hidden = true;
-          bannerMode = null;
+          checkButton.disabled = Boolean(busy || downloading || state.checking);
+          dismissButton.setAttribute('aria-label', t('ปิดแบนเนอร์'));
         }
 
-        window.__vibeElectronRelocalize = () => renderBanner();
-
-        actionButton.addEventListener('click', async () => {
-          if (bannerMode === 'downloaded') {
-            vibe.quitAndInstall();
-            return;
-          }
-          actionButton.disabled = true;
+        async function checkUpdates() {
+          if (busy || lastState?.downloading || lastState?.checking) return;
+          busy = 'check';
+          stateRevision++;
+          localError = null;
+          dismissedVersion = null; // An explicit check reopens the same version.
+          renderBanner();
           try {
-            bannerMode = 'downloading';
-            bannerCopy.textContent = t('กำลังดาวน์โหลดอัปเดต…');
-            actionButton.hidden = true;
-            const result = await vibe.downloadUpdate();
-            if (result && result.ok === false) {
-              // Dev mode / updater unavailable — restore the banner.
-              bannerMode = 'available';
-              renderBanner();
+            const result = await vibe.checkForUpdates();
+            const revision = stateRevision;
+            const state = await vibe.getUpdateState();
+            if (stateRevision === revision) {
+              lastState = state;
+              stateRevision++;
             }
-          } catch (error) {
-            bannerMode = 'available';
+            if (result?.ok === false && !lastState?.error && !lastState?.available && !lastState?.downloaded && !lastState?.downloading) {
+              localError = 'อัปเดตไม่พร้อมใช้งานในแอปนี้';
+            } else if (!lastState?.error && !lastState?.checking && !lastState?.downloading) {
+              const now = new Date();
+              checkedAt = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            }
+          } catch {
+            localError = 'ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง';
+          } finally {
+            busy = null;
             renderBanner();
-            showMessage(t('ดาวน์โหลดอัปเดตไม่สำเร็จ'), 'error');
           }
-        });
+        }
+
+        async function runUpdateAction() {
+          if (busy || lastState?.downloading || lastState?.checking) return;
+          const state = lastState || {};
+          const restart = state.downloaded && !state.error && state.state !== 'error';
+          if (!restart && !(state.available || state.availableVersion)) return checkUpdates();
+          busy = restart ? 'restart' : 'download';
+          stateRevision++;
+          localError = null;
+          renderBanner();
+          try {
+            const result = await (restart ? vibe.quitAndInstall() : vibe.downloadUpdate());
+            if (result?.ok === false) {
+              localError = restart ? 'รีสตาร์ทเพื่อติดตั้งไม่สำเร็จ — ลองใหม่อีกครั้ง' : 'ดาวน์โหลดอัปเดตไม่สำเร็จ';
+            }
+          } catch {
+            localError = restart ? 'รีสตาร์ทเพื่อติดตั้งไม่สำเร็จ — ลองใหม่อีกครั้ง' : 'ดาวน์โหลดอัปเดตไม่สำเร็จ';
+          } finally {
+            busy = null;
+            renderBanner();
+          }
+        }
+
+        window.__vibeElectronRelocalize = renderBanner;
+        actionButton.addEventListener('click', runUpdateAction);
+        settingsAction.addEventListener('click', runUpdateAction);
+        checkButton.addEventListener('click', checkUpdates);
         dismissButton.addEventListener('click', () => {
-          dismissedVersion = lastState && lastState.available;
+          dismissedVersion = lastState && (lastState.available || lastState.availableVersion);
           banner.hidden = true;
-          bannerMode = null;
         });
         vibe.onUpdateState((state) => {
+          stateRevision++;
           lastState = state;
+          localError = null;
           renderBanner();
         });
+        const initialRevision = stateRevision;
         vibe.getUpdateState().then((state) => {
+          if (stateRevision !== initialRevision) return;
           lastState = state;
           renderBanner();
-        }).catch(() => {});
+        }).catch(() => {
+          if (stateRevision !== initialRevision) return;
+          localError = 'ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง';
+          renderBanner();
+        });
 
         // Settings → "แอป Vibe Studio" card (desktop only).
         const appCard = document.querySelector('#electronAppCard');
@@ -3795,7 +3858,9 @@ function reemitToast() {
         const legacyRow = document.querySelector('#legacyAutostartRow');
         if (legacyRow) legacyRow.hidden = true;
         vibe.getVersion().then((version) => {
+          currentVersion = version;
           document.querySelector('#appVersionValue').textContent = 'v' + version;
+          renderBanner();
         }).catch(() => {});
         const loginToggle = document.querySelector('#launchAtLoginToggle');
         vibe.getOpenAtLogin().then((enabled) => {
@@ -3810,40 +3875,6 @@ function reemitToast() {
             showMessage(error && error.message ? error.message : t('ตรวจหาอัปเดตไม่สำเร็จ'), 'error');
           } finally {
             loginToggle.disabled = false;
-          }
-        });
-        const checkButton = document.querySelector('#checkUpdatesButton');
-        const updateCheckStatus = document.querySelector('#updateCheckStatus');
-        // Feedback lives right under the button: the old toast wrote into
-        // #message, which sits inside the hidden Scenes editor — so on the
-        // Settings screen a check with no update (or an error) showed
-        // nothing at all and the button looked dead.
-        const setUpdateCheckStatus = (text) => {
-          if (updateCheckStatus) updateCheckStatus.textContent = text || '';
-        };
-        const updateCheckTime = () => {
-          const now = new Date();
-          return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        };
-        checkButton.addEventListener('click', async () => {
-          checkButton.disabled = true;
-          setUpdateCheckStatus(t('กำลังตรวจหาอัปเดต…'));
-          try {
-            await vibe.checkForUpdates();
-            const state = await vibe.getUpdateState();
-            lastState = state;
-            renderBanner();
-            if (state && state.error) {
-              setUpdateCheckStatus(t('ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง'));
-            } else if (state && (state.available || state.downloaded)) {
-              setUpdateCheckStatus(t('พบเวอร์ชันใหม่ {v} — ดูแบนเนอร์ด้านบน', { v: state.available || '' }));
-            } else {
-              setUpdateCheckStatus(t('เป็นเวอร์ชันล่าสุดแล้ว · ตรวจเมื่อ {t}', { t: updateCheckTime() }));
-            }
-          } catch (error) {
-            setUpdateCheckStatus(t('ตรวจหาอัปเดตไม่สำเร็จ — ลองใหม่อีกครั้ง'));
-          } finally {
-            checkButton.disabled = false;
           }
         });
       }

@@ -1201,8 +1201,11 @@ a.vs-dc-link:hover { text-decoration: underline; text-decoration-color: #5865f2;
 }
 
 /* ---------- Update banner (Electron shell) ---------- */
+.vs-update-row { flex-wrap: wrap; gap: var(--vs-s2); }
+.vs-update-row .vs-sysrow-copy { flex: 1 0 100%; }
 .vs-update-banner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--vs-s3);
   padding: 10px var(--vs-s6);
@@ -1231,6 +1234,7 @@ a.vs-dc-link:hover { text-decoration: underline; text-decoration-color: #5865f2;
   align-items: center;
   gap: var(--vs-s2);
   flex: none;
+  flex-wrap: wrap;
 }
 .vs-update-dismiss {
   width: 28px;

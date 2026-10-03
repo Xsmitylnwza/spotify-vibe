@@ -1,37 +1,63 @@
 name: Release
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17,47 * * * *'
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+    tags: ['v*']
 
 permissions:
   contents: write
 
+# Main and tag releases share a lock; never cancel an active publication.
+concurrency:
+  group: windows-release-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   build-windows:
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_REF: ${{ github.event_name == 'push' && github.ref || 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
+          # Reconciliation/manual runs use latest main, never the schedule snapshot.
+          ref: ${{ github.event_name == 'push' && github.sha || 'main' }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Verify tag and lockfile versions
-        run: node electron/release-version.mjs
-
-      - run: npm ci
-
-      - run: npm test
-
-      - run: npm run dist:win
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Decide release and prepare matching source version
+        id: prepare
+        run: node electron/release-pipeline.mjs prepare
+      - name: Install locked dependencies
+        if: steps.prepare.outputs.release == 'true'
+        run: npm ci
+      - name: Test release source
+        if: steps.prepare.outputs.release == 'true'
+        run: npm test
+      - name: Build Windows without publishing
+        if: steps.prepare.outputs.release == 'true'
+        run: npm run dist:win
+      - name: Verify updater metadata and retain provenance and checksums
+        if: steps.prepare.outputs.release == 'true'
+        run: node electron/release-artifacts.mjs
+      - name: Retain verified build even if publication is interrupted
+        if: steps.prepare.outputs.release == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          files: |
+          name: windows-${{ steps.prepare.outputs.tag }}-${{ steps.prepare.outputs.source_sha }}
+          if-no-files-found: error
+          path: |
             dist/Vibe-Studio-Setup-*.exe
+            dist/Vibe-Studio-Setup-*.exe.blockmap
             dist/latest.yml
-            dist/*.blockmap
-          fail_on_unmatched_files: true
+            dist/release-provenance.json
+            dist/SHA256SUMS.txt
+      - name: Persist source and publish verified assets
+        if: steps.prepare.outputs.release == 'true'
+        run: node electron/release-pipeline.mjs publish

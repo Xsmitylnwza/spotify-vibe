@@ -1,48 +1,37 @@
-# ปล่อยเวอร์ชันใหม่ของ Vibe Studio (desktop app)
+# Windows releases
 
-แอปเดสก์ท็อปเช็คเวอร์ชันใหม่จาก **GitHub Releases** ของ `Xsmitylnwza/spotify-vibe`
-เอง — เปิดแอปแล้วรอ ~20 วินาที หรือทุก 6 ชั่วโมง ถ้ามีเวอร์ชันใหม่กว่า
-แบนเนอร์จะขึ้นใน Studio พร้อมปุ่ม **อัปเดตเลย**
+The public updater and landing use retained GitHub Releases in `Xsmitylnwza/spotify-vibe`. Resolve the versioned `Vibe-Studio-Setup-X.Y.Z.exe` asset from the Releases API; there is no stable installer alias. `latest.yml` always retains its versioned installer URL, SHA512 and size.
 
-## ก่อนปล่อยครั้งแรก (checklist)
+## Automatic main and explicit tags
 
-1. **push โค้ดขึ้น GitHub ก่อน** — ตอนนี้ branch `redesign/soft-minimal`
-   ยังอยู่แค่ในเครื่อง ถ้าไม่ push ระบบอัปเดตจะไม่มีอะไรให้ดึง
-   (แอปจะไม่ error — มันแค่เงียบๆ บอกว่าไม่มีอัปเดต)
-2. ตัดสินใจเรื่อง **code signing**:
-   - **Windows**: ไม่มีใบรับรอง แอปจะโดน SmartScreen เตือนตอนติดตั้ง
-     (กด "run anyway" ได้) ถ้าอยากให้เนียนต้องซื้อ code-signing certificate
-   - **macOS**: ไม่มี signing/notarization ผู้ใช้ต้องคลิกขวา → Open
-     ครั้งแรก ถ้าอยากให้เนียนต้องมี Apple Developer account ($99/ปี)
+- A main push with a stable package version newer than every published stable release keeps that version. If package version is equal to or behind the newest published release, CI prepares the next patch of that release instead. It changes package.json and both package-lock version roots together in a local bot commit; it does not change dependency records.
+- An unchanged already-published source SHA skips dependency installation, tests, build and release. Stale main events also skip. A version tag (`vX.Y.Z`) must exactly match package.json and both lock roots; malformed/prerelease versions are rejected.
+- Main and tag runs share one repository-wide concurrency lock, without cancelling an active run. Duplicate published tag events skip. Historical tags may publish retained releases but cannot downgrade GitHub's latest release.
+- A manual Actions dispatch and scheduled reconciliation at minute 17 and 47 of every hour check out latest main under the same lock. Already-published source skips installation/tests/build. This recovers main events dropped by concurrency coalescing; schedules can be delayed by GitHub, so immediate delivery is not guaranteed.
+- CI runs `npm ci`, `npm test`, then `npm run dist:win` (`-p never`). After updater metadata validation it retains a workflow artifact, checks main has not advanced, and pushes the bot version commit without force. A newer source push wins; rejected pushes cannot publish.
+- GitHub's normal GITHUB_TOKEN is used for bot commits/tags, so those writes do not trigger another push workflow. There is no PAT, automatic source rebase, force-push, or version edit in the developer checkout.
+- A tag is created only for the verified build source. CI uploads exactly five assets to a draft, checks GitHub upload state, size and SHA256 against local bytes, rechecks the tag, and publishes the complete draft. Existing releases are never overwritten. Existing drafts or conflicting tags require operator recovery.
 
-## ขั้นตอนปล่อยเวอร์ชัน
+## Retained assets
 
-```bash
-# 1. bump version (เช่น 1.0.0 → 1.1.0)
-npm version minor --no-git-tag-version   # หรือแก้ package.json เอง
+Each new release contains exactly:
 
-# 2. build installers
-npm run dist:win   # ได้ dist/Vibe Studio Setup 1.1.0.exe (+ latest.yml)
-npm run dist:mac   # ต้องรันบน macOS ถึงจะได้ .dmg; บน Linux ได้แค่ .zip
+1. `Vibe-Studio-Setup-X.Y.Z.exe`
+2. `Vibe-Studio-Setup-X.Y.Z.exe.blockmap`
+3. `latest.yml`
+4. `release-provenance.json`
+5. `SHA256SUMS.txt`
 
-# 3. สร้าง GitHub Release
-#    - Tag: v1.1.0  (ต้องตรงกับ version ใน package.json)
-#    - อัปโหลดไฟล์จาก dist/ "ทุกไฟล์" โดยเฉพาะ:
-#        *.exe / *.dmg / *.zip
-#        latest.yml / latest-mac.yml   ← สำคัญ! updater อ่านไฟล์นี้
-#    - กด Publish release
-```
+Provenance records the full built source commit, triggering commit, package/lock versions, repository, workflow reference, run ID/attempt/URL, Node version/platform, timestamp and three updater artifact hashes. SHA256SUMS covers the installer, blockmap, feed and provenance (four entries; the checksum file cannot hash itself). Provenance is a CI build record, not a signed attestation. Windows code signing and an installed native upgrade remain **unverified** until separate real evidence exists.
 
-ภายใน ~6 ชั่วโมง (หรือรีสตาร์ทแอป) ผู้ใช้จะเห็นแบนเนอร์
-"มีเวอร์ชันใหม่ของ Vibe Studio แล้ว" → กด **อัปเดตเลย** → โหลดเสร็จ
-แบนเนอร์เปลี่ยนเป็น **รีสตาร์ทเลย** → แอปติดตั้งเวอร์ชันใหม่เอง
+## Failure and recovery limits
 
-## หมายเหตุ
+GitHub retains one running and one pending concurrency run; newer events can replace a pending event, including main/tag cross-replacement. Pushes coalesce to latest main source; scheduled/manual reconciliation recovers skipped main delivery. Never claim every intermediate commit is built, and Actions schedules may be delayed or disabled on inactive repositories. A stale build stops before publication when main advanced. Failed tests/builds do not push the version commit or create a release.
 
-- `autoDownload = false` — แอปไม่โหลดเองเงียบๆ ผู้ใช้กดปุ่มเท่านั้น
-  (ประหยัดเน็ต ตรงนิสัย set-and-forget)
-- ถ้า GitHub ล่ม / ยังไม่มี release แอปจะไม่โชว์ error ใดๆ
-- `npm run dev` = รัน Electron แบบ dev · `npm start` = รัน server
-  เพียวๆ เปิดในเบราว์เซอร์เหมือนเดิม (ไม่มี tray/updater)
-- ไฟล์ที่ updater ต้องการต่อ release: `latest.yml` (win),
-  `latest-mac.yml` (mac) — electron-builder สร้างให้อัตโนมัติตอน build
+If publication fails after the bot commit is pushed, the original main event becomes stale. Inspect the retained Actions artifact and source/tag identity before recovery. An unpublished matching tag can be retriggered using its existing exact source; a conflicting tag must never be moved automatically. A partially uploaded draft requires an operator to verify/complete or remove that draft before retry; CI fails closed rather than overwriting it. A complete public release is immutable by policy even though GitHub repository settings currently allow mutation.
+
+Repository Actions must permit contents write and main must allow the bot's fast-forward version commit. Protected-main environments need a separately approved persistence mechanism. Live GitHub execution, publication, Windows code signing, and installed upgrade behavior are not established by local tests.
+
+## Existing v1.0.7 caveat
+
+The inspected public release contains only installer, blockmap and latest.yml. Their downloaded SHA256 digests and updater SHA512/URL/size agree. Its annotated tag peels to `b241ccd5542b1f3e5ee348bd507cac051cafabda`; package.json is 1.0.7 but both lock roots are 1.0.1. It has no provenance/checksum assets and cannot satisfy the new source/lock agreement gate. Preserve that historical release; do not retrofit unverifiable build claims.
