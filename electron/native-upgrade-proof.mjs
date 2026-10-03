@@ -49,6 +49,7 @@ export function updateStage(state) {
   if (state.error || state.state === 'error') throw new Error(`Updater error: ${state.error || state.state}`);
   return state.state || (state.downloaded ? 'downloaded' : state.downloading ? 'downloading' : state.checking ? 'checking' : state.available ? 'available' : 'idle');
 }
+export const BRIDGE_READY = "(async () => { if (!window.vibeStudio?.isElectron || document.readyState !== 'complete') return false; try { await window.vibeStudio.getVersion(); return true; } catch { return false; } })()";
 export function automaticProcess(process, baselinePid, installedExe, candidate, requestedAt) {
   return process.pid !== baselinePid && normalized(process.path || '.') === normalized(installedExe)
     && typeof process.commandLine === 'string' && !/--type=/.test(process.commandLine) && /--updated(?:\s|$)/.test(process.commandLine)
@@ -301,8 +302,9 @@ async function scenario() {
     child.stderr.on('data', (bytes) => appendFileSync(join(evidence, `app-${child.pid}.log`), bytes));
     log('harness-app-launch', { pid: child.pid, path: installedExe }); return child;
   };
+  // Ready only after load completes and the main frame passes the privileged IPC sender guard.
   const bridge = async () => waitFor('renderer preload bridge', async () => {
-    try { const client = await CDP.connect(proof.isolation.cdpPort, proof.isolation.studioPort); clients.push(client); if (await client.evaluate('Boolean(window.vibeStudio?.isElectron)')) return client; client.close(); } catch {} return null;
+    try { const client = await CDP.connect(proof.isolation.cdpPort, proof.isolation.studioPort); clients.push(client); if (await client.evaluate(BRIDGE_READY)) return client; client.close(); } catch {} return null;
   });
   try {
     save();
