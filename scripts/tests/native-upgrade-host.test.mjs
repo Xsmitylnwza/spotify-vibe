@@ -59,3 +59,10 @@ test('missing or relative Windows system roots fail before spawning a guessed ho
     assert.throws(() => ps('Get-AuthenticodeSignature', {}, { parentEnv: { SystemRoot: systemRoot }, execute() { assert.fail('must not spawn'); } }), /absolute SystemRoot/);
   }
 });
+
+test('ProductVersion 1.0.8.0 normalizes to the release version; other fourth parts are kept', async () => {
+  const { normalizeProductVersion } = await import('../../electron/native-upgrade-proof.mjs');
+  assert.equal(normalizeProductVersion('1.0.8.0'), '1.0.8');
+  assert.equal(normalizeProductVersion('1.0.9'), '1.0.9');
+  assert.equal(normalizeProductVersion('1.0.8.1'), '1.0.8.1');
+});

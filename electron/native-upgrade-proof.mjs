@@ -169,6 +169,13 @@ function ownedDetails(item) {
   const json = ps(`$p=Get-CimInstance Win32_Process -Filter ('ProcessId='+$env:VIBE_PROOF_PID); if($p -and $p.ExecutablePath -eq $env:VIBE_PROOF_FILE -and $p.CreationDate -and $p.CreationDate.ToUniversalTime().ToString('o') -eq $env:VIBE_PROOF_CREATED) { $v=$null; try { $v=(Get-Item -LiteralPath $p.ExecutablePath -ErrorAction Stop).VersionInfo.ProductVersion } catch {}; [pscustomobject]@{commandLine=$p.CommandLine;productVersion=$v} | ConvertTo-Json -Compress }`, { VIBE_PROOF_PID: String(item.pid), VIBE_PROOF_FILE: item.path, VIBE_PROOF_CREATED: item.createdAt });
   return { ...item, ...(json ? JSON.parse(json) : {}) };
 }
+// Windows stores ProductVersion as four parts (1.0.8.0); compare only the
+// semantic version and reject anything other than a zero fourth part.
+export function normalizeProductVersion(value) {
+  const parts = String(value).trim().split('.');
+  if (parts.length === 4 && parts[3] === '0') return parts.slice(0, 3).join('.');
+  return parts.join('.');
+}
 function fileVersion(path) {
   return ps(`(Get-Item -LiteralPath $env:VIBE_PROOF_FILE).VersionInfo.ProductVersion`, { VIBE_PROOF_FILE: path });
 }
@@ -384,7 +391,7 @@ async function scenario() {
     let installerExit, installerError;
     installer.once('error', (error) => { installerError = error; }); installer.once('exit', (code) => { installerExit = code; });
     await waitFor('baseline silent installer exit', () => { observe(); if (installerError) throw installerError; if (installerExit !== undefined && installerExit !== 0) throw new Error(`Baseline installer exit ${installerExit}`); return installerExit === 0; }, 180_000);
-    observe(); assert.ok(existsSync(installedExe)); assert.equal(fileVersion(installedExe), stableVersion(baselineTag));
+    observe(); assert.ok(existsSync(installedExe)); assert.equal(normalizeProductVersion(fileVersion(installedExe)), stableVersion(baselineTag));
     log('baseline-installed', { path: installedExe, productVersion: fileVersion(installedExe) });
     const child = startApp();
     const cdp = await bridge();
@@ -439,7 +446,7 @@ async function scenario() {
     }, 240_000);
     proof.candidate.automaticProcess = automatic;
     log('automatic-new-process-observed-before-any-relaunch', automatic);
-    assert.equal(fileVersion(installedExe), stableVersion(candidateTag)); noLoginItem(); preserved('automatic-new-process-running');
+    assert.equal(normalizeProductVersion(fileVersion(installedExe)), stableVersion(candidateTag)); noLoginItem(); preserved('automatic-new-process-running');
     // Verify the automatically launched process serves the same retained profile.
     const runtime = await waitFor('automatic process retained runtime profile', async () => {
       const ports = array(JSON.parse(ps(`@(Get-NetTCPConnection -State Listen -OwningProcess $env:VIBE_PROOF_PID -ErrorAction SilentlyContinue | Select-Object -ExpandProperty LocalPort -Unique) | ConvertTo-Json -Compress`, { VIBE_PROOF_PID: String(automatic.pid) }) || '[]'));
