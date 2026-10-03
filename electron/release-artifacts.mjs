@@ -6,12 +6,12 @@ import { pathToFileURL } from 'node:url';
 import { assertReleaseVersion } from './release-version.mjs';
 
 const hash = (bytes, algorithm = 'sha256', encoding = 'hex') => createHash(algorithm).update(bytes).digest(encoding);
-// Resolve the updater's existing parser so verification uses its YAML semantics.
 const require = createRequire(import.meta.url);
-const { load } = createRequire(require.resolve('electron-updater/package.json'))('js-yaml');
 
 // Narrow electron-builder Windows YAML contract; unsupported shapes fail closed.
 export function verifyUpdaterFeed(feed, version, installer, bytes) {
+  // Prepare runs before npm ci; resolve the updater's parser only during verification.
+  const { load } = createRequire(require.resolve('electron-updater/package.json'))('js-yaml');
   let info;
   try {
     info = load(feed);

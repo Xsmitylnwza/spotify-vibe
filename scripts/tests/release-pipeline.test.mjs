@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { copyFileSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import test from 'node:test';
 import { assertReleaseVersion, compareVersions, nextPatch, releaseDecision, withVersion } from '../../electron/release-version.mjs';
 import { assertMainUnchanged } from '../../electron/release-pipeline.mjs';
@@ -11,6 +13,29 @@ import { verifyUpdaterFeed, writeReleaseArtifacts, verifyUploadedAssets } from '
 const base = { event: 'main', version: '1.0.7', latestVersion: '1.0.7', sourceSha: 'new', mainSha: 'new', publishedSha: 'old' };
 const pkg = { name: 'test', version: '1.0.7', dependencies: { foo: '1' } };
 const lock = { version: '1.0.7', lockfileVersion: 3, packages: { '': { version: '1.0.7', name: 'test' }, 'node_modules/foo': { version: '1' } } };
+
+test('clean checkout imports artifacts and prepare pipeline before dependencies are installed', (t) => {
+  const directory = mkdtempSync(join(tmpdir(), 'vibe-release-clean-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  for (const name of ['release-artifacts.mjs', 'release-version.mjs', 'release-pipeline.mjs']) {
+    copyFileSync(new URL(`../../electron/${name}`, import.meta.url), join(directory, name));
+  }
+  const artifactUrl = pathToFileURL(join(directory, 'release-artifacts.mjs')).href;
+  const pipelineUrl = pathToFileURL(join(directory, 'release-pipeline.mjs')).href;
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    const artifacts = await import(${JSON.stringify(artifactUrl)});
+    const pipeline = await import(${JSON.stringify(pipelineUrl)});
+    assert.equal(typeof artifacts.writeReleaseArtifacts, 'function');
+    pipeline.assertMainUnchanged('same', 'same');
+    assert.throws(() => artifacts.verifyUpdaterFeed('', '1.0.7', 'installer.exe', Buffer.from('MZ')),
+      (error) => error.code === 'MODULE_NOT_FOUND' && error.message.includes('electron-updater/package.json'));
+    console.log('clean checkout imports passed; parser dependency required only at verification');
+  `], { cwd: directory, encoding: 'utf8', env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '' } });
+  assert.equal(result.error, undefined);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /clean checkout imports passed/);
+});
 
 test('main changed source automatically advances patch without republishing unchanged version', () => {
   assert.deepEqual(releaseDecision(base), { release: true, version: '1.0.8', bump: true, latest: true });
