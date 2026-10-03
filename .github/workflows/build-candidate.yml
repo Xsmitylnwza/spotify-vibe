@@ -1,0 +1,39 @@
+name: Windows release candidate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['improve/**', 'release/**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist:win
+      - name: Retain build identity
+        shell: pwsh
+        run: |
+          $identity = @{ sourceCommit = $env:GITHUB_SHA; runId = $env:GITHUB_RUN_ID; packageVersion = (Get-Content package.json | ConvertFrom-Json).version; tests = 'passed'; build = 'passed'; nativeUpgrade = 'unverified' }
+          $identity | ConvertTo-Json | Set-Content dist/candidate-build.json
+          Get-ChildItem dist -File | Where-Object { $_.Extension -in @('.exe', '.yml', '.blockmap') } | ForEach-Object { '{0}  {1}' -f (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-candidate-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            dist/Vibe-Studio-Setup-*.exe
+            dist/latest.yml
+            dist/*.blockmap
+            dist/candidate-build.json
+            dist/SHA256SUMS.txt
