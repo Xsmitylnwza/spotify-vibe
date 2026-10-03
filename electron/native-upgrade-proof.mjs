@@ -53,7 +53,7 @@ export function automaticProcess(process, baselinePid, installedExe, candidate, 
   return process.pid !== baselinePid && normalized(process.path || '.') === normalized(installedExe)
     && typeof process.commandLine === 'string' && !/--type=/.test(process.commandLine) && /--updated(?:\s|$)/.test(process.commandLine)
     && Date.parse(process.createdAt) >= Date.parse(requestedAt)
-    && process.productVersion === stableVersion(candidate);
+    && normalizeProductVersion(process.productVersion || '') === stableVersion(candidate);
 }
 export function chromiumUserData(commandLine = '') {
   const match = commandLine.match(/"--user-data-dir=([^"]+)"|--user-data-dir="([^"]+)"|--user-data-dir=(\S+)/);
@@ -552,6 +552,7 @@ function validateContract() {
   check(() => assert.equal(accepted({ ...process, path: 'C:/owner/Vibe Studio.exe' }), false));
   check(() => assert.equal(accepted({ ...process, commandLine: 'app --updated --type=renderer' }), false));
   check(() => assert.equal(accepted({ ...process, commandLine: 'app' }), false));
+  check(() => assert.ok(accepted({ ...process, productVersion: '1.0.8.0' })));
   check(() => assert.equal(accepted({ ...process, productVersion: '1.0.7' }), false));
   check(() => assert.equal(accepted({ ...process, createdAt: '2026-10-03T00:59:59Z' }), false));
   // Feed text is the real inspected public baseline metadata; no fake installer bytes.
