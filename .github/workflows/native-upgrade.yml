@@ -1,0 +1,69 @@
+name: Native Windows upgrade proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_tag:
+        description: Published latest candidate tag (or latest)
+        default: latest
+        required: true
+        type: string
+      baseline_tag:
+        description: Retained public baseline installer
+        default: v1.0.7
+        required: true
+        type: string
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-upgrade-proof-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  native-upgrade:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.repository.full_name == github.repository)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # only this job may append its verified, run-specific proof asset
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_TAG: ${{ github.event_name == 'workflow_run' && 'previous' || inputs.baseline_tag || 'v1.0.7' }}
+      CANDIDATE_TAG: ${{ inputs.candidate_tag || 'latest' }}
+      TRIGGER_RELEASE_RUN_ID: ${{ github.event.workflow_run.id || '' }}
+      NATIVE_PROOF_DIR: ${{ runner.temp }}/native-upgrade-evidence
+    steps:
+      - name: Initialize truthful evidence before checkout or dependency failures
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:NATIVE_PROOF_DIR | Out-Null
+          @{schemaVersion=1; status='not-started'; nativeUpgradeProven=$false; gaps=@('Harness has not completed')} |
+            ConvertTo-Json | Set-Content (Join-Path $env:NATIVE_PROOF_DIR 'native-upgrade-proof.json')
+      # workflow_run uses trusted main harness, never an artifact containing code.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Validate harness contracts without installing
+        run: node electron/native-upgrade-proof.mjs --validate-contract
+      - name: Real public baseline to latest native installed upgrade
+        run: node electron/native-upgrade-proof.mjs
+      - name: Permanently append successful proof to the exact candidate Release
+        run: node electron/native-upgrade-proof.mjs --retain-proof
+      - name: Retain proof and logs, including failed and skipped scenarios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-upgrade-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/native-upgrade-evidence
+          if-no-files-found: warn
+          retention-days: 30
