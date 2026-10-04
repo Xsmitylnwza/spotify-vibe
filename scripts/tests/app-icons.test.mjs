@@ -28,11 +28,9 @@ test('NSIS installer/uninstaller and win icons use electron/assets/icon.ico', ()
   assert.equal(pkg.build.nsis.uninstallerIcon, 'electron/assets/icon.ico');
 });
 
-test('Studio HTML uses the new ghost mark with unique mask ids', () => {
+test('Studio HTML uses the new ghost mark once, not the old Rebel Ghost', () => {
   const html = readFileSync(resolve(root, 'scripts/discord-presence-studio.html'), 'utf8');
-  for (const id of ['vs-ghost-mask', 'vs-ghost-ob']) {
-    assert.equal(html.split('id="' + id + '"').length, 2, id + ' defined once');
-    assert.ok(html.includes('url(#' + id + ')'));
-  }
+  assert.equal(html.split('vs-ghost-mask\\"').length - 1, 1, 'mask id defined once');
+  assert.ok(html.includes('url(#vs-ghost-mask)'));
   assert.ok(!html.includes('M32 10C21 10 14 20'), 'old Rebel Ghost path gone');
 });

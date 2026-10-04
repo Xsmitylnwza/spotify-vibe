@@ -2,6 +2,7 @@ import { codexSessionScene } from './codex-session.mjs';
 import { withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
 import { appKey, selectRunningPreset } from './app-presence.mjs';
+import { packedAppIcon } from './app-icon-pack.mjs';
 import { watchWindowsApps } from './windows-apps.mjs';
 import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
 import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
@@ -109,6 +110,7 @@ export async function startStudioServer(options = {}) {
   let schedulerTimer;
   let reconnectTimer;
   let reconnectAttempt = 0;
+  let connectPromise;
   let discordQueue = Promise.resolve();
   let isStopping = false;
   let stopAppWatcher = () => {};
@@ -204,6 +206,7 @@ export async function startStudioServer(options = {}) {
   function desiredPresence(now = nowDate()) {
     const override = activeOverride(now);
     if (override) {
+      // Explicit owner pins win even when the Scene is disabled for app selection.
       return {
         scene: sceneById(override.sceneId),
         key: 'override:' + override.sceneId + ':' + override.expiresAt,
@@ -212,7 +215,7 @@ export async function startStudioServer(options = {}) {
     }
     if (!config.settings.scheduleEnabled) return { scene: null, key: null, source: 'paused' };
     if (config.settings.selectionMode === 'apps') {
-      const mapping = selectRunningPreset(config.appMappings, appSnapshot.running || appSnapshot.apps.map(app => app.executable), recentApplications);
+      const mapping = selectRunningPreset(config.appMappings, appSnapshot.running || appSnapshot.apps.map(app => app.executable), recentApplications, config.scenes);
       return { scene:mapping ? codexSessionScene(withApplicationBadge(sceneById(mapping.sceneId), mapping), mapping, config.codexSession) : null,
         key:mapping ? 'app:' + mapping.executable.toLowerCase() + ':' + mapping.sceneId : null,
         source:mapping ? 'app' : 'unmapped', application:mapping?.name || null,
@@ -388,6 +391,8 @@ export async function startStudioServer(options = {}) {
 
   async function disconnectDiscord({ clearPresence = false } = {}) {
     stopReconnectTimer();
+    // A settings change invalidates a pending login; its late result is stale.
+    if (runtime.connectionState === 'connecting') connectPromise = undefined;
     if (clearPresence && runtime.active) {
       await clearDiscordPresence().catch(() => undefined);
     }
@@ -400,7 +405,17 @@ export async function startStudioServer(options = {}) {
     await destroyDiscordClient(candidate);
   }
 
-  async function connectDiscord() {
+  function connectDiscord({ force = false } = {}) {
+    if (connectPromise) return connectPromise;
+    const operation = Promise.resolve().then(async () => {
+      if (force && runtime.connectionState === 'connected') await disconnectDiscord();
+      await attemptDiscordConnect();
+    }).finally(() => { if (connectPromise === operation) connectPromise = undefined; });
+    connectPromise = operation;
+    return operation;
+  }
+
+  async function attemptDiscordConnect() {
     if (options.disableHostEffects || env.PRESENCE_DISCORD_DISABLE === '1' || isStopping || !clientId) {
       runtime.connectionState = 'disconnected';
       runtime.discordUser = null;
@@ -412,11 +427,11 @@ export async function startStudioServer(options = {}) {
     if (['connecting', 'connected'].includes(runtime.connectionState)) return;
     runtime.connectionState = 'connecting';
     runtime.nextReconnectAt = null;
-    const candidate = options.createDiscordClient ? options.createDiscordClient() : new DiscordRPC.Client({ transport: 'ipc' });
-    discordClient = candidate;
-    candidate.on('disconnected', () => handleDisconnected(candidate));
-
+    let candidate;
     try {
+      candidate = options.createDiscordClient ? options.createDiscordClient() : new DiscordRPC.Client({ transport: 'ipc' });
+      discordClient = candidate;
+      candidate.on('disconnected', () => handleDisconnected(candidate));
       await candidate.login({ clientId });
       if (isStopping || discordClient !== candidate) {
         await destroyDiscordClient(candidate);
@@ -789,10 +804,10 @@ export async function startStudioServer(options = {}) {
         response.end(bytes);
         return;
       }
-      // Bundled Studio mock assets (app icons, avatar mocks). Flat directory,
+      // Bundled Studio assets (app icons, avatar mocks, IBM Plex fonts). Flat directory,
       // extension allowlist, no traversal — Studio UI only, never sent to Discord.
-      const mockArtDirs = { '/art/apps/': 'art/apps', '/art/scenes/': 'art/scenes' };
-      const mockArtTypes = { '.svg': 'image/svg+xml', '.png': 'image/png', '.gif': 'image/gif' };
+      const mockArtDirs = { '/art/apps/': 'art/apps', '/art/scenes/': 'art/scenes', '/assets/fonts/': 'fonts' };
+      const mockArtTypes = { '.svg': 'image/svg+xml', '.png': 'image/png', '.gif': 'image/gif', '.woff2': 'font/woff2' };
       for (const [prefix, dir] of Object.entries(mockArtDirs)) {
         if (request.method === 'GET' && url.pathname.startsWith(prefix)) {
           const name = url.pathname.slice(prefix.length);
@@ -842,15 +857,15 @@ export async function startStudioServer(options = {}) {
         sendJson(response,200,{session:config.codexSession,runtime:runtimeSnapshot()});return;
       }
       if (request.method === 'GET' && url.pathname === '/api/apps') {
-        sendJson(response, 200, { ...appSnapshot, foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
+        sendJson(response, 200, { ...appSnapshot, apps:appSnapshot.apps.map(app => ({ ...app, publicIcon:packedAppIcon(app) })), foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
         return;
       }
       if (request.method === 'GET' && url.pathname === '/api/installed-apps') {
         if (url.searchParams.get('refresh') === '1') {
-          try { if (!options.disableHostEffects) await refreshInstalledApps(dataDirectory, installedAppsOptions); }
+          try { if (!options.disableHostEffects) await (options.refreshInstalledApps ?? refreshInstalledApps)(dataDirectory, installedAppsOptions); }
           catch { /* serve whatever is cached */ }
         }
-        sendJson(response, 200, { apps:getInstalledApps() });
+        sendJson(response, 200, { apps:(options.getInstalledApps ?? getInstalledApps)().map(app => ({ ...app, publicIcon:packedAppIcon(app) })) });
         return;
       }
       if (request.method === 'PUT' && url.pathname === '/api/app-mappings') {
@@ -887,6 +902,17 @@ export async function startStudioServer(options = {}) {
           setup: setupSnapshot(),
           runtime: runtimeSnapshot(),
         });
+        return;
+      }
+
+      if (request.method === 'POST' && url.pathname === '/api/reconnect') {
+        const expectedHost = '127.0.0.1:' + port;
+        if (request.headers.host !== expectedHost || url.host !== expectedHost || (request.headers.origin && request.headers.origin !== 'http://' + expectedHost)) {
+          throw requestError('Reconnect requires the local Studio origin.', 'INVALID_ORIGIN', 403);
+        }
+        stopReconnectTimer();
+        await connectDiscord({ force:true });
+        sendJson(response, 200, { ok:runtime.connectionState === 'connected', runtime:runtimeSnapshot() });
         return;
       }
 

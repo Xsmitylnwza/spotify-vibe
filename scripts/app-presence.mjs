@@ -19,14 +19,14 @@ export function validateMappings(value, sceneIds) {
   });
 }
 
-export function selectAppPreset(mappings, foreground) {
+export function selectAppPreset(mappings, foreground, scenes = []) {
   if (!foreground) return null;
-  return mappings.find(item => item.enabled && appKey(item.executable) === appKey(foreground)) || null;
+  return mappings.find(item => item.enabled && !scenes.some(scene => scene.id === item.sceneId && scene.enabled === false) && appKey(item.executable) === appKey(foreground)) || null;
 }
 
-export function selectRunningPreset(mappings, running, recent = []) {
+export function selectRunningPreset(mappings, running, recent = [], scenes = []) {
   const open = new Set(running.map(appKey));
-  const eligible = mappings.filter(item => item.enabled && open.has(appKey(item.executable)));
+  const eligible = mappings.filter(item => item.enabled && !scenes.some(scene => scene.id === item.sceneId && scene.enabled === false) && open.has(appKey(item.executable)));
   for (const path of recent) {
     const match = eligible.find(item => appKey(item.executable) === appKey(path));
     if (match) return match;

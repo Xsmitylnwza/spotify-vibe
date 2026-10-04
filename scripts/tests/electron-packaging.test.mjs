@@ -88,16 +88,14 @@ test('main process implements background-first behavior', () => {
   }
 });
 
-test('Studio UI has the update banner and desktop app card strings', () => {
+test('Studio UI has the update banner and desktop shell wiring', () => {
   const html = readFileSync(resolve(root, 'scripts/discord-presence-studio.html'), 'utf8');
   for (const needle of [
     'id="updateBanner"',
-    'id="electronAppCard"',
-    'id="launchAtLoginToggle"',
-    'id="checkUpdatesButton"',
-    'initElectronShell',
-    '"มีเวอร์ชันใหม่ของ Vibe Studio แล้ว": "A new version of Vibe Studio is available"',
-    '"เปิดพร้อมระบบ": "Launch at startup"',
+    'id="updateActionButton"',
+    'function initDesktop',
+    'setOpenAtLogin',
+    'A new version of Vibe Studio is available.',
   ]) {
     assert.ok(html.includes(needle), 'studio HTML should contain ' + needle);
   }

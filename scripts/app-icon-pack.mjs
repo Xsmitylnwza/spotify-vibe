@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const appIconManifest = JSON.parse(readFileSync(new URL('../public/art/apps/manifest.json', import.meta.url), 'utf8'));
-export const DEFAULT_APP_ICON_REF = 'improve/flow-ux';
+export const DEFAULT_APP_ICON_REF = 'main';
 const normalize = value => String(value || '').normalize('NFKC').toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}+]/gu, '');
 const basename = value => String(value || '').replaceAll('\\', '/').split('/').at(-1).toLowerCase();
 const executableKey = value => normalize(basename(value).replace(/\.exe$/i, ''));

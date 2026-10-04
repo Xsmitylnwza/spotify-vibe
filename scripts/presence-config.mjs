@@ -60,6 +60,9 @@ export function validateScene(input) {
   const timerMode = text(input?.timerMode).toLowerCase() || 'none';
   const rawButtons = Array.isArray(input?.buttons) ? input.buttons : [];
   const timerMinutes = Number(input?.timerMinutes ?? 30);
+  if (input?.enabled !== undefined && typeof input.enabled !== 'boolean') {
+    throw new Error('Scene enabled must be a boolean.');
+  }
 
   if (!(activityType in activityTypes)) {
     throw new Error('Activity type must be Playing, Listening, Watching, or Competing.');
@@ -73,6 +76,7 @@ export function validateScene(input) {
 
   const scene = {
     id: validateIdentifier('Scene ID', input?.id),
+    enabled: input?.enabled ?? true,
     sceneName: text(input?.sceneName) || 'Untitled Scene',
     activityType,
     activityName: text(input?.activityName) || 'Vibe Presence',
