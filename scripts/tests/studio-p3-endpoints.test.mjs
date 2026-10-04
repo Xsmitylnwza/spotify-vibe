@@ -50,7 +50,7 @@ async function fixture(t, { consent, mappings = [], uploader = async()=>uploaded
       ...(body===undefined?{}:{body:JSON.stringify(body)})}); return {status:res.status,body:await res.json()};
   }
   await until(()=>request('/api/state'),r=>r.body.connected);
-  return {request,emit,activities,directory,config,url:studio.url,clears:()=>clears,setInstalled:apps=>{installed=apps;}};
+  return {request,emit,activities,directory,config,url:studio.url,stop:()=>studio.stop(),clears:()=>clears,setInstalled:apps=>{installed=apps;}};
 }
 
 test('HTTP consent defaults unknown, validates boolean/local origin, and only paired apps upload', async t=>{
@@ -164,4 +164,17 @@ test('closing a paired app clears presence and removed pin routes return 404', a
   const closed=await until(()=>f.request('/api/state'),r=>r.body.desiredSceneId===null);
   assert.equal(closed.body.selectedApplication,null);
   assert.equal(Object.hasOwn(closed.body,'manualOverride'),false);
+});
+
+test('server shutdown drains an aborted in-flight icon upload before releasing its profile',async t=>{
+  let release;
+  const f=await fixture(t,{consent:true,mappings:[{}],running:[app],uploader:()=>new Promise(resolve=>{release=resolve;})});
+  await until(()=>Boolean(release),Boolean);
+  let stopped=false;
+  const stopping=f.stop().then(()=>{stopped=true;});
+  await delay(20); assert.equal(stopped,false,'stop must await background icon work');
+  release(uploaded); await stopping;
+  assert.equal(stopped,true);
+  const cache=JSON.parse(await readFile(join(f.directory,'icon-hosting.json'),'utf8'));
+  assert.deepEqual(cache.icons,{},'aborted upload cannot publish after close');
 });

@@ -18,6 +18,7 @@ dates; versions without a separate release are explicitly marked.
 - Preview buttons open valid HTTPS links. Buttons must have both a label and a valid HTTPS URL before saving.
 - Explained that Discord hides Rich Presence buttons on the activity owner's own profile; viewers must check from another account.
 - Keep older configs containing a button without a URL readable during upgrade; new Scene saves require a valid URL instead of resetting the owner's document.
+- Drain aborted background icon uploads/cache writes during bounded shutdown before releasing the profile.
 
 ## [1.0.21] - 2026-10-04
 

@@ -789,6 +789,9 @@ export async function startStudioServer(options = {}) {
         try { server.closeAllConnections(); } catch { /* older node */ }
         await new Promise(resolve => server.close(resolve));
       }
+      // close() aborts uploads, but an atomic icon-cache write already in flight
+      // still owns its temp file. Drain it before releasing the profile directory.
+      await iconHosting.drain();
       // Do not queue behind a pending login/request. Teardown must stay bounded.
       if (candidate && runtime.active) await candidate.clearActivity().catch(() => undefined);
       await destroyDiscordClient(candidate);
