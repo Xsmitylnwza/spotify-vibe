@@ -81,7 +81,7 @@ test('HTTP consent defaults unknown, validates boolean/local origin, and only pa
   assert.equal(f.activities.at(-1).buttons[0].label,'Open Orca');
 });
 
-test('startup uploads paired icons and delivery resolves all text; manual pins use Scene and store templates intact', async t=>{
+test('startup uploads paired icons and delivery resolves all text; a pin keeps the open paired app and stores templates intact', async t=>{
   let uploads=0;
   const f=await fixture(t,{consent:true,mappings:[{}],running:[app],uploader:async()=>{uploads++;return uploaded;}});
   const live=await until(async()=>f.activities.at(-1),a=>a?.assets?.small_image===uploaded);
@@ -96,9 +96,9 @@ test('startup uploads paired icons and delivery resolves all text; manual pins u
   assert.equal(disk.scenes[0].state,'{user}');
   const pin=await f.request('/api/override','POST',{sceneId:saved.scenes[0].id});
   assert.equal(pin.status,200);assert.equal(pin.body.applied,true);
-  assert.equal(f.activities.at(-1).name,'Coding');assert.equal(f.activities.at(-1).details,'Using Coding · Coding');
-  assert.equal(f.activities.at(-1).assets.small_image,undefined);
-  assert.deepEqual(pin.body.runtime.variables,{app:'Coding',scene:'Coding',user:'Golf Display'});
+  assert.equal(f.activities.at(-1).name,'Orca');assert.equal(f.activities.at(-1).details,'Using Orca · Coding');
+  assert.equal(f.activities.at(-1).assets.small_image,uploaded);
+  assert.deepEqual(pin.body.runtime.variables,{app:'Orca',scene:'Coding',user:'Golf Display'});
   await f.request('/api/presence','DELETE');
   assert.equal((await f.request('/api/state')).body.variables,null); assert.equal(f.clears(),1);
 });
@@ -157,4 +157,18 @@ test('HTTP switching automatic image source to explicit artwork clears its flag 
   const disk=JSON.parse(await readFile(join(f.directory,'presence-config.json'),'utf8'));
   assert.equal(disk.scenes[0].smallImageSource,'');assert.equal(disk.scenes[0].largeImageSource,'');
   assert.equal((await f.request('/api/config')).body.scenes[0].smallImage,config.scenes[0].smallImage);
+});
+
+test('a pinned Scene still uses its open paired app for {app} and the app icon; with none open it uses the Scene name', async t=>{
+  const f=await fixture(t,{consent:true,mappings:[{}],running:[app]});
+  const sceneId=f.config.scenes[0].id;
+  assert.equal((await f.request('/api/override','POST',{sceneId})).status,200);
+  const pinned=await until(()=>f.request('/api/state'),r=>r.body.manualOverride && r.body.variables?.app==='Orca');
+  assert.equal(pinned.body.selectedApplication,'Orca');
+  const live=await until(async()=>f.activities.at(-1),a=>a?.name==='Orca' && a?.assets?.small_image===uploaded);
+  assert.equal(live.details,'Using Orca · Coding');
+  f.emit({apps:[],running:[],supported:true,error:null});
+  const closed=await until(()=>f.request('/api/state'),r=>r.body.variables?.app==='Coding');
+  assert.equal(closed.body.selectedApplication,null);
+  assert.equal(closed.body.manualOverride.sceneId,sceneId,'the pin itself stays');
 });

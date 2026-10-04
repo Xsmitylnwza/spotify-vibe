@@ -180,10 +180,12 @@ test('app-icon source: saved as smallImageSource, round-trips, and the preview s
   assert.equal(c.m.sceneToRaw(sc).smallImageSource, 'app-icon');
   assert.equal(JSON.stringify(c.m.sceneToRaw(sc)).includes('largeImageSource'), false, 'nothing is sent for an unset source');
   assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/claude.png', 'preview uses the paired app icon');
-  c.ST.rt = { currentSceneId: 's1', selectionSource: 'app', applicationBadge: 'https://files.catbox.moe/live.png' };
+  c.ST.rt = { currentSceneId: 's1', selectionSource: 'app', selectedApplication: 'Claude', applicationBadge: 'https://files.catbox.moe/live.png' };
   assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/live.png', 'live scene uses what the server delivers');
   c.ST.rt = { currentSceneId: 's1', selectionSource: 'override' };
-  assert.equal(c.m.published(sc).small, '', 'a manual pin has no app, so the server sends no app icon');
+  assert.equal(c.m.published(sc).small, '', 'a pin with none of its apps open sends no app icon');
+  c.ST.rt = { currentSceneId: 's1', selectionSource: 'override', selectedApplication: 'Claude', applicationBadge: 'https://files.catbox.moe/live.png' };
+  assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/live.png', 'a pin with a paired app open shows that app icon');
 });
 
 test('app-icon source: picking another image clears it; explicit images are kept', () => {

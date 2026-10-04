@@ -130,8 +130,8 @@ export async function startStudioServer(options = {}) {
       await pairMappedIcons();
       const desired = desiredPresence();
       const scene = sceneById(desired.scene?.id);
-      if (desired.source !== 'app' || appKey(desired.applicationExecutable) !== appKey(app.executable)
-        || !['largeImage', 'smallImage'].some(field => scene?.[field] === '@app' || scene?.[field + 'Source'] === 'app-icon')) return;
+      if (!desired.applicationExecutable || appKey(desired.applicationExecutable) !== appKey(app.executable)
+        || !(!scene?.smallImage || ['largeImage', 'smallImage'].some(field => scene?.[field] === '@app' || scene?.[field + 'Source'] === 'app-icon'))) return;
       await reconcilePresence({ force: true, reason: 'App icon hosting updated' });
     },
   });
@@ -236,11 +236,15 @@ export async function startStudioServer(options = {}) {
   function desiredPresence(now = nowDate()) {
     const override = activeOverride(now);
     if (override) {
-      // Explicit owner pins win even when the Scene is disabled for app selection.
+      // Explicit owner pins win even when the Scene is disabled for app selection,
+      // and still name/badge the most recent of the Scene's paired apps that is open.
+      const running = appSnapshot.running || appSnapshot.apps.map(app => app.executable);
+      const mapping = selectRunningPreset(config.appMappings.filter(item => item.sceneId === override.sceneId), running, recentApplications);
+      const publicIcon = mapping ? iconHosting.view(catalogApp(mapping)).publicIcon : '';
       return {
-        scene: withApplicationBadge(sceneById(override.sceneId), null, { publicIcon: '' }),
-        key: 'override:' + override.sceneId + ':' + override.expiresAt,
-        source: 'override',
+        scene: withApplicationBadge(sceneById(override.sceneId), mapping, { publicIcon }),
+        key: 'override:' + override.sceneId + ':' + override.expiresAt + (mapping ? ':' + mapping.executable.toLowerCase() : ''),
+        source: 'override', application: mapping?.name || null, applicationExecutable: mapping?.executable || null,
       };
     }
     if (!config.settings.scheduleEnabled) return { scene: null, key: null, source: 'paused' };

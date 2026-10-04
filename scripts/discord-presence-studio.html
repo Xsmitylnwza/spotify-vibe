@@ -157,7 +157,8 @@ function sceneApp(sc) {
 function published(sc) {
   if (!sc) return null;
   const out = Object.assign({}, sc), app = sceneApp(sc), rt = ST.rt || {};
-  const viaApp = rt.currentSceneId === sc.id ? rt.selectionSource === 'app' : app && pinnedSceneId() !== sc.id;
+  /* live: the server says which app (if any) it used, also for a pin; otherwise a pin has no app */
+  const viaApp = rt.currentSceneId === sc.id ? Boolean(rt.selectedApplication) : app && pinnedSceneId() !== sc.id;
   /* the app icon only reaches Discord when an app selected the Scene; a manual pin has no app */
   const appIcon = (app && viaApp && ((rt.currentSceneId === sc.id && rt.applicationBadge) || app.publicIcon)) || '';
   if (sc.smallSource === 'app-icon' || !sc.small) { out.small = appIcon; out.smallUrl = ''; }
@@ -180,8 +181,7 @@ const resolveVars = (text, vals) => String(text == null ? '' : text).replace(/\{
 function varValues(sc) {
   const rt = ST.rt || {}, live = (rt.currentSceneId === sc.id && rt.variables) || {}, paired = S.rules.find(r => r.scene === sc.id);
   const scene = live.scene || (sc.name || '').trim() || T('Untitled Scene', 'Scene ไม่มีชื่อ');
-  const pinned = pinnedSceneId() === sc.id && rt.selectionSource !== 'app';
-  return { scene, app: live.app || (!pinned && paired && appBy(paired.app).name) || scene, user: live.user || DCID.name || '' };
+  return { scene, app: live.app || (paired && appBy(paired.app).name) || scene, user: live.user || DCID.name || '' };
 }
 /* ---------- end text variables ---------- */
 const loading = () => !ST.ready && !ST.error;
