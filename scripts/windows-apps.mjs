@@ -1,5 +1,5 @@
+import { helperScriptPath } from './helper-script-path.mjs';
 import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 
 // observedAt and array order are liveness/transport details, not transitions.
@@ -38,7 +38,7 @@ export function watchWindowsApps(onSnapshot, {
       watchdog = setTimer(checkStale, staleMs - (now() - lastSeen));
     };
     try {
-      child = spawnHelper('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', fileURLToPath(new URL('./windows-apps.ps1', import.meta.url))], { windowsHide:true, stdio:['ignore','pipe','pipe'] });
+      child = spawnHelper('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', helperScriptPath('windows-apps.ps1')], { windowsHide:true, stdio:['ignore','pipe','pipe'] });
       lines = createInterface({ input:child.stdout });
       lines.on('line', line => {
         if (stopped || failed) return;

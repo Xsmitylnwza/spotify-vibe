@@ -127,16 +127,17 @@ function validateSlot(input, sceneIds) {
     enabled: input?.enabled !== false,
   };
   parseLocalTime(slot.startTime);
-  if (!sceneIds.has(slot.sceneId)) {
-    throw new Error('Daily Time Slot ' + slot.startTime + ' references a missing Scene.');
-  }
+  // Daily Time Slots are legacy (schedule mode removed): keep the owner's data,
+  // but a slot whose Scene was deleted is disabled instead of blocking saves.
+  if (!sceneIds.has(slot.sceneId)) slot.enabled = false;
   return slot;
 }
 
 function validateManualOverride(input, sceneIds) {
   if (!input) return null;
   const sceneId = validateIdentifier('Manual Override Scene ID', input.sceneId);
-  if (!sceneIds.has(sceneId)) throw new Error('Manual Override references a missing Scene.');
+  // A pin ends when its Scene is deleted.
+  if (!sceneIds.has(sceneId)) return null;
   const expiresAt = text(input.expiresAt);
   if (!expiresAt || Number.isNaN(Date.parse(expiresAt))) {
     throw new Error('Manual Override must contain a valid expiration time.');

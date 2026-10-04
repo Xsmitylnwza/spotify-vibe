@@ -30,13 +30,18 @@ test('configuration sorts slots and rejects duplicate start times', () => {
   assert.throws(() => validateConfig(duplicate), /start times must be unique/);
 });
 
-test('configuration rejects missing Scene references', () => {
+test('legacy slots pointing at a deleted Scene are kept but disabled, never blocking saves', () => {
   const config = createDefaultConfig();
-  const invalid = {
+  const legacy = {
     ...config,
     slots: [{ id: 'broken', startTime: '08:00', sceneId: 'missing', enabled: true }],
   };
-  assert.throws(() => validateConfig(invalid), /references a missing Scene/);
+  const normalized = validateConfig(legacy);
+  assert.deepEqual(normalized.slots, [{ id: 'broken', startTime: '08:00', sceneId: 'missing', enabled: false }]);
+  const remaining = config.scenes.slice(1);
+  const afterDelete = validateConfig({ ...config, scenes: remaining });
+  assert.equal(afterDelete.scenes.length, remaining.length);
+  assert.ok(afterDelete.slots.filter((slot) => slot.sceneId === config.scenes[0].id).every((slot) => slot.enabled === false));
 });
 
 test('configuration validates a persisted Manual Override', () => {
@@ -70,4 +75,11 @@ test('Discord activity preserves supported custom fields and timestamps', () => 
   assert.equal(activity.type, 2);
   assert.equal(activity.timestamps.start, now.getTime());
   assert.equal(activity.assets.large_image, scene.largeImage);
+});
+
+test('a Manual Override pinned to a deleted Scene ends instead of blocking the delete', () => {
+  const config = createDefaultConfig();
+  const pinned = { ...config, manualOverride: { sceneId: config.scenes[0].id, expiresAt: '2030-01-01T00:00:00.000Z' } };
+  assert.equal(validateConfig({ ...pinned, scenes: config.scenes.slice(1) }).manualOverride, null);
+  assert.equal(validateConfig(pinned).manualOverride.sceneId, config.scenes[0].id);
 });

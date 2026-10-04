@@ -1,10 +1,10 @@
+import { helperScriptPath } from './helper-script-path.mjs';
 // Installed-apps enumeration (Windows Start Menu shortcuts).
 // Scans once in the background at startup, caches to disk, and serves the
 // cached list instantly. Refresh is best-effort and never blocks requests.
 import { spawn } from 'node:child_process';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // refresh weekly
 const SCAN_TIMEOUT_MS = 120000;
@@ -13,7 +13,7 @@ let cached = null; // { scannedAt, apps }
 let scanPromise = null;
 
 function scriptPath() {
-  return fileURLToPath(new URL('./installed-apps.ps1', import.meta.url));
+  return helperScriptPath('installed-apps.ps1');
 }
 
 async function readCache(cachePath) {
