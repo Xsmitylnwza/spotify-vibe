@@ -1574,5 +1574,33 @@
       "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
     },
     "sha256": "87b8c377544c4fc640c4b42663bd9d31d9321187aedcf4b7005627489e2ff977"
+  },
+  {
+    "slug": "orca",
+    "names": [
+      "Orca"
+    ],
+    "exeNames": [
+      "orca.exe"
+    ],
+    "publisherHints": [
+      "Orca"
+    ],
+    "source": {
+      "type": "installed-app",
+      "method": "scripts/installed-apps.mjs -> installed-apps.ps1 / ExtractAssociatedIcon",
+      "application": "Orca",
+      "executableName": "Orca.exe",
+      "inputSize": [
+        128,
+        128
+      ],
+      "rendering": "256px transparent PNG; high-quality canvas upscale from extracted icon"
+    },
+    "license": {
+      "id": "LicenseRef-Application-Artwork",
+      "text": "Original application artwork; copyright and trademark rights retained by the application publisher. Extraction does not grant a redistribution license."
+    },
+    "sha256": "7f5608b154639be89b619f4f46cc3aa8b55392c470f09ae52e8f86de7096c155"
   }
 ]

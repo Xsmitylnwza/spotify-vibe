@@ -51,7 +51,11 @@ export function appIconIdentity(app) {
   return executable ? 'device-' + createHash('sha256').update(appKey(executable)).digest('hex').slice(0, 24) : String(app?.id || '');
 }
 
-export function createIconHosting(dataDirectory, { uploader = createIconUploader(), onChange = () => {}, writeJson = atomicWriteJson } = {}) {
+// Uploads are off unless a host is passed in: Discord's image proxy cannot load
+// catbox URLs (white "?" box, seen on the owner's profile 2026-10-04), so the
+// app only sends public-pack icons. Inject an uploader for a host that works.
+export function createIconHosting(dataDirectory, { uploader = null, onChange = () => {}, writeJson = atomicWriteJson } = {}) {
+  const uploadsEnabled = typeof uploader === 'function';
   const file = join(dataDirectory, 'icon-hosting.json'), provider = 'catbox';
   let state = { consent: null, provider, icons: {} }, saving = Promise.resolve(), closed = false;
   const pending = new Map(), failed = new Map();
@@ -73,6 +77,7 @@ export function createIconHosting(dataDirectory, { uploader = createIconUploader
   function view(app) {
     const pack = packedAppIcon(app);
     if (pack) return { ...app, publicIcon: pack, iconSource: 'pack', iconStatus: 'ready' };
+    if (!uploadsEnabled) return { ...app, publicIcon: '', iconSource: 'default', iconStatus: '' };
     const id = appIconIdentity(app), cached = state.icons[id];
     let sha256;
     try { sha256 = hash(app); } catch {}
@@ -84,7 +89,7 @@ export function createIconHosting(dataDirectory, { uploader = createIconUploader
   }
   async function pair(apps) {
     await loaded;
-    if (closed || state.consent !== true) return;
+    if (closed || !uploadsEnabled || state.consent !== true) return;
     for (const app of apps) {
       const id = appIconIdentity(app);
       if (!id || packedAppIcon(app) || pending.has(id)) continue;
@@ -113,6 +118,7 @@ export function createIconHosting(dataDirectory, { uploader = createIconUploader
     }
   }
   return {
+    uploadsEnabled,
     view, pair,
     async decorate(app) { await loaded; return view(app); },
     async settings() { await loaded; return { consent: state.consent, provider }; },

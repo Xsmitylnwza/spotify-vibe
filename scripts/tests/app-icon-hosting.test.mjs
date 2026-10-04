@@ -100,3 +100,18 @@ test('an empty small image keeps the app-icon default; explicit images and the l
   assert.equal(withApplicationBadge(scene, { name: 'Unknown' }, { publicIcon: '' }).smallImage, '');
   assert.equal(withApplicationBadge({ ...scene, activityName: 'Morning Vibe' }, { name: 'Claude' }, { publicIcon: icon }).activityName, 'Morning Vibe', 'activity text stays the owner template');
 });
+
+test('without an injected host, nothing uploads: non-pack apps get no public icon and no consent prompt, pack icons stay', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'vibe-icons-off-'));
+  try {
+    const hosting = createIconHosting(directory);
+    assert.equal(hosting.uploadsEnabled, false);
+    await hosting.setConsent(true);
+    const icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg==';
+    const unknown = { executable: 'C:\Apps\Unique.exe', name: 'Unique', icon };
+    await hosting.pair([unknown]);
+    assert.deepEqual(hosting.view(unknown), { ...unknown, publicIcon: '', iconSource: 'default', iconStatus: '' });
+    const orca = hosting.view({ executable: 'C:/Users/u/AppData/Local/Programs/orca/Orca.exe', name: 'Orca', icon });
+    assert.equal(orca.iconSource, 'pack'); assert.match(orca.publicIcon, /^https:\/\/raw\.githubusercontent\.com\/.+\/orca\.png$/);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});

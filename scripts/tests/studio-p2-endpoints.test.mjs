@@ -139,7 +139,7 @@ test('HTTP app catalogs add publicIcon without changing any existing fields', as
     const result = await f.request(path);
     assert.equal(result.status, 200);
     assert.deepEqual(result.body.apps, entries.map(app => ({ ...app, publicIcon:packedAppIcon(app),
-      iconSource:packedAppIcon(app) ? 'pack' : 'default', iconStatus:packedAppIcon(app) ? 'ready' : 'needs-consent' })));
+      iconSource:packedAppIcon(app) ? 'pack' : 'default', iconStatus:packedAppIcon(app) ? 'ready' : '' })));
     assert.match(result.body.apps[0].publicIcon, /^https:\/\//);
     assert.equal(result.body.apps[1].publicIcon, '');
   }

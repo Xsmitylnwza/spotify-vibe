@@ -909,6 +909,8 @@ export async function startStudioServer(options = {}) {
         return;
       }
       if (request.method === 'GET' && url.pathname === '/api/icon-hosting') {
+        // No working upload host: the Studio hides the consent controls on 404.
+        if (!iconHosting.uploadsEnabled) { sendJson(response, 404, { error: 'Icon uploads are unavailable', code: 'ICON_HOSTING_UNAVAILABLE' }); return; }
         sendJson(response, 200, await iconHosting.settings());
         return;
       }
