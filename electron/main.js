@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { startStudioServer } from '../scripts/studio-server.mjs';
-import { broadcastUpdateState, createStudioStartup, ensureDefaultLoginItem, createShutdown } from './lifecycle.mjs';
+import { broadcastUpdateState, createStudioStartup, ensureDefaultLoginItem, createShutdown, LOGIN_ITEM } from './lifecycle.mjs';
 import { autoRestartAllowed, createUpdates } from './updates.mjs';
 import { requireStudioSender, secureStudioNavigation } from './security.mjs';
 
@@ -235,16 +235,16 @@ if (!app.requestSingleInstanceLock()) {
   handleStudioIPC('vibe:get-update-state', () => updates.snapshot());
   handleStudioIPC('vibe:get-open-at-login', () => {
     try {
-      return app.getLoginItemSettings().openAtLogin;
+      return app.getLoginItemSettings(LOGIN_ITEM).openAtLogin;
     } catch {
       return false;
     }
   });
   handleStudioIPC('vibe:set-open-at-login', (_event, enabled) => {
     if (!app.isPackaged || process.env.PRESENCE_AUTOSTART_DISABLE === '1') return false;
-    app.setLoginItemSettings({ openAtLogin: Boolean(enabled), openAsHidden: true });
-    writeFileSync(FIRST_RUN_SENTINEL, JSON.stringify({ loginItemDefaultApplied: true }));
-    return app.getLoginItemSettings().openAtLogin;
+    app.setLoginItemSettings({ openAtLogin: Boolean(enabled), ...LOGIN_ITEM });
+    writeFileSync(FIRST_RUN_SENTINEL, JSON.stringify({ loginItemDefaultApplied: true, hiddenArgs: true }));
+    return app.getLoginItemSettings(LOGIN_ITEM).openAtLogin;
   });
   handleStudioIPC('vibe:check-for-updates', () => checkForUpdates());
   handleStudioIPC('vibe:download-update', async () => {
@@ -311,7 +311,7 @@ if (!app.requestSingleInstanceLock()) {
   // boot
   // -------------------------------------------------------------------------
   app.whenReady().then(async () => {
-    ensureDefaultLoginItem({ app, fs: { existsSync, writeFileSync }, sentinel: FIRST_RUN_SENTINEL, env: process.env });
+    ensureDefaultLoginItem({ app, fs: { existsSync, readFileSync, writeFileSync }, sentinel: FIRST_RUN_SENTINEL, env: process.env });
     if (!SMOKE && !openedHidden()) showSplash();
     while (!appQuitting && !studioHandle) {
       try {

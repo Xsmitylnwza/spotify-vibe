@@ -75,20 +75,25 @@ test('cleanup failure is reported and app quit still settles once', async () => 
 });
 
 test('login defaults never register in dev or disabled runs and preserve existing opt-out', () => {
-  for (const [packaged, disabled, sentinelExists, expected] of [
-    [false, false, false, false], [false, true, false, false],
-    [true, true, false, false], [true, false, true, false], [true, false, false, true],
+  const hidden = { openAtLogin: true, openAsHidden: true, args: ['--hidden'] };
+  for (const [packaged, disabled, sentinel, enabledBefore, expected, registers] of [
+    [false, false, null, false, false, false], [false, true, null, false, false, false],
+    [true, true, null, false, false, false],
+    [true, false, null, false, true, true],                                         // fresh install: background autostart on
+    [true, false, { loginItemDefaultApplied: true, hiddenArgs: true }, true, false, false], // already current
+    [true, false, { loginItemDefaultApplied: true }, false, false, false],          // old opt-out stays off
+    [true, false, { loginItemDefaultApplied: true }, true, 'migrated', true],       // old visible entry moves to --hidden
   ]) {
     const calls = [];
     const result = ensureDefaultLoginItem({
-      app: { isPackaged: packaged, setLoginItemSettings: value => calls.push(value) },
-      fs: { existsSync: () => sentinelExists, writeFileSync: (path, value) => calls.push([path, JSON.parse(value)]) },
+      app: { isPackaged: packaged, setLoginItemSettings: value => calls.push(JSON.parse(JSON.stringify(value))), getLoginItemSettings: () => ({ openAtLogin: enabledBefore }) },
+      fs: { existsSync: () => Boolean(sentinel), readFileSync: () => JSON.stringify(sentinel), writeFileSync: (path, value) => calls.push([path, JSON.parse(value)]) },
       sentinel: 'sentinel.json', env: { PRESENCE_AUTOSTART_DISABLE: disabled ? '1' : '0' },
     });
     assert.equal(result, expected);
-    assert.deepEqual(calls, expected ? [
-      { openAtLogin: true, openAsHidden: true }, ['sentinel.json', { loginItemDefaultApplied: true }],
-    ] : []);
+    const marked = ['sentinel.json', { loginItemDefaultApplied: true, hiddenArgs: true }];
+    const expectedCalls = !packaged || disabled || (sentinel && sentinel.hiddenArgs) ? [] : registers ? [hidden, marked] : [marked];
+    assert.deepEqual(calls, expectedCalls);
   }
 });
 

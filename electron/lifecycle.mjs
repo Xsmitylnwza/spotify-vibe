@@ -24,13 +24,27 @@ export async function startOwnedStudio(start, options) {
   return requireOwnedStudio(await start({ ...options, requireOwnership: true }));
 }
 
+// Windows ignores openAsHidden: the login entry must carry --hidden so a boot
+// start goes straight to the tray, and reads must pass the same args.
+export const LOGIN_ITEM = Object.freeze({ openAsHidden: true, args: Object.freeze(['--hidden']) });
+
 export function ensureDefaultLoginItem({ app, fs, sentinel, env }) {
   if (!app.isPackaged || env.PRESENCE_AUTOSTART_DISABLE === '1') return false;
   try {
-    // A sentinel also preserves an owner's explicit opt-out on later runs.
-    if (fs.existsSync(sentinel)) return false;
-    app.setLoginItemSettings({ openAtLogin: true, openAsHidden: true });
-    fs.writeFileSync(sentinel, JSON.stringify({ loginItemDefaultApplied: true }));
+    const mark = () => fs.writeFileSync(sentinel, JSON.stringify({ loginItemDefaultApplied: true, hiddenArgs: true }));
+    if (fs.existsSync(sentinel)) {
+      // A sentinel also preserves an owner's explicit opt-out on later runs.
+      let saved = {};
+      try { saved = JSON.parse(fs.readFileSync(sentinel, 'utf8')); } catch { /* treat as old */ }
+      if (saved.hiddenArgs) return false;
+      // One-time move of an enabled pre-1.0.18 entry (no --hidden) to a background start.
+      const enabled = app.getLoginItemSettings().openAtLogin;
+      if (enabled) app.setLoginItemSettings({ openAtLogin: true, ...LOGIN_ITEM });
+      mark();
+      return enabled ? 'migrated' : false;
+    }
+    app.setLoginItemSettings({ openAtLogin: true, ...LOGIN_ITEM });
+    mark();
     return true;
   } catch { return false; }
 }
