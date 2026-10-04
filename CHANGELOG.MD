@@ -4,6 +4,21 @@ Changes are listed newest first. Historical entries were reconstructed from Git
 commit history and published GitHub releases. Dates below use UTC publication
 dates; versions without a separate release are explicitly marked.
 
+## [1.0.22] - 2026-10-04
+
+### Changed
+- Scene editing keeps a separate draft until Done saves the Scene and edited app pairings together.
+- Removed Pin/manual override controls, commands, and runtime behavior; legacy owner data remains inert.
+
+### Fixed
+- Switching between running apps preserves each app's elapsed timer, starting from its first successful detection. Observed closure and reopening begin a new timer.
+- Scene save failures and stale-data conflicts preserve the draft; closing a dirty editor asks before discarding.
+- Scene deletion and Undo save Scenes and all enabled/disabled pairings together; explicit Undo restores owner extension fields from a short-lived server snapshot and refuses stale restores.
+- Prevent silent update installation while an editor is open, and prevent quitting during a save. Quitting with unsaved changes requires an explicit discard decision.
+- Preview buttons open valid HTTPS links. Buttons must have both a label and a valid HTTPS URL before saving.
+- Explained that Discord hides Rich Presence buttons on the activity owner's own profile; viewers must check from another account.
+- Keep older configs containing a button without a URL readable during upgrade; new Scene saves require a valid URL instead of resetting the owner's document.
+
 ## [1.0.21] - 2026-10-04
 
 ### Added

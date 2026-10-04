@@ -8,7 +8,7 @@ import { createServer } from 'node:net';
 import { startStudioServer } from '../studio-server.mjs';
 import { createDefaultConfig } from '../presence-config.mjs';
 
-test('real server reconciles only selected-app transitions; preserves running fallback, debounce, expiry and RPC', async t => {
+test('real server reconciles only selected-app transitions; preserves running timers, fallback, debounce and RPC', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'vibe-app-transitions-'));
   const config = createDefaultConfig();
   config.settings.autostartEnabled = false;
@@ -26,8 +26,9 @@ test('real server reconciles only selected-app transitions; preserves running fa
     setTimeout:(fn, ms) => { const id=++sequence; timers.set(id,{fn,ms}); return id; },
     clearTimeout:id => timers.delete(id) };
   const rpc = new EventEmitter();
+  const activities = [];
   rpc.login = async () => {}; rpc.destroy = async () => {};
-  rpc.request = async () => { sends++; }; rpc.clearActivity = async () => { clears++; };
+  rpc.request = async (_, args) => { sends++; activities.push(args.activity); }; rpc.clearActivity = async () => { clears++; };
   const server = await startStudioServer({ argv:[], port, dataDirectory:directory, exitProcess:false, openBrowser:false,
     environment:{ PRESENCE_DISABLE_DEFAULT_APPLICATION:'1', PRESENCE_AUTOSTART_DISABLE:'1', PRESENCE_APP_DETECTION_DISABLE:'1', DISCORD_CLIENT_ID:'1526867893508116620' },
     clock, createDiscordClient:() => rpc, watchApps:callback => { emit=callback; return () => { watcherStopped=true; }; } });
@@ -41,9 +42,12 @@ test('real server reconciles only selected-app transitions; preserves running fa
     assert.ok(timer, 'bounded foreground settle timer'); timers.delete(timer[0]); time+=200; timer[1].fn(); await flush();
   };
   await flush();
+  const firstObservedAt = time;
   emit(snapshot('C:\\b.exe')); await flush(); await settle();
   assert.equal((await state()).desiredSceneId, config.scenes[1].id);
   assert.ok(sends>0, JSON.stringify(await state()));
+  const bStartedAt = activities.at(-1).timestamps.start;
+  assert.equal(bStartedAt, firstObservedAt, 'timer starts when the running app is first detected, before foreground debounce');
   const timerIds = [...timers.keys()], sent = sends, timerCount=sequence;
   for(let i=0;i<20;i++) emit({...snapshot('C:\\b.exe'),observedAt:String(i)});
   emit(snapshot('C:\\b.exe',['C:\\a.exe','C:\\b.exe','C:\\irrelevant.exe'])); await flush();
@@ -56,29 +60,37 @@ test('real server reconciles only selected-app transitions; preserves running fa
   // Brief A then B focus cancels the pending A selection.
   emit(snapshot('C:\\a.exe')); emit(snapshot('C:\\b.exe')); await settle();
   assert.equal((await state()).desiredSceneId,config.scenes[1].id);
+  time += 60_000;
   emit(snapshot('C:\\a.exe')); await settle();
   assert.equal((await state()).desiredSceneId,config.scenes[0].id);
+  assert.equal(activities.at(-1).timestamps.start, firstObservedAt, 'A keeps time while B is selected');
   assert.equal((await apps()).foreground,'c:\\a.exe');
+  time += 30_000;
+  emit(snapshot('C:\\b.exe')); await settle();
+  assert.equal(activities.at(-1).timestamps.start, bStartedAt, 'foreground A to B does not restart B');
+  time += 30_000;
+  emit(snapshot('C:\\a.exe')); await settle();
+  assert.equal(activities.at(-1).timestamps.start, firstObservedAt, 'foreground B to A does not restart A');
+  emit({...snapshot('',[]), supported:false, error:'detector temporarily unavailable'}); await flush();
+  emit(snapshot('C:\\a.exe')); await flush(); await settle();
+  assert.equal(activities.at(-1).timestamps.start, firstObservedAt, 'a detector failure is not evidence that the app closed');
   // Exiting A falls back to B immediately, with no new foreground required.
   emit(snapshot('C:\\unmapped.exe',['C:\\b.exe'])); await flush();
-  assert.equal((await state()).desiredSceneId,config.scenes[1].id); await settle();
+  assert.equal((await state()).desiredSceneId,config.scenes[1].id);
+  assert.equal(activities.at(-1).timestamps.start, bStartedAt, 'returning to still-running B preserves its original elapsed timer');
+  await settle();
   emit(snapshot('',[])); await flush();
   assert.equal((await state()).desiredSceneId,null); assert.ok(clears>0);
+  time += 30_000;
+  const reopenedAt = time;
+  emit(snapshot('C:\\b.exe',['C:\\b.exe'])); await flush(); await settle();
+  assert.equal(activities.at(-1).timestamps.start, reopenedAt, 'closing and reopening B starts a fresh timer');
+  emit(snapshot('',[])); await flush(); await settle();
   // Stable detector data must not defer the independent scheduler heartbeat.
   const heartbeat=[...timers].find(([,entry])=>entry.ms>200);
   assert.ok(heartbeat); const id=heartbeat[0];
   for(let i=0;i<10;i++) emit(snapshot('',[])); await flush();
   assert.ok(timers.has(id));
-  const overrideResponse = await fetch(server.url+'/api/override', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sceneId:config.scenes[2].id})});
-  assert.equal(overrideResponse.status,200);
-  const overrideState = await state();
-  assert.equal(overrideState.desiredSceneId,config.scenes[2].id);
-  const expiryTimer=[...timers].find(([,entry])=>entry.ms>200);
-  for(let i=0;i<10;i++) emit(snapshot('',[])); await flush();
-  assert.ok(timers.has(expiryTimer[0]), 'no-op snapshots preserve override expiry timer');
-  time=Date.parse(overrideState.manualOverride.expiresAt)+1;
-  timers.delete(expiryTimer[0]); await expiryTimer[1].fn(); await flush();
-  assert.equal((await state()).manualOverride,null); assert.equal((await state()).desiredSceneId,null);
   // Host injection preserves the legacy loader path of an aliased/junction exe.
   // A canonical physical path would miss this existing mapping's identity.
   const legacyAlias='C:\\Apps\\latest\\tool.exe';

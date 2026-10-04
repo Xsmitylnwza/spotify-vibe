@@ -81,7 +81,7 @@ test('HTTP consent defaults unknown, validates boolean/local origin, and only pa
   assert.equal(f.activities.at(-1).buttons[0].label,'Open Zephyr');
 });
 
-test('startup uploads paired icons and delivery resolves all text; a pin keeps the open paired app and stores templates intact', async t=>{
+test('startup uploads paired icons and delivery resolves all text and stores templates intact', async t=>{
   let uploads=0;
   const f=await fixture(t,{consent:true,mappings:[{}],running:[app],uploader:async()=>{uploads++;return uploaded;}});
   const live=await until(async()=>f.activities.at(-1),a=>a?.assets?.small_image===uploaded);
@@ -94,11 +94,6 @@ test('startup uploads paired icons and delivery resolves all text; a pin keeps t
   assert.equal(saved.scenes[0].activityName,'{app}');assert.equal(saved.scenes[0].smallImage,'@app');
   const disk=JSON.parse(await readFile(join(f.directory,'presence-config.json'),'utf8'));
   assert.equal(disk.scenes[0].state,'{user}');
-  const pin=await f.request('/api/override','POST',{sceneId:saved.scenes[0].id});
-  assert.equal(pin.status,200);assert.equal(pin.body.applied,true);
-  assert.equal(f.activities.at(-1).name,'Zephyr');assert.equal(f.activities.at(-1).details,'Using Zephyr · Coding');
-  assert.equal(f.activities.at(-1).assets.small_image,uploaded);
-  assert.deepEqual(pin.body.runtime.variables,{app:'Zephyr',scene:'Coding',user:'Golf Display'});
   await f.request('/api/presence','DELETE');
   assert.equal((await f.request('/api/state')).body.variables,null); assert.equal(f.clears(),1);
 });
@@ -159,16 +154,14 @@ test('HTTP switching automatic image source to explicit artwork clears its flag 
   assert.equal((await f.request('/api/config')).body.scenes[0].smallImage,config.scenes[0].smallImage);
 });
 
-test('a pinned Scene still uses its open paired app for {app} and the app icon; with none open it uses the Scene name', async t=>{
+test('closing a paired app clears presence and removed pin routes return 404', async t=>{
   const f=await fixture(t,{consent:true,mappings:[{}],running:[app]});
-  const sceneId=f.config.scenes[0].id;
-  assert.equal((await f.request('/api/override','POST',{sceneId})).status,200);
-  const pinned=await until(()=>f.request('/api/state'),r=>r.body.manualOverride && r.body.variables?.app==='Zephyr');
-  assert.equal(pinned.body.selectedApplication,'Zephyr');
-  const live=await until(async()=>f.activities.at(-1),a=>a?.name==='Zephyr' && a?.assets?.small_image===uploaded);
-  assert.equal(live.details,'Using Zephyr · Coding');
+  await until(async()=>f.activities.at(-1),a=>a?.name==='Zephyr');
+  for (const [path, method] of [['/api/override','POST'],['/api/override','DELETE'],['/api/presence','POST']]) {
+    assert.equal((await f.request(path,method,{sceneId:f.config.scenes[0].id})).status,404);
+  }
   f.emit({apps:[],running:[],supported:true,error:null});
-  const closed=await until(()=>f.request('/api/state'),r=>r.body.variables?.app==='Coding');
+  const closed=await until(()=>f.request('/api/state'),r=>r.body.desiredSceneId===null);
   assert.equal(closed.body.selectedApplication,null);
-  assert.equal(closed.body.manualOverride.sceneId,sceneId,'the pin itself stays');
+  assert.equal(Object.hasOwn(closed.body,'manualOverride'),false);
 });

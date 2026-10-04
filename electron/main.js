@@ -33,6 +33,8 @@ let appQuitting = false;
 let exitReady = false;
 let updateTimer = null;
 let updateInterval = null;
+let editorState = { open: false, dirty: false, saving: false };
+let quitPrompt = null;
 
 // ---------------------------------------------------------------------------
 // single instance
@@ -208,7 +210,7 @@ if (!app.requestSingleInstanceLock()) {
 
   // Discord-style: install silently and relaunch while the owner is not using Studio.
   function maybeAutoRestart() {
-    if (appQuitting || !autoRestartAllowed(updates.snapshot(), mainWindow)) return;
+    if (appQuitting || editorState.open || editorState.dirty || editorState.saving || !autoRestartAllowed(updates.snapshot(), mainWindow)) return;
     try { writeFileSync(HIDDEN_RELAUNCH_FILE, JSON.stringify({ at: Date.now() })); } catch { /* relaunch visible */ }
     void updates.restartToUpdate();
   }
@@ -252,7 +254,18 @@ if (!app.requestSingleInstanceLock()) {
     if (result.error) throw new Error(result.error);
     return result;
   });
-  handleStudioIPC('vibe:quit-and-install', () => updates.restartToUpdate());
+  handleStudioIPC('vibe:quit-and-install', () => {
+    if (editorState.open || editorState.dirty || editorState.saving) { showWindow(); return { ok: false }; }
+    return updates.restartToUpdate();
+  });
+  handleStudioIPC('vibe:set-editor-state', (_event, state) => {
+    if (appQuitting) throw new Error('Studio is shutting down');
+    if (!state || ['open', 'dirty', 'saving'].some(key => typeof state[key] !== 'boolean')) throw new Error('Invalid editor state');
+    const held = editorState.open || editorState.dirty || editorState.saving;
+    editorState = { open: state.open, dirty: state.dirty, saving: state.saving };
+    if (held && !editorState.open && !editorState.dirty && !editorState.saving) setTimeout(maybeAutoRestart, 0);
+    return { ok: true };
+  });
   handleStudioIPC('vibe:set-theme', (_event, theme) => {
     if (theme !== 'dark' && theme !== 'light') return false;
     writeFileSync(THEME_FILE, JSON.stringify({ theme }));
@@ -292,7 +305,36 @@ if (!app.requestSingleInstanceLock()) {
       console.error('Vibe Studio shutdown:', error?.message || 'Shutdown failed');
     },
   });
-  function quitApp(options) {
+  async function quitApp(options) {
+    if (!appQuitting) {
+      let discard = false;
+      if (editorState.saving || (options?.restart && (editorState.open || editorState.dirty))) { showWindow(); return { ok: false }; }
+      if (editorState.dirty) {
+        showWindow();
+        if (!quitPrompt) quitPrompt = dialog.showMessageBox(mainWindow, {
+          type: 'warning', title: 'Unsaved Scene / Scene ยังไม่บันทึก',
+          message: 'Scene changes have not been saved. / การแก้ไข Scene ยังไม่ได้บันทึก',
+          detail: 'Return to Studio and click Done to save, or discard the draft and quit. / กลับไปกด Done เพื่อบันทึก หรือทิ้งฉบับร่างและออก',
+          buttons: ['Back to Studio / กลับไป Studio', 'Discard and quit / ทิ้งฉบับร่างและออก'], defaultId: 0, cancelId: 0,
+        });
+        let choice;
+        try { choice = await quitPrompt; } finally { quitPrompt = null; }
+        if (choice.response !== 1 || editorState.saving) return { ok: false };
+        discard = true;
+      }
+      // The renderer checks its own latest draft and freezes edits in the same
+      // synchronous step. A cached IPC flag alone cannot fence new edits while
+      // the companion is being stopped.
+      if (studioLoaded && mainWindow && !mainWindow.isDestroyed()) {
+        let prepared;
+        try {
+          prepared = await mainWindow.webContents.executeJavaScript(
+            `window.__vibePrepareQuit ? window.__vibePrepareQuit({discard:${discard}}) : ({ok:false})`
+          );
+        } catch { prepared = null; }
+        if (prepared?.ok !== true) { showWindow(); return { ok: false }; }
+      }
+    }
     appQuitting = true;
     return shutdown(options);
   }

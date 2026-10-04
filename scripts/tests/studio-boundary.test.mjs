@@ -124,7 +124,6 @@ test('failed HTTP mutation preserves memory/disk and subsequent commands recover
     ['/api/schedule', 'POST', { enabled: false }],
     ['/api/codex-session', 'PUT', { title: 'new session' }],
     ['/api/app-mappings', 'PUT', { selectionMode: 'apps', mappings: [] }],
-    ['/api/override', 'DELETE', {}],
     ['/api/presence', 'DELETE', {}],
   ]) {
     const result = await streamRequest(f, { path, method, chunks: jsonChunks(body) });
@@ -160,33 +159,27 @@ test('overlapping HTTP commands build from latest commit and preserve hidden slo
   assert.deepEqual(JSON.parse(await fs.readFile(f.configPath, 'utf8')), committed);
 });
 
-test('fake clock expiry save rejection retains durable state, retries boundedly and recovers', async t => {
+test('legacy override expiry stays inert with no cleanup writes or retries', async t => {
   let now = Date.parse('2026-10-01T12:00:00Z');
-  const jobs = new Map(); let id = 0;
+  const jobs = new Map(); let id = 0, writes = 0;
   const clock = { now: () => now, setTimeout: (fn, ms) => { jobs.set(++id, { fn, ms }); return id; }, clearTimeout: key => jobs.delete(key) };
-  let fail = true;
   const config = validateConfig(createDefaultConfig());
   config.settings.selectionMode = 'apps';
-  config.manualOverride = { sceneId: config.scenes[0].id, expiresAt: new Date(now + 1000).toISOString() };
-  const f = await fixture(t, { config, clock, configFs: { ...fs, rename: async (...args) => { if (fail) throw Object.assign(new Error('blocked'), { code: 'EPERM' }); return fs.rename(...args); } } });
+  config.manualOverride = { sceneId: config.scenes[0].id, expiresAt: new Date(now + 1000).toISOString(), unknown: ['retain'] };
+  const f = await fixture(t, { config, clock, configFs: { ...fs, rename: async () => { writes++; throw new Error('must not write'); } } });
   const original = await fs.readFile(f.configPath, 'utf8');
   for (let attempt = 0; attempt < 8; attempt++) {
     assert.equal(jobs.size, 1);
     const [key, job] = jobs.entries().next().value;
-    assert.ok(job.ms >= 250 && job.ms <= 60_000);
     jobs.delete(key); now += job.ms;
     await job.fn();
     assert.equal(await fs.readFile(f.configPath, 'utf8'), original);
-    assert.deepEqual((await f.config()).manualOverride, config.manualOverride);
+    assert.equal(Object.hasOwn(await f.config(), 'manualOverride'), false);
     const state = await fetch(f.url + '/api/state').then(r => r.json());
-    assert.equal(state.manualOverride, null);
+    assert.equal(Object.hasOwn(state, 'manualOverride'), false);
     assert.equal(state.desiredSceneId, null);
   }
-  fail = false;
-  const [key, job] = jobs.entries().next().value; jobs.delete(key); now += job.ms; await job.fn();
-  assert.equal((await f.config()).manualOverride, null);
-  assert.equal(JSON.parse(await fs.readFile(f.configPath, 'utf8')).manualOverride, null);
-  assert.equal(jobs.size, 1);
+  assert.equal(writes, 0);
 });
 
 test('host quit hook receives response first and does not stop the server itself', async t => {
@@ -262,7 +255,7 @@ test('stop aborts injected scan/helper and bounds a hung RPC destroy during pend
   await assert.rejects(fetch(f.url + '/api/config'));
 });
 
-test('owner fields survive real HTTP pause, Scene, mappings, session and pin commands', async t => {
+test('owner fields survive real HTTP pause, Scene, mappings and session commands', async t => {
   const seeded = validateConfig(createDefaultConfig());
   seeded.settings.selectionMode = 'apps';
   seeded.ownerExtension = { nested: [null, false, 'ไทย😀'], flag: 7 };
@@ -282,7 +275,6 @@ test('owner fields survive real HTTP pause, Scene, mappings, session and pin com
     ['/api/config', 'PUT', { scenes }],
     ['/api/app-mappings', 'PUT', { selectionMode: 'apps', mappings: [{ ...projection.appMappings[0], executable: 'c:\\apps\\OWNER.exe', name: 'renamed' }] }],
     ['/api/codex-session', 'PUT', { title: 'session title' }],
-    ['/api/override', 'POST', { sceneId: seeded.scenes[0].id }],
   ];
   for (const [path, method, body] of commands) {
     assert.equal((await streamRequest(f, { path, method, chunks: jsonChunks(body) })).status, 200, path);
@@ -320,7 +312,7 @@ test('owner fields follow stable ids during explicit slots write and intentional
   assert.equal(JSON.parse(await fs.readFile(f.configPath, 'utf8')).scenes.some(scene => scene.id === removedId), false, 'deleted Scene must not resurrect');
 });
 
-test('owner fields survive expiry cleanup with fake clock and real disk', async t => {
+test('owner fields and legacy override survive heartbeat with fake clock and real disk', async t => {
   let now = Date.parse('2026-10-02T12:00:00Z');
   let job;
   const seeded = validateConfig(createDefaultConfig());
@@ -333,7 +325,7 @@ test('owner fields survive expiry cleanup with fake clock and real disk', async 
   const f = await fixture(t, { config: seeded, clock });
   now += job.ms; await job.fn();
   const disk = JSON.parse(await fs.readFile(f.configPath, 'utf8'));
-  assert.equal(disk.manualOverride, null);
+  assert.deepEqual(disk.manualOverride, seeded.manualOverride);
   assert.deepEqual(disk.ownerExtension, seeded.ownerExtension);
   assert.deepEqual(disk.settings.ownerExtension, seeded.settings.ownerExtension);
   assert.deepEqual(disk.scenes[0].ownerExtension, seeded.scenes[0].ownerExtension);

@@ -44,17 +44,12 @@ test('legacy slots pointing at a deleted Scene are kept but disabled, never bloc
   assert.ok(afterDelete.slots.filter((slot) => slot.sceneId === config.scenes[0].id).every((slot) => slot.enabled === false));
 });
 
-test('configuration validates a persisted Manual Override', () => {
+test('legacy manualOverride is ignored even when malformed or its Scene was deleted', () => {
   const config = createDefaultConfig();
-  const normalized = validateConfig({
-    ...config,
-    manualOverride: {
-      sceneId: 'evening',
-      expiresAt: '2026-07-16T18:00:00.000Z',
-    },
-  });
-  assert.equal(normalized.manualOverride.sceneId, 'evening');
-  assert.equal(normalized.manualOverride.expiresAt, '2026-07-16T18:00:00.000Z');
+  assert.equal(Object.hasOwn(config, 'manualOverride'), false);
+  for (const manualOverride of [{ sceneId: 'missing', expiresAt: 'invalid', owner: ['keep'] }, 'legacy']) {
+    assert.equal(Object.hasOwn(validateConfig({ ...config, manualOverride }), 'manualOverride'), false);
+  }
 });
 
 test('Presence configuration drops legacy GIPHY keys from its settings boundary', () => {
@@ -75,11 +70,4 @@ test('Discord activity preserves supported custom fields and timestamps', () => 
   assert.equal(activity.type, 2);
   assert.equal(activity.timestamps.start, now.getTime());
   assert.equal(activity.assets.large_image, scene.largeImage);
-});
-
-test('a Manual Override pinned to a deleted Scene ends instead of blocking the delete', () => {
-  const config = createDefaultConfig();
-  const pinned = { ...config, manualOverride: { sceneId: config.scenes[0].id, expiresAt: '2030-01-01T00:00:00.000Z' } };
-  assert.equal(validateConfig({ ...pinned, scenes: config.scenes.slice(1) }).manualOverride, null);
-  assert.equal(validateConfig(pinned).manualOverride.sceneId, config.scenes[0].id);
 });

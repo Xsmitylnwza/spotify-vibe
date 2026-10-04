@@ -63,9 +63,9 @@ export function createConfigStore({ filePath, createDefault, validate, fs = file
     return operation.then(() => normalized);
   }
 
-  function save(value, { writeSlots = true } = {}) {
+  function save(value, { writeSlots = true, baseDocument } = {}) {
     assertSupportedVersion(value, 2);
-    return enqueueSave(validate(value), writeSlots);
+    return enqueueSave(validate(value), writeSlots, baseDocument);
   }
 
   async function load() {
@@ -107,5 +107,5 @@ export function createConfigStore({ filePath, createDefault, validate, fs = file
     return { config: normalized, source: 'disk', warning: null };
   }
 
-  return { filePath, load, save };
+  return { filePath, load, save, snapshot: () => structuredClone(committedDocument) };
 }

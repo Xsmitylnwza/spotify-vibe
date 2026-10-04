@@ -38,6 +38,11 @@ Design consequences every change must respect:
   framework migration, no database, no hosted service, no accounts.
 - Real Discord may be used for verification (owner approved). The owner's
   real config/secrets must still never be touched — see §4.
+- Owner update (2026-10-04): remove Pin/manual override from the product and
+  runtime; preserve legacy owner data as inert data. Scene editor changes,
+  including app pairings, are drafts until **Done** commits them together.
+  No editor autosave or automatic draft publication. Protect drafts on close,
+  failed saves, stale config conflicts, quit, and silent updater restarts.
 
 ## 2. Sources of truth (highest first)
 

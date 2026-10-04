@@ -51,7 +51,7 @@
     <script>
 /* Vibe Studio renderer. Vanilla JS, no build. Talks only to the local Studio server API:
    GET /api/state /api/config /api/apps /api/installed-apps /api/settings /api/gifs/search
-   PUT /api/config /api/app-mappings /api/settings   POST|DELETE /api/override /api/presence   POST /api/schedule
+   PUT /api/config /api/app-mappings /api/settings   DELETE /api/presence   POST /api/schedule
    Keyed DOM updates (morph) keep focus, scroll and running transitions; no innerHTML swaps of shells or modals. */
 'use strict';
 const $ = (s, r = document) => r.querySelector(s);
@@ -81,7 +81,7 @@ const mkScene = o => Object.assign({ enabled: true, name: '', type: 'playing', a
 const S = {
   lang: 'th', theme: 'light', screen: 'now', pairQuery: '',
   scenes: [], rules: [], drawer: null, picker: null, ov: null, save: 'saved', saveAt: '', saveMsg: '',
-  saveTimer: null, fresh: null, lastFocus: null, pinApp: '', iconUp: {}, keyDraft: { discord: '', giphy: '' }, keyMsg: '',
+  saveTimer: null, fresh: null, lastFocus: null, iconUp: {}, keyDraft: { discord: '', giphy: '' }, keyMsg: '',
 };
 try { S.lang = localStorage.getItem('vibe.lang') || 'th'; } catch (e) { /* storage unavailable */ }
 try { S.theme = localStorage.getItem('vibe.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { /* storage unavailable */ }
@@ -90,9 +90,12 @@ const syncShellTheme = () => { try { const v = window.vibeStudio; if (v && typeo
 const T = (en, th) => (S.lang === 'th' ? th : en);
 const sceneBy = id => S.scenes.find(s => s.id === id);
 const known = () => [...APPS, ...INSTALLED, ...SYSTEM];
-const appBy = id => known().find(a => a.id === id) || (() => { const m = S.rules.find(r => r.app === id) || S.hidden.find(r => appKey(r.executable) === id); const exe = m && (m.exe || m.executable) || id; return { id, name: (m && m.name) || exeName(exe).replace(/\.exe$/i, ''), exe, g: exeName(exe).slice(0, 2).toUpperCase(), saved: true }; })();
+/* While the Scene editor is open its pairings are a draft copy; the saved library (S.rules / S.hidden) is untouched until Done. */
+const RR = () => (S.drawer ? S.drawer.rules : S.rules);
+const HH = () => (S.drawer ? S.drawer.hidden : S.hidden);
+const rulesOf = id => (S.drawer && S.drawer.id === id ? S.drawer.rules : S.rules);
+const appBy = id => known().find(a => a.id === id) || (() => { const m = RR().find(r => r.app === id) || S.rules.find(r => r.app === id) || HH().find(r => appKey(r.executable) === id) || S.hidden.find(r => appKey(r.executable) === id); const exe = m && (m.exe || m.executable) || id; return { id, name: (m && m.name) || exeName(exe).replace(/\.exe$/i, ''), exe, g: exeName(exe).slice(0, 2).toUpperCase(), saved: true }; })();
 const enabledOn = () => !(ST.rt && ST.rt.scheduleEnabled === false);
-const pinnedSceneId = () => (ST.rt && ST.rt.manualOverride && ST.rt.manualOverride.sceneId) || '';
 const connected = () => !!(ST.rt && ST.rt.connected);
 const hasDiscordUser = () => !!DCID.id;
 const idOn = () => connected() && hasDiscordUser();
@@ -123,7 +126,6 @@ const BRAND_MARK = "<svg viewBox=\"0 0 64 64\" aria-hidden=\"true\"><defs><mask 
 
 const sv = (d, w = 14) => `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const I = {
-  pin: sv('<path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/>'),
   hide: sv('<path d="M3 3l18 18M10.6 6.1A10 10 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3.2 3.9M6.6 7.6A17 17 0 0 0 2.5 12S6 18 12 18a9.6 9.6 0 0 0 4-.9M9.9 9.9a3 3 0 0 0 4.2 4.2"/>'),
   plus: sv('<path d="M12 5v14M5 12h14"/>'), x: sv('<path d="M6 6l12 12M18 6L6 18"/>'), edit: sv('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
   search: sv('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>', 16), play: sv('<path d="M7 4l13 8-13 8z"/>'), globe: sv('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>', 16),
@@ -147,19 +149,19 @@ const cluster = () => `<div class="vs-toggle-cluster">${langSeg()}${themeBtn()}<
 /* ---------- derived state ---------- */
 function sceneApp(sc) {
   if (!sc) return null;
-  const paired = S.rules.filter(r => r.scene === sc.id);
-  const rule = paired.find(r => r.app === S.pinApp) || paired.find(r => ST.rt && ST.rt.selectedApplication && appBy(r.app).name === ST.rt.selectedApplication)
+  const paired = rulesOf(sc.id).filter(r => r.scene === sc.id);
+  const rule = paired.find(r => ST.rt && ST.rt.selectedApplication && appBy(r.app).name === ST.rt.selectedApplication)
     || paired.find(r => APPS.some(a => a.id === r.app)) || paired[0];
   return rule ? appBy(rule.app) : null;
 }
-/* The scene exactly as Discord will receive it. When an app (not a pin) selected the Scene, the server puts that app's public
+/* The scene exactly as Discord will receive it. When an app selected the Scene, the server puts that app's public
    icon in the small image if it is empty or set to the app icon; explicit images win. Text keeps the owner's template ({app} etc.). */
 function published(sc) {
   if (!sc) return null;
   const out = Object.assign({}, sc), app = sceneApp(sc), rt = ST.rt || {};
-  /* live: the server says which app (if any) it used, also for a pin; otherwise a pin has no app */
-  const viaApp = rt.currentSceneId === sc.id ? Boolean(rt.selectedApplication) : app && pinnedSceneId() !== sc.id;
-  /* the app icon only reaches Discord when an app selected the Scene; a manual pin has no app */
+  /* live: the server says which app (if any) it used; otherwise a paired app would select it */
+  const viaApp = rt.currentSceneId === sc.id ? Boolean(rt.selectedApplication) : Boolean(app);
+  /* the app icon only reaches Discord when an app selected the Scene */
   const appIcon = (app && viaApp && ((rt.currentSceneId === sc.id && rt.applicationBadge) || app.publicIcon)) || '';
   if (sc.smallSource === 'app-icon' || !sc.small) { out.small = appIcon; out.smallUrl = ''; }
   if (sc.artSource === 'app-icon') out.art = appIcon;
@@ -179,7 +181,7 @@ const hasVars = v => /\{(app|scene|user)\}/.test(v || '');
 const resolveVars = (text, vals) => String(text == null ? '' : text).replace(/\{(app|scene|user)\}/g, (m, k) => vals[k]).trim();
 /* {app}: the live app when this Scene is showing, else its first paired app, else the Scene name. {user}: Discord display name. */
 function varValues(sc) {
-  const rt = ST.rt || {}, live = (rt.currentSceneId === sc.id && rt.variables) || {}, paired = S.rules.find(r => r.scene === sc.id);
+  const rt = ST.rt || {}, live = (rt.currentSceneId === sc.id && rt.variables) || {}, paired = rulesOf(sc.id).find(r => r.scene === sc.id);
   const scene = live.scene || (sc.name || '').trim() || T('Untitled Scene', 'Scene ไม่มีชื่อ');
   return { scene, app: live.app || (paired && appBy(paired.app).name) || scene, user: live.user || DCID.name || '' };
 }
@@ -190,6 +192,8 @@ const skBusy = (label, body, cls = '') => `<div class="mk-skwrap ${cls}" role="s
 const skRows = n => Array.from({ length: n }, () => `<div class="mk-sk-row">${sk('mk-sk-ico')}<span class="mk-sk-lines">${sk('mk-sk-l1')}${sk('mk-sk-l2')}</span>${sk('mk-sk-tog')}</div>`).join('');
 const skCard = rows => `<section class="vs-card">${sk('mk-sk-h')}${skRows(rows)}</section>`;
 
+/* A preview button is a link only for a complete https URL; a partial or invalid one stays an inert span. */
+const btnHref = u => { const v = String(u || '').trim(); if (!/^https:\/\/\S+$/i.test(v) || v.length > 512) return ''; try { return new URL(v).protocol === 'https:' ? v : ''; } catch (e) { return ''; } };
 /* Discord Desktop replicas: real identity, the scene text exactly as published. */
 function dcCard(sc, o = {}) {
   const on = idOn(), list = o.view === 'list';
@@ -204,15 +208,15 @@ function dcCard(sc, o = {}) {
   const lbl = { playing: T('Playing', 'กำลังเล่น'), listening: T('Listening to', 'กำลังฟัง'), watching: T('Watching', 'กำลังดู'), competing: T('Competing in', 'กำลังแข่งใน') }[sc.type] || T('Playing', 'กำลังเล่น');
   const l1 = sc.l1, l2 = sc.l2, an = sc.actName || 'Vibe Presence';
   if (list) return `<div class="dcp dcp-list" style="${dim}" role="img" aria-label="${esc(name + ', ' + lbl + ' ' + an)}"><div class="dcp-mlh">${T('ONLINE — 1', 'ออนไลน์ — 1')}</div><div class="dcp-mrow"><span class="dcp-mav">${idAv(on)}${dot}</span><span class="dcp-mt"><b>${esc(name)}</b><small data-pv="act">${lbl} <b>${esc(an)}</b></small></span></div></div>`;
-  const b = sc.btns.map((x, i) => [x, i]).filter(x => x[0].label);
+  const b = sc.btns.map((x, i) => [x, i]).filter(x => x[0].label), hasLink = b.some(x => btnHref(x[0].url));
   const lk = (cls, area, txt, url) => `<span class="${cls} ${url ? 'dcp-link' : ''}" data-pv="${area}">${esc(txt)}</span>`;
-  return `<div class="dcp" style="${dim}" role="img" aria-label="${esc(name + ', ' + lbl + ' ' + an + '. ' + l1 + '. ' + l2)}">
+  return `<div class="dcp" style="${dim}" role="${hasLink ? 'group' : 'img'}" aria-label="${esc(name + ', ' + lbl + ' ' + an + '. ' + l1 + '. ' + l2)}">
     <div class="dcp-top"><div class="dcp-banner"></div><div class="dcp-av">${idAv(on)}${dot}</div></div>
     <div class="dcp-id"><b>${esc(name)}</b><span>${esc(handle)}</span></div><div class="dcp-hr"></div>
     <div class="dcp-act"><div class="dcp-lbl" data-pv="act">${lbl}</div>
      <div class="dcp-row"><div class="dcp-img" data-pv="large" ${sc.artText ? `data-tip="${esc(sc.artText)}"` : ''}>${sc.art ? `<img src="${esc(artSrc(sc.art))}" alt="">` : ''}${sc.small ? `<span class="dcp-sm" data-pv="small" ${sc.smallText ? `data-tip="${esc(sc.smallText)}"` : ''}><img src="${esc(artSrc(sc.small))}" alt=""></span>` : ''}</div>
       <div class="dcp-tx"><b class="dcp-name" data-pv="act">${esc(an)}</b>${lk('dcp-l', 'details', l1 || '—', sc.l1url)}${lk('dcp-l', 'state', l2 || ' ', sc.l2url)}</div></div>
-     ${b.length ? `<div class="dcp-btns">${b.map(x => `<span class="dcp-btn" data-pv="btn${x[1]}">${esc(x[0].label)}</span>`).join('')}</div>` : ''}</div></div>`;
+     ${b.length ? `<div class="dcp-btns">${b.map(x => { const href = btnHref(x[0].url); return href ? `<a class="dcp-btn is-link" data-pv="btn${x[1]}" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(x[0].label)}</a>` : `<span class="dcp-btn" data-pv="btn${x[1]}">${esc(x[0].label)}</span>`; }).join('')}</div>` : ''}</div></div>`;
 }
 const dcWrap = (sc, o = {}) => `<div class="mk-pvpair">${dcCard(sc, Object.assign({}, o, { view: 'popout' }))}${dcCard(sc, Object.assign({}, o, { view: 'list' }))}</div>`;
 
@@ -220,7 +224,7 @@ const dcWrap = (sc, o = {}) => `<div class="mk-pvpair">${dcCard(sc, Object.assig
 /* One Show-on-Discord switch, one reason line, and what Discord acknowledged. The preview is the server's live scene, never a guess. */
 function nowView() {
   const skel = loading(), rt = ST.rt || {};
-  const enabled = enabledOn(), pinned = pinnedSceneId();
+  const enabled = enabledOn();
   const link = (act, arg, txt) => `<button type="button" class="vs-quiet-link" data-act="${act}" ${arg ? `data-arg="${arg}"` : ''}>${txt}</button>`;
   const liveScene = rt.active && ST.presence ? sceneToUi(ST.presence) : null;
   const shown = liveScene ? published(liveScene) : null;
@@ -231,7 +235,6 @@ function nowView() {
   else if (!enabled) reason = T('Hidden — turn on Show on Discord to resume', 'ซ่อนอยู่ — เปิด “แสดงบน Discord” เพื่อกลับมาแสดง');
   else if (!rt.connected) reason = `${T('Discord isn’t connected — Vibe keeps retrying', 'ยังไม่ได้เชื่อมต่อ Discord — Vibe จะลองใหม่เรื่อยๆ')} · ${link('reconnect', '', T('Reconnect', 'เชื่อมต่อใหม่'))}`;
   else if (rt.lastError) reason = `<span class="field-error" role="alert">${esc(rt.lastError)}</span>`;
-  else if (pinned) reason = `${T('Pinned: ', 'ปักไว้: ')}<b>${esc((sceneBy(pinned) || {}).name || rt.currentSceneName || '')}</b> · ${link('unpin', '', T('Back to Auto', 'กลับสู่อัตโนมัติ'))}`;
   else if (rt.selectionSource === 'app' && rt.selectedApplication) reason = `${T('Following ', 'ตามแอป ')}${app ? icoOf(app) : ''}<b>${esc(rt.selectedApplication)}</b> · ${T('Auto', 'อัตโนมัติ')}`;
   else if (!S.rules.length) reason = T('No paired app yet — open a Scene and add one', 'ยังไม่ได้จับคู่แอป — เปิด Scene แล้วเพิ่มแอป');
   else reason = T('No paired app is open', 'ไม่มีแอปที่จับคู่เปิดอยู่');
@@ -257,20 +260,16 @@ function nowView() {
   </div>`;
 }
 function pairedPanel() {
-  const rules = S.rules, query = S.pairQuery.trim().toLocaleLowerCase(), pinned = pinnedSceneId(), rt = ST.rt || {};
+  const rules = S.rules, query = S.pairQuery.trim().toLocaleLowerCase(), rt = ST.rt || {};
   const visible = rules.filter(r => !query || [appBy(r.app).name, (sceneBy(r.scene) || {}).name || ''].some(v => v.toLocaleLowerCase().includes(query)));
-  const firstOf = id => (rules.find(x => x.scene === id) || {}).id;
   const tiles = visible.map(r => {
     const a = appBy(r.app), sc = sceneBy(r.scene); if (!sc) return '';
     const run = APPS.some(x => x.id === a.id);
-    const isPinned = pinned === r.scene && (S.pinApp ? S.pinApp === r.app : firstOf(r.scene) === r.id);
-    const active = pinned ? isPinned : rt.selectionSource === 'app' && rt.selectedApplication === a.name;
-    const pinLabel = isPinned ? T('Unpin', 'เลิกปักหมุด') : T('Pin', 'ปักหมุด');
-    const blocked = !ST.ready || ST.busy || !rt.connected && !isPinned;
-    return `<div data-key="pair-${esc(r.id)}" class="mk-ptile ${active ? 'is-active' : ''}"><button type="button" class="mk-pt-main" data-key="pt-${esc(r.id)}" data-k="pt-${esc(r.id)}" data-act="editpair" data-arg="${esc(r.scene)}" aria-label="${esc(a.name)} → ${esc(sc.name)}${run ? ', ' + T('running', 'กำลังทำงาน') : ''}${active ? ', ' + T('showing now', 'กำลังแสดง') : ''}"><span class="mk-st-i" style="margin:0">${icoOf(a)}${run ? `<span class="mk-run" title="${T('Running', 'กำลังทำงาน')}"></span>` : ''}</span><span class="mk-pt-n">${esc(a.name)}</span><span class="mk-arrow" aria-hidden="true">→</span><span class="mk-pt-s">${sc.art ? `<img src="${esc(artSrc(sc.art))}" alt="">` : ''}<span>${esc(sc.name)}</span></span></button><button type="button" class="mk-pt-pin" data-act="pinpair" data-arg="${esc(r.id)}" data-k="pin-${esc(r.id)}" aria-pressed="${isPinned}" aria-label="${esc(pinLabel + ' ' + a.name + ' → ' + sc.name)}" title="${blocked && !isPinned ? T('Connect to Discord to pin', 'เชื่อมต่อ Discord ก่อนจึงจะปักหมุดได้') : esc(pinLabel + ' ' + a.name)}" ${blocked ? 'disabled' : ''}>${I.pin}<span>${pinLabel}</span></button></div>`;
+    const active = rt.selectionSource === 'app' && rt.selectedApplication === a.name;
+    return `<div data-key="pair-${esc(r.id)}" class="mk-ptile ${active ? 'is-active' : ''}"><button type="button" class="mk-pt-main" data-key="pt-${esc(r.id)}" data-k="pt-${esc(r.id)}" data-act="editpair" data-arg="${esc(r.scene)}" aria-label="${esc(a.name)} → ${esc(sc.name)}${run ? ', ' + T('running', 'กำลังทำงาน') : ''}${active ? ', ' + T('showing now', 'กำลังแสดง') : ''}"><span class="mk-st-i" style="margin:0">${icoOf(a)}${run ? `<span class="mk-run" title="${T('Running', 'กำลังทำงาน')}"></span>` : ''}</span><span class="mk-pt-n">${esc(a.name)}</span><span class="mk-arrow" aria-hidden="true">→</span><span class="mk-pt-s">${sc.art ? `<img src="${esc(artSrc(sc.art))}" alt="">` : ''}<span>${esc(sc.name)}</span></span></button></div>`;
   }).join('');
   return `<section class="vs-card mk-paired" aria-labelledby="pph"><div class="mk-phead"><h2 id="pph">${T('Paired apps', 'แอปที่จับคู่')} <span class="mk-pair-count">${rules.length}</span></h2><div class="mk-phead-act"><button class="vs-btn vs-btn-sm" data-act="realadd" ${!S.scenes.length ? 'disabled' : ''}>${I.plus}${T('Add app', 'เพิ่มแอป')}</button><button class="vs-btn vs-btn-sm" data-act="refreshapps" ${ST.appsLoading ? 'disabled' : ''}>${T('Refresh', 'อ่านใหม่')}</button></div></div>
-    <div class="mk-keeprow"><span class="vs-hint">${T('Pin an app to keep its Scene showing', 'ปักหมุดแอปเพื่อแสดง Scene ของแอปนั้นค้างไว้')}</span><span class="mk-keepstat" role="status">${ST.appsLoading ? T('Reading apps from this PC…', 'กำลังอ่านแอปจากเครื่อง…') : ST.appsError ? T('Apps could not be loaded', 'อ่านแอปไม่ได้') : T(`${APPS.length} running · ${INSTALLED.length} available`, `กำลังเปิด ${APPS.length} แอป · เลือกได้ ${INSTALLED.length} แอป`)}</span></div>
+    <div class="mk-keeprow"><span class="vs-hint">${T('Select a pair to edit its Scene', 'เลือกคู่แอปเพื่อแก้ไข Scene')}</span><span class="mk-keepstat" role="status">${ST.appsLoading ? T('Reading apps from this PC…', 'กำลังอ่านแอปจากเครื่อง…') : ST.appsError ? T('Apps could not be loaded', 'อ่านแอปไม่ได้') : T(`${APPS.length} running · ${INSTALLED.length} available`, `กำลังเปิด ${APPS.length} แอป · เลือกได้ ${INSTALLED.length} แอป`)}</span></div>
     ${ST.appsError ? `<p class="field-error" role="alert">${esc(ST.appsError)}</p>` : ''}
     ${rules.length > 8 ? `<div class="mk-pair-search">${I.search}<input class="vs-input" type="search" data-bind="pairsearch" data-k="pairsearch" aria-label="${T('Find paired apps or Scenes', 'ค้นหาแอปหรือ Scene ที่จับคู่')}" placeholder="${T('Find an app or Scene…', 'ค้นหาแอปหรือ Scene…')}" value="${esc(S.pairQuery)}"><span role="status" aria-live="polite">${visible.length} / ${rules.length}</span></div>` : ''}
     ${rules.length ? `<div class="mk-ptiles ${rules.length > 8 ? 'is-scrollable' : ''}" role="region" aria-label="${T('Paired app list', 'รายการแอปที่จับคู่')}" tabindex="${rules.length > 8 ? '0' : '-1'}">${tiles || `<p class="mk-pair-empty">${T('No matching apps or Scenes.', 'ไม่พบแอปหรือ Scene ที่ค้นหา')}</p>`}</div>` : `<p class="mk-pair-empty">${T('No apps paired yet — open a Scene and add one.', 'ยังไม่ได้จับคู่แอป — เปิด Scene แล้วเพิ่มแอป')}</p>`}</section>`;
@@ -285,8 +284,8 @@ function scenesView() {
     const isLive = live === s.id;
     const tl = (TYPES.find(t => t[0] === s.type) || TYPES[0])[S.lang === 'th' ? 2 : 1];
     return `<div data-key="sc-${esc(s.id)}" class="vs-scene-row mk-srow ${isLive ? 'is-live' : ''} ${s.enabled === false ? 'is-disabled' : ''} ${S.fresh === s.id ? 'mk-row-in' : ''}"><button type="button" class="mk-srow-main" data-act="editscene" data-arg="${esc(s.id)}" data-k="lib-${esc(s.id)}"><span class="vs-scene-icon">${s.art ? `<img src="${esc(artSrc(s.art))}" alt="">` : ''}${isLive ? `<span class="mk-livedot" role="img" aria-label="${T('Showing on Discord now', 'กำลังแสดงบน Discord')}"></span>` : ''}</span>
-      <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name || T('Untitled Scene', 'Scene ไม่มีชื่อ'))}${s._raw ? '' : `<span class="vs-pill vs-pill-warn mk-draft-pill">${T('Draft — not saved', 'ฉบับร่าง — ยังไม่บันทึก')}</span>`}</span><span class="vs-scene-sub">${esc(tl)} · ${esc(resolveVars(s.l1, varValues(s)) || '—')}${s.l2 ? ' · ' + esc(resolveVars(s.l2, varValues(s))) : ''}</span></span></button>
-      <span class="mk-srow-r">${stackHtml(s.id)}<label class="mk-enable"><span class="vs-switch" title="${s.enabled === false ? T('Disabled — won’t show automatically', 'ปิดใช้ — จะไม่แสดงอัตโนมัติ') : T('Enabled — shows automatically', 'เปิดใช้ — แสดงอัตโนมัติ')}"><input type="checkbox" role="switch" data-bind="sceneon" data-arg="${esc(s.id)}" data-k="en-${esc(s.id)}" aria-label="${T('Enabled', 'เปิดใช้')}: ${esc(s.name)}" ${s._raw ? '' : 'disabled'} ${s.enabled === false ? '' : 'checked'}><span></span></span></label></span></div>`;
+      <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name || T('Untitled Scene', 'Scene ไม่มีชื่อ'))}</span><span class="vs-scene-sub">${esc(tl)} · ${esc(resolveVars(s.l1, varValues(s)) || '—')}${s.l2 ? ' · ' + esc(resolveVars(s.l2, varValues(s))) : ''}</span></span></button>
+      <span class="mk-srow-r">${stackHtml(s.id)}<label class="mk-enable"><span class="vs-switch" title="${s.enabled === false ? T('Disabled — won’t show automatically', 'ปิดใช้ — จะไม่แสดงอัตโนมัติ') : T('Enabled — shows automatically', 'เปิดใช้ — แสดงอัตโนมัติ')}"><input type="checkbox" role="switch" data-bind="sceneon" data-arg="${esc(s.id)}" data-k="en-${esc(s.id)}" aria-label="${T('Enabled', 'เปิดใช้')}: ${esc(s.name)}" ${s.enabled === false ? '' : 'checked'}><span></span></span></label></span></div>`;
   }).join('');
   return `${pageHead(T('Library', 'คลัง'), T('Scenes', 'Scene ทั้งหมด'), T('A Scene is the text and artwork that appears on Discord. Pair apps inside a Scene to show it automatically.', 'Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord จับคู่แอปใน Scene เพื่อให้แสดงอัตโนมัติ'))}
   <section class="vs-card vs-library" aria-labelledby="slt"><div class="vs-card-head mk-head-row"><h2 id="slt">${T('Scene library', 'คลัง Scene')}</h2><button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="newscene" data-k="newscene" ${S.scenes.length >= 20 ? 'disabled' : ''}>${I.plus}${T('New Scene', 'สร้าง Scene ใหม่')}</button></div><div id="sceneList">${rows || `<div class="mk-empty-scenes"><strong>${T('No Scenes yet', 'ยังไม่มี Scene')}</strong><p class="vs-hint">${T('Create your first Scene, then pair an app with it.', 'สร้าง Scene แรก แล้วจับคู่แอปกับ Scene นั้น')}</p></div>`}</div>
@@ -340,6 +339,7 @@ function acctPanel(compact) {
 
 /* ---------- server API ---------- */
 async function api(path, opt = {}) {
+  if (S.shuttingDown) throw new Error(T('Studio is closing.', 'Studio กำลังปิด'));
   const init = { cache: 'no-store', signal: AbortSignal.timeout(opt.timeout || 15000) };
   if (opt.method) init.method = opt.method;
   if (opt.body !== undefined) { init.headers = { 'Content-Type': 'application/json' }; init.body = JSON.stringify(opt.body); }
@@ -380,7 +380,12 @@ function sceneProblem(sc) {
   if (!len(sc.l2.trim(), 2, 128)) return T('State line needs 2–128 characters', 'ข้อความบรรทัดที่สองต้องมี 2–128 ตัวอักษร');
   for (const [v, label] of [[sc.artText, T('Large image hover text', 'ข้อความเมื่อชี้ภาพใหญ่')], [sc.smallText, T('Small image hover text', 'ข้อความเมื่อชี้ภาพเล็ก')]]) if (v.trim() && !len(v.trim(), 2, 128)) return label + T(' needs 2–128 characters', ' ต้องมี 2–128 ตัวอักษร');
   if (![sc.l1url, sc.l2url, sc.artUrl, sc.smallUrl].every(v => https(v.trim()))) return T('Links must start with https://', 'ลิงก์ต้องขึ้นต้นด้วย https://');
-  for (const x of sc.btns) { if ((x.label.trim() || x.url.trim()) && !len(x.label.trim(), 1, 32)) return T('Each button needs a label (32 max)', 'ปุ่มต้องมีข้อความ (สูงสุด 32)'); if (!https(x.url.trim())) return T('Button links must start with https://', 'ลิงก์ปุ่มต้องขึ้นต้นด้วย https://'); }
+  for (const x of sc.btns) {
+    const label = x.label.trim(), url = x.url.trim(); if (!label && !url) continue;
+    if (!len(label, 1, 32)) return T('Each button needs a label (32 max)', 'ปุ่มต้องมีข้อความ (สูงสุด 32)');
+    if (!url) return T('Each button needs an https link', 'ปุ่มต้องมีลิงก์ https');
+    if (!https(url)) return T('Button links must start with https://', 'ลิงก์ปุ่มต้องขึ้นต้นด้วย https://');
+  }
   return '';
 }
 const mappingToRule = m => ({ id: 'm-' + appKey(m.executable), kind: 'app', app: appKey(m.executable), scene: m.sceneId, exe: m.executable, name: m.name || exeName(m.executable), _raw: m });
@@ -389,8 +394,8 @@ function applyConfig(config) {
   ST.config = config;
   const enabled = (config.appMappings || []).filter(m => m.enabled !== false);
   S.hidden = (config.appMappings || []).filter(m => m.enabled === false);
-  const keep = S.scenes.filter(s => !s._raw);                 /* unsaved new drafts stay */
-  S.scenes = (config.scenes || []).map(raw => { const cur = S.scenes.find(s => s.id === raw.id); return cur && SAVE.dirtyScenes ? cur : sceneToUi(raw); }).concat(keep.filter(k => !(config.scenes || []).some(r => r.id === k.id)));
+  /* the Scene editor draft (S.drawer) is a separate copy and is never touched here */
+  S.scenes = (config.scenes || []).map(raw => { const cur = S.scenes.find(s => s.id === raw.id); return cur && SAVE.dirtyScenes ? cur : sceneToUi(raw); });
   if (!SAVE.dirtyRules) S.rules = enabled.map(mappingToRule);
 }
 function acceptRuntime(rt) {
@@ -470,7 +475,7 @@ async function loadAll() {
   render(); startPolling();
   if (ST.ready) { void loadApps(false); void loadIconHosting(); }
 }
-const stSig = () => { const r = ST.rt || {}; return JSON.stringify([r.connected, r.connectionState, r.discordUser && r.discordUser.id, r.discordUser && r.discordUser.avatarUrl, r.scheduleEnabled, r.manualOverride && r.manualOverride.sceneId, r.currentSceneId, r.active, r.selectionSource, r.selectedApplication, r.applicationBadge, r.lastError, r.setup && r.setup.needsDiscordApplicationId, ST.presence && ST.presence.id]); };
+const stSig = () => { const r = ST.rt || {}; return JSON.stringify([r.connected, r.connectionState, r.discordUser && r.discordUser.id, r.discordUser && r.discordUser.avatarUrl, r.scheduleEnabled, r.currentSceneId, r.active, r.selectionSource, r.selectedApplication, r.applicationBadge, r.lastError, r.setup && r.setup.needsDiscordApplicationId, ST.presence && ST.presence.id]); };
 let pollBusy = false, pollN = 0;
 async function poll() {
   if (document.hidden || pollBusy || ST.busy || !ST.ready) return;
@@ -486,14 +491,14 @@ async function poll() {
 function startPolling() { clearInterval(stPollT); stPollT = setInterval(poll, 2000); }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) void poll(); });
 
-/* ---------- saving: Scenes (PUT /api/config) and pairings (PUT /api/app-mappings), debounced, one in flight ---------- */
+/* ---------- saving the library outside the editor (toggles, delete, undo): PUT /api/config and /api/app-mappings, debounced, one in flight.
+   The Scene editor never goes through here; its draft is committed once by commitDraft(). ---------- */
 const SAVE = { dirtyScenes: false, dirtyRules: false, running: false, again: false };
 function scheduleSave(scenes = true, rules = false) {
   SAVE.dirtyScenes ||= scenes; SAVE.dirtyRules ||= rules;
-  S.save = 'saving'; S.saveMsg = ''; if (S.drawer) updateDrawer();
+  S.save = 'saving'; S.saveMsg = '';
   clearTimeout(S.saveTimer); S.saveTimer = setTimeout(() => void flushSave(), 450);
 }
-function currentProblem() { const sc = S.drawer && sceneBy(S.drawer.id); return sc ? sceneProblem(sc) : ''; }
 async function flushSave() {
   clearTimeout(S.saveTimer);
   if (SAVE.running) { SAVE.again = true; return; }
@@ -506,22 +511,16 @@ async function flushSave() {
       const scenes = S.scenes.map(s => (sceneProblem(s) ? (s._raw || null) : sceneToRaw(s))).filter(Boolean);
       if (doScenes && !scenes.length) throw new Error(T('Vibe needs at least one valid Scene.', 'Vibe ต้องมีอย่างน้อยหนึ่ง Scene ที่ถูกต้อง'));
       const mappings = S.rules.filter(r => sceneBy(r.scene) && scenes.some(s => s.id === r.scene)).map(ruleToMapping).concat(S.hidden);
-      const shrink = doScenes && ST.config && ST.config.scenes.length > scenes.length;
-      const rtBefore = ST.rt || {}, wasPaused = rtBefore.scheduleEnabled === false, pinnedId = pinnedSceneId();
-      const putScenes = async () => { SAVE.dirtyScenes = false; const res = await api('/api/config', { method: 'PUT', body: { scenes } }); ST.config = res.config; S.scenes.forEach(s => { const raw = res.config.scenes.find(r => r.id === s.id); if (raw && !sceneProblem(s)) { s._raw = raw; s.isNew = false; } }); };
-      const putRules = async () => {
-        SAVE.dirtyRules = false;
-        const res = await api('/api/app-mappings', { method: 'PUT', body: { mappings, selectionMode: 'apps' } }); ST.config = res.config;
-        /* this endpoint also resumes presence and clears a pin; put back what the owner had */
-        if (wasPaused) await api('/api/presence', { method: 'DELETE' }).catch(() => {});
-        else if (pinnedId && scenes.some(s => s.id === pinnedId)) await api('/api/override', { method: 'POST', body: { sceneId: pinnedId } }).catch(() => {});
-      };
-      if (shrink) { if (doRules) await putRules(); await putScenes(); } else { if (doScenes) await putScenes(); if (doRules) await putRules(); }
+      if (doScenes || doRules) {
+        SAVE.dirtyScenes = false; SAVE.dirtyRules = false;
+        const res = await api('/api/config', { method: 'PUT', body: { scenes, ...(doRules ? {appMappings:mappings} : {}) } });
+        ST.config = res.config;
+        S.scenes.forEach(s => { const raw = res.config.scenes.find(r => r.id === s.id); if (raw && !sceneProblem(s)) { s._raw = raw; s.isNew = false; } });
+      }
     } while (SAVE.again || SAVE.dirtyScenes || SAVE.dirtyRules);
-    const problem = currentProblem();
-    S.save = problem ? 'invalid' : 'saved'; S.saveMsg = problem; S.saveAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    S.save = 'saved'; S.saveMsg = ''; S.saveAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } catch (error) { S.save = 'failed'; S.saveMsg = errText(error); SAVE.dirtyScenes = true; }
-  finally { SAVE.running = false; if (S.drawer) updateDrawer(); render(); void poll(); }
+  finally { SAVE.running = false; render(); void poll(); }
 }
 async function settleSave() { if (SAVE.dirtyScenes || SAVE.dirtyRules || SAVE.running) { clearTimeout(S.saveTimer); await flushSave(); while (SAVE.running) await new Promise(r => setTimeout(r, 40)); } }
 
@@ -541,20 +540,6 @@ async function setPresence(on) {
     ST.rt = res.runtime || ST.rt; toast(on ? T('Showing on Discord', 'แสดงบน Discord แล้ว') : T('Hidden from Discord', 'ซ่อนจาก Discord แล้ว'));
   } catch (error) { toast(errText(error)); }
   finally { ST.busy = false; await refreshState(); const t = $('[data-bind="presence"]'); t && t.focus({ preventScroll: true }); }
-}
-async function pinScene(sceneId, appId) {
-  if (ST.busy) return; ST.busy = true; render();
-  try {
-    await settleSave(); await api('/api/override', { method: 'POST', body: { sceneId } }); S.pinApp = appId || '';
-    toast(T('Pinned ' + ((sceneBy(sceneId) || {}).name || ''), 'ปักหมุด ' + ((sceneBy(sceneId) || {}).name || '') + ' แล้ว'));
-  } catch (error) { toast(errText(error)); }
-  finally { ST.busy = false; await refreshState(); }
-}
-async function unpin() {
-  if (ST.busy) return; ST.busy = true; render();
-  try { await api('/api/override', { method: 'DELETE' }); S.pinApp = ''; toast(T('Back to automatic app switching', 'กลับไปสลับตามแอปอัตโนมัติ')); }
-  catch (error) { toast(errText(error)); }
-  finally { ST.busy = false; await refreshState(); }
 }
 async function refreshState() {
   try { const state = await api('/api/state'); acceptRuntime(state); ST.presence = state.presence || null; ST.error = ''; } catch (error) { /* keep the last known state */ }
@@ -843,7 +828,7 @@ function trap(c) {
     if (e.key === 'Escape' && tipFor) { e.stopPropagation(); const b = tipFor; hideTip(); b.focus(); return; }
     if (e.key === 'Escape') { e.stopPropagation(); c.dataset.kind === 'drawer' ? closeDrawer() : c.dataset.kind === 'ov' ? closeOverlay() : closePicker(); return; }
     if (e.key !== 'Tab') return;
-    const f = [...c.querySelectorAll('button:not([disabled]),input,select,textarea,summary')].filter(x => x.offsetParent !== null);
+    const f = [...c.querySelectorAll('button:not([disabled]),input,select,textarea,summary,a[href]')].filter(x => x.offsetParent !== null);
     if (!f.length) return; const first = f[0], last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
@@ -883,7 +868,7 @@ const APPGLYPH = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" st
 
 
 /* ---------- Scene editor (side panel). Opens with a short fade only; the page behind is never re-rendered or moved. ---------- */
-const sceneApps = id => { const seen = [], out = []; S.rules.filter(r => r.scene === id).forEach(r => { const a = appBy(r.app); if (!seen.includes(a.id)) { seen.push(a.id); out.push(a); } }); return out; };
+const sceneApps = id => { const seen = [], out = []; RR().filter(r => r.scene === id).forEach(r => { const a = appBy(r.app); if (!seen.includes(a.id)) { seen.push(a.id); out.push(a); } }); return out; };
 function secHead(h, hint) { return `<h3>${h}</h3>${hint ? `<p class="vs-hint">${hint}</p>` : ''}`; }
 /* "insert variable" control: a compact { } button beside the label opens a chip row under the input; a chip inserts at the caret. */
 const varBtn = id => `<button type="button" class="mk-varbtn" data-act="varopen" data-arg="${id}" data-k="var-${id}" aria-expanded="${S.varOpen === id}" aria-controls="${id}-vars" title="${T('Insert variable', 'แทรกตัวแปร')}"><code aria-hidden="true">{ }</code><span class="vs-visually-hidden">${T('Insert variable', 'แทรกตัวแปร')}</span></button>`;
@@ -901,19 +886,18 @@ function chipHtml(r) {
   return `<span class="mk-chip ${S.fresh === r.id ? 'mk-chip-in' : ''}" data-key="pc-${esc(r.id)}"><span class="mk-st-i" style="margin:0">${icoOf(a)}</span><span class="mk-chip-t">${esc(a.name)}</span><button type="button" class="mk-chip-x" data-act="pairrm" data-arg="${esc(r.id)}" aria-label="${T('Remove', 'ลบ')} ${esc(a.name)}">${I.x}</button></span>`;
 }
 function pairSection(sc) {
-  const items = S.rules.filter(r => r.scene === sc.id);
+  const items = RR().filter(r => r.scene === sc.id);
   return `<section class="mk-sec" id="pairsec" data-sec="pair">${secHead(T('Apps for this Scene', 'แอปของ Scene นี้'), T('An app belongs to one Scene. While a paired app is open Discord shows this Scene with the app’s name; if several are open, the one you used last wins.', 'แอปหนึ่งใช้ได้กับหนึ่ง Scene ขณะที่แอปที่จับคู่เปิดอยู่ Discord จะแสดง Scene นี้พร้อมชื่อแอป ถ้าเปิดหลายแอปจะใช้แอปที่ใช้ล่าสุด'))}<div class="mk-pairs" id="pairlist">${items.length ? items.map(chipHtml).join('') : `<p class="mk-pair-empty">${T('Not shown automatically yet — add an app', 'ยังไม่แสดงอัตโนมัติ — เพิ่มแอป')}</p>`}</div><button class="vs-btn vs-btn-sm" type="button" data-act="pairadd" data-k="pairadd" style="margin-top:12px">${I.plus}${T('Add app', 'เพิ่มแอป')}</button></section>`;
 }
 function buildDrawer(first) {
-  const sc = sceneBy(S.drawer.id); if (!sc) return;
+  const d = S.drawer, sc = d && d.sc; if (!sc) return;
   const old = $('.mk-drawer-body', layer()), top = old ? old.scrollTop : 0;
-  const live = ST.rt && ST.rt.active && ST.rt.currentSceneId === sc.id;
   const fade = first ? 'mk-fade' : '';
   const html = `<div class="mk-backdrop ${fade}" data-act="closedrawer"></div>
   <div class="mk-drawer ${fade}" role="dialog" aria-modal="true" aria-labelledby="dtitle" data-kind="drawer" tabindex="-1">
-   <div class="mk-drawer-head"><div><h2 id="dtitle">${sc.isNew ? T('New Scene', 'Scene ใหม่') : T('Edit Scene', 'แก้ไข Scene')}</h2><p class="vs-subcopy">${T('Every field Discord supports. Changes save as you type and apply to Discord while sharing is on; the preview stays beside the form.', 'ทุกช่องที่ Discord รองรับ บันทึกขณะพิมพ์และใช้กับ Discord ทันทีเมื่อเปิดการแสดง ตัวอย่างอยู่ข้างฟอร์มตลอด')}</p></div><button class="vs-icon-btn" type="button" data-act="closedrawer" aria-label="${T('Close and go back', 'ปิดและย้อนกลับ')}">✕</button></div>
+   <div class="mk-drawer-head"><div><h2 id="dtitle">${sc.isNew ? T('New Scene', 'Scene ใหม่') : T('Edit Scene', 'แก้ไข Scene')}</h2><p class="vs-subcopy">${T('Edits here are a draft. Nothing is saved or sent to Discord until you press Done; the preview stays beside the form.', 'การแก้ไขตรงนี้เป็นฉบับร่าง จะไม่บันทึกหรือส่งไป Discord จนกว่าจะกดเสร็จ ตัวอย่างอยู่ข้างฟอร์มตลอด')}</p></div><button class="vs-icon-btn" type="button" data-act="closedrawer" data-k="dclose" aria-label="${T('Close and go back', 'ปิดและย้อนกลับ')}" ${d.busy ? 'disabled' : ''}>✕</button></div>
    <div class="mk-drawer-body">
-    <div class="mk-form">
+    <div class="mk-form" ${d.busy ? 'inert' : ''}>
      <section class="mk-sec">${secHead(T('Scene', 'Scene'), T('Only you see this name.', 'มีแต่คุณที่เห็นชื่อนี้'))}${fld('sc-name', T('Scene name', 'ชื่อ Scene'), 'name', 'name', sc.name, { max: 40, ph: T('e.g. Deep work', 'เช่น โฟกัสทำงาน') })}</section>
      <section class="mk-sec">${secHead(T('Activity', 'กิจกรรม'), T('The heading of the card, e.g. “Playing Vibe”.', 'หัวการ์ด เช่น “กำลังเล่น Vibe”'))}
       <div class="vs-field" role="radiogroup" aria-labelledby="typelbl"><span class="vs-label" id="typelbl">${T('Activity type', 'ประเภทกิจกรรม')}${helpBtn('actType')}</span><div class="vs-segmented" style="flex-wrap:wrap">${TYPES.map(t => `<button type="button" role="radio" aria-checked="${sc.type === t[0]}" class="${sc.type === t[0] ? 'is-on' : ''}" data-act="stype" data-arg="${t[0]}" data-hl="act">${t[S.lang === 'th' ? 2 : 1]}</button>`).join('')}</div></div>
@@ -923,19 +907,19 @@ function buildDrawer(first) {
      <section class="mk-sec">${secHead(T('State line', 'ข้อความบรรทัดที่สอง'), T('Second line under Details.', 'บรรทัดที่สองใต้บรรทัดแรก'))}${fld('sc-l2', T('State text', 'ข้อความ'), 'state', 'l2', sc.l2, { hl: 'state', max: 128, vars: 1 })}${fld('sc-l2u', T('State link', 'ลิงก์'), 'stateUrl', 'l2url', sc.l2url, { hl: 'state', url: 1 })}</section>
      ${imageSection('lg', sc, T('Large image', 'ภาพใหญ่'), T('The main picture beside the text.', 'ภาพหลักข้างข้อความ'), 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large')}
      ${imageSection('sm', sc, T('Small image', 'ภาพเล็ก'), T('Optional round badge on the corner of the large image.', 'ป้ายกลมที่มุมภาพใหญ่ (ไม่บังคับ)'), 'small', 'smallText', 'smallUrl', 'small', 'smallText', 'smallUrl', 'small')}
-     <section class="mk-sec">${secHead(T('Buttons', 'ปุ่ม'), T('Up to two. Links must be https.', 'สูงสุดสองปุ่ม ลิงก์ต้องเป็น https'))}
+     <section class="mk-sec">${secHead(T('Buttons', 'ปุ่ม'), T('Up to two. Links must be https. Discord hides these on your own profile; check from another account. Click the preview button to test its link.', 'สูงสุดสองปุ่ม ลิงก์ต้องเป็น https Discord ซ่อนปุ่มบนโปรไฟล์ที่คุณดูเอง ให้ตรวจจากบัญชีอื่น คลิกปุ่มในตัวอย่างเพื่อทดสอบลิงก์'))}
       ${sc.btns.map((b, i) => `<div class="vs-field"><span class="vs-label">${T('Button', 'ปุ่ม')} ${i + 1}${helpBtn('btn' + i)}${varBtn('sc-btn' + i)}</span><div class="mk-two"><input class="vs-input" type="text" id="sc-btn${i}" data-var="1" aria-label="${T('Button label', 'ข้อความปุ่ม')} ${i + 1}" placeholder="${T('Label', 'ข้อความ')}" value="${esc(b.label)}" data-bind="btn" data-i="${i}" data-f="label" data-hl="btn${i}" maxlength="32"><input class="vs-input" type="text" data-mono="1" data-url="1" aria-label="${T('Button link', 'ลิงก์ปุ่ม')} ${i + 1}" placeholder="https://…" value="${esc(b.url)}" data-bind="btn" data-i="${i}" data-f="url" data-hl="btn${i}"></div><p class="field-error" hidden></p>${varChips('sc-btn' + i)}</div>`).join('')}</section>
      <section class="mk-sec mk-danger">${secHead(T('Delete Scene', 'ลบ Scene'), T('Removes this Scene from your library. You’ll be asked what to do with the apps that use it.', 'ลบ Scene นี้ออกจากคลัง ระบบจะถามว่าจะทำอย่างไรกับแอปที่ใช้ Scene นี้'))}
-      <button class="vs-btn vs-btn-sm vs-btn-danger" type="button" data-act="askdel" data-k="del" ${S.scenes.length < 2 || !sc._raw ? 'disabled' : ''}>${T('Delete Scene…', 'ลบ Scene…')}</button>${S.scenes.length < 2 ? `<p class="vs-hint" style="margin-top:8px">${T('This is your only Scene. Vibe needs at least one — create another before deleting this one.', 'นี่คือ Scene เดียวของคุณ Vibe ต้องมีอย่างน้อยหนึ่ง Scene — สร้างอันใหม่ก่อนจึงจะลบอันนี้ได้')}</p>` : ''}</section>
+      <button class="vs-btn vs-btn-sm vs-btn-danger" type="button" data-act="askdel" data-k="del" ${S.scenes.length < 2 || !sc._raw || d.dirty ? 'disabled' : ''}>${T('Delete Scene…', 'ลบ Scene…')}</button>${S.scenes.length < 2 ? `<p class="vs-hint" style="margin-top:8px">${T('This is your only Scene. Vibe needs at least one — create another before deleting this one.', 'นี่คือ Scene เดียวของคุณ Vibe ต้องมีอย่างน้อยหนึ่ง Scene — สร้างอันใหม่ก่อนจึงจะลบอันนี้ได้')}</p>` : ''}</section>
     </div>
-    <aside class="mk-prev" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="vs-preview-label"><span>${T('Preview — what Discord will show', 'ตัวอย่าง — สิ่งที่ Discord จะแสดง')}</span>${live ? `<span class="vs-pill vs-pill-good">${T('On Discord now', 'กำลังแสดงบน Discord')}</span>` : `<span class="vs-pill vs-pill-neutral">${T('Preview only', 'ตัวอย่างเท่านั้น')}</span>`}</div><div id="dpreview"></div><p class="vs-preview-foot" id="dprevnote"></p></aside>
+    <aside class="mk-prev" aria-label="${T('Discord preview', 'ตัวอย่าง Discord')}"><div class="vs-preview-label"><span>${T('Preview — what Discord will show', 'ตัวอย่าง — สิ่งที่ Discord จะแสดง')}</span><span class="vs-pill vs-pill-neutral" id="dpill"></span></div><div id="dpreview"></div><p class="vs-preview-foot" id="dprevnote"></p></aside>
    </div>
-   <div class="mk-drawer-foot"><div class="vs-savebar" id="savebar" role="status" aria-live="polite"><span class="vs-savebar-dot" aria-hidden="true"></span><span class="vs-savebar-text" id="savetext"></span><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="retry">${T('Retry', 'ลองใหม่')}</button></div>${S.doneErr && (S.save === 'failed' || currentProblem()) ? `<p class="field-error" role="alert" style="margin:0">${T('Couldn’t save this Scene. Fix the problem or retry, then press Done.', 'บันทึก Scene นี้ไม่สำเร็จ แก้ไขหรือลองใหม่ แล้วกดเสร็จ')}</p>` : ''}<button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="donedrawer">${T('Done', 'เสร็จ')}</button></div></div>`;
+   <div class="mk-drawer-foot"><div class="vs-savebar" id="savebar" role="status" aria-live="polite"><span class="vs-savebar-dot" aria-hidden="true"></span><span class="vs-savebar-text" id="savetext"></span><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="retry" id="dretry" ${d.busy ? 'disabled' : ''}>${T('Retry', 'ลองใหม่')}</button><button class="vs-btn vs-btn-sm vs-btn-ghost vs-savebar-btn" type="button" data-act="conflictreload" id="dreload" ${d.busy ? 'disabled' : ''}>${T('Reload latest…', 'โหลดล่าสุด…')}</button></div>${d.doneErr && (d.err || sceneProblem(sc)) ? `<p class="field-error" role="alert" style="margin:0">${d.conflict ? T('Your Scenes changed elsewhere, so nothing was saved. Your draft is still here — reload the latest or keep editing.', 'Scene ถูกเปลี่ยนจากที่อื่น จึงยังไม่ได้บันทึกอะไร ร่างของคุณยังอยู่ — โหลดล่าสุดหรือแก้ไขต่อ') : T('Couldn’t save this Scene. Fix the problem or retry, then press Done.', 'บันทึก Scene นี้ไม่สำเร็จ แก้ไขหรือลองใหม่ แล้วกดเสร็จ')}</p>` : ''}<button class="vs-btn vs-btn-primary vs-btn-sm" type="button" data-act="donedrawer" data-k="ddone" ${d.busy || d.conflict ? 'disabled' : ''} aria-busy="${!!d.busy}">${d.busy ? `<span class="spin"></span>${T('Saving…', 'กำลังบันทึก…')}` : T('Done', 'เสร็จ')}</button></div></div>`;
   if (first || !$('.mk-drawer', layer())) { layer().innerHTML = html; trap($('.mk-drawer', layer())); enterLayer(); } else morphInto(layer(), html);
   updateDrawer(); const nb = $('.mk-drawer-body', layer()); if (nb && !first) nb.scrollTop = top;
 }
 function updateDrawer() {
-  const sc = sceneBy(S.drawer && S.drawer.id); if (!sc || !$('#dpreview', layer())) return;
+  const d = S.drawer, sc = d && d.sc; if (!sc || !$('#dpreview', layer())) return;
   const hl = document.querySelector('#dpreview .mk-hl'); const area = hl ? hl.dataset.pv : null;
   morphInto($('#dpreview', layer()), dcWrap(published(sc)));
   if (area) highlight(area);
@@ -950,22 +934,90 @@ function updateDrawer() {
     const err = inp.closest('.vs-field').querySelector('.field-error'); const bad = inp.value && !/^https:\/\/\S+$/i.test(inp.value);
     inp.setAttribute('aria-invalid', bad ? 'true' : 'false'); if (err) { err.hidden = !bad; err.textContent = bad ? T('Must start with https://', 'ต้องขึ้นต้นด้วย https://') : ''; }
   });
-  const bar = $('#savebar', layer()), problem = sceneProblem(sc), k = S.save === 'saving' ? 'saving' : S.save === 'failed' ? 'failed' : problem ? 'invalid' : 'saved';
-  const st = k === 'failed' ? 'error' : k === 'invalid' ? 'warning' : k; if (bar.dataset.state && bar.dataset.state !== st) { bar.classList.remove('mk-swap'); void bar.offsetWidth; bar.classList.add('mk-swap'); } bar.dataset.state = st;
-  $('#savetext', layer()).textContent = k === 'failed' ? T('Could not save · your draft is still here', 'บันทึกไม่ได้ · ร่างของคุณยังอยู่') + (S.saveMsg ? ' — ' + S.saveMsg : '')
-    : k === 'invalid' ? T('Not saved yet · ', 'ยังไม่ได้บันทึก · ') + problem : k === 'saving' ? T('Saving…', 'กำลังบันทึก…')
-    : (enabledOn() ? T('Saved · applied to Discord', 'บันทึกแล้ว · ใช้กับ Discord แล้ว') : T('Saved · Show on Discord is off', 'บันทึกแล้ว · การแสดงบน Discord ปิดอยู่')) + (S.saveAt ? ' · ' + S.saveAt : '');
+  const live = ST.rt && ST.rt.active && ST.rt.currentSceneId === sc.id, pill = $('#dpill', layer()), unsaved = d.dirty || d.isNew;
+  if (pill) { pill.className = 'vs-pill ' + (unsaved ? 'vs-pill-warn' : live ? 'vs-pill-good' : 'vs-pill-neutral'); pill.textContent = unsaved ? T('Unsaved draft — not on Discord now', 'ฉบับร่าง — ยังไม่แสดงบน Discord') : live ? T('On Discord now', 'กำลังแสดงบน Discord') : T('Preview only', 'ตัวอย่างเท่านั้น'); }
+  const bar = $('#savebar', layer()), k = draftState(d), problem = sceneProblem(sc);
+  const st = k === 'failed' || k === 'conflict' ? 'error' : k === 'invalid' ? 'warning' : k; if (bar.dataset.state && bar.dataset.state !== st) { bar.classList.remove('mk-swap'); void bar.offsetWidth; bar.classList.add('mk-swap'); } bar.dataset.state = st;
+  $('#savetext', layer()).textContent = k === 'conflict' ? T('Not saved · your Scenes changed elsewhere · your draft is still here', 'ยังไม่ได้บันทึก · Scene ถูกเปลี่ยนจากที่อื่น · ร่างของคุณยังอยู่')
+    : k === 'failed' ? T('Could not save · your draft is still here', 'บันทึกไม่ได้ · ร่างของคุณยังอยู่') + (d.err ? ' — ' + d.err : '')
+    : k === 'invalid' ? T('Unsaved · preview only · ', 'ยังไม่ได้บันทึก · ตัวอย่างเท่านั้น · ') + problem : k === 'saving' ? T('Saving…', 'กำลังบันทึก…')
+    : k === 'dirty' ? T('Unsaved changes · preview only, not on Discord now · press Done to apply', 'ยังไม่ได้บันทึก · เป็นตัวอย่าง ไม่ได้แสดงบน Discord ตอนนี้ · กดเสร็จเพื่อใช้งาน')
+    : T('No changes yet', 'ยังไม่มีการเปลี่ยนแปลง');
+  const retry = $('#dretry', layer()), reload = $('#dreload', layer()); if (retry) retry.hidden = k !== 'failed'; if (reload) reload.hidden = k !== 'conflict';
 }
-function closeDrawer() {
+
+/* ---- the Scene editor draft: a copy of the Scene and its pairings. Nothing reaches the saved library, the server or Discord until commitDraft() succeeds. ---- */
+/* The editor state shown in the bar: saving > conflict > failed > invalid > dirty > clean. */
+function draftState(d) { return d.busy ? 'saving' : d.conflict ? 'conflict' : d.err ? 'failed' : d.dirty || d.isNew ? (sceneProblem(d.sc) ? 'invalid' : 'dirty') : 'saved'; }
+const cloneJson = v => JSON.parse(JSON.stringify(v));
+function newDraft(id) {
+  const cfg = ST.config || {}, base = { scenes: cloneJson(cfg.scenes || []), mappings: cloneJson(cfg.appMappings || []) };
+  const raw = base.scenes.find(x => x.id === id), isNew = !raw;
+  const sc = raw ? sceneToUi(cloneJson(raw)) : mkScene({ id, name: '', l1: '', l2: '', isNew: true });
+  return { id, sc, isNew, base, rules: base.mappings.filter(m => m.enabled !== false).map(mappingToRule), hidden: base.mappings.filter(m => m.enabled === false), dirty: false, rulesDirty: false, busy: false, err: '', conflict: false, doneErr: false };
+}
+/* The desktop shell is told whether an editor is open, holds unsaved edits or is saving, so it never restarts, updates or quits under a draft. */
+let lastEditorState = '';
+function notifyEditor() {
+  const d = S.drawer, st = { open: !!d, dirty: !!(d && d.dirty), saving: !!(d && d.busy) }, key = JSON.stringify(st);
+  if (key === lastEditorState) return; lastEditorState = key;
+  try { const v = window.vibeStudio; if (v && typeof v.setEditorState === 'function') Promise.resolve(v.setEditorState(st)).catch(() => {}); } catch (e) { /* best effort */ }
+}
+function touch(rules) { const d = S.drawer; if (!d || S.shuttingDown) return; d.dirty = true; if (rules) d.rulesDirty = true; if (!d.conflict) { d.err = ''; d.doneErr = false; } notifyEditor(); }
+/* Synchronous handshake for the desktop shell before it stops the page (quit / update restart). Refuses while a save is running or edits are unsaved
+   (unless the owner explicitly discarded); on ok the page is frozen: no more edits, requests or navigation. */
+function prepareQuit(o = {}) {
+  if (S.shuttingDown) return { ok: true };
+  const d = S.drawer;
+  if (ST.busy || ST.iconBusy || SAVE.running || SAVE.dirtyScenes || SAVE.dirtyRules || (d && d.busy)) return { ok: false, reason: 'saving' };
+  if (d && d.dirty && !o.discard) return { ok: false, reason: 'dirty' };
+  S.shuttingDown = true; if (d) S.drawer = null; clearTimeout(S.saveTimer); notifyEditor();
+  try { document.body.inert = true; } catch (e) { /* best effort */ }
+  return { ok: true };
+}
+/* The single request: the whole library with this Scene replaced, plus the baseline the editor opened with so the server can refuse a stale write. */
+function draftBody(d) {
+  const raw = sceneToRaw(d.sc), scenes = cloneJson(d.base.scenes), at = scenes.findIndex(x => x.id === raw.id);
+  if (at >= 0) scenes[at] = cloneJson(raw); else scenes.push(cloneJson(raw));
+  const body = { scenes, expectedScenes: cloneJson(d.base.scenes) };
+  if (d.rulesDirty) { body.appMappings = cloneJson(d.rules.filter(r => scenes.some(x => x.id === r.scene)).map(ruleToMapping).concat(d.hidden)); body.expectedAppMappings = cloneJson(d.base.mappings); }
+  return body;
+}
+async function commitDraft() {
+  const d = S.drawer; if (!d || d.busy || d.conflict || S.shuttingDown) return;
+  if (sceneProblem(d.sc)) { d.doneErr = true; buildDrawer(); return; }
+  if (!d.dirty && !d.isNew) { dropDrawer(); return; }
+  d.busy = true; d.err = ''; d.doneErr = false; notifyEditor(); buildDrawer();
+  let res;
+  try { res = await api('/api/config', { method: 'PUT', body: draftBody(d) }); }
+  catch (error) { d.busy = false; notifyEditor(); d.conflict = error.status === 409 || error.code === 'CONFLICT'; d.err = errText(error); d.doneErr = true; buildDrawer(); return; }
+  let cfg = res.config; if (!cfg) { try { cfg = await api('/api/config'); } catch (e) { /* the write already succeeded */ } }
+  if (cfg) applyConfig(cfg);
+  const id = d.id; if (d.isNew) S.fresh = id;
+  dropDrawer({ rerender: true }); setTimeout(() => { S.fresh = null; }, 400); setTimeout(() => openSummary(id), 0);
+}
+/* Escape, backdrop, ✕ and navigation all land here: a clean editor closes silently, a dirty one asks first, a saving one ignores the request. */
+function closeDrawer(then) {
+  const d = S.drawer; if (!d || d.busy) return false;
   hideTip();
-  const sc = S.drawer && sceneBy(S.drawer.id); let dirty = S.drawer && S.drawer.dirty;
-  if (sc && !sc._raw && !sc.name && !sc.l1 && !sc.l2) { S.scenes = S.scenes.filter(s => s !== sc); dirty = true; }
-  else if (sc) { if (sc.isNew) { dirty = true; S.fresh = sc.id; } if (!sc.name.trim()) { sc.name = T('Untitled Scene', 'Scene ไม่มีชื่อ'); dirty = true; } }
-  clearTimeout(S.saveTimer); S.drawer = null; $('#root').inert = false;
-  if (dirty || SAVE.dirtyScenes || SAVE.dirtyRules) { SAVE.dirtyScenes ||= dirty; void flushSave(); }
-  if (dirty) { const y = scrollY; render(); scrollTo(0, y); setTimeout(() => { S.fresh = null; }, 400); } /* only when something changed; same scroll position */
+  if (d.dirty) { openDiscard(then); return false; }
+  dropDrawer(); if (then) then(); return true;
+}
+function dropDrawer(o = {}) {
+  hideTip(); S.drawer = null; S.varOpen = ''; $('#root').inert = false; notifyEditor();
+  if (o.rerender) { const y = scrollY; render(); scrollTo(0, y); }
   restoreFocus(); leaveLayer(); /* focus is already back; the panel fades out on top */
 }
+function openDiscard(then, reload) {
+  S.ov = { kind: 'discard', then, reload: !!reload };
+  showOv('discard', T('Discard changes?', 'ทิ้งการเปลี่ยนแปลง?'), discardInner(), 'dclose'); ovFocus('[data-act=closeov]');
+}
+function discardInner() {
+  const o = S.ov;
+  return `<div class="gif-dialog-head"><div><h2>${o.reload ? T('Reload the latest Scenes?', 'โหลด Scene ล่าสุดหรือไม่?') : T('Discard unsaved changes?', 'ทิ้งการเปลี่ยนแปลงที่ยังไม่บันทึก?')}</h2><p>${o.reload ? T('Your Scenes changed elsewhere. Reloading discards this draft; nothing you typed here was saved.', 'Scene ถูกเปลี่ยนจากที่อื่น การโหลดใหม่จะทิ้งฉบับร่างนี้ สิ่งที่พิมพ์ไว้ยังไม่ได้บันทึก') : T('Your edits to this Scene were not saved and are not on Discord. Closing now throws them away.', 'สิ่งที่แก้ไขใน Scene นี้ยังไม่ได้บันทึกและยังไม่แสดงบน Discord การปิดตอนนี้จะทิ้งทั้งหมด')}</p></div></div>
+  <div class="gif-search-panel"><div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn vs-btn-primary" type="button" data-act="closeov">${T('Keep editing', 'แก้ไขต่อ')}</button><button class="vs-btn vs-btn-danger" type="button" data-act="discardgo">${o.reload ? T('Discard draft & reload', 'ทิ้งร่างและโหลดใหม่') : T('Discard changes', 'ทิ้งการเปลี่ยนแปลง')}</button></div></div>`;
+}
+async function reloadLatest() { try { applyConfig(await api('/api/config')); } catch (error) { toast(errText(error)); } render(); }
 
 /* ---------- Add-app picker (real .gif-picker + .vs-dialog shell) ---------- */
 const pl = () => (S._pHost === 'l2' ? layer2() : layer());
@@ -991,8 +1043,8 @@ function buildPicker() {
 }
 const pSel = p => p.sel || (p.app ? [p.app] : []);
 const pMulti = p => p.mode === 'pair';
-const pOther = (p, id) => { const r = S.rules.find(x => x.app === id); return r && r.scene !== p.scene ? sceneBy(r.scene) : null; };
-const pHere = (p, id) => S.rules.some(x => x.app === id && x.scene === p.scene);
+const pOther = (p, id) => { const r = RR().find(x => x.app === id); return r && r.scene !== p.scene ? sceneBy(r.scene) : null; };
+const pHere = (p, id) => RR().some(x => x.app === id && x.scene === p.scene);
 const pMark = (p, id) => { const i = pSel(p).indexOf(id), o = pOther(p, id); return `<span class="mk-check ${i >= 0 ? 'is-on' : ''}" aria-hidden="true">${i >= 0 ? i + 1 : ''}</span>${o ? `<span class="mk-inscene">${T('in ', 'อยู่ใน ')}${esc(o.name)}</span>` : pHere(p, id) ? `<span class="mk-inscene">${T('in this Scene', 'อยู่ใน Scene นี้')}</span>` : ''}`; };
 const pitem = (a, sel) => { const p = S.picker; return `<button class="mk-item ${sel ? 'is-sel' : ''}" type="button" role="checkbox" aria-checked="${sel}" data-act="ppick" data-arg="${esc(a.id)}">${icoOf(a)}<span style="min-width:0"><strong style="font-weight:500;display:block">${esc(a.name)}</strong><small class="vs-hint" style="margin:0;display:block">${esc(a.exe)}</small></span>${pMark(p, a.id)}</button>`; };
 function updatePicker() {
@@ -1041,12 +1093,12 @@ function wellHtml(p, sc, label, key) {
   return `<div class="vs-field"><span class="vs-label" id="${p}-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="${p}-wl"><button type="button" class="mk-well-thumb" data-act="openimg" data-arg="${p}" tabindex="-1" aria-hidden="true">${v ? `<img src="${esc(artSrc(v))}" alt="">` : `<span class="mk-well-empty">${I.plus}</span>`}</button><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="${p}" data-k="well-${p}" data-hl="${p === 'lg' ? 'large' : 'small'}">${v || src ? T('Change', 'เปลี่ยน') : T('Choose', 'เลือก')}</button>${v || src ? `<button type="button" class="vs-icon-btn-danger" data-act="imgclear" data-arg="${p}" aria-label="${T('Remove image', 'ลบภาพ')}">${I.x}</button>` : ''}</div></div>`;
 }
 function applyImage(p, value, source) {
-  const sc = sceneBy(S.drawer.id); sc[FIELD[p]] = value; sc[SRC[p]] = source || ''; S.imgFlash = p; S.drawer.dirty = true; scheduleSave(); buildDrawer();
+  const sc = S.drawer.sc; sc[FIELD[p]] = value; sc[SRC[p]] = source || ''; S.imgFlash = p; touch(); buildDrawer();
 }
 /* generic stacked overlay: fade + 8px rise in, animated exit, focus returns to the opener */
 function showOv(kind, label, inner, retKey) {
   const L = layer2(); L._tok = (L._tok || 0) + 1; L.inert = false; S.ovReturn = retKey || S.ovReturn;
-  L.innerHTML = `<div class="gif-picker mk-picker mk-ov"><button class="gif-picker-backdrop" type="button" data-act="closeov" tabindex="-1" aria-label="${T('Close', 'ปิด')}"></button><div class="vs-dialog mk-ovd" role="${kind === 'del' ? 'alertdialog' : 'dialog'}" aria-modal="true" aria-label="${esc(label)}" data-kind="ov">${inner}</div></div>`;
+  L.innerHTML = `<div class="gif-picker mk-picker mk-ov"><button class="gif-picker-backdrop" type="button" data-act="closeov" tabindex="-1" aria-label="${T('Close', 'ปิด')}"></button><div class="vs-dialog mk-ovd" role="${kind === 'del' || kind === 'discard' ? 'alertdialog' : 'dialog'}" aria-modal="true" aria-label="${esc(label)}" data-kind="ov">${inner}</div></div>`;
   layer().inert = true; $('#root').inert = true; trap($('.vs-dialog', L)); void L.offsetWidth;
   L.querySelectorAll('.vs-dialog,.gif-picker-backdrop').forEach(x => x.classList.add('mk-in'));
 }
@@ -1090,7 +1142,7 @@ function imgHome(o, cur) {
   ${rec}`;
 }
 function imgTab() {
-  const o = S.ov, sc = sceneBy(S.drawer.id), cur = sc[FIELD[o.p]];
+  const o = S.ov, sc = S.drawer.sc, cur = sc[FIELD[o.p]];
   if (o.tab === 'app') {
     const apps = sceneApps(sc.id);
     const row = a => { const st = iconState(a); return `<li data-st="${st || 'none'}"><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small class="mk-icstat" data-st="${st || 'none'}">${iconDot(st)}<span>${iconLabel(st)}</span></small></span>${o.p === 'lg' && a.publicIcon && st === 'ready' ? `<button class="vs-btn vs-btn-sm" type="button" style="margin-left:auto" data-act="pickimg" data-arg="appicon:${esc(a.id)}">${T('Use', 'ใช้')}</button>` : ''}</li>`; };
@@ -1158,8 +1210,8 @@ function pickImg(a) {
 
 /* ---- delete Scene ---- */
 function openDelete(opener) {
-  rememberFocus(opener); const sc = sceneBy(S.drawer.id), others = S.scenes.filter(s => s.id !== sc.id && s._raw);
-  if (!others.length) return;
+  rememberFocus(opener); const sc = sceneBy(S.drawer.id), others = sc ? S.scenes.filter(s => s.id !== sc.id && s._raw) : [];
+  if (!sc || !others.length) return;
   S.ov = { kind: 'del', id: sc.id, mode: 'reassign', to: others[0].id, busy: false, err: '' };
   showOv('del', T('Delete Scene', 'ลบ Scene'), delInner(), 'del'); ovFocus('[data-act=closeov]');
 }
@@ -1172,15 +1224,15 @@ function summaryInner() {
   const sc = sceneBy(S.ov.id), apps = sceneWhen(sc.id), esn = esc(sc.name);
   return `<div class="mk-sum"><span class="mk-sum-th">${sc.art ? `<img src="${esc(artSrc(sc.art))}" alt="">` : ''}</span><h2>${T(esn + ' saved', 'บันทึก ' + esn + ' แล้ว')}</h2>
   <p class="vs-hint">${apps ? T('Shows when ' + esc(apps) + ' is open', 'แสดงเมื่อเปิด ' + esc(apps)) : T('Not paired — it won’t show automatically', 'ยังไม่ได้จับคู่ — จะไม่แสดงอัตโนมัติ')}</p>
-  <div class="vs-form-actions" style="justify-content:center"><button class="vs-btn vs-btn-primary" type="button" data-act="sumshow" data-arg="${esc(sc.id)}">${T('Show on Discord now', 'แสดงบน Discord ตอนนี้')}</button>${apps ? '' : `<button class="vs-btn" type="button" data-act="sumadd" data-arg="${esc(sc.id)}">${I.plus}${T('Add app', 'เพิ่มแอป')}</button>`}<button class="vs-btn vs-btn-ghost" type="button" data-act="closeov">${T('Close', 'ปิด')}</button></div></div>`;
+  <div class="vs-form-actions" style="justify-content:center">${apps ? '' : `<button class="vs-btn" type="button" data-act="sumadd" data-arg="${esc(sc.id)}">${I.plus}${T('Add app', 'เพิ่มแอป')}</button>`}<button class="vs-btn vs-btn-primary" type="button" data-act="closeov" data-k="sumclose">${T('Close', 'ปิด')}</button></div></div>`;
 }
 function openSummary(id) {
   if (!sceneBy(id)) return;
   S.ov = { kind: 'sum', id }; S.ovReturn = $(`[data-k="lib-${id}"]`) ? 'lib-' + id : (S.lastFocus || 'newscene');
-  showOv('sum', T('Scene saved', 'บันทึก Scene แล้ว'), summaryInner(), S.ovReturn); ovFocus('[data-act=sumshow]');
+  showOv('sum', T('Scene saved', 'บันทึก Scene แล้ว'), summaryInner(), S.ovReturn); ovFocus('[data-k=sumclose]');
 }
 function delInner() {
-  const o = S.ov, sc = sceneBy(o.id), aff = S.rules.filter(r => r.scene === o.id), others = S.scenes.filter(s => s.id !== o.id && s._raw);
+  const o = S.ov, sc = sceneBy(o.id), aff = S.rules.filter(r => r.scene === o.id).concat(S.hidden.filter(r => r.sceneId === o.id).map(mappingToRule)), others = S.scenes.filter(s => s.id !== o.id && s._raw);
   return `<div class="gif-dialog-head"><div><h2>${T('Delete “' + esc(sc.name) + '”?', 'ลบ “' + esc(sc.name) + '” หรือไม่?')}</h2><p>${T('This Scene will be removed from your library.', 'Scene นี้จะถูกลบออกจากคลังของคุณ')}</p></div><button class="vs-icon-btn" type="button" data-act="closeov" aria-label="${T('Close', 'ปิด')}" ${o.busy ? 'disabled' : ''}>✕</button></div>
   <div class="gif-search-panel">${aff.length ? `<p class="mk-section">${T(`Used by ${aff.length} app${aff.length > 1 ? 's' : ''}`, `ใช้โดย ${aff.length} แอป`)}</p><ul class="mk-aff">${aff.map(r => { const a = appBy(r.app); return `<li><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small>${esc(a.exe)}</small></span></li>`; }).join('')}</ul>
    <fieldset class="mk-fs" ${o.busy ? 'disabled' : ''}><legend class="vs-visually-hidden">${T('What happens to these apps', 'จะทำอย่างไรกับแอปเหล่านี้')}</legend>
@@ -1191,32 +1243,36 @@ function delInner() {
    <div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="closeov" ${o.busy ? 'disabled' : ''}>${T('Cancel', 'ยกเลิก')}</button><button class="vs-btn vs-btn-danger" type="button" data-act="delgo" ${o.busy ? 'disabled' : ''}>${o.busy ? `<span class="spin"></span>${T('Deleting…', 'กำลังลบ…')}` : o.err ? T('Try again', 'ลองอีกครั้ง') : T('Delete Scene', 'ลบ Scene')}</button></div></div>`;
 }
 function renderDel(f) { const d = $('.vs-dialog', layer2()); if (!d || !S.ov || S.ov.kind !== 'del') return; morphInto(d, delInner()); ovFocus(f); }
-/* Deleting changes pairings first (the server rejects a pairing that points at a missing Scene), then removes the Scene. */
+/* Delete and Undo use one atomic commit, including disabled pairings. */
 async function doDelete() {
-  const o = S.ov; if (!o || o.busy) return; o.busy = true; o.err = ''; renderDel('[data-act=delgo]');
-  const idx = S.scenes.findIndex(s => s.id === o.id), sc = S.scenes[idx], aff = S.rules.filter(r => r.scene === o.id);
-  const snap = { sc, idx, rules: aff.map(r => ({ r, i: S.rules.indexOf(r), scene: r.scene })) };
+  const o = S.ov; if (!o || o.busy || S.shuttingDown) return;
+  o.busy = true; o.err = ''; ST.busy = true; renderDel('[data-act=delgo]');
+  const sc = S.scenes.find(s => s.id === o.id); let baseline, committed, undoToken;
   try {
     await settleSave();
-    S.scenes.splice(idx, 1);
-    if (o.mode === 'remove') S.rules = S.rules.filter(r => r.scene !== o.id); else aff.forEach(r => { r.scene = o.to; });
-    SAVE.dirtyScenes = true; SAVE.dirtyRules = true; await flushSave();
     if (S.save === 'failed') throw new Error(S.saveMsg || 'Could not save');
+    baseline = cloneJson(ST.config);
+    const scenes = baseline.scenes.filter(s => s.id !== o.id);
+    const mappings = baseline.appMappings.flatMap(m => m.sceneId !== o.id ? [m] : o.mode === 'remove' ? [] : [{...m,sceneId:o.to}]);
+    const res = await api('/api/config', {method:'PUT',body:{scenes,appMappings:mappings,expectedScenes:baseline.scenes,expectedAppMappings:baseline.appMappings,retainUndo:true}});
+    committed = res.config; undoToken = res.undoToken; applyConfig(committed);
   } catch (error) {
-    S.scenes.splice(snap.idx, 0, snap.sc); S.rules = S.rules.filter(r => !aff.includes(r)); snap.rules.forEach(x => { x.r.scene = x.scene; S.rules.splice(Math.min(x.i, S.rules.length), 0, x.r); });
-    SAVE.dirtyScenes = false; SAVE.dirtyRules = false; S.save = 'saved';
     if (S.ov === o) { o.busy = false; o.err = errText(error); renderDel('[data-act=delgo]'); }
     return;
-  }
-  const reassigned = o.mode !== 'remove';
-  clearTimeout(S.saveTimer); S.drawer = null; closeOverlay(); $('#root').inert = false; layer().inert = false; leaveLayer();
+  } finally { ST.busy = false; }
+  clearTimeout(S.saveTimer); S.drawer = null; notifyEditor(); closeOverlay(); $('#root').inert = false; layer().inert = false; leaveLayer();
   const row = $(`[data-k="lib-${o.id}"]`), li = row && row.closest('.vs-scene-row');
   const done = () => { render(); const nb = $('[data-k="newscene"]') || $('#main'); nb && nb.focus({ preventScroll: true }); };
   if (li && !reduced()) { li.classList.add('mk-row-out'); li.setAttribute('inert', ''); setTimeout(done, 200); } else done();
-  undoFn = () => {
-    S.scenes.splice(Math.min(snap.idx, S.scenes.length), 0, snap.sc);
-    snap.rules.forEach(x => { if (reassigned) x.r.scene = snap.sc.id; else S.rules.splice(Math.min(x.i, S.rules.length), 0, x.r); });
-    S.fresh = snap.sc.id; render(); setTimeout(() => { S.fresh = null; }, 400); scheduleSave(true, true);
+  undoFn = async () => {
+    if (S.shuttingDown || ST.busy || S.drawer) return;
+    ST.busy = true;
+    try {
+      if (!undoToken) throw new Error(T('Undo is no longer available.', 'เลิกทำไม่ได้แล้ว'));
+      const res = await api('/api/config',{method:'PUT',body:{scenes:baseline.scenes,appMappings:baseline.appMappings,expectedScenes:committed.scenes,expectedAppMappings:committed.appMappings,undoToken}});
+      applyConfig(res.config); S.fresh = sc.id; render(); setTimeout(() => { S.fresh = null; }, 400);
+    } catch(error) { toast(errText(error)); }
+    finally { ST.busy = false; }
   };
   toast(T(`Deleted “${sc.name}”`, `ลบ “${sc.name}” แล้ว`), true);
 }
@@ -1234,11 +1290,15 @@ function stackHtml(id) {
 /* ---------- actions ---------- */
 let removed = null, lastText = null, undoFn = null;
 function openDrawer(id, opener) {
-  if (!ST.ready) { toast(T('Loading your Scenes and apps…', 'กำลังโหลด Scene และแอปของคุณ…')); return; }
+  if (S.shuttingDown) return false;
+  if (!ST.ready || !ST.config) { toast(T('Loading your Scenes and apps…', 'กำลังโหลด Scene และแอปของคุณ…')); return false; }
+  if (S.drawer) return false;
+  /* the editor's baseline is the last confirmed config; wait for a library save still in flight so it is not stale */
+  if (SAVE.running || SAVE.dirtyScenes || SAVE.dirtyRules) { toast(T('Finishing the last save — try again in a moment', 'กำลังบันทึกครั้งก่อน — ลองอีกครั้งในอีกสักครู่')); return false; }
   rememberFocus(opener);
-  if (id === 'new') { const n = mkScene({ id: newId('scene'), name: '', l1: '', l2: '', isNew: true }); S.scenes.push(n); id = n.id; }
-  S.drawer = { id, dirty: false }; S.doneErr = false; S.save = 'saved'; S.saveMsg = '';
+  S.drawer = newDraft(id === 'new' ? newId('scene') : id); notifyEditor();
   buildDrawer(true); $('#root').inert = true; const f = $('#sc-name', layer()); (f || $('.mk-drawer', layer())).focus({ preventScroll: true });
+  return true;
 }
 const keep = sel => { buildDrawer(); const e = $(sel, layer()); e && e.focus({ preventScroll: true }); };
 const ACT = {
@@ -1252,44 +1312,40 @@ const ACT = {
   iconconsent: a => { void setIconConsent(a === 'yes'); return 'overlay'; },
   updgo: () => { void updateAction(); return 'overlay'; }, updrestart: () => { void updateAction(); return 'overlay'; },
   checkupd: () => { void checkUpdates(); return 'overlay'; },
-  screen: a => { S.screen = a; },
+  screen: a => { if (S.drawer) { closeDrawer(() => { S.screen = a; render({ fade: true }); }); return 'overlay'; } S.screen = a; },
   lang: a => { S.lang = a; try { localStorage.setItem('vibe.lang', a); } catch (e) { /* storage unavailable */ } },
   theme: a => { S.theme = a; try { localStorage.setItem('vibe.theme', a); } catch (e) { /* storage unavailable */ } syncShellTheme(); },
   refreshapps: () => { void loadApps(true); return 'overlay'; },
   retryload: () => { void loadAll(); return 'overlay'; },
   reconnect: () => { void reconnect(); return 'overlay'; },
   gotokeys: () => { S.screen = 'settings'; S.keysOpen = true; setTimeout(() => { const e = $('#keys'); e && e.scrollIntoView({ block: 'start' }); }, 80); },
-  unpin: () => { void unpin(); return 'overlay'; },
-  realadd: (a, el) => { if (ST.ready && S.scenes.length) { openDrawer(a || S.scenes[0].id, el); openPicker('app', null, { scene: a || S.scenes[0].id, mode: 'pair', host: 'l2' }); } return 'overlay'; },
+  realadd: (a, el) => { if (ST.ready && S.scenes.length && openDrawer(a || S.scenes[0].id, el)) openPicker('app', null, { scene: a || S.scenes[0].id, mode: 'pair', host: 'l2' }); return 'overlay'; },
   refreshdiscord: () => { void loadDiscordProfile(); return 'overlay'; },
   copydiscordid: () => { if (!DCID.id) return; Promise.resolve().then(() => navigator.clipboard.writeText(DCID.id)).then(() => toast(T('User ID copied', 'คัดลอก User ID แล้ว'))).catch(() => toast(T('Could not copy — select the User ID and copy it manually.', 'คัดลอกไม่ได้ — เลือก User ID แล้วคัดลอกเองได้'))); return 'overlay'; },
   savekey: a => { void saveKey(a); return 'overlay'; },
   rmkey: a => { void putKey(a, ''); return 'overlay'; },
   askquit: () => { S.confirmQuit = !S.confirmQuit; },
   quit: () => { S.confirmQuit = false; void api('/api/quit', { method: 'POST' }).catch(() => {}); toast(T('Vibe is quitting — Discord will show nothing.', 'กำลังออกจาก Vibe — Discord จะไม่แสดงอะไร')); },
-  pinpair: a => {
-    const rule = S.rules.find(r => r.id === a); if (!rule) return 'overlay';
-    const pinned = pinnedSceneId() === rule.scene && (S.pinApp ? S.pinApp === rule.app : (S.rules.find(x => x.scene === rule.scene) || {}).id === rule.id);
-    if (pinned) void unpin(); else void pinScene(rule.scene, rule.app);
-    return 'overlay';
-  },
   pairadd: (a, el) => { openPicker('app', el, { scene: S.drawer.id, mode: 'pair', host: 'l2' }); return 'overlay'; },
   pairrm: a => {
-    const i = S.rules.findIndex(r => r.id === a), rr = S.rules[i]; if (!rr) return 'overlay'; const nm = rr.name;
-    S.rules.splice(i, 1); S.drawer.dirty = true; scheduleSave(false, true);
-    undoFn = () => { S.rules.splice(Math.min(i, S.rules.length), 0, rr); S.fresh = rr.id; if (S.drawer) { S.drawer.dirty = true; buildDrawer(); } else render(); scheduleSave(false, true); setTimeout(() => { S.fresh = null; }, 400); };
+    const d = S.drawer; if (!d || d.busy) return 'overlay';
+    const i = d.rules.findIndex(r => r.id === a), rr = d.rules[i]; if (!rr) return 'overlay'; const nm = rr.name;
+    d.rules.splice(i, 1); touch(true);
+    undoFn = () => { if (S.drawer !== d || d.busy) return; d.rules.splice(Math.min(i, d.rules.length), 0, rr); S.fresh = rr.id; touch(true); buildDrawer(); setTimeout(() => { S.fresh = null; }, 400); };
     toast(T('Removed ' + nm, 'ลบ ' + nm + ' แล้ว'), true);
     const chip = $(`[data-key="pc-${a}"]`, layer()), pb = $('[data-k="pairadd"]', layer()); pb && pb.focus({ preventScroll: true });
     if (chip && !reduced()) { chip.classList.add('mk-chip-out'); chip.setAttribute('inert', ''); setTimeout(() => { chip.remove(); buildDrawer(); }, 200); } else buildDrawer();
     return 'overlay';
   },
-  editpair: (a, el) => { openDrawer(a, el); const sec = $('#pairsec', layer()); sec && sec.scrollIntoView({ block: 'start' }); return 'overlay'; },
+  editpair: (a, el) => { if (openDrawer(a, el)) { const sec = $('#pairsec', layer()); sec && sec.scrollIntoView({ block: 'start' }); } return 'overlay'; },
   editscene: (a, el) => { openDrawer(a, el); return 'overlay'; }, newscene: (a, el) => { openDrawer('new', el); return 'overlay'; },
   undo: () => { const f = undoFn; undoFn = null; const b = $('#toastbox'); b && b.remove(); f && f(); return 'overlay'; },
   toast: a => toast(a),
   closedrawer: () => { closeDrawer(); return 'overlay'; },
-  stype: a => { sceneBy(S.drawer.id).type = a; keep(`[data-act="stype"][data-arg="${a}"]`); scheduleSave(); return 'overlay'; },
-  retry: () => { scheduleSave(true, SAVE.dirtyRules); return 'overlay'; },
+  stype: a => { S.drawer.sc.type = a; touch(); keep(`[data-act="stype"][data-arg="${a}"]`); return 'overlay'; },
+  retry: () => { void commitDraft(); return 'overlay'; },
+  conflictreload: () => { const d = S.drawer; if (d && !d.busy) openDiscard(reloadLatest, true); return 'overlay'; },
+  discardgo: () => { const o = S.ov; if (!o || o.kind !== 'discard') return 'overlay'; closeOverlay(); dropDrawer(); if (o.then) o.then(); return 'overlay'; },
   closepicker: () => { closePicker(); return 'overlay'; },
   ppick: a => {
     const p = S.picker;
@@ -1304,30 +1360,26 @@ const ACT = {
   },
   junk: () => { S.picker.showJunk = !S.picker.showJunk; buildPicker(); return 'overlay'; },
   paddgo: () => {
-    const p = S.picker; if (!p || !p.app) return 'overlay';
+    const p = S.picker, d = S.drawer; if (!p || !p.app || !d || d.busy) return 'overlay';
     if (p.mode === 'pair') {
       const ids = pSel(p).filter(x => !pHere(p, x)); if (!ids.length) return 'overlay';
       const added = [], moved = [], revived = [];
       ids.forEach(aid => {
-        const cf = S.rules.find(x => x.app === aid);
+        const cf = d.rules.find(x => x.app === aid);
         if (cf) { moved.push({ r: cf, old: cf.scene }); cf.scene = p.scene; }
-        else { const a = appBy(aid), hidden = S.hidden.findIndex(m => appKey(m.executable) === aid); const raw = hidden >= 0 ? S.hidden.splice(hidden, 1)[0] : null; if (raw) revived.push(raw); const r = { id: 'm-' + aid, kind: 'app', app: aid, scene: p.scene, exe: a.exe, name: a.name, _raw: raw || undefined }; S.rules.push(r); added.push(r); }
+        else { const a = appBy(aid), hidden = d.hidden.findIndex(m => appKey(m.executable) === aid); const raw = hidden >= 0 ? d.hidden.splice(hidden, 1)[0] : null; if (raw) revived.push(raw); const r = { id: 'm-' + aid, kind: 'app', app: aid, scene: p.scene, exe: a.exe, name: a.name, _raw: raw || undefined }; d.rules.push(r); added.push(r); }
       });
       S.fresh = (added[0] || moved[0].r).id;
       const msg = T(`Added ${ids.length} app${ids.length > 1 ? 's' : ''}${moved.length ? ' (' + moved.length + ' moved)' : ''}`, `เพิ่ม ${ids.length} แอปแล้ว${moved.length ? ' (ย้าย ' + moved.length + ')' : ''}`);
-      undoFn = () => { S.rules = S.rules.filter(x => !added.includes(x)); S.hidden.push(...revived); moved.forEach(m => { m.r.scene = m.old; }); if (S.drawer) buildDrawer(); else render(); scheduleSave(false, true); };
-      closePicker(); if (S.drawer) { S.drawer.dirty = true; buildDrawer(); } else render(); scheduleSave(false, true); setTimeout(() => { S.fresh = null; }, 400); toast(msg, true); return 'overlay';
+      undoFn = () => { if (S.drawer !== d || d.busy) return; d.rules = d.rules.filter(x => !added.includes(x)); d.hidden.push(...revived); moved.forEach(m => { m.r.scene = m.old; }); touch(true); buildDrawer(); };
+      closePicker(); touch(true); buildDrawer(); setTimeout(() => { S.fresh = null; }, 400); toast(msg, true); return 'overlay';
     }
     return 'overlay';
   },
   openimg: (a, el) => { openImg(a, el); return 'overlay'; },
   imgclear: a => { applyImage(a, ''); const b = $(`[data-k="well-${a}"]`, layer()); b && b.focus({ preventScroll: true }); return 'overlay'; },
-  donedrawer: () => {
-    if (S.save === 'failed' || currentProblem()) { S.doneErr = true; buildDrawer(); return 'overlay'; }
-    const id = S.drawer && S.drawer.id; closeDrawer(); setTimeout(() => openSummary(id), 0); return 'overlay';
-  },
-  sumshow: a => { closeOverlay(); void pinScene(a, ''); return 'overlay'; },
-  sumadd: a => { closeOverlay(); setTimeout(() => { openDrawer(a, $(`[data-k="lib-${a}"]`)); const p = $('#pairsec'); p && p.scrollIntoView({ block: 'center' }); openPicker('app', null, { scene: a, mode: 'pair', host: 'l2' }); }, 260); return 'overlay'; },
+  donedrawer: () => { void commitDraft(); return 'overlay'; },
+  sumadd: a => { closeOverlay(); setTimeout(() => { if (!openDrawer(a, $(`[data-k="lib-${a}"]`))) return; const p = $('#pairsec'); p && p.scrollIntoView({ block: 'center' }); openPicker('app', null, { scene: a, mode: 'pair', host: 'l2' }); }, 260); return 'overlay'; },
   closeov: () => { closeOverlay(); return 'overlay'; },
   ovtab: a => { S.ov.tab = a; renderOv(a === 'gif' ? '#gifq' : '', true); if (a === 'gif') searchGifs(S.ov.q || ''); return 'overlay'; },
   pickimg: a => { pickImg(a); return 'overlay'; },
@@ -1335,13 +1387,14 @@ const ACT = {
   gifmore: () => { searchGifs(S.ov.q, true); return 'overlay'; },
   gifretry: () => { searchGifs(S.ov.q); return 'overlay'; },
   lnkapply: () => { addRecent(S.ov.link.trim()); applyImage(S.ov.p, S.ov.link.trim(), 'link'); closeOverlay(); return 'overlay'; },
-  gotoimg: () => { S.ov = null; layer2().innerHTML = ''; layer2().inert = false; clearTimeout(S.saveTimer); void flushSave(); S.drawer = null; layer().innerHTML = ''; layer().inert = false; $('#root').inert = false; S.screen = 'settings'; S.picker = null; render({ fade: true }); const e = $('#giphy'); e && e.scrollIntoView(); return 'overlay'; },
+  gotoimg: () => { closeOverlay(); closeDrawer(() => { S.picker = null; S.screen = 'settings'; render({ fade: true }); const e = $('#giphy'); e && e.scrollIntoView(); }); return 'overlay'; },
   askdel: (a, el) => { openDelete(el); return 'overlay'; },
   delgo: () => { void doDelete(); return 'overlay'; },
-  addrulefor: (a, el) => { openDrawer(a, el); const sec = $('#pairsec', layer()); sec && sec.scrollIntoView({ block: 'start' }); openPicker('app', $('[data-k="pairadd"]', layer()), { scene: a, mode: 'pair', host: 'l2' }); return 'overlay'; },
+  addrulefor: (a, el) => { if (!openDrawer(a, el)) return 'overlay'; const sec = $('#pairsec', layer()); sec && sec.scrollIntoView({ block: 'start' }); openPicker('app', $('[data-k="pairadd"]', layer()), { scene: a, mode: 'pair', host: 'l2' }); return 'overlay'; },
 };
 const FADE = new Set(['screen', 'askquit', 'quit']);
 document.addEventListener('keydown', e => {
+  if (S.shuttingDown) return;
   const p = S.picker; if (e.key !== 'Enter' || !p || !pMulti(p) || e.defaultPrevented) return;
   if (e.target && e.target.closest && !e.target.closest('.mk-picker .vs-dialog')) return;
   if (e.target && e.target.tagName === 'BUTTON' && e.target.dataset.act !== 'ppick') return;
@@ -1353,6 +1406,7 @@ document.addEventListener('click', e => {
   if (el) {
     if (el.tagName === 'A') e.preventDefault();
     const fn = ACT[el.dataset.act]; if (!fn) return;
+    if (S.shuttingDown || (S.drawer && S.drawer.busy)) return; /* shutting down, or a save is in flight: no edits, no discard */
     const r = fn(el.dataset.arg, el);
     if (r === 'overlay') return;
     if (S.drawer) { buildDrawer(); return; }
@@ -1363,8 +1417,8 @@ document.addEventListener('click', e => {
 document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('#sc-l1,#sc-l2')) lastText = e.target; });
 document.addEventListener('input', e => {
   const t = e.target, b = t.dataset && t.dataset.bind; if (!b) return;
-  if (b === 'sc') { sceneBy(S.drawer.id)[t.dataset.f] = t.value; updateDrawer(); scheduleSave(); }
-  else if (b === 'btn') { sceneBy(S.drawer.id).btns[+t.dataset.i][t.dataset.f] = t.value; updateDrawer(); scheduleSave(); }
+  if (S.shuttingDown) return;
+  if (b === 'sc' || b === 'btn') { const d = S.drawer; if (!d || d.busy) return; if (b === 'sc') d.sc[t.dataset.f] = t.value; else d.sc.btns[+t.dataset.i][t.dataset.f] = t.value; touch(); updateDrawer(); }
   else if (b === 'pairsearch') { S.pairQuery = t.value; const list = $('.mk-ptiles'); if (list) list.scrollTop = 0; render(); }
   else if (b === 'pq') { S.picker.q = t.value; updatePicker(); }
   else if (b === 'key') S.keyDraft[t.dataset.id] = t.value;
@@ -1373,7 +1427,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const t = e.target, b = t.dataset && t.dataset.bind;
-  if (!b) return;
+  if (!b || S.shuttingDown) return;
   if (b === 'sceneon') { void setSceneEnabled(t.dataset.arg, t.checked); return; }
   if (b === 'presence') { void setPresence(t.checked); return; }
   if (b === 'iconhost') { void setIconConsent(t.checked); return; }
@@ -1403,6 +1457,8 @@ document.addEventListener('focusout', e => { const t = e.target; if (t.classList
 document.addEventListener('click', e => { const h = e.target.closest && e.target.closest('.mk-help'); if (h) { e.preventDefault(); tipFor === h && h.getAttribute('aria-expanded') === 'true' && e.detail === 0 ? hideTip() : showTip(h); } }, true);
 
 /* ---------- boot ---------- */
+window.__vibePrepareQuit = prepareQuit;
+window.addEventListener('beforeunload', e => { if (!S.shuttingDown && S.drawer && (S.drawer.dirty || S.drawer.busy)) { e.preventDefault(); e.returnValue = ''; } });
 (function boot() {
   const q = new URLSearchParams(location.search);
   if (q.get('lang')) S.lang = q.get('lang'); if (q.get('theme')) S.theme = q.get('theme');

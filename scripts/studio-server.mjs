@@ -8,8 +8,10 @@ import { watchWindowsApps } from './windows-apps.mjs';
 import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
 import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { isDeepStrictEqual } from 'node:util';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +20,7 @@ import {
   createDefaultConfig,
   createDiscordActivity,
   validateConfig,
+  validateScene,
 } from './presence-config.mjs';
 import {
   loadAppSecrets,
@@ -75,7 +78,9 @@ export async function startStudioServer(options = {}) {
     fs: options.configFs,
     filePath: configPath,
     createDefault: createDefaultConfig,
-    validate: validateConfig,
+    // Older versions accepted labeled buttons without a URL. Keep their owner
+    // document readable; new Scene writes and Discord delivery remain strict.
+    validate: value => validateConfig(value, {allowLegacyEmptyButtonUrls:true}),
   });
   const loaded = await configStore.load();
   let config = loaded.config;
@@ -122,6 +127,8 @@ export async function startStudioServer(options = {}) {
   let recentApplications = [];
   let activityStartedAt = new Date();
   let activityIdentity = null;
+  // Foreground changes select a Presence; they do not start a new app session.
+  const runningAppStartedAt = new Map();
 
   const iconHosting = createIconHosting(dirname(configPath), {
     uploader: options.iconUploader,
@@ -222,37 +229,17 @@ export async function startStudioServer(options = {}) {
     });
   }
 
-  function activeOverride(now = nowDate()) {
-    if (!config.manualOverride) return null;
-    return Date.parse(config.manualOverride.expiresAt) > now.getTime()
-      ? config.manualOverride
-      : null;
-  }
-
   function scheduleSnapshot(now = nowDate()) {
     return getScheduleState(config.slots, now);
   }
 
   function desiredPresence(now = nowDate()) {
-    const override = activeOverride(now);
-    if (override) {
-      // Explicit owner pins win even when the Scene is disabled for app selection,
-      // and still name/badge the most recent of the Scene's paired apps that is open.
-      const running = appSnapshot.running || appSnapshot.apps.map(app => app.executable);
-      const mapping = selectRunningPreset(config.appMappings.filter(item => item.sceneId === override.sceneId), running, recentApplications);
-      const publicIcon = mapping ? iconHosting.view(catalogApp(mapping)).publicIcon : '';
-      return {
-        scene: withApplicationBadge(sceneById(override.sceneId), mapping, { publicIcon }),
-        key: 'override:' + override.sceneId + ':' + override.expiresAt + (mapping ? ':' + mapping.executable.toLowerCase() : ''),
-        source: 'override', application: mapping?.name || null, applicationExecutable: mapping?.executable || null,
-      };
-    }
     if (!config.settings.scheduleEnabled) return { scene: null, key: null, source: 'paused' };
     if (config.settings.selectionMode === 'apps') {
       const mapping = selectRunningPreset(config.appMappings, appSnapshot.running || appSnapshot.apps.map(app => app.executable), recentApplications, config.scenes);
       const publicIcon = mapping ? iconHosting.view(catalogApp(mapping)).publicIcon : '';
       return { scene:mapping ? codexSessionScene(withApplicationBadge(sceneById(mapping.sceneId), mapping, { publicIcon }), mapping, config.codexSession) : null,
-        key:mapping ? 'app:' + mapping.executable.toLowerCase() + ':' + mapping.sceneId : null,
+        key:mapping ? 'app:' + mapping.executable.toLowerCase() + ':' + mapping.sceneId + ':' + runningAppStartedAt.get(appKey(mapping.executable)) : null,
         source:mapping ? 'app' : 'unmapped', application:mapping?.name || null, applicationExecutable:mapping?.executable || null,
         session: mapping && /OpenAI\.Codex_/i.test(mapping.executable) ? config.codexSession : null };
     }
@@ -267,7 +254,6 @@ export async function startStudioServer(options = {}) {
 
   function runtimeSnapshot(now = nowDate()) {
     const schedule = scheduleSnapshot(now);
-    const override = activeOverride(now);
     const currentScene = sceneById(runtime.currentSceneId);
     const scheduledScene = sceneById(schedule.activeSlot?.sceneId);
     const nextScene = sceneById(schedule.nextSlot?.sceneId);
@@ -295,8 +281,7 @@ export async function startStudioServer(options = {}) {
       scheduledSceneName: scheduledScene?.sceneName || null,
       activeSlotId: schedule.activeSlot?.id || null,
       scheduleEnabled: config.settings.scheduleEnabled,
-      manualOverride: override,
-      nextSwitchAt: override?.expiresAt || schedule.nextAt?.toISOString() || null,
+      nextSwitchAt: schedule.nextAt?.toISOString() || null,
       nextSceneId: nextScene?.id || null,
       nextSceneName: nextScene?.sceneName || null,
       nextReconnectAt: runtime.nextReconnectAt,
@@ -500,17 +485,17 @@ export async function startStudioServer(options = {}) {
   }
 
   let commandQueue = Promise.resolve();
-  let expiryRetryAttempt = 0;
+  let pendingSceneUndo = null;
 
   // Build against the latest committed state inside the same queue as save/publish.
-  function commitConfig(buildCandidate, { writeSlots = false } = {}) {
+  function commitConfig(buildCandidate, { writeSlots = false, restoreDocument } = {}) {
     const operation = commandQueue.then(async () => {
       const candidate = buildCandidate(config);
       if (candidate === config) return config;
       assertSupportedVersion(candidate, 2);
-      const normalized = validateConfig(candidate);
+      const normalized = validateConfig(candidate, {allowLegacyEmptyButtonUrls:true});
       let saved;
-      try { saved = await configStore.save(normalized, { writeSlots }); }
+      try { saved = await configStore.save(normalized, { writeSlots, baseDocument: restoreDocument?.() }); }
       catch (cause) {
         throw Object.assign(new Error('Configuration could not be saved.'), { code: 'CONFIG_SAVE_FAILED', statusCode: 500, cause });
       }
@@ -524,39 +509,26 @@ export async function startStudioServer(options = {}) {
   function scheduleHeartbeat() {
     stopSchedulerTimer();
     if (isStopping) return;
-    let delay = nextHeartbeatDelay(scheduleSnapshot());
-    if (config.manualOverride) {
-      const remaining = Date.parse(config.manualOverride.expiresAt) - nowDate().getTime();
-      delay = Math.min(delay, remaining > 0 ? Math.max(250, remaining) : Math.min(60_000, 1_000 * (2 ** Math.min(expiryRetryAttempt, 6))));
-    }
+    const delay = nextHeartbeatDelay(scheduleSnapshot());
     schedulerTimer = setSchedulerTimeout(() => {
       schedulerTimer = undefined;
       return reconcilePresence({ reason: 'Clock heartbeat' }).catch(error => { runtime.lastError = errorMessage(error); });
     }, delay);
   }
 
-  async function expireOverride(now = nowDate()) {
-    await commitConfig(current => {
-      if (!current.manualOverride || Date.parse(current.manualOverride.expiresAt) > now.getTime()) return current;
-      return { ...current, manualOverride: null };
-    });
-  }
-
   async function reconcilePresence({ force = false, reason = 'Schedule changed' } = {}) {
     if (isStopping) return false;
     try {
       const now = nowDate();
-      try { await expireOverride(now); expiryRetryAttempt = 0; }
-      catch (error) {
-        expiryRetryAttempt += 1;
-        runtime.lastError = errorMessage(error);
-        // Expired intent is already ineffective even if durable cleanup must retry.
-      }
       const desired = desiredPresence(now);
       runtime.desiredSceneId = desired.scene?.id || null;
       if (desired.session) desired.key += ':session:' + desired.session.startedAt + ':' + desired.session.title;
       runtime.desiredKey = desired.key;
-      if (activityIdentity !== desired.key) { activityIdentity = desired.key; activityStartedAt = desired.session ? new Date(desired.session.startedAt) : now; }
+      if (activityIdentity !== desired.key) {
+        activityIdentity = desired.key;
+        activityStartedAt = desired.session ? new Date(desired.session.startedAt)
+          : new Date(runningAppStartedAt.get(appKey(desired.applicationExecutable || '')) ?? now.getTime());
+      }
       let applied = false;
       if (desired.scene) applied = await applyScene(desired.scene, desired.key, { force, app: desired.application });
       else if (config.settings.selectionMode === 'apps' && runtime.active) await clearDiscordPresence();
@@ -669,39 +641,50 @@ export async function startStudioServer(options = {}) {
   }
 
   async function updateScenesAndSlots(body) {
+    let undoSnapshot, restoreBase, undoToken;
     const saved = await commitConfig(current => {
-      const sceneIds = new Set((Array.isArray(body.scenes) ? body.scenes : []).map(scene => scene.id));
-      return { ...current, scenes: body.scenes, slots: Object.hasOwn(body, 'slots') ? body.slots : current.slots,
-        manualOverride: current.manualOverride && sceneIds.has(current.manualOverride.sceneId) ? current.manualOverride : null };
-    }, { writeSlots: Object.hasOwn(body, 'slots') });
+      for (const field of ['scenes', 'appMappings', 'expectedScenes', 'expectedAppMappings', 'slots']) {
+        if (Object.hasOwn(body, field) && !Array.isArray(body[field])) throw new Error(field + ' must be an array.');
+      }
+      for (const [expected, field] of [['expectedScenes', 'scenes'], ['expectedAppMappings', 'appMappings']]) {
+        if (Object.hasOwn(body, expected) && !isDeepStrictEqual(body[expected], current[field])) {
+          throw requestError('Configuration changed since editing began.', 'CONFLICT', 409);
+        }
+      }
+      if (body.undoToken !== undefined) {
+        const undo = pendingSceneUndo;
+        if (!undo || body.undoToken !== undo.token || Date.now() > undo.expiresAt
+          || !isDeepStrictEqual(current.scenes, undo.committed.scenes) || !isDeepStrictEqual(current.appMappings, undo.committed.appMappings)) {
+          throw requestError('Undo expired or configuration changed.', 'CONFLICT', 409);
+        }
+        const raw = configStore.snapshot();
+        restoreBase = {...raw,scenes:undo.raw.scenes,appMappings:undo.raw.appMappings};
+        return {...current,scenes:undo.previous.scenes,appMappings:undo.previous.appMappings};
+      }
+      if (body.retainUndo === true) {
+        if (!Object.hasOwn(body,'expectedScenes') || !Object.hasOwn(body,'expectedAppMappings')
+          || !Array.isArray(body.scenes) || body.scenes.length >= current.scenes.length) throw new Error('Undo retention requires an expected Scene deletion.');
+        undoSnapshot = {raw:configStore.snapshot(),previous:structuredClone(current)};
+      }
+      if (Array.isArray(body.scenes)) body.scenes.forEach(scene => validateScene(scene));
+      return { ...current, scenes: body.scenes,
+        appMappings: Object.hasOwn(body, 'appMappings') ? body.appMappings : current.appMappings,
+        slots: Object.hasOwn(body, 'slots') ? body.slots : current.slots };
+    }, { writeSlots: Object.hasOwn(body, 'slots'), restoreDocument: () => restoreBase });
+    if (undoSnapshot) {
+      undoToken = randomUUID();
+      pendingSceneUndo = {...undoSnapshot,token:undoToken,committed:structuredClone(saved),expiresAt:Date.now()+60_000};
+    } else if (body.undoToken !== undefined) pendingSceneUndo = null;
     await reconcilePresence({ force: true, reason: 'Configuration saved' });
     await pairMappedIcons();
-    return saved;
+    return {saved,undoToken};
   }
 
   async function setScheduleEnabled(enabled) {
     await commitConfig(current => ({ ...current,
-      settings: { ...current.settings, scheduleEnabled: Boolean(enabled) },
-      manualOverride: enabled ? current.manualOverride : null }));
+      settings: { ...current.settings, scheduleEnabled: Boolean(enabled) } }));
     if (enabled) await reconcilePresence({ force: true, reason: 'Daily schedule resumed' });
     else stopSchedulerTimer();
-  }
-
-  async function setManualOverride(sceneId) {
-    await commitConfig(current => {
-      if (!clientId) throw new Error('Add your Discord Application ID in API keys before showing a Scene on Discord.');
-      if (!current.scenes.some(scene => scene.id === sceneId)) throw new Error('Choose an existing Scene.');
-      const schedule = getScheduleState(current.slots, nowDate());
-      if (current.settings.selectionMode === 'schedule' && !schedule.nextAt) throw new Error('Add at least one enabled Daily Time Slot before using an override.');
-      return { ...current, settings: { ...current.settings, scheduleEnabled: true }, manualOverride: {
-        sceneId, expiresAt: current.settings.selectionMode === 'apps' ? new Date(nowDate().getTime() + 3600000).toISOString() : schedule.nextAt.toISOString() } };
-    });
-    return reconcilePresence({ force: true, reason: 'Manual Override started' });
-  }
-
-  async function cancelManualOverride() {
-    await commitConfig(current => ({ ...current, manualOverride: null }));
-    return reconcilePresence({ force: true, reason: 'Manual Override cancelled' });
   }
 
   async function setAutostartEnabled(enabled) {
@@ -712,7 +695,7 @@ export async function startStudioServer(options = {}) {
   }
 
   async function pauseAndClear() {
-    await commitConfig(current => ({ ...current, settings: { ...current.settings, scheduleEnabled: false }, manualOverride: null }));
+    await commitConfig(current => ({ ...current, settings: { ...current.settings, scheduleEnabled: false } }));
     stopSchedulerTimer();
     runtime.desiredSceneId = null;
     runtime.desiredKey = null;
@@ -927,7 +910,7 @@ export async function startStudioServer(options = {}) {
       if (request.method === 'PUT' && url.pathname === '/api/app-mappings') {
         const body = await readJson(request);
         if (!['apps', 'schedule'].includes(body.selectionMode)) throw new Error('Choose applications or schedule.');
-        await commitConfig(current => ({ ...current, appMappings:body.mappings, settings:{ ...current.settings, selectionMode:body.selectionMode, scheduleEnabled:true }, manualOverride:null }));
+        await commitConfig(current => ({ ...current, appMappings:body.mappings, settings:{ ...current.settings, selectionMode:body.selectionMode, scheduleEnabled:true } }));
         await pairMappedIcons();
         await reconcilePresence({ force:true, reason:'Application mappings saved' });
         sendJson(response, 200, { config:publicConfig(), runtime:runtimeSnapshot() });
@@ -939,8 +922,8 @@ export async function startStudioServer(options = {}) {
       }
 
       if (request.method === 'PUT' && url.pathname === '/api/config') {
-        const saved = await updateScenesAndSlots(await readJson(request));
-        sendJson(response, 200, { ok: true, config: publicConfig(saved), runtime: runtimeSnapshot() });
+        const {saved,undoToken} = await updateScenesAndSlots(await readJson(request));
+        sendJson(response, 200, { ok: true, config: publicConfig(saved), ...(undoToken ? {undoToken} : {}), runtime: runtimeSnapshot() });
         return;
       }
 
@@ -983,19 +966,6 @@ export async function startStudioServer(options = {}) {
         return;
       }
 
-      if (request.method === 'POST' && url.pathname === '/api/override') {
-        const body = await readJson(request);
-        const applied = await setManualOverride(String(body.sceneId || ''));
-        sendJson(response, 200, { ok: true, applied, runtime: runtimeSnapshot() });
-        return;
-      }
-
-      if (request.method === 'DELETE' && url.pathname === '/api/override') {
-        const applied = await cancelManualOverride();
-        sendJson(response, 200, { ok: true, applied, runtime: runtimeSnapshot() });
-        return;
-      }
-
       if (request.method === 'POST' && url.pathname === '/api/schedule') {
         const body = await readJson(request);
         await setScheduleEnabled(Boolean(body.enabled));
@@ -1017,13 +987,6 @@ export async function startStudioServer(options = {}) {
           offset: url.searchParams.get('offset'),
         });
         sendJson(response, 200, result);
-        return;
-      }
-
-      if (request.method === 'POST' && url.pathname === '/api/presence') {
-        const body = await readJson(request);
-        const applied = await setManualOverride(String(body.sceneId || body.id || ''));
-        sendJson(response, 200, { ok: true, applied, runtime: runtimeSnapshot() });
         return;
       }
 
@@ -1081,6 +1044,12 @@ export async function startStudioServer(options = {}) {
     server.listen(port, '127.0.0.1', async () => {
     if (!options.disableHostEffects) stopAppWatcher = (options.watchApps ?? watchWindowsApps)(snapshot => {
       const previousKey = desiredPresence().key;
+      if (!snapshot.error && snapshot.supported !== false) {
+        const running = new Set((snapshot.running || snapshot.apps.map(app => app.executable)).map(appKey));
+        const startedAt = nowDate().getTime();
+        for (const executable of runningAppStartedAt.keys()) if (!running.has(executable)) runningAppStartedAt.delete(executable);
+        for (const executable of running) if (!runningAppStartedAt.has(executable)) runningAppStartedAt.set(executable, startedAt);
+      }
       appSnapshot = snapshot;
       void pairMappedIcons().catch(error => { runtime.lastError = errorMessage(error); });
       const path = snapshot.foregroundExecutable ?? snapshot.apps.find(app => app.foreground)?.executable ?? '';

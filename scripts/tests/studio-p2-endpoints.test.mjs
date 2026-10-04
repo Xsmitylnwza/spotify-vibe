@@ -169,7 +169,7 @@ test('HTTP config defaults enabled, persists true/false, and rejects invalid val
   assert.equal(defaulted.body.config.scenes[0].enabled, true);
 });
 
-test('disabled Scene falls through to the next running app; explicit HTTP pin still wins', async t => {
+test('disabled Scene falls through to the next running app; removed pin returns 404', async t => {
   const config = createDefaultConfig();
   config.scenes[0].enabled = false;
   config.appMappings = [{ executable:'C:\\a.exe', name:'A', sceneId:config.scenes[0].id, enabled:true },
@@ -182,11 +182,8 @@ test('disabled Scene falls through to the next running app; explicit HTTP pin st
   assert.equal(state.desiredSceneId, config.scenes[1].id);
   assert.equal(selectRunningPreset(config.appMappings, ['C:\\a.exe', 'C:\\b.exe'], ['C:\\a.exe'], config.scenes).sceneId, config.scenes[1].id);
   assert.equal(selectAppPreset(config.appMappings, 'C:\\a.exe', config.scenes), null);
-  const pinned = await f.request('/api/override', 'POST', { sceneId:config.scenes[0].id });
-  assert.equal(pinned.status, 200);
-  assert.equal(pinned.body.runtime.selectionSource, 'override');
-  assert.equal(pinned.body.runtime.desiredSceneId, config.scenes[0].id);
-  assert.equal(pinned.body.runtime.currentSceneId, config.scenes[0].id);
+  assert.equal((await f.request('/api/override', 'POST', { sceneId:config.scenes[0].id })).status, 404);
+  assert.equal((await f.request('/api/state')).body.desiredSceneId, config.scenes[1].id);
 });
 
 test('bundled IBM Plex fonts referenced by studio-ci.css are served as woff2; traversal is refused', async t => {

@@ -57,7 +57,7 @@ function validateImageReference(label, value) {
   if (value.includes('://')) validateHttpsUrl(label, value);
 }
 
-export function validateScene(input, { delivery = false } = {}) {
+export function validateScene(input, { delivery = false, allowLegacyEmptyButtonUrls = false } = {}) {
   const activityType = text(input?.activityType).toLowerCase() || 'playing';
   const timerMode = text(input?.timerMode).toLowerCase() || 'none';
   const rawButtons = Array.isArray(input?.buttons) ? input.buttons : [];
@@ -135,6 +135,7 @@ export function validateScene(input, { delivery = false } = {}) {
   if (scene.buttons.length > 2) throw new Error('Discord supports up to two buttons.');
   for (const [index, button] of scene.buttons.entries()) {
     required('Button ' + (index + 1) + ' label', button.label, 1, 32);
+    if (!button.url && !allowLegacyEmptyButtonUrls) throw new Error('Button ' + (index + 1) + ' URL must be a valid HTTPS URL.');
     validateHttpsUrl('Button ' + (index + 1) + ' URL', button.url);
   }
 
@@ -155,19 +156,7 @@ function validateSlot(input, sceneIds) {
   return slot;
 }
 
-function validateManualOverride(input, sceneIds) {
-  if (!input) return null;
-  const sceneId = validateIdentifier('Manual Override Scene ID', input.sceneId);
-  // A pin ends when its Scene is deleted.
-  if (!sceneIds.has(sceneId)) return null;
-  const expiresAt = text(input.expiresAt);
-  if (!expiresAt || Number.isNaN(Date.parse(expiresAt))) {
-    throw new Error('Manual Override must contain a valid expiration time.');
-  }
-  return { sceneId, expiresAt: new Date(expiresAt).toISOString() };
-}
-
-export function validateConfig(input) {
+export function validateConfig(input, { allowLegacyEmptyButtonUrls = false } = {}) {
   const rawScenes = Array.isArray(input?.scenes) ? input.scenes : [];
   const rawSlots = Array.isArray(input?.slots) ? input.slots : [];
   if (rawScenes.length < 1 || rawScenes.length > 20) {
@@ -175,7 +164,7 @@ export function validateConfig(input) {
   }
   if (rawSlots.length > 24) throw new Error('Configuration supports up to 24 Daily Time Slots.');
 
-  const scenes = rawScenes.map(scene => validateScene(scene));
+  const scenes = rawScenes.map(scene => validateScene(scene, {allowLegacyEmptyButtonUrls}));
   const sceneIds = new Set();
   for (const scene of scenes) {
     if (sceneIds.has(scene.id)) throw new Error('Scene IDs must be unique.');
@@ -193,6 +182,8 @@ export function validateConfig(input) {
   }
   slots.sort((left, right) => parseLocalTime(left.startTime) - parseLocalTime(right.startTime));
 
+  // manualOverride is legacy owner data: omit it from runtime projection so the
+  // raw store overlay preserves it without validation, expiry or application.
   return {
     version: 2,
     codexSession: validateCodexSession(input?.codexSession),
@@ -204,7 +195,6 @@ export function validateConfig(input) {
       scheduleEnabled: input?.settings?.scheduleEnabled !== false,
       autostartEnabled: input?.settings?.autostartEnabled !== false,
     },
-    manualOverride: validateManualOverride(input?.manualOverride, sceneIds),
   };
 }
 
@@ -221,7 +211,16 @@ export function overlayConfigDocument(raw, normalized, { writeSlots = true } = {
     ...raw,
     ...normalized,
     settings: { ...raw?.settings, ...normalized.settings },
-    scenes: retainedEntries(raw?.scenes, normalized.scenes, id),
+    scenes: retainedEntries(raw?.scenes, normalized.scenes, id).map(scene => {
+      const previous = raw?.scenes?.find(item => id(item) === id(scene));
+      const oldButtons = previous?.buttons;
+      // An unrelated mutation must not erase extensions nested in unchanged
+      // button records. Changed/removed buttons use the explicit new array.
+      if (Array.isArray(oldButtons) && JSON.stringify(oldButtons.map(button => ({label:text(button.label),url:text(button.url)}))) === JSON.stringify(scene.buttons)) {
+        return {...scene,buttons:oldButtons};
+      }
+      return scene;
+    }),
     appMappings: retainedEntries(raw?.appMappings, normalized.appMappings, mapping => mapping?.executable ? appKey(mapping.executable) : undefined),
     slots: !writeSlots && Array.isArray(raw?.slots)
       ? raw.slots
@@ -321,13 +320,12 @@ export function createDefaultConfig() {
       scheduleEnabled: true,
       autostartEnabled: true,
     },
-    manualOverride: null,
   });
 }
 
 export function createDiscordActivity(scene, now = new Date(), { artBaseUrl = "", app, user } = {}) {
   const resolved = resolveSceneText(scene, { app, user });
-  // Manual pins have no selecting app. Automatic references must never leak
+  // Automatic references must never leak
   // as Discord asset keys, even when this pure API is called without a mapping.
   if (resolved.largeImage === '@app') resolved.largeImage = defaultCharacterArt;
   if (resolved.smallImage === '@app') resolved.smallImage = '';

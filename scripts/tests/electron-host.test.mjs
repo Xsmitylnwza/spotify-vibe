@@ -7,7 +7,7 @@ import vm from 'node:vm';
 
 const scenario = process.argv[2];
 if (!scenario) {
-  for (const name of ['ipc', 'updates', 'navigation', 'installer', 'installer-hung', 'startup-hung', 'startup-late', 'startup-deadline', 'startup-late-cleanup', 'startup-late-cleanup-timeout']) {
+  for (const name of ['ipc', 'updates', 'draft-update', 'draft-quit', 'draft-shutdown', 'draft-prepare-failure', 'navigation', 'installer', 'installer-hung', 'startup-hung', 'startup-late', 'startup-deadline', 'startup-late-cleanup', 'startup-late-cleanup-timeout']) {
     test(`actual Electron main host boundary: ${name}`, () => {
       const result = spawnSync(process.execPath, ['--experimental-vm-modules', import.meta.filename, name], { encoding: 'utf8', timeout: 10000 });
       assert.equal(result.status, 0, result.stdout + result.stderr);
@@ -30,7 +30,7 @@ if (!scenario) {
     constructor() {
       super(); windows.push(this);
       this.webContents = Object.assign(new EventEmitter(), { mainFrame: { url: 'http://127.0.0.1:47394/', parent: null }, isDestroyed: () => false,
-        send: () => {}, getURL: () => '', setWindowOpenHandler: fn => { this.open = fn; } });
+        send: () => {}, getURL: () => '', executeJavaScript: async () => ({ok:true}), setWindowOpenHandler: fn => { this.open = fn; } });
     }
     isDestroyed() { return false; }
     loadURL() { loads++; return Promise.resolve(); }
@@ -43,9 +43,10 @@ if (!scenario) {
   }
   class Tray extends EventEmitter { setToolTip() {} setContextMenu() {} destroy() { trayDestroyed++; } }
   const external = [];
+  let dialogResponse = 0;
   const handle = { alreadyRunning: false, url: 'http://127.0.0.1:47394/', stop: async () => {
     stops++;
-    if (scenario.startsWith('startup-late-cleanup')) await new Promise(resolve => { releaseStop = resolve; });
+    if (scenario.startsWith('startup-late-cleanup') || scenario === 'draft-shutdown') await new Promise(resolve => { releaseStop = resolve; });
     stopComplete = true;
   } };
   const context = vm.createContext({ console, URL, process: { env: { PRESENCE_STUDIO_PORT: '47394', PRESENCE_AUTOSTART_DISABLE: '1' }, argv: [], platform: 'win32' },
@@ -54,7 +55,7 @@ if (!scenario) {
   const modules = new Map();
   const host = {
     electron: { app, BrowserWindow: Window, Tray, Menu: { setApplicationMenu() {}, buildFromTemplate: x => x }, ipcMain: { handle: (name, fn) => handlers.set(name, fn) },
-      nativeImage: { createFromPath: () => ({ resize() { return this; } }) }, nativeTheme: { shouldUseDarkColors: false }, dialog: { showMessageBox: async () => ({ response: 1 }) }, shell: { openExternal: async url => external.push(url) } },
+      nativeImage: { createFromPath: () => ({ resize() { return this; } }) }, nativeTheme: { shouldUseDarkColors: false }, dialog: { showMessageBox: async () => ({ response: scenario.startsWith('draft-') ? dialogResponse : 1 }) }, shell: { openExternal: async url => external.push(url) } },
     'electron-updater': { default: { autoUpdater: updater } },
     '../scripts/studio-server.mjs': { startStudioServer: async options => { startOptions = options; return scenario.startsWith('startup-') ? await new Promise(resolve => { resolveStart = resolve; }) : handle; } },
   };
@@ -114,6 +115,55 @@ if (!scenario) {
     await fire(3_000); assert.equal(installs, 0, 'never restarts under an owner using the visible window');
     visible = false; win.emit('hide'); await flush();
     assert.equal(stops, 1); assert.equal(installs, 1); assert.equal(quit, 1);
+  } else if (scenario === 'draft-update') {
+    let installs = 0, visible = false;
+    win.isVisible = () => visible;
+    win.show = () => { visible = true; };
+    updater.quitAndInstall = () => { installs++; app.quit(); };
+    const setEditor = state => handlers.get('vibe:set-editor-state')(event, state);
+    assert.throws(() => setEditor({ open:'false',dirty:false,saving:false }), /Invalid editor state/);
+    await setEditor({open:true,dirty:true,saving:false});
+    updater.emit('update-downloaded', {version:'2'});
+    await fire(3000); win.emit('hide'); await flush();
+    assert.equal(installs,0,'hidden dirty editor cannot silently install');
+    assert.equal((await handlers.get('vibe:quit-and-install')(event)).ok,false);
+    assert.equal(installs,0,'manual restart is blocked while editor is open');
+    await setEditor({open:true,dirty:false,saving:true});
+    visible=false; win.emit('hide'); await flush();
+    assert.equal(installs,0,'save in flight blocks installation');
+    await setEditor({open:false,dirty:false,saving:false});
+    await fire(0); await flush();
+    assert.equal(installs,1,'closing a saved/discarded editor permits hidden installation');
+  } else if (scenario === 'draft-quit') {
+    const setEditor = state => handlers.get('vibe:set-editor-state')(event,state);
+    await setEditor({open:true,dirty:true,saving:false});
+    await handlers.get('vibe:quit')(event); await flush();
+    assert.equal(quit,0,'cancel quit retains dirty draft'); assert.equal(stops,0);
+    dialogResponse=1;
+    await setEditor({open:true,dirty:true,saving:true});
+    await handlers.get('vibe:quit')(event); await flush();
+    assert.equal(quit,0,'cannot discard a save in flight');
+    await setEditor({open:true,dirty:true,saving:false});
+    await handlers.get('vibe:quit')(event); await flush();
+    assert.equal(quit,1,'explicit discard and quit succeeds'); assert.equal(stops,1);
+  } else if (scenario === 'draft-shutdown') {
+    const quiesce = [];
+    win.webContents.executeJavaScript = async code => { quiesce.push(code); return {ok:true}; };
+    const closing = handlers.get('vibe:quit')(event); await flush();
+    assert.equal(quiesce.length,1,'quiesce the actual renderer before tearing down');
+    assert.match(quiesce[0],/__vibePrepareQuit.*discard:false/);
+    assert.equal(stops,1); assert.equal(quit,0);
+    assert.throws(() => handlers.get('vibe:set-editor-state')(event,{open:true,dirty:true,saving:true}), /shutting down/);
+    releaseStop(); await closing; await flush(); assert.equal(quit,1);
+  } else if (scenario === 'draft-prepare-failure') {
+    for (const reply of [{ok:false}, undefined, {ok:'true'}]) {
+      win.webContents.executeJavaScript = async () => reply;
+      assert.equal((await handlers.get('vibe:quit')(event)).ok,false);
+      assert.equal(stops,0); assert.equal(quit,0);
+    }
+    win.webContents.executeJavaScript = async () => { throw new Error('renderer unavailable'); };
+    assert.equal((await handlers.get('vibe:quit')(event)).ok,false);
+    assert.equal(stops,0); assert.equal(quit,0);
   } else if (scenario === 'navigation') {
     for (const name of ['will-navigate', 'will-redirect']) {
       for (const url of ['https://foreign.example/', 'javascript:alert(1)', 'file:///tmp/a', 'data:text/html,test']) {

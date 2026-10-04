@@ -1254,13 +1254,6 @@ body.nodev .vs-sidebar { height: 100vh; }
 .mk-rule-note { font-size: 12px; color: var(--vs-ink2); margin: 0 0 12px; }
 .mk-head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
 
-/* ---- Pin menu (sibling: .vs-dialog surface + .vs-look rows) ---- */
-.mk-pop { position: relative; display: inline-block; }
-.mk-menu { position: absolute; z-index: 20; top: 100%; left: 0; margin-top: 6px; min-width: 240px; background: var(--vs-surface); border: 1px solid var(--vs-hairline); border-radius: var(--vs-r-md); box-shadow: var(--vs-shadow-pop); padding: 6px; }
-.mk-menu button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; padding: 9px 10px; border-radius: var(--vs-r-sm); text-align: left; font-size: 14px; }
-.mk-menu button:hover { background: var(--vs-tint); }
-.mk-menu img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
-.mk-menu .vs-caption { margin: 4px 10px 6px; }
 
 /* ---- Scene thumbs ---- */
 .vs-scene-icon img, .vs-look img { object-fit: cover; }
@@ -1282,8 +1275,10 @@ body.nodev .vs-sidebar { height: 100vh; }
 .mk-drawer .vs-savebar-dot { background: var(--vs-good-t); }
 .mk-drawer .vs-savebar[data-state="error"] .vs-savebar-dot { background: var(--vs-bad-t); }
 .mk-drawer .vs-savebar[data-state="saving"] .vs-savebar-dot { background: var(--vs-accent); }
+.mk-drawer .vs-savebar[data-state="dirty"] .vs-savebar-dot, .mk-drawer .vs-savebar[data-state="warning"] .vs-savebar-dot { background: #f59e0b; }
 .mk-drawer .vs-savebar .vs-savebar-btn { display: none; }
 .mk-drawer .vs-savebar[data-state="error"] .vs-savebar-btn { display: inline-flex; }
+.mk-drawer .vs-savebar .vs-savebar-btn[hidden] { display: none; }
 .mk-drawer .vs-savebar[data-state="error"] { color: var(--vs-bad-t); background: var(--vs-bad-bg); }
 .mk-preview-sticky .vs-preview-label { margin-top: 0; }
 .mk-note { display: flex; gap: 8px; align-items: flex-start; background: var(--vs-sunken); border-radius: var(--vs-r-md); padding: 10px 14px; font-size: 12px; color: var(--vs-ink2); margin-top: 8px; }
@@ -1455,10 +1450,10 @@ html { scroll-behavior: auto; }
 :root { --mk-dur-fast: 120ms; --mk-dur: 180ms; --mk-dur-slow: 220ms; --mk-ease: cubic-bezier(.2, .8, .2, 1); }
 
 /* press feedback + smooth state colours on every control */
-.vs-btn, .vs-look, .vs-segmented button, .vs-seg button, .vs-icon-btn, .vs-icon-btn-danger, .mk-tile, .mk-art-btn, .mk-help, .vs-nav-link, .bottom-link, .vs-skip, .mk-menu button, .mk-item, .vs-scene-row, .vs-quiet-link, .vs-step, .vs-statuspill, .vs-pill {
+.vs-btn, .vs-look, .vs-segmented button, .vs-seg button, .vs-icon-btn, .vs-icon-btn-danger, .mk-tile, .mk-art-btn, .mk-help, .vs-nav-link, .bottom-link, .vs-skip, .mk-item, .vs-scene-row, .vs-quiet-link, .vs-step, .vs-statuspill, .vs-pill {
   transition: background-color var(--mk-dur-fast) var(--mk-ease), color var(--mk-dur-fast) var(--mk-ease), border-color var(--mk-dur-fast) var(--mk-ease), box-shadow var(--mk-dur-fast) var(--mk-ease), opacity var(--mk-dur-fast) var(--mk-ease), transform 100ms var(--mk-ease);
 }
-.vs-btn:active:not(:disabled), .vs-look:active:not(:disabled), .vs-segmented button:active, .vs-seg button:active, .vs-icon-btn:active, .vs-icon-btn-danger:active, .mk-tile:active, .mk-art-btn:active, .vs-nav-link:active, .bottom-link:active, .mk-menu button:active, .mk-item:active { transform: scale(.98); }
+.vs-btn:active:not(:disabled), .vs-look:active:not(:disabled), .vs-segmented button:active, .vs-seg button:active, .vs-icon-btn:active, .vs-icon-btn-danger:active, .mk-tile:active, .mk-art-btn:active, .vs-nav-link:active, .bottom-link:active:active, .mk-item:active { transform: scale(.98); }
 .vs-switch span, .vs-switch span::before { transition-duration: var(--mk-dur); transition-timing-function: var(--mk-ease); }
 .vs-input, .vs-select, .mk-rule select { transition: border-color var(--mk-dur-fast) var(--mk-ease), box-shadow var(--mk-dur-fast) var(--mk-ease); }
 .connection-dot { transition: background-color var(--mk-dur) var(--mk-ease); }
@@ -1476,8 +1471,6 @@ html { scroll-behavior: auto; }
 /* menus, toast, tooltip */
 @keyframes mk-pop-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
 @keyframes mk-pop-out { to { opacity: 0; transform: translateY(-4px) scale(.98); } }
-.mk-menu { transform-origin: top left; animation: mk-pop-in var(--mk-dur-fast) var(--mk-ease) both; }
-.mk-menu.mk-out { animation: mk-pop-out var(--mk-dur-fast) var(--mk-ease) both; pointer-events: none; }
 @keyframes mk-toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes mk-toast-out { to { opacity: 0; transform: translate(-50%, 8px); } }
 .mk-toast { animation: mk-toast-in var(--mk-dur) var(--mk-ease) both !important; }
@@ -1514,7 +1507,7 @@ html { scroll-behavior: auto; }
 @media (prefers-reduced-motion: reduce) {
   :root { --mk-dur-fast: 1ms; --mk-dur: 1ms; --mk-dur-slow: 1ms; }
   .mk-drawer, .mk-picker .vs-dialog, #mkTip { transform: none !important; }
-  .mk-menu, .mk-menu.mk-out, .mk-toast, .mk-toast.mk-out, .mk-wmenu, .mk-wtoast, .mk-fakewin, .vs-alert, .mk-rule.mk-row-in, #sceneList .vs-scene-row.mk-row-in, .vs-savebar.mk-swap * { animation: none !important; }
+  .mk-toast, .mk-toast.mk-out, .mk-wmenu, .mk-wtoast, .mk-fakewin, .vs-alert, .mk-rule.mk-row-in, #sceneList .vs-scene-row.mk-row-in, .vs-savebar.mk-swap * { animation: none !important; }
   .vs-btn:active, .vs-look:active, .vs-segmented button:active, .mk-tile:active { transform: none !important; }
 }
 
@@ -1566,6 +1559,10 @@ html { scroll-behavior: auto; }
 .dcp-link { cursor: pointer; }
 .dcp-link:hover { text-decoration: underline; text-decoration-color: #00a8fc; text-underline-offset: 2px; }
 .dcp-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+a.dcp-btn { text-decoration: none; }
+a.dcp-btn.is-link { cursor: pointer; transition: background-color var(--mk-dur-fast, .12s) ease; }
+a.dcp-btn.is-link:hover { background: #6d6f78; }
+a.dcp-btn.is-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 4px var(--vs-accent, #5865f2); }
 .dcp-btn { display: flex; align-items: center; justify-content: center; min-height: 32px; border-radius: 3px; background: #4e5058; color: #fff; font-size: 14px; font-weight: 500; padding: 2px 16px; }
 .dcp-none { margin: 0 12px; background: var(--d-panel); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
 .dcp-none b { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--d-text); }
@@ -1789,11 +1786,10 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-previewbox .dcp { margin: 0 auto; }
 .mk-previewbox .vs-preview-foot { text-align: center; max-width: 340px; }
 .mk-ctlrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: min(100%, 440px); }
-.mk-ctlrow .vs-btn, .mk-ctlrow .mk-pop, .mk-ctlrow .mk-pop > .vs-btn { width: 100%; }
+.mk-ctlrow .vs-btn { width: 100%; }
 .mk-ctlrow .vs-btn { min-height: 42px; white-space: nowrap; }
 .mk-ctlrow.is-single { grid-template-columns: minmax(0, 220px); justify-content: center; }
 .mk-now .mk-sumcard { align-self: stretch; margin-top: 8px; text-align: left; }
-.mk-now .mk-menu { left: 0; }
 @media (max-width: 560px) { .mk-ctlrow .vs-btn { padding-left: 10px; padding-right: 10px; font-size: 13px; } }
 .mk-now .dcp, .mk-now .mk-pvwrap, .mk-now .vs-preview-label { text-align: left; } .mk-now .vs-preview-label { text-align: center; }
 .mk-well-thumb.is-app { position: relative; } .mk-appbadge { position: absolute; right: 3px; bottom: 3px; width: 16px; height: 16px; border-radius: 5px; background: var(--vs-accent); color: #fff; display: grid; place-items: center; z-index: 1; border: 1.5px solid var(--vs-surface); box-sizing: content-box; }
@@ -1839,12 +1835,7 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 .mk-pfoot .vs-quiet-link { font-size: 12.5px; }
 .mk-ptile { gap: 10px; padding: 8px 10px; }
 .mk-pt-main { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; padding: 4px 0; border: 0; border-radius: var(--vs-r-md); background: transparent; color: var(--vs-ink); text-align: left; cursor: pointer; }
-.mk-pt-pin { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none; min-width: 66px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--vs-hairline); border-radius: 8px; background: var(--vs-surface); color: var(--vs-ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color var(--mk-dur-fast) var(--mk-ease), border-color var(--mk-dur-fast) var(--mk-ease), transform var(--mk-dur-fast) var(--mk-ease); }
-.mk-pt-pin:hover:not(:disabled) { border-color: var(--vs-accent); background: var(--vs-accent-soft); color: var(--vs-accent-deep); }
-.mk-pt-pin:active:not(:disabled) { transform: translateY(1px); }
-.mk-pt-pin[aria-pressed="true"] { background: var(--vs-accent); border-color: var(--vs-accent); color: #fff; }
-.mk-pt-pin:disabled { opacity: .5; cursor: not-allowed; }
-.mk-pt-main:focus-visible, .mk-pt-pin:focus-visible { outline: 2px solid var(--vs-accent); outline-offset: 2px; }
+.mk-pt-main:focus-visible { outline: 2px solid var(--vs-accent); outline-offset: 2px; }
 .mk-presence-power { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 42px; padding: 5px 10px 5px 12px; border: 1px solid var(--vs-hairline); border-radius: 10px; background: var(--vs-surface); color: var(--vs-ink); font-size: 13px; font-weight: 500; cursor: pointer; box-sizing: border-box; }
 .mk-presence-power:hover { border-color: var(--vs-accent-line); background: var(--vs-tint); }
 .mk-presence-power:has(input:focus-visible) { outline: 2px solid var(--vs-accent); outline-offset: 3px; }
@@ -2224,7 +2215,6 @@ body.nodev .vs-sidebar { top: 0; height: 100dvh; }
 body.vs-frameless .vs-app { min-height: 0; height: auto; }
 body.vs-frameless .vs-sidebar { top: 0; height: 100%; }
 body.vs-frameless .vs-main { overflow-y: auto; min-height: 0; height: 100%; }
-.mk-draft-pill { margin-left: 8px; }
 
 /* Desktop (frameless) shell: the app fills the window below the 38px titlebar,
    independent of other body children; sidebar spans full height, main scrolls. */

@@ -10,11 +10,11 @@ const tick = () => new Promise(resolve => setImmediate(resolve));
 
 function variablesFixture(lang = 'en') {
   const ctx = {
-    S: { rules: [], lang }, ST: { rt: null }, DCID: { name: '' }, T: (en, th) => (lang === 'th' ? th : en), pinnedSceneId: () => '',
+    S: { rules: [], lang }, ST: { rt: null }, DCID: { name: '' }, T: (en, th) => (lang === 'th' ? th : en),
     appBy: id => ({ id, name: { chrome: 'Google Chrome', code: 'VS Code' }[id] || id }),
   };
   vm.createContext(ctx);
-  vm.runInContext(slice('/* ---------- text variables', '/* ---------- end text variables') + '\nthis.m = { varValues, resolveVars, hasVars };', ctx);
+  vm.runInContext(slice('const RR = ', 'const appBy') + slice('/* ---------- text variables', '/* ---------- end text variables') + '\nthis.m = { varValues, resolveVars, hasVars };', ctx);
   return ctx;
 }
 
@@ -162,13 +162,13 @@ test('theme: syncShellTheme pushes the theme to the desktop shell and is a no-op
 
 function sourceFixture() {
   const ctx = {
-    S: { rules: [{ id: 'm1', scene: 's1', app: 'claude' }], pinApp: '', drawer: { id: 's1', dirty: false }, scenes: [], save: '' }, ST: { rt: null, ready: true }, DCID: { name: 'Mint' },
-    T: (en) => en, APPS: [], appBy: id => ({ id, name: 'Claude', publicIcon: 'https://files.catbox.moe/claude.png' }), pinnedSceneId: () => '', buildDrawer() {}, scheduleSave() {},
-    sceneBy: id => ctx.S.scenes.find(s => s.id === id), mkScene: o => ({ btns: [], ...o }),
+    S: { rules: [{ id: 'm1', scene: 's1', app: 'claude' }], drawer: null, scenes: [], save: '' }, ST: { rt: null, ready: true }, DCID: { name: 'Mint' },
+    T: (en) => en, APPS: [], appBy: id => ({ id, name: 'Claude', publicIcon: 'https://files.catbox.moe/claude.png' }), buildDrawer() {},
+    sceneBy: id => ctx.S.scenes.find(s => s.id === id), mkScene: o => ({ btns: [], ...o }), notifyEditor() {},
   };
   ctx.FIELD = { lg: 'art', sm: 'small' };
   vm.createContext(ctx);
-  vm.runInContext([slice('function sceneApp(sc)', 'const loading = '), 'const SRC = { lg: \'artSource\', sm: \'smallSource\' };', slice('function applyImage(', '\n}') + '\n}', slice('function sceneToUi(', 'function sceneProblem(')].join('\n') +
+  vm.runInContext([slice('const RR = ', 'const appBy'), slice('function touch(', '\n'), slice('function sceneApp(sc)', 'const loading = '), 'const SRC = { lg: \'artSource\', sm: \'smallSource\' };', slice('function applyImage(', '\n}') + '\n}', slice('function sceneToUi(', 'function sceneProblem(')].join('\n') +
     '\nthis.m = { published, applyImage, sceneToUi, sceneToRaw };', ctx);
   return ctx;
 }
@@ -182,16 +182,14 @@ test('app-icon source: saved as smallImageSource, round-trips, and the preview s
   assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/claude.png', 'preview uses the paired app icon');
   c.ST.rt = { currentSceneId: 's1', selectionSource: 'app', selectedApplication: 'Claude', applicationBadge: 'https://files.catbox.moe/live.png' };
   assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/live.png', 'live scene uses what the server delivers');
-  c.ST.rt = { currentSceneId: 's1', selectionSource: 'override' };
-  assert.equal(c.m.published(sc).small, '', 'a pin with none of its apps open sends no app icon');
-  c.ST.rt = { currentSceneId: 's1', selectionSource: 'override', selectedApplication: 'Claude', applicationBadge: 'https://files.catbox.moe/live.png' };
-  assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/live.png', 'a pin with a paired app open shows that app icon');
+  c.ST.rt = { currentSceneId: 's1', selectionSource: 'idle' };
+  assert.equal(c.m.published(sc).small, '', 'a live Scene with no app selected sends no app icon');
 });
 
 test('app-icon source: picking another image clears it; explicit images are kept', () => {
   const c = sourceFixture();
   const sc = c.m.sceneToUi({ id: 's1', sceneName: 'A', activityName: 'Vibe', details: 'dd', state: 'ss', smallImage: 'https://x.test/a.png' });
-  c.S.scenes = [sc];
+  c.S.scenes = [sc]; c.S.drawer = { id: 's1', sc, rules: c.S.rules, hidden: [], dirty: false, rulesDirty: false, err: '', conflict: false, doneErr: false };
   assert.equal(c.m.sceneToRaw(sc).smallImageSource, undefined);
   c.m.applyImage('sm', '', 'app-icon');
   assert.equal(sc.smallSource, 'app-icon');
