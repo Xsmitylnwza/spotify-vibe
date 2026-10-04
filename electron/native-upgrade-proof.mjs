@@ -425,7 +425,8 @@ async function scenario() {
     log('baseline-isolated-runtime', { configPath: baselineRuntime.configPath, secretsPath: baselineRuntime.secretsPath, connectionState: baselineRuntime.connectionState, clientId: baselineRuntime.clientId });
     preserved('baseline-running'); noLoginItem();
     await cdp.evaluate('window.__nativeUpgradeStates=[]; window.vibeStudio.onUpdateState(s=>window.__nativeUpgradeStates.push({at:new Date().toISOString(),state:s})); window.vibeStudio.checkForUpdates()');
-    const available = await waitFor('actual public update available', async () => { const state = await cdp.evaluate('window.vibeStudio.getUpdateState()'); log('updater-state', state); return updateStage(state) === 'available' ? state : null; });
+    // Baselines from v1.0.17 download automatically; older ones wait for the explicit request below.
+    const available = await waitFor('actual public update available', async () => { const state = await cdp.evaluate('window.vibeStudio.getUpdateState()'); log('updater-state', state); return ['available', 'downloading', 'downloaded'].includes(updateStage(state)) ? state : null; });
     assert.equal(available.availableVersion || available.available, stableVersion(candidateTag));
     log('explicit-download-requested', { candidateTag });
     await cdp.evaluate('window.vibeStudio.downloadUpdate()', 240_000);

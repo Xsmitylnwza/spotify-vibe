@@ -40,7 +40,9 @@ test('updater errors settle, download can retry, concurrent checks cannot distur
   const download = updates.download();
   await Promise.resolve();
   assert.equal((await updates.check()).ok, false);
-  assert.equal((await updates.download()).ok, false);
+  let starts = 0; const original = updater.downloadUpdate; updater.downloadUpdate = () => { starts++; return original(); };
+  assert.equal(updates.download(), download, 'a second request joins the in-flight download');
+  assert.equal(starts, 0);
   assert.equal(updates.snapshot().state, 'downloading');
   updater.emit('update-downloaded', { version: '1.0.8' }); release(); await download;
   assert.equal(updates.snapshot().state, 'downloaded');
@@ -65,4 +67,52 @@ test('check deadline settles an updater promise that never resolves', async () =
   assert.equal((await updates.check()).ok, false);
   assert.equal(updates.snapshot().state, 'error');
   assert.match(updates.snapshot().error, /timed out/);
+});
+
+test('autoDownload: a scheduled check that finds an update downloads it once and arms install-on-quit', async () => {
+  const updater = new EventEmitter(); let downloads = 0;
+  updater.checkForUpdates = async () => { updater.emit('update-available', { version: '1.0.9' }); };
+  updater.downloadUpdate = async () => { downloads++; updater.emit('download-progress', { percent: 50 }); updater.emit('update-downloaded', { version: '1.0.9' }); };
+  const states = [];
+  const updates = createUpdates({ updater, currentVersion: '1.0.8', enabled: true, autoDownload: true, publish: state => states.push(state.state) });
+  assert.equal(updater.autoDownload, false, 'downloads stay under createUpdates control');
+  assert.equal(updater.autoInstallOnAppQuit, true);
+  assert.equal((await updates.check()).ok, true);
+  assert.equal(downloads, 1);
+  assert.equal(updates.snapshot().state, 'downloaded');
+  assert.deepEqual(states.filter((s, i) => s !== states[i - 1]), ['checking', 'available', 'downloading', 'downloaded']);
+  assert.equal((await updates.check()).ok, false, 'later checks never re-download a ready installer');
+  assert.equal(downloads, 1);
+});
+
+test('autoDownload off keeps the explicit download flow and no install-on-quit', async () => {
+  const updater = new EventEmitter(); let downloads = 0;
+  updater.checkForUpdates = async () => { updater.emit('update-available', { version: '1.0.9' }); };
+  updater.downloadUpdate = async () => { downloads++; };
+  const updates = createUpdates({ updater, currentVersion: '1.0.8', enabled: true, publish: () => {} });
+  assert.equal(updater.autoInstallOnAppQuit, false);
+  await updates.check();
+  assert.equal(downloads, 0);
+  assert.equal(updates.snapshot().state, 'available');
+});
+
+test('autoDownload: no update or a failed check does not start a download', async () => {
+  const updater = new EventEmitter(); let downloads = 0;
+  updater.downloadUpdate = async () => { downloads++; };
+  const updates = createUpdates({ updater, currentVersion: '1.0.8', enabled: true, autoDownload: true, publish: () => {} });
+  updater.checkForUpdates = async () => { updater.emit('update-not-available', {}); };
+  await updates.check();
+  updater.checkForUpdates = async () => { throw new Error('offline'); };
+  assert.equal((await updates.check()).ok, false);
+  assert.equal(downloads, 0);
+});
+
+test('seamless restart only runs for a downloaded update while the window is hidden in the tray or gone', async () => {
+  const { autoRestartAllowed } = await import('../../electron/updates.mjs');
+  const win = (visible, minimized = false) => ({ isDestroyed: () => false, isVisible: () => visible, isMinimized: () => minimized });
+  assert.equal(autoRestartAllowed({ state: 'downloaded' }, null), true);
+  assert.equal(autoRestartAllowed({ state: 'downloaded' }, win(false)), true);
+  assert.equal(autoRestartAllowed({ state: 'downloaded' }, win(true, true)), false, 'a minimized window is still in use');
+  assert.equal(autoRestartAllowed({ state: 'downloaded' }, win(true)), false, 'never restart under an owner who is using Studio');
+  for (const state of ['idle', 'available', 'downloading', 'error']) assert.equal(autoRestartAllowed({ state }, null), false);
 });

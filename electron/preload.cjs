@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('vibeStudio', {
   downloadUpdate: () => ipcRenderer.invoke('vibe:download-update'),
   quitAndInstall: () => ipcRenderer.invoke('vibe:quit-and-install'),
   quit: () => ipcRenderer.invoke('vibe:quit'),
+  setTheme: (theme) => ipcRenderer.invoke('vibe:set-theme', theme),
   openStudio: () => ipcRenderer.invoke('vibe:open-studio'),
   // Frameless window controls for the custom title bar.
   windowMinimize: () => ipcRenderer.invoke('vibe:window-minimize'),

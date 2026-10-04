@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vibe Studio</title>
     <link rel="icon" href="data:," />
+    <style>html{background:#FAF8F5;color-scheme:light}html[data-theme="dark"]{background:#1e1f22;color-scheme:dark}</style>
+    <script>
+      /* Runs before first paint: saved theme (same key as the Settings toggle), else the OS preference; also the saved language. */
+      try {
+        var __d = document.documentElement, __th = localStorage.getItem('vibe.theme');
+        if (__th !== 'dark' && __th !== 'light') __th = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        __d.dataset.theme = __th;
+        var __lg = localStorage.getItem('vibe.lang'); if (__lg === 'en' || __lg === 'th') __d.lang = __lg;
+      } catch (e) {}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -21,26 +31,21 @@
         <button type="button" class="vs-winbtn vs-winbtn-close" id="winClose" aria-label="ปิดหน้าต่าง"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg></button>
       </div>
     </div>
-    <script>
-      // Pre-apply theme before first paint (persisted choice, else OS preference).
-      try {
-        var __th = localStorage.getItem('vibe.theme');
-        if (!__th) __th = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-        document.documentElement.dataset.theme = __th;
-      } catch (e) {}
-    </script>
     <a class="skip-link" href="#main">ข้ามไปยังเนื้อหา</a>
 
-    <div class="vs-update-banner" id="updateBanner" role="status" hidden>
-      <span class="vs-update-dot" aria-hidden="true"></span>
-      <p><span id="updateBannerCopy">มีเวอร์ชันใหม่ของ Vibe Studio แล้ว</span> <span id="updateBannerVersion"></span></p>
-      <div class="vs-update-actions">
-        <button class="vs-btn vs-btn-sm vs-btn-primary" id="updateActionButton" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></svg><span id="updateActionLabel">ดาวน์โหลดอัปเดต</span></button>
-        <button class="vs-icon-btn vs-update-dismiss" id="updateDismissButton" type="button" aria-label="ปิดแบนเนอร์">✕</button>
-      </div>
-    </div>
-
-    <div id="root"></div>
+    <div id="root"><div class="vs-boot" role="status" aria-busy="true" aria-label="Loading… / กำลังโหลด…">
+      <div class="vs-app" aria-hidden="true">
+        <aside class="vs-sidebar">
+          <div class="vs-brand"><span class="mk-sk mk-sk-brand"></span><span class="mk-sk-lines"><span class="mk-sk mk-sk-l1"></span><span class="mk-sk mk-sk-l2"></span></span></div>
+          <div class="vs-nav" style="margin-top:28px"><span class="mk-sk mk-sk-nav"></span><span class="mk-sk mk-sk-nav"></span><span class="mk-sk mk-sk-nav"></span></div>
+          <div class="vs-side-foot"><span class="mk-sk mk-sk-vcard"></span><div class="mk-sk-row" style="min-height:44px;padding:0"><span class="mk-sk mk-sk-ico" style="width:36px;height:36px;border-radius:50%"></span><span class="mk-sk-lines"><span class="mk-sk mk-sk-l1"></span><span class="mk-sk mk-sk-l2"></span></span></div></div>
+        </aside>
+        <div class="vs-main"><main class="vs-page vs-page-wide"><div class="mk-nowcol">
+          <span class="mk-sk mk-sk-title"></span>
+          <section class="vs-card mk-now2"><div class="mk-now2-head"><span class="mk-sk mk-sk-reason" style="width:46%"></span><span class="mk-sk mk-sk-tog" style="width:52px"></span></div><div class="mk-stage"><div class="mk-pvgrid"><span class="mk-sk mk-sk-card"></span><span class="mk-sk mk-sk-card"></span></div></div></section>
+          <section class="vs-card"><span class="mk-sk mk-sk-h"></span><div class="mk-sk-row"><span class="mk-sk mk-sk-ico"></span><span class="mk-sk-lines"><span class="mk-sk mk-sk-l1"></span><span class="mk-sk mk-sk-l2"></span></span><span class="mk-sk mk-sk-tog"></span></div><div class="mk-sk-row"><span class="mk-sk mk-sk-ico"></span><span class="mk-sk-lines"><span class="mk-sk mk-sk-l1"></span><span class="mk-sk mk-sk-l2"></span></span><span class="mk-sk mk-sk-tog"></span></div></section>
+        </div></main></div>
+      </div></div></div>
     <div id="layer"></div>
     <div id="layer2"></div>
     <script>
@@ -70,9 +75,9 @@ const newId = prefix => prefix + '-' + (globalThis.crypto && crypto.randomUUID ?
 /* ---------- identity and server state ---------- */
 const DCID = { name: '', handle: '', id: '', avatarUrl: '' };
 /* ST holds what the server told us. ready flips once config + state arrived. */
-const ST = { ready: false, error: '', rt: null, config: null, presence: null, appsLoading: false, appsError: '', appsAt: 0, hidden: [], busy: false, setup: null, polling: false };
+const ST = { ready: false, error: '', rt: null, config: null, presence: null, appsLoading: false, appsError: '', appsAt: 0, hidden: [], icon: { consent: null, ok: null }, iconBusy: false, busy: false, setup: null, polling: false };
 let stPollT = null;
-const mkScene = o => Object.assign({ enabled: true, name: '', type: 'playing', actName: 'Vibe Presence', l1: '', l1url: '', l2: '', l2url: '', art: '', artText: '', artUrl: '', small: '', smallText: '', smallUrl: '', btns: [{ label: '', url: '' }, { label: '', url: '' }] }, o);
+const mkScene = o => Object.assign({ enabled: true, name: '', type: 'playing', actName: 'Vibe Presence', l1: '', l1url: '', l2: '', l2url: '', art: '', artSource: '', artText: '', artUrl: '', small: '', smallSource: '', smallText: '', smallUrl: '', btns: [{ label: '', url: '' }, { label: '', url: '' }] }, o);
 const S = {
   lang: 'th', theme: 'light', screen: 'now', pairQuery: '',
   scenes: [], rules: [], drawer: null, picker: null, ov: null, save: 'saved', saveAt: '', saveMsg: '',
@@ -80,6 +85,8 @@ const S = {
 };
 try { S.lang = localStorage.getItem('vibe.lang') || 'th'; } catch (e) { /* storage unavailable */ }
 try { S.theme = localStorage.getItem('vibe.theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) { /* storage unavailable */ }
+/* The desktop shell paints its window/splash in the same theme; absent in a browser or an older shell. */
+const syncShellTheme = () => { try { const v = window.vibeStudio; if (v && typeof v.setTheme === 'function') v.setTheme(S.theme); } catch (e) { /* best effort */ } };
 const T = (en, th) => (S.lang === 'th' ? th : en);
 const sceneBy = id => S.scenes.find(s => s.id === id);
 const known = () => [...APPS, ...INSTALLED, ...SYSTEM];
@@ -145,18 +152,38 @@ function sceneApp(sc) {
     || paired.find(r => APPS.some(a => a.id === r.app)) || paired[0];
   return rule ? appBy(rule.app) : null;
 }
-/* The scene exactly as Discord will receive it. The server renames the activity after the paired app and adds that app's public
-   icon as the small image only when an app (not a pin) selected the Scene; local-only icons are never uploaded. */
+/* The scene exactly as Discord will receive it. When an app (not a pin) selected the Scene, the server puts that app's public
+   icon in the small image if it is empty or set to the app icon; explicit images win. Text keeps the owner's template ({app} etc.). */
 function published(sc) {
   if (!sc) return null;
   const out = Object.assign({}, sc), app = sceneApp(sc), rt = ST.rt || {};
   const viaApp = rt.currentSceneId === sc.id ? rt.selectionSource === 'app' : app && pinnedSceneId() !== sc.id;
-  if (app && viaApp) {
-    out.actName = app.name;
-    if (rt.currentSceneId === sc.id && rt.applicationBadge) { out.small = rt.applicationBadge; out.smallText = app.name; out.smallUrl = ''; }
-  }
+  /* the app icon only reaches Discord when an app selected the Scene; a manual pin has no app */
+  const appIcon = (app && viaApp && ((rt.currentSceneId === sc.id && rt.applicationBadge) || app.publicIcon)) || '';
+  if (sc.smallSource === 'app-icon' || !sc.small) { out.small = appIcon; out.smallUrl = ''; }
+  if (sc.artSource === 'app-icon') out.art = appIcon;
+  const vals = varValues(sc), rv = v => resolveVars(v, vals);
+  /* same as the server: required lines that resolve empty fall back to the Scene name */
+  out.actName = rv(out.actName) || vals.scene; out.l1 = rv(out.l1) || vals.scene; out.l2 = rv(out.l2) || vals.scene;
+  out.artText = rv(out.artText); out.smallText = rv(out.smallText);
+  out.btns = (sc.btns || []).map(b => Object.assign({}, b, { label: rv(b.label) }));
   return out;
 }
+/* ---------- text variables ({app} {scene} {user}) ----------
+   The server resolves them in the activity name, both text lines, both hover texts and button labels; unknown tokens stay literal.
+   The editor preview resolves them the same way so it never shows a raw {app}. */
+const VARS = [['app', '{app}', 'App name', 'ชื่อแอป'], ['scene', '{scene}', 'Scene name', 'ชื่อ Scene'], ['user', '{user}', 'Discord name', 'ชื่อ Discord']];
+const VARHELP = new Set(['actName', 'details', 'state', 'largeText', 'smallText', 'btn0', 'btn1']);
+const hasVars = v => /\{(app|scene|user)\}/.test(v || '');
+const resolveVars = (text, vals) => String(text == null ? '' : text).replace(/\{(app|scene|user)\}/g, (m, k) => vals[k]).trim();
+/* {app}: the live app when this Scene is showing, else its first paired app, else the Scene name. {user}: Discord display name. */
+function varValues(sc) {
+  const rt = ST.rt || {}, live = (rt.currentSceneId === sc.id && rt.variables) || {}, paired = S.rules.find(r => r.scene === sc.id);
+  const scene = live.scene || (sc.name || '').trim() || T('Untitled Scene', 'Scene ไม่มีชื่อ');
+  const pinned = pinnedSceneId() === sc.id && rt.selectionSource !== 'app';
+  return { scene, app: live.app || (!pinned && paired && appBy(paired.app).name) || scene, user: live.user || DCID.name || '' };
+}
+/* ---------- end text variables ---------- */
 const loading = () => !ST.ready && !ST.error;
 const sk = (cls, st = '') => `<span class="mk-sk ${cls}" style="${st}" aria-hidden="true"></span>`;
 const skBusy = (label, body, cls = '') => `<div class="mk-skwrap ${cls}" role="status" aria-busy="true" aria-label="${esc(label)}">${body}</div>`;
@@ -226,7 +253,7 @@ function nowView() {
       ${fallbackNote}<div class="mk-pvgrid">${skel ? `${sk('mk-sk-card')}${sk('mk-sk-card')}` : col('popout', T('Profile', 'โปรไฟล์')) + col('list', T('Member list', 'รายชื่อสมาชิก'))}</div>
     </div>
   </section>
-  ${skel ? skCard(3) : pairedPanel()}
+  ${skel ? skCard(3) : (iconConsentNeeded(S.rules.map(r => appBy(r.app))) && ST.icon.consent === null ? consentCard() : '') + pairedPanel()}
   </div>`;
 }
 function pairedPanel() {
@@ -258,7 +285,7 @@ function scenesView() {
     const isLive = live === s.id;
     const tl = (TYPES.find(t => t[0] === s.type) || TYPES[0])[S.lang === 'th' ? 2 : 1];
     return `<div data-key="sc-${esc(s.id)}" class="vs-scene-row mk-srow ${isLive ? 'is-live' : ''} ${s.enabled === false ? 'is-disabled' : ''} ${S.fresh === s.id ? 'mk-row-in' : ''}"><button type="button" class="mk-srow-main" data-act="editscene" data-arg="${esc(s.id)}" data-k="lib-${esc(s.id)}"><span class="vs-scene-icon">${s.art ? `<img src="${esc(artSrc(s.art))}" alt="">` : ''}${isLive ? `<span class="mk-livedot" role="img" aria-label="${T('Showing on Discord now', 'กำลังแสดงบน Discord')}"></span>` : ''}</span>
-      <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name || T('Untitled Scene', 'Scene ไม่มีชื่อ'))}${s._raw ? '' : `<span class="vs-pill vs-pill-warn mk-draft-pill">${T('Draft — not saved', 'ฉบับร่าง — ยังไม่บันทึก')}</span>`}</span><span class="vs-scene-sub">${esc(tl)} · ${esc(s.l1 || '—')}${s.l2 ? ' · ' + esc(s.l2) : ''}</span></span></button>
+      <span class="vs-scene-meta"><span class="vs-scene-name">${esc(s.name || T('Untitled Scene', 'Scene ไม่มีชื่อ'))}${s._raw ? '' : `<span class="vs-pill vs-pill-warn mk-draft-pill">${T('Draft — not saved', 'ฉบับร่าง — ยังไม่บันทึก')}</span>`}</span><span class="vs-scene-sub">${esc(tl)} · ${esc(resolveVars(s.l1, varValues(s)) || '—')}${s.l2 ? ' · ' + esc(resolveVars(s.l2, varValues(s))) : ''}</span></span></button>
       <span class="mk-srow-r">${stackHtml(s.id)}<label class="mk-enable"><span class="vs-switch" title="${s.enabled === false ? T('Disabled — won’t show automatically', 'ปิดใช้ — จะไม่แสดงอัตโนมัติ') : T('Enabled — shows automatically', 'เปิดใช้ — แสดงอัตโนมัติ')}"><input type="checkbox" role="switch" data-bind="sceneon" data-arg="${esc(s.id)}" data-k="en-${esc(s.id)}" aria-label="${T('Enabled', 'เปิดใช้')}: ${esc(s.name)}" ${s._raw ? '' : 'disabled'} ${s.enabled === false ? '' : 'checked'}><span></span></span></label></span></div>`;
   }).join('');
   return `${pageHead(T('Library', 'คลัง'), T('Scenes', 'Scene ทั้งหมด'), T('A Scene is the text and artwork that appears on Discord. Pair apps inside a Scene to show it automatically.', 'Scene คือชุดข้อความและภาพที่จะขึ้นบน Discord จับคู่แอปใน Scene เพื่อให้แสดงอัตโนมัติ'))}
@@ -287,7 +314,7 @@ function settingsView() {
   const keysCard = card(T('Connections & keys', 'การเชื่อมต่อและคีย์'), T('Stored on this PC only and never shown again.', 'เก็บในเครื่องนี้เท่านั้นและไม่แสดงซ้ำ'), `<div class="vs-keystatus">${keyRow('giphy', T('GIPHY key (GIF search)', 'GIPHY key (ค้นหา GIF)'), !!(secrets.giphy && secrets.giphy.configured), T('Paste your GIPHY API key', 'วาง GIPHY API key'))}</div>
     <details class="vs-disclosure" ${setup.needsDiscordApplicationId || S.keysOpen ? 'open' : ''}><summary>${T('Advanced', 'ขั้นสูง')}</summary><div class="vs-disclosure-body"><div class="vs-keystatus">${keyRow('discord', 'Discord Application ID', !!(secrets.discord && secrets.discord.configured), T('Numeric Application ID', 'Application ID (ตัวเลข)'), `<p class="vs-hint">${T('Only if you want your own Discord app name and artwork. Leave the built-in one otherwise.', 'ใช้เมื่ออยากใช้ชื่อและภาพของแอป Discord ของคุณเอง หากไม่ต้องการ ใช้ค่าที่มาพร้อมโปรแกรม')}</p>`)}</div></div></details>${S.keyMsg ? `<p class="${S.keyMsg[0] === '!' ? 'field-error' : 'vs-hint'}" role="status">${esc(S.keyMsg.replace(/^!/, ''))}</p>` : ''}`, '', 'keys');
   return `${pageHead(T('Preferences', 'การตั้งค่า'), T('Settings', 'ตั้งค่า'), T('Connection, startup and appearance. Everything here is stored on this PC.', 'การเชื่อมต่อ การเริ่มต้น และรูปลักษณ์ ทั้งหมดเก็บในเครื่องนี้'))}
-  ${card(T('Discord connection', 'การเชื่อมต่อ Discord'), '', discordProfilePanel() + `${!connected() ? `<div class="vs-form-actions" style="margin:0 0 12px"><button class="vs-btn vs-btn-sm" type="button" data-act="reconnect">${T('Reconnect Discord', 'เชื่อมต่อ Discord ใหม่')}</button></div>` : ''}`)}
+  ${card(T('Discord connection', 'การเชื่อมต่อ Discord'), '', discordProfilePanel() + `${!connected() ? `<div class="vs-form-actions" style="margin:0 0 12px"><button class="vs-btn vs-btn-sm" type="button" data-act="reconnect">${T('Reconnect Discord', 'เชื่อมต่อ Discord ใหม่')}</button></div>` : ''}` + iconHostRow())}
   ${desktopCards}
   ${keysCard}
   ${card(T('Appearance', 'รูปลักษณ์'), T('Language and theme live here, at every window width.', 'ภาษาและธีมอยู่ที่นี่ ทุกขนาดหน้าต่าง'), `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Language', 'ภาษา')}</strong></div>${langSeg()}</div><div class="vs-row"><div class="vs-row-copy"><strong>${T('Theme', 'ธีม')}</strong></div><div class="vs-seg" role="group" aria-label="${T('Theme', 'ธีม')}"><button type="button" data-act="theme" data-arg="light" aria-pressed="${S.theme === 'light'}">${T('Light', 'สว่าง')}</button><button type="button" data-act="theme" data-arg="dark" aria-pressed="${S.theme === 'dark'}">${T('Dark', 'มืด')}</button></div></div>`)}
@@ -333,7 +360,7 @@ function errText(error) {
 function sceneToUi(raw) {
   const b = Array.isArray(raw.buttons) ? raw.buttons : [];
   const sc = mkScene({ id: raw.id, enabled: raw.enabled !== false, name: raw.sceneName || '', type: raw.activityType || 'playing', actName: raw.activityName || '', l1: raw.details || '', l1url: raw.detailsUrl || '', l2: raw.state || '', l2url: raw.stateUrl || '',
-    art: raw.largeImage || '', artText: raw.largeImageText || '', artUrl: raw.largeImageUrl || '', small: raw.smallImage || '', smallText: raw.smallImageText || '', smallUrl: raw.smallImageUrl || '',
+    art: raw.largeImage || '', artSource: raw.largeImageSource === 'app-icon' ? 'app-icon' : '', smallSource: raw.smallImageSource === 'app-icon' ? 'app-icon' : '', artText: raw.largeImageText || '', artUrl: raw.largeImageUrl || '', small: raw.smallImage || '', smallText: raw.smallImageText || '', smallUrl: raw.smallImageUrl || '',
     btns: [0, 1].map(i => ({ label: (b[i] && b[i].label) || '', url: (b[i] && b[i].url) || '' })) });
   sc._raw = raw;
   return sc;
@@ -341,7 +368,7 @@ function sceneToUi(raw) {
 function sceneToRaw(sc) {
   return Object.assign({ timerMode: 'none', timerMinutes: 30 }, sc._raw || {}, {
     id: sc.id, enabled: sc.enabled !== false, sceneName: sc.name.trim() || 'Untitled Scene', activityType: sc.type, activityName: sc.actName.trim(), details: sc.l1.trim(), detailsUrl: sc.l1url.trim(), state: sc.l2.trim(), stateUrl: sc.l2url.trim(),
-    largeImage: sc.art.trim(), largeImageText: sc.artText.trim(), largeImageUrl: sc.artUrl.trim(), smallImage: sc.small.trim(), smallImageText: sc.smallText.trim(), smallImageUrl: sc.smallUrl.trim(),
+    largeImage: sc.art.trim(), largeImageSource: sc.artSource === 'app-icon' ? 'app-icon' : undefined, smallImageSource: sc.smallSource === 'app-icon' ? 'app-icon' : undefined, largeImageText: sc.artText.trim(), largeImageUrl: sc.artUrl.trim(), smallImage: sc.small.trim(), smallImageText: sc.smallText.trim(), smallImageUrl: sc.smallUrl.trim(),
     buttons: sc.btns.map(x => ({ label: x.label.trim(), url: x.url.trim() })).filter(x => x.label || x.url) });
 }
 /* The same rules the server enforces, so a draft is never sent half-valid and never silently lost. */
@@ -373,19 +400,54 @@ function acceptRuntime(rt) {
   else if (!rt || !rt.connected) Object.assign(DCID, { name: DCID.name, handle: DCID.handle }); /* keep the last known identity for display while reconnecting */
   if (rt && rt.connected && !u) Object.assign(DCID, { name: '', handle: '', id: '', avatarUrl: '' });
 }
+/* ---------- app icon hosting (public copy of an app icon so Discord can show it as the small image) ---------- */
+const ICON_STATUS = ['ready', 'uploading', 'needs-consent', 'failed'];
+const iconFields = a => ({ iconSource: ['pack', 'upload', 'default'].includes(a.iconSource) ? a.iconSource : '', iconStatus: ICON_STATUS.includes(a.iconStatus) ? a.iconStatus : '' });
+/* A server without iconStatus is read from publicIcon alone: present = ready, absent = nothing to say. */
+const iconState = a => (!a ? '' : ICON_STATUS.includes(a.iconStatus) ? a.iconStatus : a.publicIcon ? 'ready' : '');
+const ICON_LABEL = { ready: ['✓ Shows on Discord', '✓ แสดงบน Discord ได้'], uploading: ['Uploading…', 'กำลังอัปโหลด'], 'needs-consent': ['Needs your permission', 'ต้องอนุญาต'], failed: ['Upload failed', 'อัปโหลดไม่สำเร็จ'], '': ['No public icon — can’t be shown on Discord', 'ไม่มีไอคอนสาธารณะ — แสดงบน Discord ไม่ได้'] };
+const iconLabel = st => T(...(ICON_LABEL[st] || ICON_LABEL['']));
+const iconDot = st => st === 'uploading' ? '<span class="mk-icst is-up" aria-hidden="true"></span>' : st === 'needs-consent' ? '<span class="mk-icst is-consent" aria-hidden="true"></span>' : st === 'failed' ? '<span class="mk-icst is-fail" aria-hidden="true"></span>' : st === 'ready' ? '<span class="mk-icst is-ok" aria-hidden="true"></span>' : '';
+const iconConsentNeeded = apps => ST.icon.ok !== false && ST.icon.consent !== true && apps.some(a => iconState(a) === 'needs-consent');
+const consentCard = () => `<section class="mk-consent" data-key="icon-consent" role="group" aria-label="${T('App icon hosting', 'โฮสต์ไอคอนแอป')}"><span class="mk-consent-ic" aria-hidden="true">${I.up}</span><div class="mk-consent-b"><p>${T('Upload app icons to catbox.moe (a public image host) so Discord can show them — only the icons of paired apps are uploaded, no other data.', 'อัปโหลดไอคอนแอปไปที่ catbox.moe (โฮสต์รูปสาธารณะ) เพื่อให้ Discord แสดงได้ — อัปโหลดเฉพาะไอคอนของแอปที่จับคู่ ไม่มีข้อมูลอื่น')}</p><div class="vs-form-actions" style="margin:0"><button type="button" class="vs-btn vs-btn-sm vs-btn-primary" data-act="iconconsent" data-arg="yes" ${ST.iconBusy ? 'disabled' : ''}>${T('Allow', 'อนุญาต')}</button><button type="button" class="vs-btn vs-btn-sm" data-act="iconconsent" data-arg="no" ${ST.iconBusy ? 'disabled' : ''}>${T('Not now', 'ไว้ก่อน')}</button></div></div></section>`;
+function iconHostRow() {
+  if (ST.icon.ok === false) return '';
+  return `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Upload app icons to catbox.moe', 'อัปโหลดไอคอนแอปไปที่ catbox.moe')}</strong><small>${T('Lets Discord show a paired app’s icon as the small image. Only paired apps’ icons are uploaded — no other data.', 'ให้ Discord แสดงไอคอนของแอปที่จับคู่เป็นภาพเล็ก อัปโหลดเฉพาะไอคอนของแอปที่จับคู่ ไม่มีข้อมูลอื่น')}</small></div><label class="vs-switch"><input type="checkbox" role="switch" id="iconhost" data-bind="iconhost" aria-label="${T('Upload app icons to catbox.moe', 'อัปโหลดไอคอนแอปไปที่ catbox.moe')}" ${ST.icon.consent === true ? 'checked' : ''} ${ST.iconBusy || ST.icon.ok == null ? 'disabled' : ''}><span></span></label></div>`;
+}
+async function loadIconHosting() {
+  try { const r = await api('/api/icon-hosting'); ST.icon = { ok: true, consent: r && typeof r.consent === 'boolean' ? r.consent : null }; }
+  catch (e) { ST.icon = { ok: false, consent: null }; }
+  render(); refreshOvIcons();
+}
+const refreshOvIcons = () => { if (S.ov && S.ov.kind === 'img' && S.ov.tab === 'app' && $('.vs-dialog', layer2())) renderOv(); };
+async function setIconConsent(v) {
+  if (ST.iconBusy) return; ST.iconBusy = true; render(); refreshOvIcons();
+  try { const r = await api('/api/icon-hosting', { method: 'PUT', body: { consent: v, provider: 'catbox' } }); ST.icon = { ok: true, consent: r && typeof r.consent === 'boolean' ? r.consent : v }; toast(v ? T('App icons will be uploaded', 'จะอัปโหลดไอคอนแอปให้') : T('OK — app icons stay on this PC', 'ตกลง — ไอคอนแอปจะอยู่ในเครื่องนี้')); }
+  catch (e) { toast(errText(e)); }
+  ST.iconBusy = false; render(); refreshOvIcons();
+  await loadApps(false);
+}
+/* Uploads finish in the background: re-read the app list every few seconds only while something is uploading (bounded). */
+let iconWatchN = 0, iconWatchT = null;
+function watchIcons() {
+  clearTimeout(iconWatchT);
+  if (!known().some(a => a.iconStatus === 'uploading') || ++iconWatchN > 12) { iconWatchN = 0; return; }
+  iconWatchT = setTimeout(() => { void loadApps(false); }, 3000);
+}
+
 function applyApps(running, installed) {
   if (running) {
     const fg = appKey(running.foreground), seen = new Set();
-    const list = (running.apps || []).filter(a => a && a.executable).map(a => ({ id: appKey(a.executable), name: a.name || exeName(a.executable).replace(/\.exe$/i, ''), exe: a.executable, publicIcon: isHttps(a.publicIcon) ? a.publicIcon : '', icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '', foreground: appKey(a.executable) === fg }))
+    const list = (running.apps || []).filter(a => a && a.executable).map(a => ({ id: appKey(a.executable), name: a.name || exeName(a.executable).replace(/\.exe$/i, ''), exe: a.executable, publicIcon: isHttps(a.publicIcon) ? a.publicIcon : '', ...iconFields(a), icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '', foreground: appKey(a.executable) === fg }))
       .filter(a => !seen.has(a.id) && seen.add(a.id)).sort((x, y) => (y.foreground ? 1 : 0) - (x.foreground ? 1 : 0));
     APPS.splice(0, APPS.length, ...list);
   }
   const open = new Set(APPS.map(a => a.id)), seen = new Set();
-  const inst = ((installed && installed.apps) || INSTALLED).filter(a => a && (a.executable || a.exe)).map(a => a.executable ? ({ id: appKey(a.executable), name: a.name || exeName(a.executable).replace(/\.exe$/i, ''), exe: a.executable, publicIcon: isHttps(a.publicIcon) ? a.publicIcon : '', icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '' }) : a)
+  const inst = ((installed && installed.apps) || INSTALLED).filter(a => a && (a.executable || a.exe)).map(a => a.executable ? ({ id: appKey(a.executable), name: a.name || exeName(a.executable).replace(/\.exe$/i, ''), exe: a.executable, publicIcon: isHttps(a.publicIcon) ? a.publicIcon : '', ...iconFields(a), icon: /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '') ? a.icon : '' }) : a)
     .filter(a => !open.has(a.id) && !seen.has(a.id) && seen.add(a.id)).sort((x, y) => x.name.localeCompare(y.name));
   INSTALLED.splice(0, INSTALLED.length, ...inst);
 }
-const appsSig = () => APPS.map(a => a.id + (a.foreground ? '*' : '')).join('|');
+const appsSig = () => APPS.concat(INSTALLED).map(a => a.id + (a.foreground ? '*' : '') + (a.iconStatus || '')).join('|') + '|' + ST.icon.consent;
 
 /* ---------- loading ---------- */
 async function loadApps(refresh) {
@@ -395,7 +457,7 @@ async function loadApps(refresh) {
     const [running, installed] = await Promise.all([api('/api/apps'), api('/api/installed-apps' + (refresh ? '?refresh=1' : ''), { timeout: refresh ? 140000 : 20000 })]);
     applyApps(running, installed); ST.appsAt = Date.now();
   } catch (error) { ST.appsError = errText(error); }
-  finally { ST.appsLoading = false; render(); if (S.picker) updatePicker(); }
+  finally { ST.appsLoading = false; render(); if (S.picker) updatePicker(); refreshOvIcons(); watchIcons(); }
 }
 async function loadAll() {
   ST.error = '';
@@ -406,7 +468,7 @@ async function loadAll() {
     if (config.settings && config.settings.selectionMode !== 'apps') { try { const res = await api('/api/app-mappings', { method: 'PUT', body: { mappings: config.appMappings || [], selectionMode: 'apps' } }); applyConfig(res.config); } catch (e) { /* app mode still renders */ } }
   } catch (error) { ST.error = errText(error); }
   render(); startPolling();
-  if (ST.ready) void loadApps(false);
+  if (ST.ready) { void loadApps(false); void loadIconHosting(); }
 }
 const stSig = () => { const r = ST.rt || {}; return JSON.stringify([r.connected, r.connectionState, r.discordUser && r.discordUser.id, r.discordUser && r.discordUser.avatarUrl, r.scheduleEnabled, r.manualOverride && r.manualOverride.sceneId, r.currentSceneId, r.active, r.selectionSource, r.selectedApplication, r.applicationBadge, r.lastError, r.setup && r.setup.needsDiscordApplicationId, ST.presence && ST.presence.id]); };
 let pollBusy = false, pollN = 0;
@@ -419,7 +481,7 @@ async function poll() {
     if (ST.error) ST.error = '';
   } catch (error) { if (ST.ready) { ST.rt = Object.assign({}, ST.rt, { connected: false, lastError: ST.rt && ST.rt.lastError }); } }
   finally { pollBusy = false; }
-  if (before !== stSig() + appsSig()) { render(); if (S.drawer) updateDrawer(); if (S.picker) updatePicker(); }
+  if (before !== stSig() + appsSig()) { render(); if (S.drawer) updateDrawer(); if (S.picker) updatePicker(); refreshOvIcons(); }
 }
 function startPolling() { clearInterval(stPollT); stPollT = setInterval(poll, 2000); }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) void poll(); });
@@ -526,10 +588,10 @@ async function loadDiscordProfile() {
 
 /* ---------- desktop shell (Electron preload API: window.vibeStudio) ---------- */
 const desktop = () => !!(window.vibeStudio && window.vibeStudio.isElectron);
-/* One update model for every surface (banner, sidebar button, Settings). `rev` bumps on every pushed state so a late
+/* One update model for every surface (sidebar card, Settings). `rev` bumps on every pushed state so a late
    snapshot read can be discarded; `busy` serializes check / download / restart; `localError` is a key, not text, so a
    language switch re-localizes it. */
-const UPD = { currentVersion: '', state: 'idle', availableVersion: '', percent: 0, error: '', checkedAt: '', openAtLogin: false, dismissed: '', busy: '', localError: '', rev: 0, downloaded: false };
+const UPD = { currentVersion: '', state: 'idle', availableVersion: '', percent: 0, error: '', checkedAt: '', openAtLogin: false, busy: '', localError: '', rev: 0, downloaded: false };
 const updState = () => UPD;
 const updHasError = () => !!(UPD.localError || UPD.error || UPD.state === 'error');
 const updKind = () => {
@@ -546,13 +608,13 @@ const updBusyNow = () => !!UPD.busy || UPD.state === 'downloading' || UPD.state 
 function updErrorCopy() {
   return { check: T('Couldn’t check for updates — try again.', 'ตรวจหาอัปเดตไม่สำเร็จ — ลองอีกครั้ง'),
     download: T('Update download failed — try again.', 'ดาวน์โหลดอัปเดตไม่สำเร็จ — ลองอีกครั้ง'),
-    restart: T('Restart to install failed — try again.', 'รีสตาร์ทเพื่อติดตั้งไม่สำเร็จ — ลองอีกครั้ง'),
+    restart: T('Restart to install failed — try again.', 'รีสตาร์ตเพื่อติดตั้งไม่สำเร็จ — ลองอีกครั้ง'),
     unavailable: T('Updates aren’t available in this app.', 'อัปเดตไม่พร้อมใช้งานในแอปนี้') }[UPD.localError]
     || T('Update failed — try again.', 'อัปเดตไม่สำเร็จ — ลองอีกครั้ง');
 }
 /* The one action the current state offers (null while nothing can be done). */
 function updAction() {
-  if (UPD.state === 'downloaded' || UPD.downloaded) return { act: 'updrestart', label: T('Restart now', 'รีสตาร์ทเลย') };
+  if (UPD.state === 'downloaded' || UPD.downloaded) return { act: 'updrestart', label: T('Restart now', 'รีสตาร์ตเลย') };
   if (UPD.availableVersion) return { act: 'updgo', label: T('Download update', 'ดาวน์โหลดอัปเดต') };
   if (updHasError()) return { act: 'checkupd', label: T('Check for updates', 'ตรวจหาอัปเดต') };
   return null;
@@ -560,30 +622,39 @@ function updAction() {
 function updStatusText() {
   const k = updKind(), v = esc(UPD.availableVersion || '');
   if (k === 'error') return esc(updErrorCopy());
-  if (k === 'restarting') return T('Restarting to install…', 'กำลังรีสตาร์ทเพื่อติดตั้ง…');
+  if (k === 'restarting') return T('Restarting to install…', 'กำลังรีสตาร์ตเพื่อติดตั้ง…');
   if (k === 'downloading') return T('Downloading update… ', 'กำลังดาวน์โหลดอัปเดต… ') + updPct() + '%';
   if (k === 'checking') return T('Checking for updates…', 'กำลังตรวจหาอัปเดต…');
-  if (k === 'downloaded') return T('Downloaded — restart to install.', 'ดาวน์โหลดเสร็จแล้ว — รีสตาร์ทเพื่อติดตั้ง');
+  if (k === 'downloaded') return T('Downloaded — restart to install, or it installs when you quit.', 'ดาวน์โหลดเสร็จแล้ว — รีสตาร์ตเพื่อติดตั้ง หรือจะติดตั้งให้เองตอนปิดแอป');
   if (k === 'available') return T('Version ', 'เวอร์ชัน ') + 'v' + v + T(' is available.', ' พร้อมให้อัปเดต');
   const cur = UPD.currentVersion ? ' (v' + esc(UPD.currentVersion) + ')' : '';
   return UPD.checkedAt ? T('You’re on the latest version', 'เป็นเวอร์ชันล่าสุดแล้ว') + cur + T(' · checked ', ' · ตรวจเมื่อ ') + esc(UPD.checkedAt) : T('Current version', 'เวอร์ชันปัจจุบัน') + cur;
 }
 const UPD_ICO = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4M4 16h12"/></svg>';
-/* Sidebar button: shown only when something needs the owner's attention. */
-function updBtn() {
+/* Sidebar version card. Updates download on their own, so this is mostly a quiet "you're current" line; it only asks for a
+   click when a finished download is waiting for a restart (or when something failed). Collapsed sidebar shows just a dot. */
+const UPD_CHECK = '<svg class="mk-vcard-ic" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+function updCard() {
   if (!desktop()) return '';
-  const k = updKind(), v = esc(UPD.availableVersion || ''), act = updAction();
-  if (k === 'downloading') return `<button type="button" class="mk-upd" data-st="downloading" disabled aria-label="${T('Downloading update', 'กำลังดาวน์โหลดอัปเดต')} ${updPct()}%"><span class="mk-upd-bar" style="width:${updPct()}%"></span><span class="mk-upd-t">${T('Downloading', 'กำลังดาวน์โหลด')} ${updPct()}%</span></button>`;
-  if (k === 'restarting' || k === 'checking') return `<button type="button" class="mk-upd" data-st="${k}" disabled><span class="mk-upd-t">${updStatusText()}</span></button>`;
-  if (k === 'error') return `<button type="button" class="mk-upd" data-act="${act ? act.act : 'checkupd'}" data-st="error" title="${esc(updErrorCopy())}"><span class="mk-upd-t">${T('Update failed — retry', 'อัปเดตไม่สำเร็จ — ลองอีกครั้ง')}</span></button>`;
-  if (k === 'available') return `<button type="button" class="mk-upd" data-act="updgo" data-st="available" aria-label="${T('Update to v', 'อัปเดตเป็น v')}${v}">${UPD_ICO}<span class="mk-upd-t">${T('Update', 'อัปเดต')} · v${v}</span><span class="mk-upd-badge" aria-hidden="true"></span></button>`;
-  if (k === 'downloaded') return `<button type="button" class="mk-upd" data-act="updrestart" data-st="downloaded">${UPD_ICO}<span class="mk-upd-t">${T('Restart to update', 'รีสตาร์ทเพื่ออัปเดต')}</span><span class="mk-upd-badge" aria-hidden="true"></span></button>`;
-  return '';
+  const k = updKind(), cv = UPD.currentVersion ? 'v' + esc(UPD.currentVersion) : '', nv = UPD.availableVersion ? 'v' + esc(UPD.availableVersion) : '', act = updAction();
+  const wrap = (st, inner, label, extra = '') => `<div class="mk-vcard" data-k="vcard" data-st="${st}" role="group" aria-label="${esc(label)}" ${extra}>${inner}</div>`;
+  if (k === 'downloading') {
+    const pct = updPct(), lbl = T('Downloading update', 'กำลังดาวน์โหลดอัปเดต') + ' ' + pct + '%';
+    return wrap('downloading', `<span class="mk-vcard-row"><span class="mk-vcard-t">${T('Downloading', 'กำลังดาวน์โหลด')}${nv ? ' ' + nv : ''}</span><span class="mk-vcard-pct">${pct}%</span></span><span class="mk-vcard-bar" role="progressbar" aria-label="${esc(lbl)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></span>`, lbl);
+  }
+  if (k === 'downloaded') return wrap('downloaded', `<span class="mk-vcard-title">${UPD_ICO}<span>${nv ? nv + ' ' : ''}${T('ready', 'พร้อมแล้ว')}</span></span><button type="button" class="mk-vcard-go" data-act="updrestart">${T('Restart now', 'รีสตาร์ตตอนนี้')}</button><small class="mk-vcard-sub">${T('Updates itself when you close the window', 'จะอัปเดตให้เองเมื่อปิดหน้าต่าง')}</small>`, T('Update ready', 'อัปเดตพร้อมแล้ว'));
+  if (k === 'restarting') return wrap('restarting', `<span class="mk-vcard-t">${T('Restarting to install…', 'กำลังรีสตาร์ตเพื่อติดตั้ง…')}</span>`, T('Restarting', 'กำลังรีสตาร์ต'));
+  if (k === 'checking') return wrap('checking', `<span class="mk-vcard-spin" aria-hidden="true"></span><span class="mk-vcard-t">${T('Checking…', 'กำลังตรวจ…')}</span>`, T('Checking for updates', 'กำลังตรวจหาอัปเดต'));
+  if (k === 'error') return wrap('error', `<span class="mk-vcard-t">${cv}</span><button type="button" class="mk-vcard-retry" data-act="${act ? act.act : 'checkupd'}" title="${esc(updErrorCopy())}">${T('Update failed — retry', 'อัปเดตไม่สำเร็จ — ลองอีกครั้ง')}</button>`, updErrorCopy());
+  if (k === 'available') return wrap('available', `<span class="mk-vcard-spin" aria-hidden="true"></span><span class="mk-vcard-t">${nv} ${T('preparing…', 'กำลังเตรียม…')}</span>`, T('Update available', 'มีอัปเดต'));
+  const tip = UPD.checkedAt ? T('Checks hourly · last checked ', 'ตรวจอัตโนมัติทุกชั่วโมง · ล่าสุด ') + esc(UPD.checkedAt) : T('Checks automatically every hour', 'ตรวจอัตโนมัติทุกชั่วโมง');
+  return wrap('idle', `${UPD_CHECK}<span class="mk-vcard-t">${cv ? cv + ' · ' : ''}${T('Up to date', 'ล่าสุด')}</span><span class="mk-vcard-tip" role="tooltip">${tip}</span>`, `${cv} ${T('Up to date', 'ล่าสุด')}. ${tip}`, `tabindex="0" title="${tip}"`);
 }
 /* Settings → Updates card body: version + truthful status, the offered action, and a manual check. */
 function settingsUpdateHtml() {
-  const act = updAction(), busy = updBusyNow();
-  return `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Version', 'เวอร์ชัน')} ${UPD.currentVersion ? 'v' + esc(UPD.currentVersion) : '—'}</strong><small role="status" id="updateCheckStatus">${updStatusText()}</small></div><span class="vs-form-actions" style="margin:0">${act && act.act !== 'checkupd' ? `<button class="vs-btn vs-btn-sm vs-btn-primary" type="button" data-act="${act.act}" ${busy ? 'disabled' : ''}>${act.label}</button>` : ''}<button class="vs-btn vs-btn-sm" type="button" data-act="checkupd" ${busy ? 'disabled' : ''}>${T('Check for updates', 'ตรวจหาอัปเดต')}</button></span></div>`;
+  const act = updAction(), busy = updBusyNow(), k = updKind(), pct = updPct();
+  const bar = k === 'downloading' ? `<span class="mk-vcard-bar is-wide" role="progressbar" aria-label="${T('Downloading update', 'กำลังดาวน์โหลดอัปเดต')} ${pct}%" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></span>` : '';
+  return `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Version', 'เวอร์ชัน')} ${UPD.currentVersion ? 'v' + esc(UPD.currentVersion) : '—'}</strong><small role="status" id="updateCheckStatus">${updStatusText()}</small>${bar}<small class="mk-upd-auto">${T('Checks and downloads automatically every hour.', 'ตรวจและดาวน์โหลดอัตโนมัติทุกชั่วโมง')}</small></div><span class="vs-form-actions" style="margin:0">${act && act.act !== 'checkupd' && (act.act === 'updrestart' || updHasError()) ? `<button class="vs-btn vs-btn-sm vs-btn-primary" type="button" data-act="${act.act}" ${busy ? 'disabled' : ''}>${act.label}</button>` : ''}<button class="vs-btn vs-btn-sm" type="button" data-act="checkupd" ${busy ? 'disabled' : ''}>${T('Check now', 'ตรวจตอนนี้')}</button></span></div>`;
 }
 function launchRowHtml() {
   return `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Start with Windows', 'เริ่มพร้อม Windows')}</strong><small>${T('Vibe starts in the tray and shows your Scene without opening this window.', 'Vibe เริ่มในถาดระบบและแสดงซีนโดยไม่ต้องเปิดหน้าต่างนี้')}</small></div><label class="vs-switch"><input type="checkbox" id="autostart" data-bind="tgl" data-id="autostart" aria-label="${T('Start with Windows', 'เริ่มพร้อม Windows')}" ${UPD.openAtLogin ? 'checked' : ''}><span></span></label></div>`;
@@ -595,41 +666,34 @@ async function setLaunchAtLogin(on) {
 }
 
 /* pushed state: always wins over anything still in flight */
+const clockOf = v => { const d = new Date(v); return v && !isNaN(d) ? String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') : ''; };
 function applyUpdateState(state) {
   if (!state) return;
+  const wasChecking = UPD.state === 'checking';
   UPD.rev++; UPD.localError = '';
   Object.assign(UPD, { downloaded: !!state.downloaded || state.state === 'downloaded', state: state.state || 'idle', availableVersion: state.availableVersion || state.available || '', percent: state.percent ?? state.progress ?? 0, error: state.error || '', currentVersion: state.currentVersion || UPD.currentVersion });
-  renderBanner(); render();
+  const at = clockOf(state.checkedAt || state.lastCheckedAt);
+  if (at) UPD.checkedAt = at; else if (wasChecking && UPD.state !== 'checking' && !updHasError()) UPD.checkedAt = clockOf(Date.now());
+  render();
 }
 /* snapshot reads: dropped when a newer push arrived while the read was pending */
 function applySnapshot(state, rev) { if (state && UPD.rev === rev) applyUpdateState(state); }
-function renderBanner() {
-  const banner = $('#updateBanner'); if (!banner) return;
-  const k = updKind(), act = updAction();
-  const hidden = !desktop() || k === 'idle' || k === 'checking' || (k !== 'error' && UPD.dismissed && UPD.dismissed === UPD.availableVersion);
-  banner.hidden = !!hidden; if (hidden) return;
-  $('#updateBannerCopy').textContent = k === 'error' ? updErrorCopy() : k === 'available' ? T('A new version of Vibe Studio is available.', 'มีเวอร์ชันใหม่ของ Vibe Studio แล้ว') : updStatusText();
-  $('#updateBannerVersion').textContent = UPD.availableVersion && (k === 'available' || k === 'error') ? 'v' + UPD.availableVersion : '';
-  const btn = $('#updateActionButton'); btn.hidden = !act; btn.disabled = updBusyNow();
-  const span = btn.querySelector('#updateActionLabel'); if (span) span.textContent = act ? act.label : '';
-  const x = $('#updateDismissButton'); if (x) x.setAttribute('aria-label', T('Dismiss', 'ปิดแบนเนอร์'));
-}
-/* download / restart; one request at a time across banner, sidebar and Settings */
+/* download / restart; one request at a time across sidebar and Settings */
 async function updateAction() {
   const v = window.vibeStudio; if (!desktop() || updBusyNow()) return;
   const act = updAction(); if (!act) return checkUpdates();
   if (act.act === 'checkupd') return checkUpdates();
   const restart = act.act === 'updrestart';
-  UPD.busy = restart ? 'restart' : 'download'; UPD.localError = ''; UPD.rev++; renderBanner(); render();
+  UPD.busy = restart ? 'restart' : 'download'; UPD.localError = ''; UPD.rev++; render();
   try {
     const r = await (restart ? v.quitAndInstall() : v.downloadUpdate());
     if (r && r.ok === false) UPD.localError = restart ? 'restart' : 'download';
   } catch (e) { UPD.localError = restart ? 'restart' : 'download'; }
-  finally { UPD.busy = ''; renderBanner(); render(); }
+  finally { UPD.busy = ''; render(); }
 }
 async function checkUpdates() {
   const v = window.vibeStudio; if (!desktop() || updBusyNow()) return;
-  UPD.busy = 'check'; UPD.localError = ''; UPD.dismissed = ''; const rev = ++UPD.rev; renderBanner(); render();
+  UPD.busy = 'check'; UPD.localError = ''; const rev = ++UPD.rev; render();
   let ok = false;
   try {
     const result = await v.checkForUpdates();
@@ -638,8 +702,8 @@ async function checkUpdates() {
     if (result && result.ok === false && !useful) UPD.localError = 'unavailable'; else ok = !updHasError();
   } catch (e) { UPD.localError = 'check'; }
   UPD.busy = '';
-  if (ok) { const n = new Date(); UPD.checkedAt = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0'); }
-  renderBanner(); render();
+  if (ok) UPD.checkedAt = clockOf(Date.now());
+  render();
 }
 function initDesktop() {
   const v = window.vibeStudio; if (!desktop()) return;
@@ -655,11 +719,9 @@ function initDesktop() {
   const drag = $('#windowDragRegion'); if (drag) drag.addEventListener('dblclick', () => maxBtn && maxBtn.click());
   if (v.isMaximized) v.isMaximized().then(syncMax).catch(() => {});
   if (v.onMaximizeChanged) v.onMaximizeChanged(syncMax);
-  $('#updateActionButton').addEventListener('click', updateAction);
-  $('#updateDismissButton').addEventListener('click', () => { UPD.dismissed = UPD.availableVersion || 'x'; renderBanner(); });
   v.getVersion().then(ver => { UPD.currentVersion = ver; render(); }).catch(() => {});
   const rev0 = UPD.rev;
-  v.getUpdateState().then(s => applySnapshot(s, rev0)).catch(() => { if (UPD.rev === rev0 && !UPD.busy) { UPD.localError = 'check'; renderBanner(); render(); } });
+  v.getUpdateState().then(s => applySnapshot(s, rev0)).catch(() => { if (UPD.rev === rev0 && !UPD.busy) { UPD.localError = 'check'; render(); } });
   if (v.onUpdateState) v.onUpdateState(applyUpdateState);
   if (v.getOpenAtLogin) v.getOpenAtLogin().then(on => { UPD.openAtLogin = !!on; render(); }).catch(() => {});
 }
@@ -667,7 +729,6 @@ function labelChrome() {
   const set = (id, en, th) => { const e = $(id); if (e) e.setAttribute('aria-label', T(en, th)); };
   set('#winMinimize', 'Minimize window', 'ย่อหน้าต่าง'); set('#winClose', 'Close window', 'ปิดหน้าต่าง'); set('.vs-titlebar-controls', 'Window controls', 'ตัวควบคุมหน้าต่าง');
   const skip = $('.skip-link'); if (skip) skip.textContent = T('Skip to content', 'ข้ามไปยังเนื้อหา');
-  renderBanner();
   document.title = 'Vibe Studio';
 }
 
@@ -749,7 +810,7 @@ function enterLayer(L0) { const L = L0 || layer(); L._tok = (L._tok || 0) + 1; L
 
 /* Reconcile instead of rebuilding: sidebar, top strip and bottom nav keep their DOM (no flash, colour transitions run); only the content swaps. */
 function mount(root, html) {
-  if (!root.querySelector('.vs-app')) { root.innerHTML = html; return; }
+  if (!root.querySelector('.vs-app') || root.querySelector('.vs-boot')) { root.innerHTML = html; return; }
   const t = document.createElement('template'); t.innerHTML = html; morph(root, t.content);
 }
 
@@ -761,9 +822,9 @@ function renderCore() {
   const navLink = n => `<a class="vs-nav-link" href="#" data-act="screen" data-arg="${n[0]}" aria-current="${S.screen === n[0] ? 'page' : 'false'}">${NAV_ICO[n[0]]}<span>${T(n[1], n[2])}</span></a>`;
   const bottomLink = n => `<a class="bottom-link" href="#" data-act="screen" data-arg="${n[0]}" ${S.screen === n[0] ? 'aria-current="page"' : ''}>${NAV_ICO[n[0]].replace('viewBox="0 0 20 20"', 'viewBox="0 0 20 20" width="20" height="20"')}<span>${T(n[1], n[2])}</span></a>`;
   const view = { now: nowView, scenes: scenesView, settings: settingsView }[S.screen]();
-  const html = `<div class="vs-app"><aside class="vs-sidebar"><div class="vs-brand"><span class="vs-brand-mark mk-logo" aria-hidden="true">${BRAND_MARK}</span><span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">${T('Your Discord corner', 'มุม Discord ของคุณ')}</span></span></div><span class="mk-ver" data-k="ver">${esc(UPD.currentVersion ? 'v' + UPD.currentVersion : '')}</span>
+  const html = `<div class="vs-app"><aside class="vs-sidebar"><div class="vs-brand"><span class="vs-brand-mark mk-logo" aria-hidden="true">${BRAND_MARK}</span><span><span class="vs-brand-name">Vibe Studio</span><span class="vs-brand-sub">${T('Your Discord corner', 'มุม Discord ของคุณ')}</span></span></div>
     <p class="vs-nav-label" aria-hidden="true">${T('MENU', 'เมนู')}</p><nav class="vs-nav" aria-label="${T('Main', 'หลัก')}">${NAVS.map(navLink).join('')}</nav>
-    <div class="vs-side-foot">${updBtn()}${acctPanel(false)}</div></aside>
+    <div class="vs-side-foot">${updCard()}${acctPanel(false)}</div></aside>
     <div class="vs-main"><div class="vs-mobile-status">${acctPanel(true)}</div><main class="vs-page ${S.screen === 'now' ? 'vs-page-wide' : ''}" id="main" tabindex="-1">${view}</main></div></div>
     <nav class="vs-bottomnav" aria-label="${T('Main', 'หลัก')}">${NAVS.map(bottomLink).join('')}</nav>`;
   mount(root, html);
@@ -810,7 +871,7 @@ function highlight(area) { document.querySelectorAll('.mk-hl').forEach(e => e.cl
 function showTip(btn) {
   const k = btn.dataset.help, h = HELP[k], th = S.lang === 'th'; let tip = $('#mkTip');
   if (!tip) { tip = document.createElement('div'); tip.id = 'mkTip'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip); }
-  tip.innerHTML = `<b>${esc(h[th ? 1 : 0])}</b><span>${esc(h[th ? 3 : 2])}</span><em>${h[4] ? T('Highlighted in the preview: ', 'ไฮไลต์ในตัวอย่าง: ') : ''}${esc(h[th ? 6 : 5])}</em>`;
+  tip.innerHTML = `<b>${esc(h[th ? 1 : 0])}</b><span>${esc(h[th ? 3 : 2])}</span><em>${h[4] ? T('Highlighted in the preview: ', 'ไฮไลต์ในตัวอย่าง: ') : ''}${esc(h[th ? 6 : 5])}</em>${VARHELP.has(k) ? `<span class="mk-tip-vars">${T('Variables: ', 'ตัวแปร: ')}${VARS.map(v => `<code>${v[1]}</code> ${T(v[2], v[3])}`).join(' · ')}<br>${T('Unknown {tokens} stay as typed.', 'ตัวแปรที่ไม่รู้จักจะแสดงตามที่พิมพ์')}</span>` : ''}`;
   tip.hidden = false; btn.setAttribute('aria-describedby', 'mkTip'); btn.setAttribute('aria-expanded', 'true');
   const r = btn.getBoundingClientRect(), tw = tip.offsetWidth, tH = tip.offsetHeight;
   const x = Math.min(Math.max(8, r.left - 8), innerWidth - tw - 8); let y = r.bottom + 8; if (y + tH > innerHeight - 8) y = r.top - tH - 8;
@@ -824,13 +885,16 @@ const APPGLYPH = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" st
 /* ---------- Scene editor (side panel). Opens with a short fade only; the page behind is never re-rendered or moved. ---------- */
 const sceneApps = id => { const seen = [], out = []; S.rules.filter(r => r.scene === id).forEach(r => { const a = appBy(r.app); if (!seen.includes(a.id)) { seen.push(a.id); out.push(a); } }); return out; };
 function secHead(h, hint) { return `<h3>${h}</h3>${hint ? `<p class="vs-hint">${hint}</p>` : ''}`; }
+/* "insert variable" control: a compact { } button beside the label opens a chip row under the input; a chip inserts at the caret. */
+const varBtn = id => `<button type="button" class="mk-varbtn" data-act="varopen" data-arg="${id}" data-k="var-${id}" aria-expanded="${S.varOpen === id}" aria-controls="${id}-vars" title="${T('Insert variable', 'แทรกตัวแปร')}"><code aria-hidden="true">{ }</code><span class="vs-visually-hidden">${T('Insert variable', 'แทรกตัวแปร')}</span></button>`;
+const varChips = id => `${S.varOpen === id ? `<div class="mk-varchips" id="${id}-vars" role="group" aria-label="${T('Insert variable', 'แทรกตัวแปร')}">${VARS.map(v => `<button type="button" class="mk-varchip" data-act="varins" data-arg="${id}|${v[0]}"><code>${v[1]}</code><span>${T(v[2], v[3])}</span></button>`).join('')}</div>` : ''}<p class="mk-varhint" hidden></p>`;
 function fld(id, label, key, field, val, o = {}) {
-  return `<div class="vs-field"><label class="vs-label" for="${id}">${label}${key ? helpBtn(key) : ''}</label><input class="vs-input" type="text" id="${id}" value="${esc(val)}" data-bind="sc" data-f="${field}" ${o.hl ? `data-hl="${o.hl}"` : ''} ${o.url ? 'data-url="1" data-mono="1" placeholder="https://…"' : ''} ${o.ph ? `placeholder="${esc(o.ph)}"` : ''} ${o.max ? `maxlength="${o.max}"` : ''}>${o.url ? '<p class="field-error" hidden></p>' : ''}</div>`;
+  return `<div class="vs-field"><label class="vs-label" for="${id}">${label}${key ? helpBtn(key) : ''}${o.vars ? varBtn(id) : ''}</label><input class="vs-input" type="text" id="${id}" value="${esc(val)}" data-bind="sc" data-f="${field}" ${o.vars ? 'data-var="1"' : ''} ${o.hl ? `data-hl="${o.hl}"` : ''} ${o.url ? 'data-url="1" data-mono="1" placeholder="https://…"' : ''} ${o.ph ? `placeholder="${esc(o.ph)}"` : ''} ${o.max ? `maxlength="${o.max}"` : ''}>${o.url ? '<p class="field-error" hidden></p>' : ''}${o.vars ? varChips(id) : ''}</div>`;
 }
 function imageSection(prefix, sc, title, hint, key, textKey, urlKey, artField, textField, urlField, area) {
   const p = prefix === 'lg' ? 'lg' : 'sm';
   return `<section class="mk-sec" data-sec="${prefix}">${secHead(title, hint)}${wellHtml(p, sc, T('Image', 'ภาพ'), key)}
-    ${fld(prefix + '-text', T('Hover text', 'ข้อความเมื่อชี้'), textKey, textField, sc[textField], { hl: area, max: 128 })}${fld(prefix + '-link', T('Click link', 'ลิงก์เมื่อกด'), urlKey, urlField, sc[urlField], { hl: area, url: 1 })}</section>`;
+    ${fld(prefix + '-text', T('Hover text', 'ข้อความเมื่อชี้'), textKey, textField, sc[textField], { hl: area, max: 128, vars: 1 })}${fld(prefix + '-link', T('Click link', 'ลิงก์เมื่อกด'), urlKey, urlField, sc[urlField], { hl: area, url: 1 })}</section>`;
 }
 function chipHtml(r) {
   const a = appBy(r.app);
@@ -853,14 +917,14 @@ function buildDrawer(first) {
      <section class="mk-sec">${secHead(T('Scene', 'Scene'), T('Only you see this name.', 'มีแต่คุณที่เห็นชื่อนี้'))}${fld('sc-name', T('Scene name', 'ชื่อ Scene'), 'name', 'name', sc.name, { max: 40, ph: T('e.g. Deep work', 'เช่น โฟกัสทำงาน') })}</section>
      <section class="mk-sec">${secHead(T('Activity', 'กิจกรรม'), T('The heading of the card, e.g. “Playing Vibe”.', 'หัวการ์ด เช่น “กำลังเล่น Vibe”'))}
       <div class="vs-field" role="radiogroup" aria-labelledby="typelbl"><span class="vs-label" id="typelbl">${T('Activity type', 'ประเภทกิจกรรม')}${helpBtn('actType')}</span><div class="vs-segmented" style="flex-wrap:wrap">${TYPES.map(t => `<button type="button" role="radio" aria-checked="${sc.type === t[0]}" class="${sc.type === t[0] ? 'is-on' : ''}" data-act="stype" data-arg="${t[0]}" data-hl="act">${t[S.lang === 'th' ? 2 : 1]}</button>`).join('')}</div></div>
-      ${fld('sc-act', T('Activity name', 'ชื่อกิจกรรม'), 'actName', 'actName', sc.actName, { hl: 'act', max: 128 })}</section>
+      ${fld('sc-act', T('Activity name', 'ชื่อกิจกรรม'), 'actName', 'actName', sc.actName, { hl: 'act', max: 128, vars: 1 })}</section>
      ${pairSection(sc)}
-     <section class="mk-sec">${secHead(T('Details line', 'ข้อความบรรทัดแรก'), T('Bold first line.', 'ตัวหนาบรรทัดแรก'))}${fld('sc-l1', T('Details text', 'ข้อความ'), 'details', 'l1', sc.l1, { hl: 'details', max: 128 })}${fld('sc-l1u', T('Details link', 'ลิงก์'), 'detailsUrl', 'l1url', sc.l1url, { hl: 'details', url: 1 })}</section>
-     <section class="mk-sec">${secHead(T('State line', 'ข้อความบรรทัดที่สอง'), T('Second line under Details.', 'บรรทัดที่สองใต้บรรทัดแรก'))}${fld('sc-l2', T('State text', 'ข้อความ'), 'state', 'l2', sc.l2, { hl: 'state', max: 128 })}${fld('sc-l2u', T('State link', 'ลิงก์'), 'stateUrl', 'l2url', sc.l2url, { hl: 'state', url: 1 })}</section>
+     <section class="mk-sec">${secHead(T('Details line', 'ข้อความบรรทัดแรก'), T('Bold first line.', 'ตัวหนาบรรทัดแรก'))}${fld('sc-l1', T('Details text', 'ข้อความ'), 'details', 'l1', sc.l1, { hl: 'details', max: 128, vars: 1 })}${fld('sc-l1u', T('Details link', 'ลิงก์'), 'detailsUrl', 'l1url', sc.l1url, { hl: 'details', url: 1 })}</section>
+     <section class="mk-sec">${secHead(T('State line', 'ข้อความบรรทัดที่สอง'), T('Second line under Details.', 'บรรทัดที่สองใต้บรรทัดแรก'))}${fld('sc-l2', T('State text', 'ข้อความ'), 'state', 'l2', sc.l2, { hl: 'state', max: 128, vars: 1 })}${fld('sc-l2u', T('State link', 'ลิงก์'), 'stateUrl', 'l2url', sc.l2url, { hl: 'state', url: 1 })}</section>
      ${imageSection('lg', sc, T('Large image', 'ภาพใหญ่'), T('The main picture beside the text.', 'ภาพหลักข้างข้อความ'), 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large')}
      ${imageSection('sm', sc, T('Small image', 'ภาพเล็ก'), T('Optional round badge on the corner of the large image.', 'ป้ายกลมที่มุมภาพใหญ่ (ไม่บังคับ)'), 'small', 'smallText', 'smallUrl', 'small', 'smallText', 'smallUrl', 'small')}
      <section class="mk-sec">${secHead(T('Buttons', 'ปุ่ม'), T('Up to two. Links must be https.', 'สูงสุดสองปุ่ม ลิงก์ต้องเป็น https'))}
-      ${sc.btns.map((b, i) => `<div class="vs-field"><span class="vs-label">${T('Button', 'ปุ่ม')} ${i + 1}${helpBtn('btn' + i)}</span><div class="mk-two"><input class="vs-input" type="text" aria-label="${T('Button label', 'ข้อความปุ่ม')} ${i + 1}" placeholder="${T('Label', 'ข้อความ')}" value="${esc(b.label)}" data-bind="btn" data-i="${i}" data-f="label" data-hl="btn${i}" maxlength="32"><input class="vs-input" type="text" data-mono="1" data-url="1" aria-label="${T('Button link', 'ลิงก์ปุ่ม')} ${i + 1}" placeholder="https://…" value="${esc(b.url)}" data-bind="btn" data-i="${i}" data-f="url" data-hl="btn${i}"></div><p class="field-error" hidden></p></div>`).join('')}</section>
+      ${sc.btns.map((b, i) => `<div class="vs-field"><span class="vs-label">${T('Button', 'ปุ่ม')} ${i + 1}${helpBtn('btn' + i)}${varBtn('sc-btn' + i)}</span><div class="mk-two"><input class="vs-input" type="text" id="sc-btn${i}" data-var="1" aria-label="${T('Button label', 'ข้อความปุ่ม')} ${i + 1}" placeholder="${T('Label', 'ข้อความ')}" value="${esc(b.label)}" data-bind="btn" data-i="${i}" data-f="label" data-hl="btn${i}" maxlength="32"><input class="vs-input" type="text" data-mono="1" data-url="1" aria-label="${T('Button link', 'ลิงก์ปุ่ม')} ${i + 1}" placeholder="https://…" value="${esc(b.url)}" data-bind="btn" data-i="${i}" data-f="url" data-hl="btn${i}"></div><p class="field-error" hidden></p>${varChips('sc-btn' + i)}</div>`).join('')}</section>
      <section class="mk-sec mk-danger">${secHead(T('Delete Scene', 'ลบ Scene'), T('Removes this Scene from your library. You’ll be asked what to do with the apps that use it.', 'ลบ Scene นี้ออกจากคลัง ระบบจะถามว่าจะทำอย่างไรกับแอปที่ใช้ Scene นี้'))}
       <button class="vs-btn vs-btn-sm vs-btn-danger" type="button" data-act="askdel" data-k="del" ${S.scenes.length < 2 || !sc._raw ? 'disabled' : ''}>${T('Delete Scene…', 'ลบ Scene…')}</button>${S.scenes.length < 2 ? `<p class="vs-hint" style="margin-top:8px">${T('This is your only Scene. Vibe needs at least one — create another before deleting this one.', 'นี่คือ Scene เดียวของคุณ Vibe ต้องมีอย่างน้อยหนึ่ง Scene — สร้างอันใหม่ก่อนจึงจะลบอันนี้ได้')}</p>` : ''}</section>
     </div>
@@ -876,6 +940,10 @@ function updateDrawer() {
   morphInto($('#dpreview', layer()), dcWrap(published(sc)));
   if (area) highlight(area);
   if (S.imgFlash && !reduced()) { const f = document.querySelectorAll(S.imgFlash === 'lg' ? '#dpreview .dcp-img > img' : '#dpreview .dcp-sm'); f.forEach(x => x.classList.add('mk-id-swap')); } S.imgFlash = null;
+  layer().querySelectorAll('input[data-var]').forEach(inp => {
+    const h = inp.closest('.vs-field').querySelector('.mk-varhint'); if (!h) return;
+    const on = hasVars(inp.value); h.hidden = !on; h.textContent = on ? '→ ' + resolveVars(inp.value, varValues(sc)) : '';
+  });
   const app = sceneApp(sc);
   $('#dprevnote', layer()).textContent = app ? T('While a paired app is showing, Discord uses its name' + (sc.small ? '.' : ' and its public icon when it has one.'), 'ขณะที่แอปที่จับคู่แสดงอยู่ Discord จะใช้ชื่อแอป' + (sc.small ? '' : 'และไอคอนสาธารณะของแอป (ถ้ามี)')) : '';
   layer().querySelectorAll('input[data-url]').forEach(inp => {
@@ -958,8 +1026,10 @@ function toast(msg, undo) {
 const layer2 = () => $('#layer2');
 const FIELD = { lg: 'art', sm: 'small' };
 const hostOf = v => { try { return new URL(v).host; } catch (e) { return v; } };
+const SRC = { lg: 'artSource', sm: 'smallSource' };
 function srcLabel(sc, p) {
   const v = sc[FIELD[p]];
+  if (sc[SRC[p]] === 'app-icon') { const a = sceneApp(sc); return [T('Paired app icon', 'ไอคอนของแอปที่จับคู่'), a ? a.name : T('Pair an app to show its icon', 'จับคู่แอปเพื่อแสดงไอคอน')]; }
   if (!v) return [T('No image', 'ไม่มีภาพ'), p === 'lg' ? T('Discord shows a placeholder', 'Discord จะแสดงพื้นที่ว่าง') : T('No badge unless a paired app adds its icon', 'ไม่มีป้าย เว้นแต่แอปที่จับคู่เพิ่มไอคอนให้')];
   if (ARTMAP[v]) return [T('Built-in art', 'ภาพในตัว'), T('Included with Vibe', 'มาพร้อม Vibe')];
   if (DCID.avatarUrl && v === DCID.avatarUrl) return [T('Your Discord avatar', 'รูปโปรไฟล์ Discord ของคุณ'), 'cdn.discordapp.com'];
@@ -967,11 +1037,11 @@ function srcLabel(sc, p) {
   return [/giphy\.com$/i.test(host) ? T('GIF from GIPHY', 'GIF จาก GIPHY') : isHttps(v) ? T('Image link', 'ลิงก์ภาพ') : T('Image', 'ภาพ'), host];
 }
 function wellHtml(p, sc, label, key) {
-  const v = sc[FIELD[p]], [t1, t2] = srcLabel(sc, p);
-  return `<div class="vs-field"><span class="vs-label" id="${p}-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="${p}-wl"><button type="button" class="mk-well-thumb" data-act="openimg" data-arg="${p}" tabindex="-1" aria-hidden="true">${v ? `<img src="${esc(artSrc(v))}" alt="">` : `<span class="mk-well-empty">${I.plus}</span>`}</button><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="${p}" data-k="well-${p}" data-hl="${p === 'lg' ? 'large' : 'small'}">${v ? T('Change', 'เปลี่ยน') : T('Choose', 'เลือก')}</button>${v ? `<button type="button" class="vs-icon-btn-danger" data-act="imgclear" data-arg="${p}" aria-label="${T('Remove image', 'ลบภาพ')}">${I.x}</button>` : ''}</div></div>`;
+  const src = sc[SRC[p]] === 'app-icon', a = src ? sceneApp(sc) : null, v = src ? (a && a.publicIcon) || '' : sc[FIELD[p]], [t1, t2] = srcLabel(sc, p);
+  return `<div class="vs-field"><span class="vs-label" id="${p}-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="${p}-wl"><button type="button" class="mk-well-thumb" data-act="openimg" data-arg="${p}" tabindex="-1" aria-hidden="true">${v ? `<img src="${esc(artSrc(v))}" alt="">` : `<span class="mk-well-empty">${I.plus}</span>`}</button><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="${p}" data-k="well-${p}" data-hl="${p === 'lg' ? 'large' : 'small'}">${v || src ? T('Change', 'เปลี่ยน') : T('Choose', 'เลือก')}</button>${v || src ? `<button type="button" class="vs-icon-btn-danger" data-act="imgclear" data-arg="${p}" aria-label="${T('Remove image', 'ลบภาพ')}">${I.x}</button>` : ''}</div></div>`;
 }
-function applyImage(p, value) {
-  const sc = sceneBy(S.drawer.id); sc[FIELD[p]] = value; S.imgFlash = p; S.drawer.dirty = true; scheduleSave(); buildDrawer();
+function applyImage(p, value, source) {
+  const sc = sceneBy(S.drawer.id); sc[FIELD[p]] = value; sc[SRC[p]] = source || ''; S.imgFlash = p; S.drawer.dirty = true; scheduleSave(); buildDrawer();
 }
 /* generic stacked overlay: fade + 8px rise in, animated exit, focus returns to the opener */
 function showOv(kind, label, inner, retKey) {
@@ -1023,10 +1093,11 @@ function imgTab() {
   const o = S.ov, sc = sceneBy(S.drawer.id), cur = sc[FIELD[o.p]];
   if (o.tab === 'app') {
     const apps = sceneApps(sc.id);
-    const list = apps.length && o.p === 'lg' ? `<ul class="mk-aff">${apps.map(a => `<li><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small>${a.publicIcon ? T('Public icon available', 'มีไอคอนสาธารณะ') : T('No public icon — can’t be shown on Discord', 'ไม่มีไอคอนสาธารณะ — แสดงบน Discord ไม่ได้')}</small></span>${a.publicIcon ? `<button class="vs-btn vs-btn-sm" type="button" style="margin-left:auto" data-act="pickimg" data-arg="appicon:${esc(a.id)}">${T('Use', 'ใช้')}</button>` : ''}</li>`).join('')}</ul>` : apps.length ? `<ul class="mk-aff">${apps.map(a => `<li><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small>${esc(a.exe)}</small></span></li>`).join('')}</ul>` : `<div class="mk-empty"><b>${T('No paired app yet', 'ยังไม่มีแอปที่จับคู่')}</b><p>${T('Pair an app with this Scene first.', 'จับคู่แอปกับ Scene นี้ก่อน')}</p></div>`;
-    if (o.p === 'lg') return `<p class="vs-hint" style="margin:0 0 12px">${T('Discord can only show images that have a public https link. An app’s icon can be the large image only when it has a public copy (marked below); local-only icons can’t. Otherwise pick built-in art, a GIF or an image link.', 'Discord แสดงได้เฉพาะภาพที่มีลิงก์ https สาธารณะ ไอคอนแอปใช้เป็นภาพใหญ่ได้เฉพาะเมื่อมีลิงก์สาธารณะ (ระบุด้านล่าง) ไอคอนในเครื่องใช้ไม่ได้ เลือกภาพในตัว GIF หรือลิงก์ภาพแทน')}</p>${list}<div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="ovback">${T('Back', 'กลับ')}</button></div>`;
+    const row = a => { const st = iconState(a); return `<li data-st="${st || 'none'}"><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small class="mk-icstat" data-st="${st || 'none'}">${iconDot(st)}<span>${iconLabel(st)}</span></small></span>${o.p === 'lg' && a.publicIcon && st === 'ready' ? `<button class="vs-btn vs-btn-sm" type="button" style="margin-left:auto" data-act="pickimg" data-arg="appicon:${esc(a.id)}">${T('Use', 'ใช้')}</button>` : ''}</li>`; };
+    const list = apps.length ? `${iconConsentNeeded(apps) ? consentCard() : ''}<ul class="mk-aff">${apps.map(row).join('')}</ul>` : `<div class="mk-empty"><b>${T('No paired app yet', 'ยังไม่มีแอปที่จับคู่')}</b><p>${T('Pair an app with this Scene first.', 'จับคู่แอปกับ Scene นี้ก่อน')}</p></div>`;
+    if (o.p === 'lg') return `<p class="vs-hint" style="margin:0 0 12px">${T('Discord can only show images that have a public https link. An app’s icon can be the large image only when it has a public copy (marked below); local-only icons can’t. Otherwise pick built-in art, a GIF or an image link.', 'Discord แสดงได้เฉพาะภาพที่มีลิงก์ https สาธารณะ ไอคอนแอปใช้เป็นภาพใหญ่ได้เฉพาะเมื่อมีลิงก์สาธารณะ (ระบุด้านล่าง) ไอคอนในเครื่องใช้ไม่ได้ เลือกภาพในตัว GIF หรือลิงก์ภาพแทน')}</p>${list}<div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="ovback">${T('Back', 'กลับ')}</button>${apps.length ? `<button class="vs-btn vs-btn-primary" type="button" data-act="pickimg" data-arg="appsrc:">${T('Use paired app icon', 'ใช้ไอคอนแอปที่จับคู่')}</button>` : ''}</div>`;
     return `<p class="vs-hint" style="margin:0 0 12px">${T('While a paired app is showing, Vibe adds that app’s own icon as the small image when Discord can load a public copy of it. If it has none, no app icon appears. Choose this to leave the small image to the app.', 'ขณะที่แอปที่จับคู่แสดงอยู่ Vibe จะเพิ่มไอคอนของแอปเป็นภาพเล็กให้เมื่อ Discord โหลดไอคอนสาธารณะของแอปได้ หากไม่มีจะไม่แสดงไอคอน เลือกตัวเลือกนี้เพื่อปล่อยให้แอปจัดการภาพเล็ก')}</p>${list}
-    <div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="closeov">${T('Cancel', 'ยกเลิก')}</button><button class="vs-btn vs-btn-primary" type="button" data-act="pickimg" data-arg="none:" data-k="useapp">${!cur ? T('Keep app icon', 'ใช้ไอคอนแอปต่อไป') : T('Use app icon', 'ใช้ไอคอนแอป')}</button></div>`;
+    <div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="closeov">${T('Cancel', 'ยกเลิก')}</button><button class="vs-btn vs-btn-primary" type="button" data-act="pickimg" data-arg="appsrc:" data-k="useapp">${sc.smallSource === 'app-icon' ? T('Keep app icon', 'ใช้ไอคอนแอปต่อไป') : T('Use app icon', 'ใช้ไอคอนแอป')}</button></div>`;
   }
   if (o.tab === 'builtin') return imgHome(o, cur);
   if (o.tab === 'gif') return `<div class="gif-search-row"><input type="text" id="gifq" value="${esc(o.q)}" placeholder="${T('Search GIPHY…', 'ค้นหาใน GIPHY…')}" aria-label="${T('Search GIFs', 'ค้นหา GIF')}" data-bind="gifq" autocomplete="off" maxlength="80"></div><p class="gif-search-status" id="gifst" role="status" aria-live="polite"></p><div id="gifres"></div><p class="gif-provider">${T('GIFs provided by', 'GIF จาก')} <span class="giphy-mark">GIPHY</span></p>`;
@@ -1077,6 +1148,7 @@ function pickImg(a) {
   const i = a.indexOf(':'), kind = a.slice(0, i), v = a.slice(i + 1), p = S.ov.p;
   if (kind === 'art') applyImage(p, 'builtin:' + v);
   else if (kind === 'none') applyImage(p, '');
+  else if (kind === 'appsrc') applyImage(p, '', 'app-icon');
   else if (kind === 'appicon') { const a = appBy(v); if (!a.publicIcon) return; applyImage(p, a.publicIcon); }
   else if (kind === 'avatar') applyImage(p, DCID.avatarUrl);
   else if (kind === 'lgif') { const g = S.ov.gifRes.find(x => x.id === v); if (!g) return; addRecent(g.originalUrl); applyImage(p, g.originalUrl); }
@@ -1170,11 +1242,19 @@ function openDrawer(id, opener) {
 }
 const keep = sel => { buildDrawer(); const e = $(sel, layer()); e && e.focus({ preventScroll: true }); };
 const ACT = {
+  varopen: a => { S.varOpen = S.varOpen === a ? '' : a; keep(`[data-act="varopen"][data-arg="${a}"]`); return 'overlay'; },
+  varins: a => {
+    const [id, key] = a.split('|'), el = $('#' + id, layer()); if (!el || !S.drawer) return 'overlay';
+    const tok = '{' + key + '}', at = el.selectionStart == null ? el.value.length : el.selectionStart, to = el.selectionEnd == null ? at : el.selectionEnd;
+    el.setRangeText(tok, at, to, 'end'); el.dispatchEvent(new Event('input', { bubbles: true }));
+    S.varOpen = ''; buildDrawer(); const f = $('#' + id, layer()); if (f) { f.focus({ preventScroll: true }); f.setSelectionRange(at + tok.length, at + tok.length); } return 'overlay';
+  },
+  iconconsent: a => { void setIconConsent(a === 'yes'); return 'overlay'; },
   updgo: () => { void updateAction(); return 'overlay'; }, updrestart: () => { void updateAction(); return 'overlay'; },
   checkupd: () => { void checkUpdates(); return 'overlay'; },
   screen: a => { S.screen = a; },
   lang: a => { S.lang = a; try { localStorage.setItem('vibe.lang', a); } catch (e) { /* storage unavailable */ } },
-  theme: a => { S.theme = a; try { localStorage.setItem('vibe.theme', a); } catch (e) { /* storage unavailable */ } },
+  theme: a => { S.theme = a; try { localStorage.setItem('vibe.theme', a); } catch (e) { /* storage unavailable */ } syncShellTheme(); },
   refreshapps: () => { void loadApps(true); return 'overlay'; },
   retryload: () => { void loadAll(); return 'overlay'; },
   reconnect: () => { void reconnect(); return 'overlay'; },
@@ -1296,6 +1376,7 @@ document.addEventListener('change', e => {
   if (!b) return;
   if (b === 'sceneon') { void setSceneEnabled(t.dataset.arg, t.checked); return; }
   if (b === 'presence') { void setPresence(t.checked); return; }
+  if (b === 'iconhost') { void setIconConsent(t.checked); return; }
   if (b === 'tgl' && t.dataset.id === 'autostart') { t.disabled = true; void setLaunchAtLogin(t.checked); return; }
   if (!S.ov) return;
   if (b === 'dmode') S.ov.mode = t.value;
@@ -1326,7 +1407,7 @@ document.addEventListener('click', e => { const h = e.target.closest && e.target
   const q = new URLSearchParams(location.search);
   if (q.get('lang')) S.lang = q.get('lang'); if (q.get('theme')) S.theme = q.get('theme');
   if (['now', 'scenes', 'settings'].includes(q.get('screen'))) S.screen = q.get('screen');
-  initDesktop(); render();
+  initDesktop(); syncShellTheme(); render();
   void loadAll();
 })();
 

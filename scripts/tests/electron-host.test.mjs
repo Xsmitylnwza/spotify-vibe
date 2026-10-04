@@ -34,6 +34,9 @@ if (!scenario) {
     }
     isDestroyed() { return false; }
     loadURL() { loads++; return Promise.resolve(); }
+    loadFile() { this.splash = true; return Promise.resolve(); }
+    setBackgroundColor(color) { this.background = color; }
+    isVisible() { return true; }
     isMinimized() { return false; }
     show() {} focus() {}
     static getAllWindows() { return windows; }
@@ -51,7 +54,7 @@ if (!scenario) {
   const modules = new Map();
   const host = {
     electron: { app, BrowserWindow: Window, Tray, Menu: { setApplicationMenu() {}, buildFromTemplate: x => x }, ipcMain: { handle: (name, fn) => handlers.set(name, fn) },
-      nativeImage: { createFromPath: () => ({ resize() { return this; } }) }, dialog: { showMessageBox: async () => ({ response: 1 }) }, shell: { openExternal: async url => external.push(url) } },
+      nativeImage: { createFromPath: () => ({ resize() { return this; } }) }, nativeTheme: { shouldUseDarkColors: false }, dialog: { showMessageBox: async () => ({ response: 1 }) }, shell: { openExternal: async url => external.push(url) } },
     'electron-updater': { default: { autoUpdater: updater } },
     '../scripts/studio-server.mjs': { startStudioServer: async options => { startOptions = options; return scenario.startsWith('startup-') ? await new Promise(resolve => { resolveStart = resolve; }) : handle; } },
   };
@@ -72,6 +75,9 @@ if (!scenario) {
   const fire = async delay => { for (const [key, timer] of [...timers]) if (timer.delay === delay) { timers.delete(key); timer.fn(); } await flush(); };
   await flush();
   const win = windows[0];
+  // The splash skeleton paints before the server; a quit during startup must still never load Studio.
+  const studioWindows = () => windows.filter(item => !item.splash).length;
+  if (scenario.startsWith('startup-')) assert.equal(windows[0]?.splash, true, 'splash skeleton is shown while the server starts');
   const event = win && { sender: win.webContents, senderFrame: win.webContents.mainFrame };
   if (scenario === 'ipc') {
     for (const fn of handlers.values()) {
@@ -86,25 +92,27 @@ if (!scenario) {
     assert.equal(handlers.get('vibe:get-version')(event), '1');
     await handlers.get('vibe:quit')(event); assert.equal(quit, 1);
   } else if (scenario === 'updates') {
+    // Seamless updates: hourly checks, background download, silent install that
+    // runs by itself only once Studio is hidden in the tray.
     assert.equal(updater.autoDownload, false);
-    assert.equal(updater.autoInstallOnAppQuit, false);
-    assert.equal(intervals[0].delay, 6 * 60 * 60 * 1000);
-    let checks = 0, downloads = 0, installs = 0;
+    assert.equal(updater.autoInstallOnAppQuit, true);
+    assert.equal(intervals[0].delay, 60 * 60 * 1000);
+    let checks = 0, downloads = 0, installs = 0, visible = true;
+    win.isVisible = () => visible;
     updater.checkForUpdates = async () => { checks++; updater.emit('update-available', { version: '2' }); };
     updater.downloadUpdate = async () => { downloads++; updater.emit('download-progress', { percent: 50 }); updater.emit('update-downloaded', { version: '2' }); };
-    updater.quitAndInstall = (silent, force) => { installs++; assert.equal(silent, false); assert.equal(force, true); app.quit(); };
+    updater.quitAndInstall = (silent, force) => { installs++; assert.equal(silent, true, 'seamless updates install without the NSIS wizard'); assert.equal(force, true); app.quit(); };
     const state = () => handlers.get('vibe:get-update-state')(event);
     assert.equal(state().currentVersion, '1');
     assert.equal(state().state, 'idle');
     await handlers.get('vibe:quit-and-install')(event); assert.equal(installs, 0);
     await fire(20_000);
-    assert.equal(checks, 1); assert.equal(downloads, 0);
-    assert.equal(state().state, 'available'); assert.equal(state().availableVersion, '2');
-    await intervals[0].fn(); await flush(); assert.equal(checks, 2);
-    await handlers.get('vibe:download-update')(event);
-    assert.equal(downloads, 1); assert.equal(state().state, 'downloaded'); assert.equal(state().percent, 100);
-    await intervals[0].fn(); await flush(); assert.equal(checks, 2);
-    await handlers.get('vibe:quit-and-install')(event); await flush();
+    assert.equal(checks, 1); assert.equal(downloads, 1, 'a found update downloads without a click');
+    assert.equal(state().state, 'downloaded'); assert.equal(state().availableVersion, '2'); assert.equal(state().percent, 100);
+    await intervals[0].fn(); await flush(); assert.equal(checks, 1, 'a ready installer is never re-checked or re-downloaded');
+    await handlers.get('vibe:download-update')(event); assert.equal(downloads, 1);
+    await fire(3_000); assert.equal(installs, 0, 'never restarts under an owner using the visible window');
+    visible = false; win.emit('hide'); await flush();
     assert.equal(stops, 1); assert.equal(installs, 1); assert.equal(quit, 1);
   } else if (scenario === 'navigation') {
     for (const name of ['will-navigate', 'will-redirect']) {
@@ -132,7 +140,7 @@ if (!scenario) {
     assert.equal(quit, 0);
     await fire(1000);
     assert.equal(quit, 0, 'native quit must await cleanup of the known late handle');
-    assert.equal(trayDestroyed, 0); assert.equal(windows.length, 0); assert.equal(loads, 0);
+    assert.equal(trayDestroyed, 0); assert.equal(studioWindows(), 0); assert.equal(loads, 0);
     if (scenario.endsWith('timeout')) {
       assert.equal([...timers.values()].filter(timer => timer.delay === 4000).length, 1);
       await fire(4000);
@@ -142,12 +150,12 @@ if (!scenario) {
     releaseStop(); await flush();
     assert.equal(stopComplete, true); assert.equal(stops, 1); assert.equal(quit, 1);
     await startOptions.onQuit(); await flush();
-    assert.equal(stops, 1); assert.equal(quit, 1); assert.equal(windows.length, 0);
+    assert.equal(stops, 1); assert.equal(quit, 1); assert.equal(studioWindows(), 0);
   } else {
     assert.equal(startOptions.requireOwnership, true);
     if (scenario === 'startup-deadline') await fire(15000);
     else { app.quit(); await flush(); await fire(1000); }
-    assert.equal(quit, 1); assert.equal(loads, 0); assert.equal(windows.length, 0);
-    if (scenario !== 'startup-hung') { resolveStart(handle); await flush(); assert.equal(stops, 1); assert.equal(windows.length, 0); }
+    assert.equal(quit, 1); assert.equal(loads, 0); assert.equal(studioWindows(), 0);
+    if (scenario !== 'startup-hung') { resolveStart(handle); await flush(); assert.equal(stops, 1); assert.equal(studioWindows(), 0); }
   }
 }

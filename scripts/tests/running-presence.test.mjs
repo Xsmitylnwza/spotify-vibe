@@ -14,10 +14,11 @@ test('recent running mapped app wins, closing it falls back, closing all clears'
   assert.equal(selectRunningPreset([{...mappings[0],enabled:false}],['C:/Codex.exe']),null);
 });
 test('app badge preserves character and does not mutate the shared preset',()=>{
-  const scene={largeImage:'builtin:hinata-idle',smallImage:'custom'};
+  const scene={largeImage:'builtin:hinata-idle',smallImage:'@app', smallImageText:'{app}', activityName:'Using {app}'};
   const result=withApplicationBadge(scene,{executable:'C:\\Users\\me\\AppData\\Local\\Discord\\app-1.2\\Discord.exe',name:'Discord'});
-  assert.equal(result.largeImage,scene.largeImage);assert.match(result.smallImage,/discord.png$/);assert.equal(result.smallImageText,'Discord');assert.equal(scene.smallImage,'custom');
-  assert.equal(result.activityName,'Discord');
-  assert.equal(withApplicationBadge(scene,{executable:'C:\\Other.exe',name:'Other App'}).activityName,'Other App');
-  assert.equal(withApplicationBadge(scene,{executable:'C:\\Other.exe'}),scene);
+  assert.equal(result.largeImage,scene.largeImage);assert.match(result.smallImage,/discord.png$/);assert.equal(result.smallImageText,'{app}');assert.equal(scene.smallImage,'@app');
+  assert.equal(result.activityName,'Using {app}');
+  assert.equal(withApplicationBadge(scene,{executable:'C:\\Other.exe',name:'Other App'}).smallImage,'');
+  const explicit = {...scene,smallImage:'custom'};
+  assert.equal(withApplicationBadge(explicit,{executable:'C:\\Discord.exe',name:'Discord'}),explicit);
 });

@@ -4,15 +4,15 @@
 // runs in-process, the window is just a view onto http://127.0.0.1:PORT/.
 // Closing the window hides to the tray — the companion keeps running.
 // Launch-at-login is on by default (toggle in Settings).
-import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, shell } from 'electron';
+import { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, dialog, shell, nativeTheme } from 'electron';
 import updaterPkg from 'electron-updater';
 const { autoUpdater } = updaterPkg;
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { startStudioServer } from '../scripts/studio-server.mjs';
 import { broadcastUpdateState, createStudioStartup, ensureDefaultLoginItem, createShutdown } from './lifecycle.mjs';
-import { createUpdates } from './updates.mjs';
+import { autoRestartAllowed, createUpdates } from './updates.mjs';
 import { requireStudioSender, secureStudioNavigation } from './security.mjs';
 
 const appDir = dirname(fileURLToPath(import.meta.url));
@@ -21,6 +21,10 @@ const STUDIO_PORT = Number(process.env.PRESENCE_STUDIO_PORT || 17345);
 const STUDIO_ORIGIN = `http://127.0.0.1:${STUDIO_PORT}`;
 const SMOKE = process.argv.includes('--smoke-test');
 const FIRST_RUN_SENTINEL = join(app.getPath('userData'), 'vibe-electron.json');
+const THEME_FILE = join(app.getPath('userData'), 'vibe-theme.json');
+const WINDOW_BG = { light: '#FAF8F5', dark: '#1e1f22' };
+// Set just before a seamless update restart that happened while Studio was in the tray.
+const HIDDEN_RELAUNCH_FILE = join(app.getPath('userData'), 'vibe-relaunch-hidden.json');
 
 let mainWindow = null;
 let tray = null;
@@ -40,7 +44,25 @@ if (!app.requestSingleInstanceLock()) {
     updater: autoUpdater, currentVersion: app.getVersion(), enabled: app.isPackaged,
     publish: pushUpdateState, restart: () => quitApp({ restart: true }),
     installFailed: error => shutdown.installFailed(error),
+    autoDownload: true,
   });
+  let studioLoaded = false;
+  // A seamless update that started from the tray relaunches back into the tray (marker < 10 min old).
+  const relaunchedHidden = (() => {
+    if (!process.argv.includes('--updated') || !existsSync(HIDDEN_RELAUNCH_FILE)) return false;
+    try { return Date.now() - JSON.parse(readFileSync(HIDDEN_RELAUNCH_FILE, 'utf8')).at < 10 * 60 * 1000; }
+    catch { return false; }
+    finally { try { unlinkSync(HIDDEN_RELAUNCH_FILE); } catch { /* already gone */ } }
+  })();
+
+  // Last theme the Studio reported, so the window and splash paint in it before load.
+  function savedTheme() {
+    try {
+      const theme = JSON.parse(readFileSync(THEME_FILE, 'utf8')).theme;
+      if (theme === 'dark' || theme === 'light') return theme;
+    } catch { /* first run */ }
+    return nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+  }
   app.on('second-instance', () => showWindow());
 
   // -------------------------------------------------------------------------
@@ -49,6 +71,7 @@ if (!app.requestSingleInstanceLock()) {
   function openedHidden() {
     if (SMOKE) return false;
     if (process.argv.includes('--hidden')) return true;
+    if (relaunchedHidden) return true;
     try {
       const s = app.getLoginItemSettings();
       return Boolean(s.wasOpenedAtLogin || s.wasOpenedAsHidden);
@@ -75,7 +98,7 @@ if (!app.requestSingleInstanceLock()) {
       // Frameless: the renderer draws its own slim title bar with custom
       // minimize / maximize / close controls (no OS logo bar).
       frame: false,
-      backgroundColor: '#FAF8F5',
+      backgroundColor: WINDOW_BG[savedTheme()],
       webPreferences: {
         preload: join(appDir, 'preload.cjs'),
         contextIsolation: true,
@@ -92,18 +115,31 @@ if (!app.requestSingleInstanceLock()) {
     });
     mainWindow.on('closed', () => {
       mainWindow = null;
+      studioLoaded = false;
     });
+    // Hiding to the tray is the moment to apply a ready update.
+    mainWindow.on('hide', () => maybeAutoRestart());
     mainWindow.on('maximize', () => mainWindow.webContents.send('vibe:maximize-changed', true));
     mainWindow.on('unmaximize', () => mainWindow.webContents.send('vibe:maximize-changed', false));
     return mainWindow;
   }
 
+  function loadStudio() {
+    studioLoaded = true;
+    mainWindow.loadURL(studioHandle.url + '#/status').catch(() => { studioLoaded = false; });
+  }
+
+  // Skeleton of the Studio layout, painted before the local server is ready.
+  function showSplash() {
+    createWindow();
+    mainWindow.loadFile(join(appDir, 'splash.html'), { query: { theme: savedTheme() } }).catch(() => {});
+    mainWindow.once('ready-to-show', () => { if (!appQuitting && !studioLoaded) mainWindow?.show(); });
+  }
+
   function showWindow() {
     if (!studioHandle || appQuitting) return;
     if (!mainWindow) createWindow();
-    if (!mainWindow.webContents.getURL()) {
-      mainWindow.loadURL(studioHandle.url + '#/status').catch(() => {});
-    }
+    if (!studioLoaded) loadStudio();
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
     mainWindow.focus();
@@ -167,15 +203,23 @@ if (!app.requestSingleInstanceLock()) {
   function pushUpdateState(state) {
     broadcastUpdateState(BrowserWindow.getAllWindows(), state);
     refreshTray();
+    if (state.state === 'downloaded') setTimeout(maybeAutoRestart, 3_000);
+  }
+
+  // Discord-style: install silently and relaunch while the owner is not using Studio.
+  function maybeAutoRestart() {
+    if (appQuitting || !autoRestartAllowed(updates.snapshot(), mainWindow)) return;
+    try { writeFileSync(HIDDEN_RELAUNCH_FILE, JSON.stringify({ at: Date.now() })); } catch { /* relaunch visible */ }
+    void updates.restartToUpdate();
   }
 
   function checkForUpdates() { return updates.check(); }
 
   function wireAutoUpdater() {
     if (!app.isPackaged) return;
-    // Delayed first check + every 6h; downloads require an explicit user action.
+    // Delayed first check + hourly; a found update downloads in the background.
     updateTimer = setTimeout(() => void checkForUpdates(), 20_000);
-    updateInterval = setInterval(() => void checkForUpdates(), 6 * 60 * 60 * 1000);
+    updateInterval = setInterval(() => void checkForUpdates(), 60 * 60 * 1000);
   }
 
   // -------------------------------------------------------------------------
@@ -209,6 +253,12 @@ if (!app.requestSingleInstanceLock()) {
     return result;
   });
   handleStudioIPC('vibe:quit-and-install', () => updates.restartToUpdate());
+  handleStudioIPC('vibe:set-theme', (_event, theme) => {
+    if (theme !== 'dark' && theme !== 'light') return false;
+    writeFileSync(THEME_FILE, JSON.stringify({ theme }));
+    mainWindow?.setBackgroundColor(WINDOW_BG[theme]);
+    return true;
+  });
   handleStudioIPC('vibe:quit', () => quitApp());
   handleStudioIPC('vibe:open-studio', () => showWindow());
   // Frameless window controls (custom title bar in the renderer).
@@ -235,7 +285,8 @@ if (!app.requestSingleInstanceLock()) {
       tray?.destroy();
     },
     quit: () => { exitReady = true; app.quit(); },
-    install: () => { exitReady = true; return autoUpdater.quitAndInstall(false, true); },
+    // Silent NSIS install (no wizard) that relaunches the app with --updated.
+    install: () => { exitReady = true; return autoUpdater.quitAndInstall(true, true); },
     onError: (error) => {
       updates.fail(error);
       console.error('Vibe Studio shutdown:', error?.message || 'Shutdown failed');
@@ -261,6 +312,7 @@ if (!app.requestSingleInstanceLock()) {
   // -------------------------------------------------------------------------
   app.whenReady().then(async () => {
     ensureDefaultLoginItem({ app, fs: { existsSync, writeFileSync }, sentinel: FIRST_RUN_SENTINEL, env: process.env });
+    if (!SMOKE && !openedHidden()) showSplash();
     while (!appQuitting && !studioHandle) {
       try {
         studioHandle = await startup.begin({
@@ -286,7 +338,7 @@ if (!app.requestSingleInstanceLock()) {
     }
     if (appQuitting) return;
 
-    createWindow();
+    if (!mainWindow) createWindow();
     createTray();
     wireAutoUpdater();
 
@@ -295,7 +347,7 @@ if (!app.requestSingleInstanceLock()) {
       return;
     }
     if (!tray || !openedHidden()) showWindow();
-    else mainWindow.loadURL(studioHandle.url + '#/status').catch(() => {});
+    else loadStudio();
   }).catch(async (error) => {
     console.error('Vibe Studio startup:', error?.message || error);
     await quitApp();

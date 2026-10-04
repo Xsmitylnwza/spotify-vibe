@@ -2,6 +2,8 @@ import { validateCodexSession } from './codex-session.mjs';
 import { characterArt, defaultCharacterArt, resolveDiscordArt } from './character-art.mjs';
 import { appKey, validateMappings } from './app-presence.mjs';
 import { parseLocalTime } from './presence-scheduler.mjs';
+import { resolveSceneText } from './scene-variables.mjs';
+export { resolveSceneText } from './scene-variables.mjs';
 
 export const activityTypes = {
   playing: 0,
@@ -55,7 +57,7 @@ function validateImageReference(label, value) {
   if (value.includes('://')) validateHttpsUrl(label, value);
 }
 
-export function validateScene(input) {
+export function validateScene(input, { delivery = false } = {}) {
   const activityType = text(input?.activityType).toLowerCase() || 'playing';
   const timerMode = text(input?.timerMode).toLowerCase() || 'none';
   const rawButtons = Array.isArray(input?.buttons) ? input.buttons : [];
@@ -97,12 +99,32 @@ export function validateScene(input) {
       .filter((button) => button.label || button.url),
   };
 
+  for (const field of ['largeImageSource', 'smallImageSource']) {
+    if (input?.[field] !== undefined) {
+      if (typeof input[field] !== 'string') throw new Error('Image source must be text.');
+    }
+    // These are now owned schema fields: an omitted source means an explicit
+    // image choice, and must clear a previous app-icon flag in the disk overlay.
+    scene[field] = text(input?.[field]);
+  }
+
+  // Template text is owner data. Discord bounds apply to resolved text at
+  // delivery; literal fields keep their existing validation on save.
+  function required(label, value, minimum = 2, maximum = 128) {
+    if (!delivery && /\{(?:app|scene|user)\}/.test(value)) return;
+    validateRequiredText(label, value, minimum, maximum);
+  }
+  function optional(label, value) {
+    if (!delivery && /\{(?:app|scene|user)\}/.test(value)) return;
+    validateOptionalText(label, value);
+  }
+
   validateRequiredText('Scene name', scene.sceneName, 1, 40);
-  validateRequiredText('Activity name', scene.activityName);
-  validateRequiredText('Details', scene.details);
-  validateRequiredText('State', scene.state);
-  validateOptionalText('Large image hover text', scene.largeImageText);
-  validateOptionalText('Small image hover text', scene.smallImageText);
+  required('Activity name', scene.activityName);
+  required('Details', scene.details);
+  required('State', scene.state);
+  optional('Large image hover text', scene.largeImageText);
+  optional('Small image hover text', scene.smallImageText);
   validateHttpsUrl('Details URL', scene.detailsUrl);
   validateHttpsUrl('State URL', scene.stateUrl);
   validateImageReference('Large image/GIF', scene.largeImage);
@@ -112,7 +134,7 @@ export function validateScene(input) {
 
   if (scene.buttons.length > 2) throw new Error('Discord supports up to two buttons.');
   for (const [index, button] of scene.buttons.entries()) {
-    validateRequiredText('Button ' + (index + 1) + ' label', button.label, 1, 32);
+    required('Button ' + (index + 1) + ' label', button.label, 1, 32);
     validateHttpsUrl('Button ' + (index + 1) + ' URL', button.url);
   }
 
@@ -153,7 +175,7 @@ export function validateConfig(input) {
   }
   if (rawSlots.length > 24) throw new Error('Configuration supports up to 24 Daily Time Slots.');
 
-  const scenes = rawScenes.map(validateScene);
+  const scenes = rawScenes.map(scene => validateScene(scene));
   const sceneIds = new Set();
   for (const scene of scenes) {
     if (sceneIds.has(scene.id)) throw new Error('Scene IDs must be unique.');
@@ -303,8 +325,13 @@ export function createDefaultConfig() {
   });
 }
 
-export function createDiscordActivity(scene, now = new Date(), { artBaseUrl = "" } = {}) {
-  const validScene = validateScene(scene);
+export function createDiscordActivity(scene, now = new Date(), { artBaseUrl = "", app, user } = {}) {
+  const resolved = resolveSceneText(scene, { app, user });
+  // Manual pins have no selecting app. Automatic references must never leak
+  // as Discord asset keys, even when this pure API is called without a mapping.
+  if (resolved.largeImage === '@app') resolved.largeImage = defaultCharacterArt;
+  if (resolved.smallImage === '@app') resolved.smallImage = '';
+  const validScene = validateScene(resolved, { delivery: true });
   let timestamps;
   if (validScene.timerMode === 'elapsed') {
     timestamps = { start: now.getTime() };

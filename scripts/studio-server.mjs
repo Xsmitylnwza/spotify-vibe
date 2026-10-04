@@ -2,7 +2,8 @@ import { codexSessionScene } from './codex-session.mjs';
 import { withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
 import { appKey, selectRunningPreset } from './app-presence.mjs';
-import { packedAppIcon } from './app-icon-pack.mjs';
+import { createIconHosting } from './app-icon-hosting.mjs';
+import { sceneTextVariables } from './scene-variables.mjs';
 import { watchWindowsApps } from './windows-apps.mjs';
 import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
 import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
@@ -122,6 +123,35 @@ export async function startStudioServer(options = {}) {
   let activityStartedAt = new Date();
   let activityIdentity = null;
 
+  const iconHosting = createIconHosting(dirname(configPath), {
+    uploader: options.iconUploader,
+    onChange: async app => {
+      if (isStopping) return;
+      await pairMappedIcons();
+      const desired = desiredPresence();
+      const scene = sceneById(desired.scene?.id);
+      if (desired.source !== 'app' || appKey(desired.applicationExecutable) !== appKey(app.executable)
+        || !['largeImage', 'smallImage'].some(field => scene?.[field] === '@app' || scene?.[field + 'Source'] === 'app-icon')) return;
+      await reconcilePresence({ force: true, reason: 'App icon hosting updated' });
+    },
+  });
+  await iconHosting.settings();
+
+  function catalogApp(mapping) {
+    const key = appKey(mapping.executable);
+    const installed = (options.getInstalledApps ?? getInstalledApps)();
+    const running = appSnapshot.apps.find(app => appKey(app.executable) === key);
+    const found = installed.find(app => appKey(app.executable) === key);
+    return { ...found, ...running, executable: mapping.executable,
+      name: mapping.name || running?.name || found?.name,
+      icon: running?.icon || found?.icon || '' };
+  }
+
+  async function pairMappedIcons() {
+    if (isStopping) return;
+    await iconHosting.pair(config.appMappings.map(catalogApp));
+  }
+
   const runtime = {
     connectionState: 'disconnected',
     discordUser: null,
@@ -145,7 +175,7 @@ export async function startStudioServer(options = {}) {
     const avatarUrl = avatar
       ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith('a_') ? 'gif' : 'png'}?size=128`
       : `https://cdn.discordapp.com/embed/avatars/${(BigInt(id) >> 22n) % 6n}.png`;
-    return { id, username, displayName: user.global_name || username, avatarUrl };
+    return { id, username, displayName: user.globalName || user.global_name || username, avatarUrl };
   }
 
   function sceneById(sceneId) {
@@ -208,7 +238,7 @@ export async function startStudioServer(options = {}) {
     if (override) {
       // Explicit owner pins win even when the Scene is disabled for app selection.
       return {
-        scene: sceneById(override.sceneId),
+        scene: withApplicationBadge(sceneById(override.sceneId), null, { publicIcon: '' }),
         key: 'override:' + override.sceneId + ':' + override.expiresAt,
         source: 'override',
       };
@@ -216,9 +246,10 @@ export async function startStudioServer(options = {}) {
     if (!config.settings.scheduleEnabled) return { scene: null, key: null, source: 'paused' };
     if (config.settings.selectionMode === 'apps') {
       const mapping = selectRunningPreset(config.appMappings, appSnapshot.running || appSnapshot.apps.map(app => app.executable), recentApplications, config.scenes);
-      return { scene:mapping ? codexSessionScene(withApplicationBadge(sceneById(mapping.sceneId), mapping), mapping, config.codexSession) : null,
+      const publicIcon = mapping ? iconHosting.view(catalogApp(mapping)).publicIcon : '';
+      return { scene:mapping ? codexSessionScene(withApplicationBadge(sceneById(mapping.sceneId), mapping, { publicIcon }), mapping, config.codexSession) : null,
         key:mapping ? 'app:' + mapping.executable.toLowerCase() + ':' + mapping.sceneId : null,
-        source:mapping ? 'app' : 'unmapped', application:mapping?.name || null,
+        source:mapping ? 'app' : 'unmapped', application:mapping?.name || null, applicationExecutable:mapping?.executable || null,
         session: mapping && /OpenAI\.Codex_/i.test(mapping.executable) ? config.codexSession : null };
     }
     const schedule = scheduleSnapshot(now);
@@ -236,12 +267,15 @@ export async function startStudioServer(options = {}) {
     const currentScene = sceneById(runtime.currentSceneId);
     const scheduledScene = sceneById(schedule.activeSlot?.sceneId);
     const nextScene = sceneById(schedule.nextSlot?.sceneId);
+    const desired = desiredPresence(now);
+    const variables = desired.scene ? sceneTextVariables(desired.scene, { app: desired.application, user: runtime.discordUser?.displayName }) : null;
     return {
       selectionMode: config.settings.selectionMode,
-      selectionSource: desiredPresence(now).source,
-      selectedApplication: desiredPresence(now).application || null,
-      applicationBadge: desiredPresence(now).scene?.smallImage || null,
-      selectedPresetName: desiredPresence(now).scene?.sceneName || null,
+      selectionSource: desired.source,
+      selectedApplication: desired.application || null,
+      applicationBadge: desired.scene?.smallImage || null,
+      selectedPresetName: desired.scene?.sceneName || null,
+      variables,
       connected: runtime.connectionState === 'connected',
       discordUser: runtime.discordUser,
       connectionState: runtime.connectionState,
@@ -320,7 +354,7 @@ export async function startStudioServer(options = {}) {
     scheduleReconnect(error || new Error('Discord connection closed.'));
   }
 
-  async function applyScene(scene, key, { force = false } = {}) {
+  async function applyScene(scene, key, { force = false, app } = {}) {
     runtime.desiredSceneId = scene?.id || null;
     runtime.desiredKey = key || null;
     if (!scene || runtime.connectionState !== 'connected' || !discordClient) return false;
@@ -339,7 +373,7 @@ export async function startStudioServer(options = {}) {
         smallImage: scene.smallImage?.startsWith('builtin:') ? '' : scene.smallImage,
       } : scene;
       try {
-        activity = createDiscordActivity(deliveryScene, activityStartedAt, { artBaseUrl });
+        activity = createDiscordActivity(deliveryScene, activityStartedAt, { artBaseUrl, app, user: runtime.discordUser?.displayName });
       } catch (error) {
         runtime.lastError = errorMessage(error);
         return false;
@@ -520,7 +554,7 @@ export async function startStudioServer(options = {}) {
       runtime.desiredKey = desired.key;
       if (activityIdentity !== desired.key) { activityIdentity = desired.key; activityStartedAt = desired.session ? new Date(desired.session.startedAt) : now; }
       let applied = false;
-      if (desired.scene) applied = await applyScene(desired.scene, desired.key, { force });
+      if (desired.scene) applied = await applyScene(desired.scene, desired.key, { force, app: desired.application });
       else if (config.settings.selectionMode === 'apps' && runtime.active) await clearDiscordPresence();
       if (force) console.log(reason + '.');
       return applied;
@@ -637,6 +671,7 @@ export async function startStudioServer(options = {}) {
         manualOverride: current.manualOverride && sceneIds.has(current.manualOverride.sceneId) ? current.manualOverride : null };
     }, { writeSlots: Object.hasOwn(body, 'slots') });
     await reconcilePresence({ force: true, reason: 'Configuration saved' });
+    await pairMappedIcons();
     return saved;
   }
 
@@ -754,6 +789,7 @@ export async function startStudioServer(options = {}) {
     process.off('SIGINT', onSignal);
     process.off('SIGTERM', onSignal);
     installedAppsAbort.abort();
+    iconHosting.close();
     clearSchedulerTimeout(foregroundTimer);
     try { stopAppWatcher(); } catch { /* continue shutdown */ }
     stopSchedulerTimer();
@@ -857,7 +893,7 @@ export async function startStudioServer(options = {}) {
         sendJson(response,200,{session:config.codexSession,runtime:runtimeSnapshot()});return;
       }
       if (request.method === 'GET' && url.pathname === '/api/apps') {
-        sendJson(response, 200, { ...appSnapshot, apps:appSnapshot.apps.map(app => ({ ...app, publicIcon:packedAppIcon(app) })), foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
+        sendJson(response, 200, { ...appSnapshot, apps:await Promise.all(appSnapshot.apps.map(app => iconHosting.decorate(app))), foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
         return;
       }
       if (request.method === 'GET' && url.pathname === '/api/installed-apps') {
@@ -865,13 +901,28 @@ export async function startStudioServer(options = {}) {
           try { if (!options.disableHostEffects) await (options.refreshInstalledApps ?? refreshInstalledApps)(dataDirectory, installedAppsOptions); }
           catch { /* serve whatever is cached */ }
         }
-        sendJson(response, 200, { apps:(options.getInstalledApps ?? getInstalledApps)().map(app => ({ ...app, publicIcon:packedAppIcon(app) })) });
+        sendJson(response, 200, { apps:await Promise.all((options.getInstalledApps ?? getInstalledApps)().map(app => iconHosting.decorate(app))) });
+        return;
+      }
+      if (request.method === 'GET' && url.pathname === '/api/icon-hosting') {
+        sendJson(response, 200, await iconHosting.settings());
+        return;
+      }
+      if (request.method === 'PUT' && url.pathname === '/api/icon-hosting') {
+        const expectedHost = '127.0.0.1:' + port;
+        if (request.headers.host !== expectedHost || url.host !== expectedHost || (request.headers.origin && request.headers.origin !== 'http://' + expectedHost)) {
+          throw requestError('Icon hosting requires the local Studio origin.', 'INVALID_ORIGIN', 403);
+        }
+        const settings = await iconHosting.setConsent((await readJson(request)).consent);
+        await pairMappedIcons();
+        sendJson(response, 200, settings);
         return;
       }
       if (request.method === 'PUT' && url.pathname === '/api/app-mappings') {
         const body = await readJson(request);
         if (!['apps', 'schedule'].includes(body.selectionMode)) throw new Error('Choose applications or schedule.');
         await commitConfig(current => ({ ...current, appMappings:body.mappings, settings:{ ...current.settings, selectionMode:body.selectionMode, scheduleEnabled:true }, manualOverride:null }));
+        await pairMappedIcons();
         await reconcilePresence({ force:true, reason:'Application mappings saved' });
         sendJson(response, 200, { config:publicConfig(), runtime:runtimeSnapshot() });
         return;
@@ -1025,6 +1076,7 @@ export async function startStudioServer(options = {}) {
     if (!options.disableHostEffects) stopAppWatcher = (options.watchApps ?? watchWindowsApps)(snapshot => {
       const previousKey = desiredPresence().key;
       appSnapshot = snapshot;
+      void pairMappedIcons().catch(error => { runtime.lastError = errorMessage(error); });
       const path = snapshot.foregroundExecutable ?? snapshot.apps.find(app => app.foreground)?.executable ?? '';
       const reconcileTransition = before => {
         if (config.settings.selectionMode === 'apps' && desiredPresence().key !== before) void reconcilePresence({ reason:'Application selection changed' }).catch(error => { runtime.lastError = errorMessage(error); });
@@ -1046,7 +1098,10 @@ export async function startStudioServer(options = {}) {
     }, { disabled:env.PRESENCE_APP_DETECTION_DISABLE === '1' });
     // Installed-apps catalog (Start Menu): scanned in the background, served
     // from cache instantly.
-    if (!options.disableHostEffects && env.PRESENCE_APP_DETECTION_DISABLE !== '1') void initInstalledApps(dataDirectory, installedAppsOptions).catch(error => { runtime.lastError = errorMessage(error); });
+    if (!options.disableHostEffects && env.PRESENCE_APP_DETECTION_DISABLE !== '1') {
+      await initInstalledApps(dataDirectory, installedAppsOptions).catch(error => { runtime.lastError = errorMessage(error); });
+    }
+    await pairMappedIcons();
     const studioUrl = 'http://127.0.0.1:' + port;
     console.log('\nPresence Studio is ready.');
     console.log(studioUrl);

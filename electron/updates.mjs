@@ -1,5 +1,7 @@
 // Shared production updater logic; host adapters keep feed and shutdown testable.
-export function createUpdates({ updater, currentVersion, enabled, publish, restart, installFailed = () => false, checkTimeoutMs = 60_000 }) {
+// autoDownload: a found update downloads in the background and installs on quit;
+// restarting into it early stays an explicit owner action.
+export function createUpdates({ updater, currentVersion, enabled, publish, restart, installFailed = () => false, checkTimeoutMs = 60_000, autoDownload = false }) {
   const value = { currentVersion, state: 'idle', availableVersion: null, percent: 0, error: null };
   let pending = null;
   const snapshot = () => ({
@@ -17,7 +19,7 @@ export function createUpdates({ updater, currentVersion, enabled, publish, resta
   };
   if (enabled) {
     updater.autoDownload = false;
-    updater.autoInstallOnAppQuit = false;
+    updater.autoInstallOnAppQuit = autoDownload;
     updater.logger = null;
     updater.on('update-available', info => {
       Object.assign(value, { state: 'available', availableVersion: info.version, percent: 0, error: null });
@@ -53,12 +55,19 @@ export function createUpdates({ updater, currentVersion, enabled, publish, resta
     });
     return pending;
   }
+  function download() {
+    // Joining an in-flight download keeps manual and automatic requests single.
+    if (pending && value.state === 'downloading') return pending;
+    if (!enabled || pending || !value.availableVersion || value.state === 'downloaded') return Promise.resolve({ ok: false });
+    value.percent = 0;
+    return operation('downloading', () => updater.downloadUpdate());
+  }
   return {
-    snapshot, fail,
+    snapshot, fail, download,
     check() {
       // A scheduled check must never invalidate a downloaded installer or download.
       if (!enabled || pending || value.state === 'downloaded') return Promise.resolve({ ok: false });
-      return operation('checking', async () => {
+      const checked = operation('checking', async () => {
         let timer;
         try {
           await Promise.race([updater.checkForUpdates(), new Promise((_, reject) => {
@@ -66,15 +75,19 @@ export function createUpdates({ updater, currentVersion, enabled, publish, resta
           })]);
         } finally { clearTimeout(timer); }
       });
-    },
-    download() {
-      if (!enabled || pending || !value.availableVersion || value.state === 'downloaded') return Promise.resolve({ ok: false });
-      value.percent = 0;
-      return operation('downloading', () => updater.downloadUpdate());
+      if (!autoDownload) return checked;
+      return checked.then(result => (result.ok && value.state === 'available' ? download() : result));
     },
     restartToUpdate() {
       if (!enabled || value.state !== 'downloaded') return { ok: false };
       return restart();
     },
   };
+}
+
+// Seamless updates: a downloaded update installs silently and relaunches on its
+// own, but only while Studio is hidden in the tray (or has no window).
+export function autoRestartAllowed(state, window) {
+  if (state?.state !== 'downloaded') return false;
+  return !window || window.isDestroyed?.() || !window.isVisible();
 }

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Vibe Studio</title>
+<script>
+  // Theme comes from the main process (last theme the Studio reported).
+  document.documentElement.dataset.theme = new URLSearchParams(location.search).get('theme') === 'dark' ? 'dark' : 'light';
+</script>
+<style>
+  :root { --bg: #FAF8F5; --panel: #F3EFE9; --card: #FFFFFF; --line: #E9E3DA; --bone: #ECE6DD; --shine: #F7F3EE; }
+  :root[data-theme="dark"] { --bg: #1e1f22; --panel: #1b1c1f; --card: #2b2d31; --line: #313338; --bone: #35373c; --shine: #3d3f45; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; -webkit-app-region: drag; }
+  .bar { height: 38px; }
+  .app { position: fixed; top: 38px; right: 0; bottom: 0; left: 0; display: flex; }
+  .side { width: 248px; flex: none; border-right: 1px solid var(--line); background: var(--panel); padding: 22px 14px; display: flex; flex-direction: column; gap: 12px; }
+  .main { flex: 1; padding: 48px 72px; display: flex; flex-direction: column; gap: 18px; max-width: 1180px; }
+  .b { border-radius: 10px; background: linear-gradient(90deg, var(--bone) 0%, var(--shine) 50%, var(--bone) 100%); background-size: 200% 100%; animation: shine 1.4s ease-in-out infinite; }
+  .brand { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .logo { width: 30px; height: 30px; border-radius: 9px; }
+  .nav { height: 36px; }
+  .grow { flex: 1; }
+  .acct { height: 58px; border-radius: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+  @keyframes shine { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+  @media (prefers-reduced-motion: reduce) { .b { animation: none; } }
+</style>
+</head>
+<body>
+  <div class="bar"></div>
+  <div class="app" aria-busy="true" aria-label="Loading Vibe Studio">
+    <div class="side">
+      <div class="brand"><div class="b logo"></div><div class="b" style="height:14px;width:110px"></div></div>
+      <div class="b nav"></div><div class="b nav" style="width:80%"></div><div class="b nav" style="width:70%"></div>
+      <div class="grow"></div>
+      <div class="b acct"></div>
+    </div>
+    <div class="main">
+      <div class="b" style="height:30px;width:180px"></div>
+      <div class="card"><div class="b" style="height:18px;width:40%"></div><div class="b" style="height:220px"></div></div>
+      <div class="card"><div class="b" style="height:18px;width:30%"></div><div class="b" style="height:44px"></div><div class="b" style="height:44px"></div></div>
+    </div>
+  </div>
+</body>
+</html>

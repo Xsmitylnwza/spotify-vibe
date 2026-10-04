@@ -88,17 +88,16 @@ test('main process implements background-first behavior', () => {
   }
 });
 
-test('Studio UI has the update banner and desktop shell wiring', () => {
+test('Studio UI has the sidebar update card (no banner) and desktop shell wiring', () => {
   const html = readFileSync(resolve(root, 'scripts/discord-presence-studio.html'), 'utf8');
   for (const needle of [
-    'id="updateBanner"',
-    'id="updateActionButton"',
+    'function updCard',
     'function initDesktop',
     'setOpenAtLogin',
-    'A new version of Vibe Studio is available.',
   ]) {
     assert.ok(html.includes(needle), 'studio HTML should contain ' + needle);
   }
+  assert.ok(!html.includes('id="updateBanner"'), 'top update banner removed');
   const css = readFileSync(resolve(root, 'scripts/studio-ci.css'), 'utf8');
-  assert.ok(css.includes('.vs-update-banner'), 'banner styles present');
+  assert.ok(css.includes('.mk-vcard'), 'sidebar update card styles present');
 });
