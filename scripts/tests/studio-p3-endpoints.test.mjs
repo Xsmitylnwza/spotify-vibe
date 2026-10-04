@@ -8,6 +8,7 @@ import { createServer } from 'node:net';
 import { request as httpRequest } from 'node:http';
 import { setTimeout as delay } from 'node:timers/promises';
 import { createDefaultConfig } from '../presence-config.mjs';
+import { ICON_PROVIDER } from '../app-icon-hosting.mjs';
 import { startStudioServer } from '../studio-server.mjs';
 
 const icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg==';
@@ -30,7 +31,7 @@ async function fixture(t, { consent, mappings = [], uploader = async()=>uploaded
     timerMode:'none',buttons:[{label:'Open {app}',url:'https://example.com'}]});
   config.appMappings=mappings.map(entry=>({...mapping(scene.id),...entry}));
   await writeFile(join(directory,'presence-config.json'),JSON.stringify(config));
-  if (consent!==undefined) await writeFile(join(directory,'icon-hosting.json'),JSON.stringify({consent,icons:{}}));
+  if (consent!==undefined) await writeFile(join(directory,'icon-hosting.json'),JSON.stringify({consent,provider:ICON_PROVIDER.provider,icons:{}}));
   const probe=createServer(); await new Promise(r=>probe.listen(0,'127.0.0.1',r));
   const port=probe.address().port; await new Promise(r=>probe.close(r));
   const activities=[]; let emit, clears=0;
@@ -56,16 +57,16 @@ async function fixture(t, { consent, mappings = [], uploader = async()=>uploaded
 test('HTTP consent defaults unknown, validates boolean/local origin, and only paired apps upload', async t=>{
   let uploads=0, release;
   const f=await fixture(t,{uploader:()=>{uploads++;return new Promise(r=>{release=()=>r(uploaded);});}});
-  assert.deepEqual((await f.request('/api/icon-hosting')).body,{consent:null,provider:'catbox'});
+  assert.deepEqual((await f.request('/api/icon-hosting')).body,{consent:null,...ICON_PROVIDER});
   assert.equal((await f.request('/api/icon-hosting','PUT',{consent:'yes'})).status,400);
-  assert.equal((await f.request('/api/icon-hosting','PUT',{consent:true},{Origin:'https://foreign.example'})).status,403);
+  assert.equal((await f.request('/api/icon-hosting','PUT',{consent:true,provider:ICON_PROVIDER.provider},{Origin:'https://foreign.example'})).status,403);
   const foreignHost=await new Promise((resolve,reject)=>{
     const req=httpRequest(f.url,{path:f.url+'/api/icon-hosting',method:'PUT',headers:{Host:'foreign.example','Content-Type':'application/json'}},res=>{
       res.resume();res.on('end',()=>resolve(res.statusCode));});req.on('error',reject);req.end('{"consent":true}');
   });
   assert.equal(foreignHost,403); assert.equal(uploads,0);
   f.emit({apps:[app,other],running:[app.executable,other.executable],supported:true,error:null});
-  await f.request('/api/icon-hosting','PUT',{consent:true}); assert.equal(uploads,0,'consent alone never uploads unpaired catalog');
+  await f.request('/api/icon-hosting','PUT',{consent:true,provider:ICON_PROVIDER.provider}); assert.equal(uploads,0,'consent alone never uploads unpaired catalog');
   await f.request('/api/app-mappings','PUT',{selectionMode:'apps',mappings:[mapping(f.config.scenes[0].id)]});
   assert.equal(uploads,1);
   for (const path of ['/api/apps','/api/installed-apps']) {
@@ -106,11 +107,12 @@ test('HTTP config save triggers paired upload, keeps explicit small image and re
   assert.equal(uploads,0);assert.equal(first.state,'Coding');assert.equal(first.assets.small_image,undefined);
   // A later catalog now has the PNG, but no watcher event or mapping change
   // occurs: config save itself must start this upload.
-  await f.request('/api/icon-hosting','PUT',{consent:true});
+  await f.request('/api/icon-hosting','PUT',{consent:true,provider:ICON_PROVIDER.provider});
   assert.equal(uploads,0);
   f.setInstalled([app]);
   const saved=(await f.request('/api/config')).body;
   saved.scenes[0].smallImage='https://example.com/explicit.png';
+  saved.scenes[0].largeImageSource='app-icon';
   saved.scenes[0].details='{app} {unknown}';
   assert.equal((await f.request('/api/config','PUT',{scenes:saved.scenes})).status,200);
   await until(()=>f.request('/api/installed-apps'),r=>r.body.apps[0].iconSource==='upload');
@@ -177,4 +179,68 @@ test('server shutdown drains an aborted in-flight icon upload before releasing i
   assert.equal(stopped,true);
   const cache=JSON.parse(await readFile(join(f.directory,'icon-hosting.json'),'utf8'));
   assert.deepEqual(cache.icons,{},'aborted upload cannot publish after close');
+});
+
+test('explicit draft upload uses exact installed PNG behind iconless running identity and never saves Scene draft', async t => {
+  let uploads = 0, release;
+  const f = await fixture(t, { running: [{ ...app, icon: '' }], uploader: async bytes => {
+    uploads++; assert.equal(bytes.toString('base64'), icon.split(',')[1]); return new Promise(resolve => { release = resolve; });
+  } });
+  const configFile = join(f.directory, 'presence-config.json'), before = await readFile(configFile, 'utf8');
+  assert.equal((await f.request('/api/apps')).body.apps[0].icon, icon, 'running row borrows only exact catalog PNG');
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 403);
+  assert.equal((await f.request('/api/icon-hosting', 'PUT', { consent: true, provider: 'catbox' })).status, 400);
+  assert.equal((await f.request('/api/icon-hosting', 'PUT', { consent: true })).status, 400);
+  assert.equal((await f.request('/api/icon-hosting', 'PUT', { consent: true, provider: ICON_PROVIDER.provider })).status, 200);
+  assert.equal(uploads, 0, 'consent alone never uploads unpaired draft catalog');
+  const selected = { executable: app.executable.toLowerCase().replaceAll('\\', '/') };
+  assert.deepEqual(await f.request('/api/icon-hosting/upload', 'POST', selected), { status: 202, body: { ok: true } });
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', selected)).status, 202);
+  assert.equal(uploads, 1); release(uploaded);
+  await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'ready');
+  assert.equal(await readFile(configFile, 'utf8'), before, 'no config, Scene or pairing writes');
+  assert.deepEqual((await f.request('/api/config')).body.appMappings, []);
+  assert.equal(f.activities.length, 0, 'draft icon upload does not publish presence');
+});
+
+test('explicit upload rejects foreign origins, non-JSON, arbitrary path/URL/bytes and invalid local PNG', async t => {
+  let uploads = 0;
+  const f = await fixture(t, { consent: true, installed: [app, { ...other, icon: 'data:image/png;base64,AAAA' }],
+    uploader: async () => { uploads++; return uploaded; } });
+  for (const body of [{ executable: app.executable, icon }, { executable: app.executable, url: uploaded },
+    { executable: 'C:/private/secrets.png' }, { executable: 'https://img.ge/i/sample.png' }, { executable: 'Zephyr.exe' },
+    { executable: '' }, {}, [], null]) {
+    const response = await f.request('/api/icon-hosting/upload', 'POST', body); assert.ok(response.status >= 400);
+  }
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: other.executable })).status, 400);
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable }, { Origin: 'https://foreign.example' })).status, 403);
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable }, { 'Content-Type': 'text/plain' })).status, 415);
+  assert.equal((await f.request('/api/icon-hosting', 'PUT', { consent: true, provider: ICON_PROVIDER.provider }, { 'Content-Type': 'text/plain' })).status, 415);
+  assert.equal(uploads, 0, 'invalid requests cannot read caller files or start network upload');
+});
+
+test('HTTP explicit retry succeeds after memoized failure without automatic read/config retries', async t => {
+  let uploads = 0;
+  const f = await fixture(t, { consent: true, mappings: [{}], running: [app], uploader: async () => {
+    uploads++; if (uploads === 1) throw new Error('offline'); return uploaded;
+  } });
+  await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'failed');
+  await f.request('/api/apps'); await f.request('/api/config', 'PUT', { scenes: f.config.scenes }); assert.equal(uploads, 1);
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 202);
+  await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'ready'); assert.equal(uploads, 2);
+});
+
+test('explicitly disabled uploader has unavailable API and automatic upload skips explicit-art Scenes', async t => {
+  const disabled = await fixture(t, { uploader: null });
+  assert.equal((await disabled.request('/api/icon-hosting')).status, 404);
+  assert.equal((await disabled.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 503);
+  assert.equal((await disabled.request('/api/icon-hosting', 'PUT', { consent: true, provider: ICON_PROVIDER.provider })).status, 503);
+  let uploads = 0;
+  const f = await fixture(t, { consent: false, mappings: [{}], running: [app], uploader: async () => { uploads++; return uploaded; } });
+  const scenes = f.config.scenes.map(scene => ({ ...scene, smallImage: 'https://example.com/explicit.png' }));
+  await f.request('/api/config', 'PUT', { scenes });
+  await f.request('/api/icon-hosting', 'PUT', { consent: true, provider: ICON_PROVIDER.provider });
+  await delay(20); assert.equal(uploads, 0, 'explicit art never exports mapped icon automatically');
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 202);
+  await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'ready'); assert.equal(uploads, 1);
 });

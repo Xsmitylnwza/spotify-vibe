@@ -2,7 +2,7 @@ import { codexSessionScene } from './codex-session.mjs';
 import { withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
 import { appKey, selectRunningPreset } from './app-presence.mjs';
-import { createIconHosting } from './app-icon-hosting.mjs';
+import { createIconHosting, iconPng } from './app-icon-hosting.mjs';
 import { sceneTextVariables } from './scene-variables.mjs';
 import { watchWindowsApps } from './windows-apps.mjs';
 import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
@@ -151,12 +151,16 @@ export async function startStudioServer(options = {}) {
     const found = installed.find(app => appKey(app.executable) === key);
     return { ...found, ...running, executable: mapping.executable,
       name: mapping.name || running?.name || found?.name,
-      icon: running?.icon || found?.icon || '' };
+      ...(running?.icon || found?.icon ? { icon: running?.icon || found?.icon } : {}) };
   }
 
   async function pairMappedIcons() {
     if (isStopping) return;
-    await iconHosting.pair(config.appMappings.map(catalogApp));
+    await iconHosting.pair(config.appMappings.filter(mapping => {
+      const scene = config.scenes.find(scene => scene.id === mapping.sceneId);
+      return mapping.enabled !== false && scene && (!scene.smallImage ||
+        ['largeImage', 'smallImage'].some(field => scene[field] === '@app' || scene[field + 'Source'] === 'app-icon'));
+    }).map(catalogApp));
   }
 
   const runtime = {
@@ -883,7 +887,7 @@ export async function startStudioServer(options = {}) {
         sendJson(response,200,{session:config.codexSession,runtime:runtimeSnapshot()});return;
       }
       if (request.method === 'GET' && url.pathname === '/api/apps') {
-        sendJson(response, 200, { ...appSnapshot, apps:await Promise.all(appSnapshot.apps.map(app => iconHosting.decorate(app))), foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
+        sendJson(response, 200, { ...appSnapshot, apps:await Promise.all(appSnapshot.apps.map(app => iconHosting.decorate(catalogApp(app)))), foreground:stableForeground, mappings:config.appMappings, selectionMode:config.settings.selectionMode });
         return;
       }
       if (request.method === 'GET' && url.pathname === '/api/installed-apps') {
@@ -895,17 +899,42 @@ export async function startStudioServer(options = {}) {
         return;
       }
       if (request.method === 'GET' && url.pathname === '/api/icon-hosting') {
-        // No working upload host: the Studio hides the consent controls on 404.
         if (!iconHosting.uploadsEnabled) { sendJson(response, 404, { error: 'Icon uploads are unavailable', code: 'ICON_HOSTING_UNAVAILABLE' }); return; }
         sendJson(response, 200, await iconHosting.settings());
         return;
       }
-      if (request.method === 'PUT' && url.pathname === '/api/icon-hosting') {
+      if ((request.method === 'PUT' && url.pathname === '/api/icon-hosting') ||
+          (request.method === 'POST' && url.pathname === '/api/icon-hosting/upload')) {
         const expectedHost = '127.0.0.1:' + port;
         if (request.headers.host !== expectedHost || url.host !== expectedHost || (request.headers.origin && request.headers.origin !== 'http://' + expectedHost)) {
           throw requestError('Icon hosting requires the local Studio origin.', 'INVALID_ORIGIN', 403);
         }
-        const settings = await iconHosting.setConsent((await readJson(request)).consent);
+        if (!/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] || '')) {
+          throw requestError('Icon hosting requires JSON.', 'INVALID_CONTENT_TYPE', 415);
+        }
+        if (!iconHosting.uploadsEnabled) throw requestError('Icon uploads are unavailable', 'ICON_HOSTING_UNAVAILABLE', 503);
+        const body = await readJson(request);
+        if (!body || typeof body !== 'object' || Array.isArray(body)) throw requestError('Invalid icon hosting request', 'INVALID_REQUEST');
+        if (url.pathname === '/api/icon-hosting/upload') {
+          if (Object.keys(body).some(key => key !== 'executable') || typeof body.executable !== 'string' || !body.executable.trim()) {
+            throw requestError('Select a known application executable only.', 'INVALID_ICON_APP');
+          }
+          if ((await iconHosting.settings()).consent !== true) throw requestError('Icon upload consent required', 'ICON_CONSENT_REQUIRED', 403);
+          const key = appKey(body.executable);
+          const known = [...appSnapshot.apps, ...(options.getInstalledApps ?? getInstalledApps)()]
+            .find(app => appKey(app.executable) === key);
+          const mapped = config.appMappings.find(mapping => appKey(mapping.executable) === key);
+          if (!known && !mapped) throw requestError('Application is not in the local catalog.', 'UNKNOWN_ICON_APP', 404);
+          const trusted = catalogApp(known || mapped);
+          try { iconPng(trusted.icon); } catch { throw requestError('Application has no valid local PNG icon.', 'INVALID_ICON_PNG'); }
+          await iconHosting.upload(trusted);
+          sendJson(response, 202, { ok: true });
+          return;
+        }
+        if (Object.keys(body).some(key => !['consent', 'provider'].includes(key)) || body.provider !== (await iconHosting.settings()).provider) {
+          throw requestError('Icon provider changed; review consent again.', 'ICON_PROVIDER_MISMATCH');
+        }
+        const settings = await iconHosting.setConsent(body.consent, body.provider);
         await pairMappedIcons();
         sendJson(response, 200, settings);
         return;

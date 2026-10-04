@@ -215,6 +215,7 @@ Vibe Studio collects no telemetry and has no accounts or servers of its own. It 
 - **Discord Desktop on this PC** (local RPC) to set your Rich Presence; the activity you configure is then visible to people who can see your Discord profile. Studio shows your Discord avatar from `cdn.discordapp.com`.
 - **GitHub Releases** to check for and download updates, and `raw.githubusercontent.com` for the app-icon/artwork images that Discord displays.
 - **GIPHY**, only if you add your own GIPHY key and search for a GIF.
+- **IMG.GE**, only after you allow public icon uploads. Studio uploads paired or explicitly selected app icons as PNGs; app paths and secrets are not sent. These hosted images are public.
 
 Configuration and secrets stay in local files on your PC. Uninstall from Windows Settings → Apps.
 

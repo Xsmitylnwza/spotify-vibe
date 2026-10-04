@@ -44,19 +44,20 @@ test('variables: a live Scene uses the runtime values; unknown tokens stay liter
 function iconFixture(lang = 'en') {
   const calls = { api: [], toasts: [], loadApps: 0, renders: 0 };
   const ctx = {
-    T: (en, th) => (lang === 'th' ? th : en), I: { up: '' }, S: { ov: null }, ST: { icon: { consent: null, ok: true }, iconBusy: false }, known: () => [], $: () => null, layer2: () => null,
+    T: (en, th) => (lang === 'th' ? th : en), I: { up: '' }, S: { ov: null }, ST: { icon: { consent: null, ok: true, provider:'test-host', providerName:'Test Host' }, iconBusy: false }, known: () => [], $: () => null, layer2: () => null,
+    esc:s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;'),icoOf:()=>'',appBy:id=>ctx.app || ({id}),FIELD:{lg:'art',sm:'small'},sceneApps:()=>ctx.app?[ctx.app]:[],
     render() { calls.renders++; }, toast: m => calls.toasts.push(m), errText: e => String(e.message || e), renderOv() {}, isHttps: v => /^https:/.test(v || ''),
-    loadApps: async () => { calls.loadApps++; }, api: async (path, opt) => { calls.api.push([path, opt && opt.method, opt && opt.body]); if (ctx.fail) throw new Error('nope'); return { consent: opt && opt.body ? opt.body.consent : null }; },
+    loadApps: async () => { calls.loadApps++; }, api: async (path, opt) => { calls.api.push([path, opt && opt.method, opt && opt.body]); if (ctx.fail) throw new Error('nope'); return { consent: opt && opt.body ? opt.body.consent : null,provider:'test-host',providerName:'Test Host' }; },
   };
   vm.createContext(ctx);
-  vm.runInContext(slice('/* ---------- app icon hosting', 'function applyApps(') + '\nthis.m = { iconState, iconLabel, iconConsentNeeded, consentCard, iconHostRow, setIconConsent, loadIconHosting, iconFields };', ctx);
+  vm.runInContext(slice('/* ---------- app icon hosting', 'function applyApps(')+slice('function imgTab()', '\nfunction renderOv') + '\nthis.m = { iconState, iconLabel, iconConsentNeeded, consentCard, iconHostRow, setIconConsent, loadIconHosting, iconFields,appIconRow,uploadIcon,imgTab };', ctx);
   return { ctx, calls };
 }
 
 for (const lang of ['en', 'th']) {
   test(`${lang}: each icon status has its own label and an absent status degrades to publicIcon`, () => {
     const { ctx } = iconFixture(lang);
-    const want = { ready: lang === 'en' ? /Shows on Discord/ : /แสดงบน Discord ได้/, uploading: lang === 'en' ? /Uploading/ : /กำลังอัปโหลด/, 'needs-consent': lang === 'en' ? /permission/ : /ต้องอนุญาต/, failed: lang === 'en' ? /failed/ : /อัปโหลดไม่สำเร็จ/ };
+    const want = { ready: lang === 'en' ? /Public icon ready/ : /ไอคอนสาธารณะพร้อม/, uploading: lang === 'en' ? /Uploading/ : /กำลังอัปโหลด/, 'needs-consent': lang === 'en' ? /permission/ : /ต้องอนุญาต/, failed: lang === 'en' ? /failed/ : /อัปโหลดไม่สำเร็จ/ };
     for (const [st, re] of Object.entries(want)) assert.match(ctx.m.iconLabel(ctx.m.iconState({ iconStatus: st })), re);
     assert.equal(ctx.m.iconState({ publicIcon: 'https://x/y.png' }), 'ready');
     assert.equal(ctx.m.iconState({ publicIcon: '' }), '');
@@ -64,7 +65,7 @@ for (const lang of ['en', 'th']) {
     assert.equal(ctx.m.iconFields({ iconStatus: 'bogus', iconSource: 'pack' }).iconStatus, '', 'unknown status is dropped');
   });
 
-  test(`${lang}: the consent card names catbox.moe and appears only while a paired app needs consent`, () => {
+  test(`${lang}: the consent card names the current provider and appears only while an app needs consent`, () => {
     const { ctx } = iconFixture(lang);
     const need = [{ iconStatus: 'needs-consent' }], ok = [{ iconStatus: 'ready' }];
     assert.equal(ctx.m.iconConsentNeeded(need), true);
@@ -74,18 +75,19 @@ for (const lang of ['en', 'th']) {
     ctx.ST.icon = { consent: null, ok: false };
     assert.equal(ctx.m.iconConsentNeeded(need), false, 'server without the endpoint: nothing to ask');
     assert.equal(ctx.m.iconHostRow(), '');
+    ctx.ST.icon.providerName='Test Host';
     const card = ctx.m.consentCard();
-    assert.match(card, /catbox\.moe/);
+    assert.match(card, /Test Host/);
     assert.match(card, /data-arg="yes"/);
     assert.match(card, /data-arg="no"/);
-    if (lang === 'th') assert.match(card, /อัปโหลดเฉพาะไอคอนของแอปที่จับคู่ ไม่มีข้อมูลอื่น/);
+    if (lang === 'th') assert.match(card, /ไม่ส่ง path แอปหรือข้อมูลส่วนตัว/);
   });
 }
 
-test('consent: Allow PUTs {consent:true, provider:catbox}, then re-reads the app list', async () => {
+test('consent: Allow PUTs the displayed provider and then re-reads the app list', async () => {
   const { ctx, calls } = iconFixture();
   await ctx.m.setIconConsent(true);
-  assert.deepEqual(JSON.parse(JSON.stringify(calls.api[0])), ['/api/icon-hosting', 'PUT', { consent: true, provider: 'catbox' }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.api[0])), ['/api/icon-hosting', 'PUT', { consent: true, provider: 'test-host' }]);
   assert.equal(ctx.ST.icon.consent, true);
   assert.equal(calls.loadApps, 1, 'status flips to uploading/ready after the refresh');
   assert.match(ctx.m.iconHostRow(), /id="iconhost"[^>]*checked/);
@@ -107,10 +109,91 @@ test('consent: loadIconHosting reads GET state and hides the controls when the s
   const { ctx } = iconFixture();
   ctx.api = async () => ({ consent: false });
   await ctx.m.loadIconHosting();
-  assert.deepEqual({ ...ctx.ST.icon }, { ok: true, consent: false });
+  assert.equal(ctx.ST.icon.ok,true); assert.equal(ctx.ST.icon.consent,false);
   ctx.api = async () => { throw new Error('404'); };
   await ctx.m.loadIconHosting();
   assert.equal(ctx.ST.icon.ok, false);
+});
+
+for (const lang of ['en','th']) test(`${lang}: missing icons expose Upload and failed icons expose Retry with truthful disabled states`,()=>{
+  const {ctx}=iconFixture(lang);
+  const app={id:'tool',name:'Tool',exe:'C:\\Apps\\tool.exe',icon:'data:image/png;base64,AAAA'};
+  const row=ctx.m.appIconRow(app,'sm');
+  assert.match(row,/data-act="uploadicon"/); assert.doesNotMatch(row,/disabled/);
+  assert.match(row,lang==='en'?/Upload icon/:/อัปโหลดไอคอน/);
+  assert.match(ctx.m.appIconRow({...app,iconStatus:'failed'},'sm'),lang==='en'?/Retry upload/:/อัปโหลดอีกครั้ง/);
+  assert.match(ctx.m.appIconRow({...app,iconStatus:'uploading'},'sm'),/disabled/);
+  assert.match(ctx.m.appIconRow({...app,icon:''},'sm'),/disabled/);
+  assert.doesNotMatch(ctx.m.appIconRow({...app,publicIcon:'https://x/y.png',iconStatus:'ready'},'sm'),/data-act="uploadicon"/);
+  ctx.ST.icon.ok=false; assert.match(ctx.m.appIconRow(app,'sm'),/data-act="uploadicon"[^>]*disabled/,'unavailable service explains failure without hiding the action');
+});
+
+test('explicit Upload asks permission first, then sends only the selected executable and never saves the draft',async()=>{
+  const {ctx,calls}=iconFixture();
+  ctx.app={id:'tool',name:'Tool',exe:'C:\\Apps\\tool.exe',icon:'data:image/png;base64,AAAA'};
+  ctx.S.drawer={id:'s1',sc:{name:'Unsaved'},dirty:true}; const draft=JSON.stringify(ctx.S.drawer);
+  await ctx.m.uploadIcon('tool');
+  assert.equal(calls.api.length,0); assert.equal(ctx.S.pendingIconApp,'tool');
+  await ctx.m.setIconConsent(true);
+  assert.deepEqual(JSON.parse(JSON.stringify(calls.api)),[
+    ['/api/icon-hosting','PUT',{consent:true,provider:'test-host'}],
+    ['/api/icon-hosting/upload','POST',{executable:'C:\\Apps\\tool.exe'}]
+  ]);
+  assert.equal(ctx.S.pendingIconApp,null); assert.equal(JSON.stringify(ctx.S.drawer),draft);
+  assert.equal(ctx.ST.iconBusy,false);
+});
+
+test('Upload is single flight and failures allow explicit retry without claiming readiness',async()=>{
+  const {ctx,calls}=iconFixture(); ctx.ST.icon.consent=true;
+  ctx.app={id:'tool',name:'Tool',exe:'C:\\Apps\\tool.exe',icon:'data:image/png;base64,AAAA'};
+  let reject;
+  ctx.api=async(path,opt)=>{calls.api.push([path,opt.method,opt.body]);return new Promise((_,no)=>{reject=no;});};
+  const first=ctx.m.uploadIcon('tool'); await ctx.m.uploadIcon('tool');
+  assert.equal(calls.api.length,1); assert.equal(ctx.ST.iconBusy,true);
+  reject(new Error('Host unavailable')); await first;
+  assert.equal(ctx.ST.iconBusy,false); assert.match(calls.toasts.at(-1),/Host unavailable/);
+  assert.notEqual(ctx.m.iconState(ctx.app),'ready');
+  ctx.api=async(path,opt)=>{calls.api.push([path,opt.method,opt.body]);return {ok:true};};
+  await ctx.m.uploadIcon('tool'); assert.equal(calls.api.length,2);
+});
+
+test('the actual image picker lists Upload in both image sizes for a new unsaved Scene',()=>{
+  const {ctx,calls}=iconFixture();
+  ctx.S.drawer={id:'new',sc:{id:'new',small:'',art:'',smallSource:'app-icon'}};
+  ctx.app={id:'tool',name:'Tool',exe:'C:\\Apps\\tool.exe',icon:'data:image/png;base64,AAAA'};
+  for(const p of ['lg','sm']) {
+    ctx.S.ov={kind:'img',tab:'app',p}; const view=ctx.m.imgTab();
+    assert.match(view,/data-act="uploadicon"/); assert.match(view,/Test Host/);
+  }
+  assert.equal(calls.api.length,0,'rendering the new draft makes no request or save');
+});
+
+test('stale provider consent refreshes the disclosure and requires a new explicit Allow',async()=>{
+  const {ctx,calls}=iconFixture();
+  ctx.S.pendingIconApp='tool';
+  ctx.api=async(path,opt={})=>{
+    calls.api.push([path,opt.method,opt.body]);
+    if(opt.method==='PUT') throw Object.assign(new Error('Changed'),{code:'ICON_PROVIDER_MISMATCH'});
+    return {consent:null,provider:'new-host',providerName:'New Host'};
+  };
+  await ctx.m.setIconConsent(true);
+  assert.equal(ctx.ST.icon.provider,'new-host'); assert.equal(ctx.ST.icon.consent,null);
+  assert.equal(ctx.ST.iconBusy,false); assert.equal(ctx.S.pendingIconApp,'tool');
+  assert.equal(calls.api.filter(c=>c[1]==='PUT').length,1,'no auto approval for changed host');
+  assert.equal(calls.api.some(c=>c[0]==='/api/icon-hosting/upload'),false);
+  assert.match(ctx.m.consentCard(),/New Host/);
+});
+
+test('revoked consent on Upload reloads permission state instead of repeating a rejected upload',async()=>{
+  const {ctx,calls}=iconFixture(); ctx.ST.icon.consent=true;
+  ctx.app={id:'tool',name:'Tool',exe:'C:\\Apps\\tool.exe',icon:'data:image/png;base64,AAAA'};
+  ctx.api=async(path,opt={})=>{
+    calls.api.push([path,opt.method,opt.body]);
+    if(opt.method==='POST')throw Object.assign(new Error('Consent required'),{code:'ICON_CONSENT_REQUIRED'});
+    return {consent:false,provider:'test-host',providerName:'Test Host'};
+  };
+  await ctx.m.uploadIcon('tool'); assert.equal(ctx.ST.icon.consent,false); assert.equal(ctx.S.pendingIconApp,'tool');
+  await ctx.m.uploadIcon('tool'); assert.equal(calls.api.filter(c=>c[1]==='POST').length,1); assert.equal(ctx.ST.iconBusy,false);
 });
 
 test('first paint: the head script applies the saved theme (or OS preference) before any CSS or body', () => {

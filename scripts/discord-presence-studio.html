@@ -410,27 +410,57 @@ const ICON_STATUS = ['ready', 'uploading', 'needs-consent', 'failed'];
 const iconFields = a => ({ iconSource: ['pack', 'upload', 'default'].includes(a.iconSource) ? a.iconSource : '', iconStatus: ICON_STATUS.includes(a.iconStatus) ? a.iconStatus : '' });
 /* A server without iconStatus is read from publicIcon alone: present = ready, absent = nothing to say. */
 const iconState = a => (!a ? '' : ICON_STATUS.includes(a.iconStatus) ? a.iconStatus : a.publicIcon ? 'ready' : '');
-const ICON_LABEL = { ready: ['✓ Shows on Discord', '✓ แสดงบน Discord ได้'], uploading: ['Uploading…', 'กำลังอัปโหลด'], 'needs-consent': ['Needs your permission', 'ต้องอนุญาต'], failed: ['Upload failed', 'อัปโหลดไม่สำเร็จ'], '': ['No public icon — can’t be shown on Discord', 'ไม่มีไอคอนสาธารณะ — แสดงบน Discord ไม่ได้'] };
+const ICON_LABEL = { ready: ['✓ Public icon ready', '✓ ไอคอนสาธารณะพร้อม'], uploading: ['Uploading…', 'กำลังอัปโหลด'], 'needs-consent': ['Needs your permission', 'ต้องอนุญาต'], failed: ['Upload failed', 'อัปโหลดไม่สำเร็จ'], '': ['No public icon — upload it to use on Discord', 'ยังไม่มีไอคอนสาธารณะ — อัปโหลดเพื่อใช้บน Discord'] };
 const iconLabel = st => T(...(ICON_LABEL[st] || ICON_LABEL['']));
 const iconDot = st => st === 'uploading' ? '<span class="mk-icst is-up" aria-hidden="true"></span>' : st === 'needs-consent' ? '<span class="mk-icst is-consent" aria-hidden="true"></span>' : st === 'failed' ? '<span class="mk-icst is-fail" aria-hidden="true"></span>' : st === 'ready' ? '<span class="mk-icst is-ok" aria-hidden="true"></span>' : '';
-const iconConsentNeeded = apps => ST.icon.ok !== false && ST.icon.consent !== true && apps.some(a => iconState(a) === 'needs-consent');
-const consentCard = () => `<section class="mk-consent" data-key="icon-consent" role="group" aria-label="${T('App icon hosting', 'โฮสต์ไอคอนแอป')}"><span class="mk-consent-ic" aria-hidden="true">${I.up}</span><div class="mk-consent-b"><p>${T('Upload app icons to catbox.moe (a public image host) so Discord can show them — only the icons of paired apps are uploaded, no other data.', 'อัปโหลดไอคอนแอปไปที่ catbox.moe (โฮสต์รูปสาธารณะ) เพื่อให้ Discord แสดงได้ — อัปโหลดเฉพาะไอคอนของแอปที่จับคู่ ไม่มีข้อมูลอื่น')}</p><div class="vs-form-actions" style="margin:0"><button type="button" class="vs-btn vs-btn-sm vs-btn-primary" data-act="iconconsent" data-arg="yes" ${ST.iconBusy ? 'disabled' : ''}>${T('Allow', 'อนุญาต')}</button><button type="button" class="vs-btn vs-btn-sm" data-act="iconconsent" data-arg="no" ${ST.iconBusy ? 'disabled' : ''}>${T('Not now', 'ไว้ก่อน')}</button></div></div></section>`;
+const iconHostName = () => ST.icon.providerName || ST.icon.provider || T('a public image host', 'โฮสต์รูปสาธารณะ');
+const iconSettings = r => ({ok:true,consent:typeof r?.consent === 'boolean' ? r.consent : null,provider:r?.provider || '',providerName:r?.providerName || '',providerUrl:isHttps(r?.providerUrl) ? r.providerUrl : ''});
+const iconConsentNeeded = apps => ST.icon.ok !== false && ST.icon.consent !== true && (!!S.pendingIconApp || apps.some(a => iconState(a) === 'needs-consent' || (!a.publicIcon && a.icon)));
+const consentCard = () => `<section class="mk-consent" data-key="icon-consent" role="group" aria-label="${T('App icon hosting', 'โฮสต์ไอคอนแอป')}"><span class="mk-consent-ic" aria-hidden="true">${I.up}</span><div class="mk-consent-b"><p>${T('Allow uploads to ', 'อนุญาตให้อัปโหลดไปที่ ')}<strong>${esc(iconHostName())}</strong>${T(' so Discord can load the icon. Only paired apps’ icons and icons you explicitly choose are uploaded; no app paths or personal data. Uploaded images are public.', ' เพื่อให้ Discord โหลดไอคอนได้ อัปโหลดเฉพาะไอคอนแอปที่จับคู่หรือที่คุณเลือก ไม่ส่ง path แอปหรือข้อมูลส่วนตัว รูปที่อัปโหลดเป็นสาธารณะ')}</p><div class="vs-form-actions" style="margin:0"><button type="button" class="vs-btn vs-btn-sm vs-btn-primary" data-act="iconconsent" data-arg="yes" ${ST.iconBusy || !ST.icon.provider ? 'disabled' : ''}>${T('Allow', 'อนุญาต')}</button><button type="button" class="vs-btn vs-btn-sm" data-act="iconconsent" data-arg="no" ${ST.iconBusy ? 'disabled' : ''}>${T('Not now', 'ไว้ก่อน')}</button></div></div></section>`;
 function iconHostRow() {
   if (ST.icon.ok === false) return '';
-  return `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Upload app icons to catbox.moe', 'อัปโหลดไอคอนแอปไปที่ catbox.moe')}</strong><small>${T('Lets Discord show a paired app’s icon as the small image. Only paired apps’ icons are uploaded — no other data.', 'ให้ Discord แสดงไอคอนของแอปที่จับคู่เป็นภาพเล็ก อัปโหลดเฉพาะไอคอนของแอปที่จับคู่ ไม่มีข้อมูลอื่น')}</small></div><label class="vs-switch"><input type="checkbox" role="switch" id="iconhost" data-bind="iconhost" aria-label="${T('Upload app icons to catbox.moe', 'อัปโหลดไอคอนแอปไปที่ catbox.moe')}" ${ST.icon.consent === true ? 'checked' : ''} ${ST.iconBusy || ST.icon.ok == null ? 'disabled' : ''}><span></span></label></div>`;
+  return `<div class="vs-row"><div class="vs-row-copy"><strong>${T('Upload app icons to ', 'อัปโหลดไอคอนแอปไปที่ ')}${esc(iconHostName())}</strong><small>${T('Only paired or explicitly selected app icons are uploaded as public images. No app paths or personal data.', 'อัปโหลดเฉพาะไอคอนแอปที่จับคู่หรือที่คุณเลือกเป็นรูปสาธารณะ ไม่ส่ง path แอปหรือข้อมูลส่วนตัว')}</small></div><label class="vs-switch"><input type="checkbox" role="switch" id="iconhost" data-bind="iconhost" aria-label="${T('Allow app icon uploads', 'อนุญาตให้อัปโหลดไอคอนแอป')}" ${ST.icon.consent === true ? 'checked' : ''} ${ST.iconBusy || ST.icon.ok == null || !ST.icon.provider ? 'disabled' : ''}><span></span></label></div>`;
 }
 async function loadIconHosting() {
-  try { const r = await api('/api/icon-hosting'); ST.icon = { ok: true, consent: r && typeof r.consent === 'boolean' ? r.consent : null }; }
+  try { const r = await api('/api/icon-hosting'); ST.icon = iconSettings(r); }
   catch (e) { ST.icon = { ok: false, consent: null }; }
   render(); refreshOvIcons();
 }
 const refreshOvIcons = () => { if (S.ov && S.ov.kind === 'img' && S.ov.tab === 'app' && $('.vs-dialog', layer2())) renderOv(); };
 async function setIconConsent(v) {
   if (ST.iconBusy) return; ST.iconBusy = true; render(); refreshOvIcons();
-  try { const r = await api('/api/icon-hosting', { method: 'PUT', body: { consent: v, provider: 'catbox' } }); ST.icon = { ok: true, consent: r && typeof r.consent === 'boolean' ? r.consent : v }; toast(v ? T('App icons will be uploaded', 'จะอัปโหลดไอคอนแอปให้') : T('OK — app icons stay on this PC', 'ตกลง — ไอคอนแอปจะอยู่ในเครื่องนี้')); }
-  catch (e) { toast(errText(e)); }
+  let allowed = false;
+  try { const r = await api('/api/icon-hosting', { method: 'PUT', body: { consent: v, provider: ST.icon.provider } }); ST.icon = iconSettings(r); allowed = ST.icon.consent === true; toast(allowed ? T('Icon uploads allowed', 'อนุญาตให้อัปโหลดไอคอนแล้ว') : T('OK — app icons stay on this PC', 'ตกลง — ไอคอนแอปจะอยู่ในเครื่องนี้')); }
+  catch (e) {
+    if (e.code === 'ICON_PROVIDER_MISMATCH') { await loadIconHosting(); toast(T('Upload host changed. Review the host above and allow again.', 'โฮสต์อัปโหลดเปลี่ยนแล้ว ตรวจชื่อโฮสต์ด้านบนและอนุญาตอีกครั้ง')); }
+    else toast(errText(e));
+  }
   ST.iconBusy = false; render(); refreshOvIcons();
   await loadApps(false);
+  const pending = S.pendingIconApp; if (!v || allowed) S.pendingIconApp = null;
+  if (v && allowed && pending) await uploadIcon(pending);
+}
+function appIconRow(a, size) {
+  const st = iconState(a), missing = !a.publicIcon || st !== 'ready';
+  const canUpload = /^data:image\/png;base64,[a-zA-Z0-9+/=]+$/.test(a.icon || '');
+  const disabled = ST.icon.ok !== true || ST.iconBusy || !canUpload || st === 'uploading';
+  const label = st === 'uploading' ? T('Uploading…', 'กำลังอัปโหลด…') : st === 'failed' ? T('Retry upload', 'อัปโหลดอีกครั้ง') : T('Upload icon', 'อัปโหลดไอคอน');
+  const hint = !canUpload ? T('No local icon is available. Refresh apps and try again.', 'ยังไม่มีไอคอนในเครื่อง รีเฟรชแอปแล้วลองอีกครั้ง') : ST.icon.ok !== true ? T('Icon upload service is unavailable.', 'บริการอัปโหลดไอคอนยังไม่พร้อม') : label;
+  const action = missing ? `<button class="vs-btn vs-btn-sm mk-icon-upload" type="button" data-act="uploadicon" data-arg="${esc(a.id)}" aria-label="${esc(label + ' · ' + a.name)}" title="${esc(hint)}" ${disabled ? 'disabled' : ''}>${label}</button>` : size === 'lg' ? `<button class="vs-btn vs-btn-sm mk-icon-upload" type="button" data-act="pickimg" data-arg="appicon:${esc(a.id)}">${T('Use', 'ใช้')}</button>` : '';
+  return `<li data-st="${st || 'none'}"><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small class="mk-icstat" data-st="${st || 'none'}">${iconDot(st)}<span>${iconLabel(st)}</span></small>${missing && !canUpload ? `<small>${esc(hint)}</small>` : ''}</span>${action}</li>`;
+}
+async function uploadIcon(id) {
+  const app = appBy(id);
+  if (!app?.icon || !ST.icon.ok || ST.iconBusy || iconState(app) === 'ready' || iconState(app) === 'uploading' || S.shuttingDown) return;
+  if (ST.icon.consent !== true) { S.pendingIconApp = id; refreshOvIcons(); toast(T('Allow public icon uploads above to continue.', 'อนุญาตให้อัปโหลดไอคอนสาธารณะด้านบนก่อน')); return; }
+  ST.iconBusy = true; render(); refreshOvIcons();
+  try { await api('/api/icon-hosting/upload', {method:'POST',body:{executable:app.exe}}); toast(T('Icon upload started', 'เริ่มอัปโหลดไอคอนแล้ว')); }
+  catch(error) {
+    if (error.code === 'ICON_CONSENT_REQUIRED') { S.pendingIconApp = id; await loadIconHosting(); toast(T('Allow public icon uploads above to continue.', 'อนุญาตให้อัปโหลดไอคอนสาธารณะด้านบนก่อน')); }
+    else if (error.code === 'INVALID_ICON_PNG') toast(T('This app has no valid local icon. Refresh apps and try again.', 'แอปนี้ยังไม่มีไอคอนในเครื่องที่ใช้ได้ รีเฟรชแอปแล้วลองอีกครั้ง'));
+    else toast(errText(error));
+  }
+  finally { ST.iconBusy = false; await loadApps(false); refreshOvIcons(); }
 }
 /* Uploads finish in the background: re-read the app list every few seconds only while something is uploading (bounded). */
 let iconWatchN = 0, iconWatchT = null;
@@ -1103,6 +1133,7 @@ function showOv(kind, label, inner, retKey) {
   L.querySelectorAll('.vs-dialog,.gif-picker-backdrop').forEach(x => x.classList.add('mk-in'));
 }
 function closeOverlay() {
+  if (S.ov?.kind === 'img') S.pendingIconApp = null;
   const L = layer2(); S.ov = null; if (!L.firstChild) return;
   layer().inert = false; $('#root').inert = !!S.drawer || !!S.picker;
   const t = $(`[data-k="${S.ovReturn}"]`); t && t.focus({ preventScroll: true });
@@ -1145,7 +1176,7 @@ function imgTab() {
   const o = S.ov, sc = S.drawer.sc, cur = sc[FIELD[o.p]];
   if (o.tab === 'app') {
     const apps = sceneApps(sc.id);
-    const row = a => { const st = iconState(a); return `<li data-st="${st || 'none'}"><span class="mk-st-i">${icoOf(a)}</span><span class="mk-aff-t"><b>${esc(a.name)}</b><small class="mk-icstat" data-st="${st || 'none'}">${iconDot(st)}<span>${iconLabel(st)}</span></small></span>${o.p === 'lg' && a.publicIcon && st === 'ready' ? `<button class="vs-btn vs-btn-sm" type="button" style="margin-left:auto" data-act="pickimg" data-arg="appicon:${esc(a.id)}">${T('Use', 'ใช้')}</button>` : ''}</li>`; };
+    const row = a => appIconRow(a, o.p);
     const list = apps.length ? `${iconConsentNeeded(apps) ? consentCard() : ''}<ul class="mk-aff">${apps.map(row).join('')}</ul>` : `<div class="mk-empty"><b>${T('No paired app yet', 'ยังไม่มีแอปที่จับคู่')}</b><p>${T('Pair an app with this Scene first.', 'จับคู่แอปกับ Scene นี้ก่อน')}</p></div>`;
     if (o.p === 'lg') return `<p class="vs-hint" style="margin:0 0 12px">${T('Discord can only show images that have a public https link. An app’s icon can be the large image only when it has a public copy (marked below); local-only icons can’t. Otherwise pick built-in art, a GIF or an image link.', 'Discord แสดงได้เฉพาะภาพที่มีลิงก์ https สาธารณะ ไอคอนแอปใช้เป็นภาพใหญ่ได้เฉพาะเมื่อมีลิงก์สาธารณะ (ระบุด้านล่าง) ไอคอนในเครื่องใช้ไม่ได้ เลือกภาพในตัว GIF หรือลิงก์ภาพแทน')}</p>${list}<div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="ovback">${T('Back', 'กลับ')}</button>${apps.length ? `<button class="vs-btn vs-btn-primary" type="button" data-act="pickimg" data-arg="appsrc:">${T('Use paired app icon', 'ใช้ไอคอนแอปที่จับคู่')}</button>` : ''}</div>`;
     return `<p class="vs-hint" style="margin:0 0 12px">${T('While a paired app is showing, Vibe adds that app’s own icon as the small image when Discord can load a public copy of it. If it has none, no app icon appears. Choose this to leave the small image to the app.', 'ขณะที่แอปที่จับคู่แสดงอยู่ Vibe จะเพิ่มไอคอนของแอปเป็นภาพเล็กให้เมื่อ Discord โหลดไอคอนสาธารณะของแอปได้ หากไม่มีจะไม่แสดงไอคอน เลือกตัวเลือกนี้เพื่อปล่อยให้แอปจัดการภาพเล็ก')}</p>${list}
@@ -1310,6 +1341,7 @@ const ACT = {
     S.varOpen = ''; buildDrawer(); const f = $('#' + id, layer()); if (f) { f.focus({ preventScroll: true }); f.setSelectionRange(at + tok.length, at + tok.length); } return 'overlay';
   },
   iconconsent: a => { void setIconConsent(a === 'yes'); return 'overlay'; },
+  uploadicon: a => { void uploadIcon(a); return 'overlay'; },
   updgo: () => { void updateAction(); return 'overlay'; }, updrestart: () => { void updateAction(); return 'overlay'; },
   checkupd: () => { void checkUpdates(); return 'overlay'; },
   screen: a => { if (S.drawer) { closeDrawer(() => { S.screen = a; render({ fade: true }); }); return 'overlay'; } S.screen = a; },

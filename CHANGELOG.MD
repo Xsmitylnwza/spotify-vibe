@@ -4,6 +4,19 @@ Changes are listed newest first. Historical entries were reconstructed from Git
 commit history and published GitHub releases. Dates below use UTC publication
 dates; versions without a separate release are explicitly marked.
 
+## [1.0.23] - 2026-10-04
+
+### Added
+- Upload icon and Retry upload controls for apps without a public icon in both large and small image pickers.
+- Anonymous IMG.GE icon hosting, with public PNG MIME and exact-byte verification before caching the URL.
+
+### Fixed
+- Restore icon uploads with explicit provider consent instead of hiding the upload flow. Changing hosts requires fresh consent; old catbox cached icons are not reused.
+- Upload only trusted local catalog icons, including installed-icon fallback for running apps with no extracted icon. Uploading a selected icon does not save Scene drafts.
+- Keep uploads single flight per app and retry failures only on an explicit retry action; preserve owner cache extensions.
+- Reload the permission disclosure when the provider changes or consent is revoked, without silently granting permission.
+- Use the truthful Public icon ready status for verified hosted PNGs; actual Discord image-proxy rendering remains a separate verification step.
+
 ## [1.0.22] - 2026-10-04
 
 ### Changed

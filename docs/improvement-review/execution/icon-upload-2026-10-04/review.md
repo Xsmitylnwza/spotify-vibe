@@ -1,0 +1,43 @@
+# Icon upload restoration review — 2026-10-04
+
+Read-only source/tests review using scrutinize. Renderer inspected first; backend final trace started only after coordinator stable message msg_32ec4a04b73a. Only this report and TEMP probes were written by reviewer.
+
+## Intent and simpler alternative
+
+Goal: explicitly publish a trusted local application PNG so Discord can load it, while Scene edits and pairings remain drafts until Done. A download button cannot meet that goal because Discord needs a public URL. Reusing the existing hosting service/cache plus one narrow executable-only upload endpoint is the smaller appropriate change; no separate file picker, arbitrary URL downloader or Scene save endpoint is needed (`discord-presence-studio.html:449`, `studio-server.mjs:918`, `app-icon-hosting.mjs:163`).
+
+## Finding — Minor: stale provider metadata needs a page reload after mismatch
+
+**Finding:** `scripts/discord-presence-studio.html:434` catches a provider mismatch but retains `ST.icon.provider` instead of refreshing hosting metadata.
+
+**Why:** a Studio page retained across a backend/provider update displays the previous host and every subsequent Allow attempt repeats the obsolete provider; consent stays safely denied, but the recovery instruction does not fix the state.
+
+**Evidence (reproduced VM boundary):** start with `ST.icon.provider='catbox'`, have PUT fail with the actual mismatch error, then call `setIconConsent(true)` twice: both requests remain PUT `{consent:true,provider:'catbox'}`, no metadata GET occurs and the provider stays catbox. Backend explicitly rejects mismatch at `scripts/studio-server.mjs:934`; metadata is otherwise initially loaded at `discord-presence-studio.html:499` only. Probe: `%TEMP%/icon-review-metadata-probe.cjs`.
+
+**Smallest fix:** on `ICON_PROVIDER_MISMATCH`, re-read `/api/icon-hosting`, refresh the consent card and require another explicit Allow against the new displayed provider. Do not automatically grant consent or upload after refreshing. Add a renderer boundary test for mismatch → new provider displayed → explicit Allow.
+
+## Trace and verification
+
+- **Verified, renderer:** both small and large app-image tabs use `appIconRow` (`discord-presence-studio.html:1172`). Missing images expose Upload, failed images Retry, in-flight and missing-local-PNG actions are disabled with explanatory text (`:440`). Native buttons have generic visible focus styling (`studio-ci.css:159`); TH/EN strings exercised in focused tests. No browser/visual rendering claim.
+- **Verified, draft isolation:** `uploadIcon` sends only `{executable:app.exe}` (`discord-presence-studio.html:454`), never Scene/config requests. `applyImage` changes only drawer fields and calls draft `touch` (`:1118`). HTTP test compares config file bytes, confirms no pairings and no fake RPC activity after an unpaired draft upload (`studio-p3-endpoints.test.mjs`, explicit draft upload test). Scene draft and baseline preservation also covered by 30 renderer-draft tests.
+- **Verified, consent/cancel:** provider metadata comes from GET and Allow sends the displayed provider (`discord-presence-studio.html:424`, `:433`); Not now cannot replay upload because `v && allowed && pending` is required (`:438`). Closing image overlay clears pending selection (`:1129`). Additional TEMP VM probe observed Upload → close picker → Allow producing only consent PUT, no upload, and an unchanged draft. Closing a picker does not retract an upload already authorized and transmitted.
+- **Verified, HTTP boundary:** Host/Origin and JSON are checked before upload (`studio-server.mjs:908`). Unknown keys/client icon/client URL are rejected; only an exact normalized running/installed/mapped executable identity resolves trusted catalog bytes (`:919`, `:924`, `:928`). No caller filesystem path is opened or caller URL fetched. Missing/invalid local PNG is 400, unknown app 404, denied consent 403, disabled uploader 503, wrong content type 415. Accepted enqueue is 202, not readiness (`:931`).
+- **Verified, trusted local fallback:** `catalogApp` takes a running icon or exact installed identity's icon (`studio-server.mjs:147`); the HTTP test exercises an iconless running entry borrowing its exact installed PNG. Mapping data itself cannot supply icon bytes.
+- **Verified, automatic scope/publication:** automatic uploads are limited to enabled saved pairings whose saved Scene uses app imagery (`studio-server.mjs:157`); explicit upload can publish an uncommitted selection without committing it. Upload completion reconciles only an already-selected mapped app using automatic artwork (`:135`). `withApplicationBadge` replaces automatic large/small images while preserving explicit artwork and uses the fallback when no hosted icon exists (`application-badges.mjs:8`). HTTP tests exercise fake RPC delivery; this is not live Discord rendering proof.
+- **Verified, migration/cache/persistence:** old Catbox consent resets to null in memory, old cache entries retain old provider and cannot be advertised as IMG.GE (`app-icon-hosting.mjs:96`, `:120`). Unknown owner fields and raw old cache remain preserved; reads do not rewrite disk. Atomic write completes before state changes (`:103`). Cache records SHA-256/provider/URL and only becomes ready after verified upload and successful write (`:141`). Valid matching cached images remain usable when the local icon is temporarily absent (`:120`).
+- **Verified, coalescing/failure/retry:** pending identity map blocks duplicate calls (`app-icon-hosting.mjs:130`); failed SHA memoization prevents read/config retry loops, while explicit upload clears that SHA's failure (`:135`, `:168`). Changed bytes may retry. Revocation aborts pending work and prevents late cache publication (`:143`, `:175`); server stop closes/drains hosting (`studio-server.mjs:783`, `:798`). Existing bounded renderer status watch is at `discord-presence-studio.html:458`; it is not a new permanent polling loop.
+- **Verified, default host safety:** strict PNG signature/IHDR, size/dimensions, chunks/CRC and bounded inflation are checked (`app-icon-hosting.mjs:23`). Adapter obtains an ephemeral IMG.GE CSRF/session, POSTs only generic `icon.png` data with `upload_auto_delete=0`, accepts only fixed `https://img.ge/i/<id>.png`, forbids redirects, and GETs without session headers. MIME must be PNG, returned bytes are bounded to input length and compared exactly (`:51–81`). Cookie/token exist only in the request closure and are absent from settings/cache/errors; fake adapter tests assert generic multipart fields and cookie-free public GET.
+
+## Observed checks
+
+- Initial `node --test scripts/tests/renderer-p3.test.mjs scripts/tests/renderer-draft.test.mjs`: **50/50 pass**, 0 fail.
+- Final `node --test scripts/tests/app-icon-hosting.test.mjs scripts/tests/studio-p3-endpoints.test.mjs scripts/tests/renderer-p3.test.mjs scripts/tests/renderer-draft.test.mjs`: **72/72 pass**, 0 fail (hosting 10 + endpoints 11 + renderer 21 + draft 30); rerun after coordinator added the actual imgTab draft-picker boundary test. Earlier stable run was 71/71.
+- `npm test`: **375/375 pass**, 0 fail, 0 skipped, 12.69 seconds, on the stable source snapshot before the final additional renderer test. That added test is included in the final 72/72 focused run. TEMP output: `%TEMP%/icon-review-full-tests.txt`. Tests use disposable profiles and fake Discord/host adapters; printed Discord connection messages are mocks.
+- TEMP cancel and metadata probes both passed their expected assertions. No reviewer-created persistent server remains; HTTP test fixtures shut down and remove their TEMP profiles.
+- **Coordinator-reported actual Node adapter proof:** msg_32ec4a04b73a states un-injected `createIconUploader()` published generated 158-byte PNG to `https://img.ge/i/aR2Ul59.png`. Reviewer did not repeat that POST or upload owner data.
+- **Independently observed live GET:** curl without redirect following returned **200**, **image/png**, **158 bytes** for that URL; downloaded sample and coordinator's generated `%TEMP%/vibe-upload-probe.png` both SHA-256 **9d112f81938659b35efd40dfefe3e83c0700d2226d7e2a97e28aeab493b97784**. This verifies current public reachability and exact sample bytes; it does not guarantee future host retention.
+
+No Blocker or Major found in this scope. No owner profile/secrets, Chrome GUI, installs, commits, pushes or deployment were used. Real Discord image rendering and visual theme layout remain unverified; no claim of live Discord delivery.
+
+**Verdict: ship — explicit upload works without committing drafts; stale-provider recovery is a minor follow-up.**
+
