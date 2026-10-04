@@ -1,3 +1,4 @@
+import { STUDIO_ICON_URL } from '../../../../../scripts/application-badges.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
@@ -94,11 +95,11 @@ test('app icon without public URL publishes explicit fallback and no timestamp f
   await controller.command('end');
 });
 
-for (const [label, input, image, reason] of [
+for (const [label, input, image, reason, historicalPreviewImage = image] of [
   ['public app icon', { largeImage: '@app', appPublicIcon: 'https://example.com/orca.png' }, 'https://example.com/orca.png', null],
   ['local app icon', { largeImage: '@app', appPublicIcon: 'data:image/png;base64,AAAA' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
-  ['pre-resolved app icon', { largeImage: '', largeImageSource: 'app-icon' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
-  ['failed cached icon overrides stale renderer URL', { largeImage: 'https://stale.test/icon.png', largeImageSource: 'app-icon', appPublicIcon: '' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
+  ['pre-resolved app icon', { largeImage: '', largeImageSource: 'app-icon' }, STUDIO_ICON_URL, 'app_icon_no_public_url', 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png'],
+  ['failed cached icon overrides stale renderer URL', { largeImage: 'https://stale.test/icon.png', largeImageSource: 'app-icon', appPublicIcon: '' }, STUDIO_ICON_URL, 'app_icon_no_public_url', 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png'],
   ['built-in', { largeImage: 'builtin:hinata-poster' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', null],
   ['link', { largeImage: 'https://example.com/art.gif' }, 'https://example.com/art.gif', null],
 ]) test(`exact SET_ACTIVITY payload: ${label}`, async () => {
@@ -110,7 +111,8 @@ for (const [label, input, image, reason] of [
     assets: { large_image: image, large_text: 'Live test', large_url: undefined, small_image: undefined, small_text: undefined, small_url: undefined },
     buttons: [{ label: 'Portfolio', url: 'https://example.com' }], instance: false,
   } } });
-  assert.equal(result.scene.publishedImage, image);
+  // Historical mockup metadata predates the current pure delivery fallback.
+  assert.equal(result.scene.publishedImage, historicalPreviewImage);
   assert.equal(result.scene.imageFallback, reason);
   assert.equal(result.scene.timestamps, null);
   await controller.command('end');

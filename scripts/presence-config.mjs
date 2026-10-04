@@ -1,3 +1,4 @@
+import { STUDIO_ICON_URL } from './application-badges.mjs';
 import { validateCodexSession } from './codex-session.mjs';
 import { characterArt, defaultCharacterArt, resolveDiscordArt } from './character-art.mjs';
 import { appKey, validateMappings } from './app-presence.mjs';
@@ -327,8 +328,12 @@ export function createDiscordActivity(scene, now = new Date(), { artBaseUrl = ""
   const resolved = resolveSceneText(scene, { app, user });
   // Automatic references must never leak
   // as Discord asset keys, even when this pure API is called without a mapping.
-  if (resolved.largeImage === '@app') resolved.largeImage = defaultCharacterArt;
-  if (resolved.smallImage === '@app') resolved.smallImage = '';
+  for (const field of ['largeImage', 'smallImage']) {
+    if (resolved[field] === '@app' || resolved[field + 'Source'] === 'app-icon') {
+      resolved[field] = STUDIO_ICON_URL;
+      resolved[field + 'Url'] = '';
+    }
+  }
   const validScene = validateScene(resolved, { delivery: true });
   let timestamps;
   if (validScene.timerMode === 'elapsed') {

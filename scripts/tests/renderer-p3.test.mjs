@@ -246,7 +246,7 @@ test('theme: syncShellTheme pushes the theme to the desktop shell and is a no-op
 function sourceFixture() {
   const ctx = {
     S: { rules: [{ id: 'm1', scene: 's1', app: 'claude' }], drawer: null, scenes: [], save: '' }, ST: { rt: null, ready: true }, DCID: { name: 'Mint' },
-    T: (en) => en, APPS: [], appBy: id => ({ id, name: 'Claude', publicIcon: 'https://files.catbox.moe/claude.png' }), buildDrawer() {},
+    T: (en) => en, APPS: [], isHttps: v => /^https:\/\//i.test(v || ''), appKey: p => String(p || '').trim().replaceAll('/', '\\').toLowerCase(), appBy: id => ({ id, name: 'Claude', exe: 'C:\\Apps\\Claude.exe', publicIcon: 'https://files.catbox.moe/claude.png' }), buildDrawer() {},
     sceneBy: id => ctx.S.scenes.find(s => s.id === id), mkScene: o => ({ btns: [], ...o }), notifyEditor() {},
   };
   ctx.FIELD = { lg: 'art', sm: 'small' };
@@ -262,11 +262,9 @@ test('app-icon source: saved as smallImageSource, round-trips, and the preview s
   assert.equal(sc.smallSource, 'app-icon');
   assert.equal(c.m.sceneToRaw(sc).smallImageSource, 'app-icon');
   assert.equal(JSON.stringify(c.m.sceneToRaw(sc)).includes('largeImageSource'), false, 'nothing is sent for an unset source');
-  assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/claude.png', 'preview uses the paired app icon');
-  c.ST.rt = { currentSceneId: 's1', selectionSource: 'app', selectedApplication: 'Claude', applicationBadge: 'https://files.catbox.moe/live.png' };
-  assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/live.png', 'live scene uses what the server delivers');
-  c.ST.rt = { currentSceneId: 's1', selectionSource: 'idle' };
-  assert.equal(c.m.published(sc).small, '', 'a live Scene with no app selected sends no app icon');
+  const studio = 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/6f686f78f80ba7a3a54ce55bd985cf2bfc7fb09d/electron/assets/src/ghost-09-256.png';
+  assert.equal(c.m.published(sc).art, 'https://files.catbox.moe/claude.png', 'main image is the paired app logo');
+  assert.equal(c.m.published(sc).small, 'https://files.catbox.moe/claude.png', 'automatic small image is the app logo');
 });
 
 test('app-icon source: picking another image clears it; explicit images are kept', () => {
@@ -299,7 +297,7 @@ test('preview parity with the server: the activity name keeps the template, empt
   const out = c.m.published(sc);
   assert.equal(out.actName, 'Morning Vibe', 'no silent rename to the app name');
   assert.equal(out.l1, 'Coding', 'a required line that resolves empty falls back to the Scene name');
-  assert.equal(out.small, 'https://files.catbox.moe/claude.png', 'empty small image = the app icon default');
+  assert.equal(out.small, 'https://files.catbox.moe/claude.png', 'empty small image = the app logo');
   const explicit = c.m.sceneToUi({ id: 's1', sceneName: 'Coding', activityName: '{app}', details: 'd', state: 's', smallImage: 'https://x.test/s.png' });
   assert.equal(c.m.published(explicit).small, 'https://x.test/s.png');
   assert.equal(c.m.published(explicit).actName, 'Claude');

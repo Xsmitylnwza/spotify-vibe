@@ -4,6 +4,16 @@ Changes are listed newest first. Historical entries were reconstructed from Git
 commit history and published GitHub releases. Dates below use UTC publication
 dates; versions without a separate release are explicitly marked.
 
+## [1.0.24] - 2026-10-04
+
+### Changed
+- The main Discord status image always uses the selected paired app's public logo, even when its Scene previously selected other artwork.
+- Use the Vibe Studio ghost logo when an app logo is unavailable; automatic small icons use the same fallback.
+- Align Studio previews and the image editor with app-logo priority while preserving saved Scene artwork and explicit small images.
+
+### Fixed
+- Upload completion updates an app's main logo without restarting its elapsed timer, including Scenes that previously had custom main artwork.
+
 ## [1.0.23] - 2026-10-04
 
 ### Added

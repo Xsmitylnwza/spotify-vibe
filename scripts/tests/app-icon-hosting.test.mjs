@@ -1,3 +1,4 @@
+import { STUDIO_ICON_URL } from '../application-badges.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
@@ -166,9 +167,9 @@ test('an empty small image keeps the app-icon default; explicit images and the l
   const scene = { sceneName: 'Coding', largeImage: 'https://example.com/a.png', smallImage: '' };
   const icon = 'https://files.catbox.moe/abc.png';
   assert.equal(withApplicationBadge(scene, { name: 'Claude' }, { publicIcon: icon }).smallImage, icon);
-  assert.equal(withApplicationBadge(scene, { name: 'Claude' }, { publicIcon: icon }).largeImage, scene.largeImage);
+  assert.equal(withApplicationBadge(scene, { name: 'Claude' }, { publicIcon: icon }).largeImage, icon);
   assert.equal(withApplicationBadge({ ...scene, smallImage: 'https://example.com/s.png' }, { name: 'Claude' }, { publicIcon: icon }).smallImage, 'https://example.com/s.png');
-  assert.equal(withApplicationBadge(scene, { name: 'Unknown' }, { publicIcon: '' }).smallImage, '');
+  assert.equal(withApplicationBadge(scene, { name: 'Unknown' }, { publicIcon: '' }).smallImage, STUDIO_ICON_URL);
   assert.equal(withApplicationBadge({ ...scene, activityName: 'Morning Vibe' }, { name: 'Claude' }, { publicIcon: icon }).activityName, 'Morning Vibe', 'activity text stays the owner template');
 });
 

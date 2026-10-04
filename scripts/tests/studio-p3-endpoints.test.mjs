@@ -1,3 +1,4 @@
+import { STUDIO_ICON_URL } from '../application-badges.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { EventEmitter } from 'node:events';
@@ -22,19 +23,21 @@ async function until(read, predicate) {
   throw new Error('Fake boundary did not settle');
 }
 
-async function fixture(t, { consent, mappings = [], uploader = async()=>uploaded, user = {id:'123456789012345678',username:'golf',global_name:'Golf Display'}, running = [], installed = [app,other,{executable:'C:\\Apps\\Code.exe',name:'VS Code',icon}] } = {}) {
+async function fixture(t, { sceneOverrides = {}, consent, mappings = [], uploader = async()=>uploaded, user = {id:'123456789012345678',username:'golf',global_name:'Golf Display'}, running = [], installed = [app,other,{executable:'C:\\Apps\\Code.exe',name:'VS Code',icon}] } = {}) {
   const directory = await mkdtemp(join(tmpdir(),'vibe-p3-http-'));
   const config = createDefaultConfig(); config.slots=[]; config.settings.autostartEnabled=false;
   const scene = config.scenes[0];
   Object.assign(scene,{sceneName:'Coding',activityName:'{app}',details:'Using {app} · {scene}',state:'{user}',
     largeImage:'https://example.com/art.png',largeImageText:'{scene} by {user}',smallImage:'@app',smallImageText:'{app}',
     timerMode:'none',buttons:[{label:'Open {app}',url:'https://example.com'}]});
+  Object.assign(scene, sceneOverrides);
+  config.ownerUnknown = { keep: ['raw', null] };
   config.appMappings=mappings.map(entry=>({...mapping(scene.id),...entry}));
   await writeFile(join(directory,'presence-config.json'),JSON.stringify(config));
   if (consent!==undefined) await writeFile(join(directory,'icon-hosting.json'),JSON.stringify({consent,provider:ICON_PROVIDER.provider,icons:{}}));
   const probe=createServer(); await new Promise(r=>probe.listen(0,'127.0.0.1',r));
   const port=probe.address().port; await new Promise(r=>probe.close(r));
-  const activities=[]; let emit, clears=0;
+  const activities=[], commands=[]; let emit, clears=0;
   const studio=await startStudioServer({argv:[],port,dataDirectory:directory,openBrowser:false,exitProcess:false,
     environment:{PRESENCE_AUTOSTART_DISABLE:'1',PRESENCE_APP_DETECTION_DISABLE:'1'},
     getInstalledApps:()=>installed,
@@ -42,7 +45,7 @@ async function fixture(t, { consent, mappings = [], uploader = async()=>uploaded
     watchApps:callback=>{emit=callback; callback({apps:running,running:running.map(a=>a.executable),supported:true,error:null}); return ()=>{};},
     createDiscordClient:()=>{
       const rpc=new EventEmitter(); rpc.user=user; rpc.login=async()=>{}; rpc.destroy=async()=>{};
-      rpc.request=async(_,args)=>{activities.push(args.activity);}; rpc.clearActivity=async()=>{clears++;}; return rpc;
+      rpc.request=async(command,args)=>{commands.push(command); activities.push(args.activity);}; rpc.clearActivity=async()=>{clears++;}; return rpc;
     },
   });
   t.after(async()=>{await studio.stop();await rm(directory,{recursive:true,force:true});});
@@ -51,7 +54,7 @@ async function fixture(t, { consent, mappings = [], uploader = async()=>uploaded
       ...(body===undefined?{}:{body:JSON.stringify(body)})}); return {status:res.status,body:await res.json()};
   }
   await until(()=>request('/api/state'),r=>r.body.connected);
-  return {request,emit,activities,directory,config,url:studio.url,stop:()=>studio.stop(),clears:()=>clears,setInstalled:apps=>{installed=apps;}};
+  return {request,emit,activities,commands,directory,config,url:studio.url,stop:()=>studio.stop(),clears:()=>clears,setInstalled:apps=>{installed=apps;}};
 }
 
 test('HTTP consent defaults unknown, validates boolean/local origin, and only paired apps upload', async t=>{
@@ -104,7 +107,7 @@ test('HTTP config save triggers paired upload, keeps explicit small image and re
   const withoutIcon={...app,icon:''};
   const f=await fixture(t,{consent:false,mappings:[{}],running:[withoutIcon],installed:[withoutIcon],user:null,uploader:async()=>{uploads++;return uploaded;}});
   const first=await until(async()=>f.activities.at(-1),a=>!!a);
-  assert.equal(uploads,0);assert.equal(first.state,'Coding');assert.equal(first.assets.small_image,undefined);
+  assert.equal(uploads,0);assert.equal(first.state,'Coding');assert.equal(first.assets.small_image,STUDIO_ICON_URL);assert.equal(first.assets.large_image,STUDIO_ICON_URL);
   // A later catalog now has the PNG, but no watcher event or mapping change
   // occurs: config save itself must start this upload.
   await f.request('/api/icon-hosting','PUT',{consent:true,provider:ICON_PROVIDER.provider});
@@ -134,7 +137,7 @@ test('HTTP failed upload remains default without read retries and pack is always
   assert.equal(catalog.body.apps[2].iconSource,'pack');assert.equal(catalog.body.apps[2].iconStatus,'ready');
   for (let i=0;i<3;i++) await f.request('/api/apps');
   await f.request('/api/config','PUT',{scenes:f.config.scenes});
-  assert.equal(uploads,1);assert.equal(f.activities.at(-1).assets.small_image,undefined);
+  assert.equal(uploads,1);assert.equal(f.activities.at(-1).assets.small_image,STUDIO_ICON_URL);assert.equal(f.activities.at(-1).assets.large_image,STUDIO_ICON_URL);
 });
 
 test('HTTP switching automatic image source to explicit artwork clears its flag across persistence and reload', async t=>{
@@ -150,7 +153,7 @@ test('HTTP switching automatic image source to explicit artwork clears its flag 
   const saved=await f.request('/api/config','PUT',{scenes:config.scenes});
   assert.equal(saved.status,200);assert.equal(saved.body.config.scenes[0].smallImageSource,'');
   assert.equal(f.activities.at(-1).assets.small_image,config.scenes[0].smallImage);
-  assert.equal(f.activities.at(-1).assets.large_image,config.scenes[0].largeImage);
+  assert.equal(f.activities.at(-1).assets.large_image,uploaded);
   const disk=JSON.parse(await readFile(join(f.directory,'presence-config.json'),'utf8'));
   assert.equal(disk.scenes[0].smallImageSource,'');assert.equal(disk.scenes[0].largeImageSource,'');
   assert.equal((await f.request('/api/config')).body.scenes[0].smallImage,config.scenes[0].smallImage);
@@ -230,7 +233,7 @@ test('HTTP explicit retry succeeds after memoized failure without automatic read
   await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'ready'); assert.equal(uploads, 2);
 });
 
-test('explicitly disabled uploader has unavailable API and automatic upload skips explicit-art Scenes', async t => {
+test('explicitly disabled uploader has unavailable API and automatic upload includes explicit-art saved Scenes', async t => {
   const disabled = await fixture(t, { uploader: null });
   assert.equal((await disabled.request('/api/icon-hosting')).status, 404);
   assert.equal((await disabled.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 503);
@@ -240,7 +243,64 @@ test('explicitly disabled uploader has unavailable API and automatic upload skip
   const scenes = f.config.scenes.map(scene => ({ ...scene, smallImage: 'https://example.com/explicit.png' }));
   await f.request('/api/config', 'PUT', { scenes });
   await f.request('/api/icon-hosting', 'PUT', { consent: true, provider: ICON_PROVIDER.provider });
-  await delay(20); assert.equal(uploads, 0, 'explicit art never exports mapped icon automatically');
+  await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'ready');
+  assert.equal(uploads, 1, 'saved mapping uses app main image even with stored explicit art');
   assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 202);
   await until(() => f.request('/api/apps'), result => result.body.apps[0].iconStatus === 'ready'); assert.equal(uploads, 1);
+});
+
+
+test('raw SET_ACTIVITY uses selected pack over stored avatar and switches apps sharing one Scene without config writes', async t => {
+  const orca = { executable: 'C:/Apps/Orca.exe', name: 'Orca' };
+  const discord = { executable: 'C:/Apps/Discord.exe', name: 'Discord' };
+  const f = await fixture(t, { consent: false, mappings: [orca, discord], running: [orca], installed: [orca, discord],
+    sceneOverrides: { largeImage: 'https://cdn.discordapp.com/embed/avatars/0.png', largeImageUrl: 'https://example.com/custom',
+      smallImage: 'https://example.com/small.png', smallImageUrl: 'https://example.com/small', ownerUnknown: { keep: true } } });
+  const file = join(f.directory, 'presence-config.json'), bytes = await readFile(file, 'utf8');
+  const storedScenes = (await f.request('/api/config')).body.scenes;
+  const first = await until(async () => f.activities.at(-1), a => /orca.png$/.test(a?.assets?.large_image));
+  assert.equal(f.commands.at(-1), 'SET_ACTIVITY');
+  assert.equal(first.assets.large_url, undefined); assert.equal(first.assets.small_image, f.config.scenes[0].smallImage);
+  assert.equal(first.assets.small_url, f.config.scenes[0].smallImageUrl);
+  const state = (await f.request('/api/state')).body;
+  assert.equal(state.applicationImage, first.assets.large_image); assert.equal(state.applicationIconFallback, STUDIO_ICON_URL);
+  assert.equal(state.selectedApplicationExecutable, orca.executable);
+  f.emit({ apps: [discord], running: [discord.executable], supported: true, error: null });
+  const second = await until(async () => f.activities.at(-1), a => /discord.png$/.test(a?.assets?.large_image));
+  assert.equal(second.assets.small_image, first.assets.small_image);
+  assert.equal((await f.request('/api/state')).body.selectedApplicationExecutable, discord.executable);
+  assert.deepEqual((await f.request('/api/config')).body.scenes, storedScenes);
+  assert.equal(await readFile(file, 'utf8'), bytes);
+});
+
+test('custom-art Scene uploads its saved mapping and completion replaces brand without resetting timer or saving config', async t => {
+  let release, uploads = 0;
+  const f = await fixture(t, { consent: true, mappings: [{}], running: [app],
+    sceneOverrides: { largeImage: 'https://example.com/custom-avatar.png', smallImage: 'https://example.com/custom-small.png',
+      timerMode: 'elapsed', ownerUnknown: { opaque: ['keep', null] } },
+    uploader: () => { uploads++; return new Promise(resolve => { release = resolve; }); } });
+  const file = join(f.directory, 'presence-config.json'), bytes = await readFile(file, 'utf8');
+  const storedScenes = (await f.request('/api/config')).body.scenes;
+  const initial = await until(async () => f.activities.at(-1), a => a?.assets?.large_image === STUDIO_ICON_URL);
+  await until(() => Boolean(release), Boolean); assert.equal(uploads, 1);
+  release(uploaded);
+  const final = await until(async () => f.activities.at(-1), a => a?.assets?.large_image === uploaded);
+  assert.deepEqual(final.timestamps, initial.timestamps); assert.deepEqual(final.buttons, initial.buttons);
+  assert.equal(final.details, initial.details); assert.equal(final.assets.small_image, f.config.scenes[0].smallImage);
+  assert.equal((await f.request('/api/state')).body.applicationImage, uploaded);
+  assert.equal(await readFile(file, 'utf8'), bytes);
+  assert.deepEqual((await f.request('/api/config')).body.scenes, storedScenes);
+});
+
+test('automatic upload excludes disabled mapping and disabled Scene even when consent is granted', async t => {
+  let uploads = 0;
+  const f = await fixture(t, { consent: true, mappings: [{ enabled: false }], running: [app],
+    uploader: async () => { uploads++; return uploaded; } });
+  const scenes = f.config.scenes.map(scene => ({ ...scene, enabled: false }));
+  const result = await f.request('/api/config', 'PUT', { scenes, appMappings: [mapping(scenes[0].id)] });
+  assert.equal(result.status, 200); assert.equal(uploads, 0);
+  assert.equal(result.body.runtime.applicationImage, null);
+  assert.equal(result.body.runtime.selectedApplicationExecutable, null);
+  assert.equal(result.body.runtime.applicationIconFallback, STUDIO_ICON_URL);
+  assert.equal(f.activities.length, 0);
 });

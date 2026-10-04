@@ -29,7 +29,7 @@ function fixture({ lang = 'en', config = baseConfig(), route } = {}) {
     ST: { ready: true, config: null, rt: null }, DCID: { name: '', handle: '', id: '', avatarUrl: '' }, SAVE: { running: false, dirtyScenes: false, dirtyRules: false, again: false },
     $: sel => (sel === '#root' ? root : els[sel] || null), layer: () => ({ querySelectorAll: () => [] }), reduced: () => true, hideTip() {}, highlight() {}, morphInto() {}, leaveLayer() {}, restoreFocus() {},
     document: { body: {inert:false}, querySelector: () => null, addEventListener(type, fn) { (handlers[type] ||= []).push(fn); } }, window: {},
-    idOn: () => false, idAv: () => '', artSrc: v => v, isHttps: v => /^https:\/\//i.test(v || ''), expectedOnly: null,
+    idOn: () => false, idAv: () => '', artSrc: v => v, isHttps: v => /^https:\/\//i.test(v || ''), appKey: p => String(p || '').trim().replaceAll('/', '\\').toLowerCase(), expectedOnly: null,
     render() { renders.n++; }, toast(m) { toasts.push(m); }, buildDrawer() { builds.n++; }, openSummary(id) { summaries.push(id); }, closePicker() { ctx.S.picker = null; }, keep() {},
     showOv(kind) { ctx.shown = kind; }, closeOverlay() { ctx.S.ov = null; }, ovFocus() {}, openPicker() {}, rememberFocus() {}, flushSave() {}, scheduleSave() {}, loadApps() {}, settleSave:async()=>{}, renderDel(){},
     api: async (path, opt = {}) => { calls.push({ path, method: opt.method || 'GET', body: opt.body === undefined ? undefined : clone(opt.body) }); return route(path, opt, calls); },

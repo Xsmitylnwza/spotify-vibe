@@ -1,21 +1,37 @@
 import { packedAppIcon } from './app-icon-pack.mjs';
-import { defaultCharacterArt } from './character-art.mjs';
+import { isIP } from 'node:net';
+
+export const STUDIO_ICON_URL = 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/6f686f78f80ba7a3a54ce55bd985cf2bfc7fb09d/electron/assets/src/ghost-09-256.png';
 
 export function applicationBadge(executable, name = '', options = {}) {
   return packedAppIcon({ executable, name, publisher: options.publisher }, options) || null;
 }
 
+function usablePublicIcon(value) {
+  if (typeof value !== 'string' || value.length > 512 || value !== value.trim()) return false;
+  try {
+    const url = new URL(value), host = url.hostname.toLowerCase();
+    return url.protocol === 'https:' && !url.username && !url.password && !url.port
+      && host.includes('.') && !isIP(host) && !host.startsWith('[')
+      && !/(^|\.)(localhost|local|internal|test|invalid)$/.test(host);
+  } catch { return false; }
+}
+
 export function withApplicationBadge(scene, mapping, { publicIcon } = {}) {
   if (!scene) return scene;
-  const badge = publicIcon ?? applicationBadge(mapping?.executable, mapping?.name);
-  let result = scene;
-  for (const field of ['largeImage', 'smallImage']) {
-    // An empty small image keeps the long-standing default: the app's icon. Explicit images always win.
-    const automatic = scene[field] === '@app' || scene[field + 'Source'] === 'app-icon' || (field === 'smallImage' && !scene.smallImage);
-    if (!automatic) continue;
-    result = { ...result, [field]: badge || (field === 'largeImage' ? defaultCharacterArt : ''),
-      [field + 'Url']: '' };
+  // An explicit empty/invalid hosting result is authoritative: do not revive a pack icon.
+  const candidate = publicIcon === undefined ? applicationBadge(mapping?.executable, mapping?.name) : publicIcon;
+  const badge = usablePublicIcon(candidate) ? candidate : STUDIO_ICON_URL;
+  const result = { ...scene };
+  if (mapping || scene.largeImage === '@app' || scene.largeImageSource === 'app-icon') {
+    result.largeImage = badge;
+    result.largeImageUrl = '';
+    if (result.largeImageSource === 'app-icon') result.largeImageSource = '';
+  }
+  if (!scene.smallImage || scene.smallImage === '@app' || scene.smallImageSource === 'app-icon') {
+    result.smallImage = badge;
+    result.smallImageUrl = '';
+    if (result.smallImageSource === 'app-icon') result.smallImageSource = '';
   }
   return result;
 }
-

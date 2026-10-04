@@ -1,5 +1,5 @@
 import { codexSessionScene } from './codex-session.mjs';
-import { withApplicationBadge } from './application-badges.mjs';
+import { STUDIO_ICON_URL, withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
 import { appKey, selectRunningPreset } from './app-presence.mjs';
 import { createIconHosting, iconPng } from './app-icon-hosting.mjs';
@@ -136,9 +136,7 @@ export async function startStudioServer(options = {}) {
       if (isStopping) return;
       await pairMappedIcons();
       const desired = desiredPresence();
-      const scene = sceneById(desired.scene?.id);
-      if (!desired.applicationExecutable || appKey(desired.applicationExecutable) !== appKey(app.executable)
-        || !(!scene?.smallImage || ['largeImage', 'smallImage'].some(field => scene?.[field] === '@app' || scene?.[field + 'Source'] === 'app-icon'))) return;
+      if (!desired.applicationExecutable || appKey(desired.applicationExecutable) !== appKey(app.executable)) return;
       await reconcilePresence({ force: true, reason: 'App icon hosting updated' });
     },
   });
@@ -158,8 +156,7 @@ export async function startStudioServer(options = {}) {
     if (isStopping) return;
     await iconHosting.pair(config.appMappings.filter(mapping => {
       const scene = config.scenes.find(scene => scene.id === mapping.sceneId);
-      return mapping.enabled !== false && scene && (!scene.smallImage ||
-        ['largeImage', 'smallImage'].some(field => scene[field] === '@app' || scene[field + 'Source'] === 'app-icon'));
+      return mapping.enabled !== false && scene && scene.enabled !== false;
     }).map(catalogApp));
   }
 
@@ -267,6 +264,9 @@ export async function startStudioServer(options = {}) {
       selectionMode: config.settings.selectionMode,
       selectionSource: desired.source,
       selectedApplication: desired.application || null,
+      selectedApplicationExecutable: desired.applicationExecutable || null,
+      applicationImage: desired.scene?.largeImage || null,
+      applicationIconFallback: STUDIO_ICON_URL,
       applicationBadge: desired.scene?.smallImage || null,
       selectedPresetName: desired.scene?.sceneName || null,
       variables,

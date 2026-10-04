@@ -43,6 +43,10 @@ Design consequences every change must respect:
   including app pairings, are drafts until **Done** commits them together.
   No editor autosave or automatic draft publication. Protect drafts on close,
   failed saves, stale config conflicts, quit, and silent updater restarts.
+- Owner update (2026-10-04): the main Discord status image always follows the
+  selected paired app's public logo. If no usable app logo exists, use the Vibe
+  Studio ghost logo. Keep saved custom Scene artwork intact on disk; do not
+  display it in place of the app logo. Preview must follow the same priority.
 
 ## 2. Sources of truth (highest first)
 
