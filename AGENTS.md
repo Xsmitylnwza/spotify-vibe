@@ -96,6 +96,17 @@ $env:PRESENCE_AUTOSTART_DISABLE = "1"       # never touch Windows startup
 
 ## 5. Engineering rules
 
+### Release changelog (owner rule, 2026-10-04)
+
+- Every new release MUST update the root `CHANGELOG.MD` before publication.
+- Add a newest-first entry for the exact version being released, matching
+  `package.json`, `package-lock.json`, and the release tag. If automation bumps
+  the version, prepare the matching changelog entry before publishing it.
+- Record the release date and concrete additions, changes, and fixes since the
+  previous release. Use source history as evidence; do not invent changes or
+  claim verification that was not performed.
+- Preserve historical entries. Mark source-only versions without a published
+  release explicitly. No release is complete without its matching entry.
 - Match surrounding style: vanilla JS, no new dependencies without a
   coordinator decision. Small, reviewable diffs scoped to the Task.
 - Fix the mechanism, not the symptom. One finding → one coherent change.
