@@ -4,6 +4,14 @@ Changes are listed newest first. Historical entries were reconstructed from Git
 commit history and published GitHub releases. Dates below use UTC publication
 dates; versions without a separate release are explicitly marked.
 
+## [1.0.25] - 2026-10-04
+
+### Fixed
+- Restore the main image picker home with App icon, built-in art, GIF search and public image links, including avatar and recent image choices.
+- Explicit custom images override the default app logo after Done; choosing App icon restores app-logo priority and the Vibe Studio fallback.
+- Keep image selection as a draft until Done, preserve the chosen mode across reloads, and prevent live status from replacing a custom-image preview.
+- Preserve legacy stored artwork without silently reactivating images ignored by the previous release.
+
 ## [1.0.24] - 2026-10-04
 
 ### Changed

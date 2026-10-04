@@ -43,10 +43,12 @@ Design consequences every change must respect:
   including app pairings, are drafts until **Done** commits them together.
   No editor autosave or automatic draft publication. Protect drafts on close,
   failed saves, stale config conflicts, quit, and silent updater restarts.
-- Owner update (2026-10-04): the main Discord status image always follows the
-  selected paired app's public logo. If no usable app logo exists, use the Vibe
-  Studio ghost logo. Keep saved custom Scene artwork intact on disk; do not
-  display it in place of the app logo. Preview must follow the same priority.
+- Owner update (2026-10-05, supersedes the always-logo decision): the main
+  image defaults to the selected paired app's public logo, with the Vibe Studio
+  ghost as fallback. Change image must offer App icon, built-in art, GIF and
+  public links. An explicitly selected custom image overrides the default;
+  choosing App icon restores it. Persist the choice only on Done. Keep legacy
+  artwork intact without silently reactivating it; preview and delivery agree.
 
 ## 2. Sources of truth (highest first)
 

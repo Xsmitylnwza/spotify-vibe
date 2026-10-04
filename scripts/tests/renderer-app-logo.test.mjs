@@ -3,7 +3,7 @@ import vm from 'node:vm';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-// The main Discord image always follows the selected paired app's logo, else the Vibe Studio ghost.
+// Main image: largeImageSource "custom" is an explicit override; absent/empty/"app-icon" follows the paired app's logo, else the Vibe Studio ghost.
 const html = readFileSync(new URL('../discord-presence-studio.html', import.meta.url), 'utf8');
 const slice = (from, to) => { const a = html.indexOf(from), b = html.indexOf(to, a); assert.ok(a > 0 && b > a, 'block present: ' + from); return html.slice(a, b); };
 const STUDIO = 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/6f686f78f80ba7a3a54ce55bd985cf2bfc7fb09d/electron/assets/src/ghost-09-256.png';
@@ -16,22 +16,22 @@ const APPS_BY_ID = {
 
 function fixture(lang = 'en') {
   const ctx = {
-    S: { rules: [], drawer: null, scenes: [], ov: null, lang }, ST: { rt: null, ready: true, icon: { ok: true, consent: true }, iconBusy: false }, DCID: { name: 'Mint' }, APPS: [],
+    S: { rules: [], drawer: null, scenes: [], ov: null, lang }, ST: { rt: null, ready: true, icon: { ok: true, consent: true }, iconBusy: false }, APPS: [],
     T: (en, th) => (lang === 'th' ? th : en), esc: s => String(s ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;'),
     appBy: id => APPS_BY_ID[id] || { id, name: id }, isHttps: v => /^https:\/\//i.test(v || ''), appKey: p => String(p || '').trim().replaceAll('/', BS).toLowerCase(),
-    artSrc: v => v, helpBtn: () => '', icoOf: () => '', iconDot: () => '', I: { up: '', x: '', plus: '' }, ARTMAP: {}, hostOf: v => v, layer2: () => null, $: () => null,
+    artSrc: v => v, helpBtn: () => '', icoOf: () => '', iconDot: () => '', I: { up: '', x: '', plus: '' }, ARTMAP: { 'builtin:hinata-poster': 'poster.png' }, hostOf: v => v, layer2: () => null, $: () => null,
     sceneBy: id => ctx.S.scenes.find(s => s.id === id), mkScene: o => ({ btns: [], ...o }),
     known: () => Object.values(APPS_BY_ID), sceneApps: id => ctx.S.rules.filter(r => r.scene === id).map(r => APPS_BY_ID[r.app]),
-    closeOverlay() {}, secHead: (h, hint) => `<h3>${h}</h3>${hint || ''}`, fld: (id, label, key, field) => `<input id="${id}" data-f="${field}">`,
+    closeOverlay() { ctx.closed = (ctx.closed || 0) + 1; }, touch() { ctx.touched = (ctx.touched || 0) + 1; }, buildDrawer() {}, DCID: { name: 'Mint', avatarUrl: 'https://cdn.test/av.png' }, ART: [['builtin:hinata-poster', 'poster.png']], H_: '/art/', imgSrc: v => v, recentImgs: () => ['https://r.test/1.png'], APPGLYPH_L: '', addRecent() {}, reduced: () => true, rememberFocus() {}, showOv() {}, ovFocus() {}, secHead: (h, hint) => `<h3>${h}</h3>${hint || ''}`, fld: (id, label, key, field) => `<input id="${id}" data-f="${field}">`,
   };
   vm.createContext(ctx);
   vm.runInContext([
     slice('const RR = ', 'const appBy'), slice('function sceneApp(sc)', 'const loading = '), slice('function sceneToUi(', 'function sceneProblem('),
     slice('/* ---------- app icon hosting', 'function applyApps('), 'const FIELD = { lg: "art", sm: "small" }; const SRC = { lg: "artSource", sm: "smallSource" };',
-    slice('function srcLabel(', 'function applyImage('), slice('function imageSection(', 'function chipHtml('),
-    slice('function imgTab()', '\nfunction renderOv'), slice('function imgInner()', 'const recentImgs'),
+    slice('function srcLabel(', 'function showOv('), slice('function imageSection(', 'function chipHtml('),
+    slice('function openImg(', 'const IMGTABS'), slice('function imgHome(', '\nfunction renderOv'), slice('function imgInner()', 'const recentImgs'),
     slice('function pickImg(', '\n}') + '\n}',
-    'this.m = { published, mainIcon, sceneApp, sceneToUi, sceneToRaw, wellHtml, imageSection, imgTab, imgInner, pickImg };',
+    'this.m = { published, mainIcon, sceneApp, sceneToUi, sceneToRaw, wellHtml, imageSection, imgTab, imgInner, pickImg, applyImage, openImg };',
   ].join('\n'), ctx);
   return ctx;
 }
@@ -49,24 +49,6 @@ test('published main image is the paired app logo, or the Vibe Studio icon with 
   assert.equal(c.m.published(sc).art, 'https://files.test/server-ghost.png', 'server-provided fallback wins over the built-in constant');
   c.ST.rt = { applicationIconFallback: 'http://insecure/x.png' };
   assert.equal(c.m.published(sc).art, STUDIO, 'a non-https fallback is ignored');
-});
-
-test('a saved custom large image is ignored for the preview and never mutated', () => {
-  const c = fixture(); c.S.rules = [rule('s1', 'chrome')];
-  const sc = scene({ art: 'builtin:hinata-poster', artSource: 'app-icon', artUrl: 'https://link.test/x' });
-  c.S.scenes = [sc]; const before = JSON.stringify(sc);
-  const out = c.m.published(sc);
-  assert.equal(out.art, 'https://files.test/chrome.png');
-  assert.equal(out.artUrl, '', 'the ignored click link is not previewed');
-  assert.equal(JSON.stringify(sc), before, 'painting does not touch the Scene');
-  const raw = c.m.sceneToRaw(sc);
-  assert.equal(raw.largeImage, 'builtin:hinata-poster', 'stored art is preserved for saving');
-  assert.equal(raw.largeImageSource, 'app-icon');
-  const withRaw = c.m.sceneToUi({ id: 's1', sceneName: 'A', activityName: 'V', details: 'd', state: 's', largeImage: 'https://old.test/a.gif' });
-  const rawBefore = JSON.stringify(withRaw._raw);
-  c.m.published(withRaw);
-  assert.equal(JSON.stringify(withRaw._raw), rawBefore, '_raw is untouched');
-  assert.equal(withRaw.art, 'https://old.test/a.gif', 'stored art is untouched');
 });
 
 test('live acknowledged applicationImage is used only for the same paired identity and Scene', () => {
@@ -114,43 +96,113 @@ test('small image: automatic and app-icon are app logo then Vibe Studio; an expl
   assert.equal(explicit.small, 'https://x.test/s.png'); assert.equal(explicit.smallUrl, 'https://x.test/link');
 });
 
+const draftOf = (c, sc) => { c.S.drawer = { id: sc.id, sc, get rules() { return c.S.rules; } }; return sc; };
+
+test('custom marker round-trips through sceneToUi/sceneToRaw; absent/empty/app-icon never resurrect a stored legacy image', () => {
+  const c = fixture(); c.S.rules = [rule('s1', 'chrome')];
+  const base = { id: 's1', sceneName: 'A', activityName: 'V', details: 'd', state: 's', unknownField: { keep: 1 } };
+  const custom = c.m.sceneToUi({ ...base, largeImage: 'builtin:hinata-poster', largeImageSource: 'custom', largeImageUrl: 'https://link.test/x' });
+  assert.equal(custom.artSource, 'custom');
+  const raw = c.m.sceneToRaw(custom);
+  assert.equal(raw.largeImageSource, 'custom'); assert.equal(raw.largeImage, 'builtin:hinata-poster'); assert.equal(raw.largeImageUrl, 'https://link.test/x');
+  assert.deepEqual(raw.unknownField, { keep: 1 }, 'unknown fields round-trip');
+  for (const largeImageSource of [undefined, '', 'app-icon']) {
+    const legacy = c.m.sceneToUi({ ...base, largeImage: 'https://cdn.discordapp.com/avatars/legacy.png', largeImageSource });
+    assert.equal(c.m.mainIcon(legacy).custom, false, `source ${JSON.stringify(largeImageSource)} is the default`);
+    assert.equal(c.m.published(legacy).art, 'https://files.test/chrome.png', 'stored legacy avatar is not resurrected');
+    assert.equal(c.m.sceneToRaw(legacy).largeImage, 'https://cdn.discordapp.com/avatars/legacy.png', 'stored value is preserved on disk');
+    assert.notEqual(c.m.sceneToRaw(legacy).largeImageSource, 'custom');
+  }
+  const noArt = c.m.sceneToUi({ ...base, largeImage: '', largeImageSource: 'custom' });
+  assert.equal(c.m.mainIcon(noArt).custom, false, 'a custom marker without art is the default');
+  assert.notEqual(c.m.sceneToRaw(noArt).largeImageSource, 'custom');
+});
+
+test('custom preview uses the saved/draft art and link and never the live app logo; painting does not mutate', () => {
+  const c = fixture(); c.S.rules = [rule('s1', 'chrome')];
+  const sc = scene({ art: 'builtin:hinata-poster', artSource: 'custom', artUrl: 'https://link.test/x' }); const before = JSON.stringify(sc);
+  c.ST.rt = { active: true, currentSceneId: 's1', selectedApplicationExecutable: APPS_BY_ID.chrome.exe, applicationImage: 'https://live.test/ack.png' };
+  const out = c.m.published(sc);
+  assert.equal(out.art, 'builtin:hinata-poster'); assert.equal(out.artUrl, 'https://link.test/x');
+  assert.equal(JSON.stringify(sc), before);
+});
+
+test('default draft switched from a saved custom Scene previews the app now, not the stale live custom image', () => {
+  const c = fixture(); c.S.rules = [rule('s1', 'chrome')];
+  c.ST.rt = { active: true, currentSceneId: 's1', selectedApplicationExecutable: APPS_BY_ID.chrome.exe, applicationImage: 'https://live.test/custom-projection.png' };
+  const saved = c.m.sceneToUi({ id: 's1', sceneName: 'A', largeImage: 'https://old.test/a.gif', largeImageSource: 'custom' });
+  assert.equal(c.m.published(saved).art, 'https://old.test/a.gif');
+  draftOf(c, saved); c.S.ov = { kind: 'img', p: 'lg', tab: 'builtin' };
+  c.m.pickImg('appsrc:');
+  assert.equal(c.m.published(saved).art, 'https://files.test/chrome.png', 'draft default ignores the live custom projection');
+  const savedAuto = c.m.sceneToUi({ id: 's1', sceneName: 'A', largeImage: '' });
+  assert.equal(c.m.published(savedAuto).art, 'https://live.test/custom-projection.png', 'a saved default Scene still uses its live acknowledgement');
+});
+
 for (const lang of ['en', 'th']) {
-  test(`${lang}: the Large image editor is honest: app-following identity, no chooser, no ignored link`, () => {
-    const c = fixture(lang); const sc = scene({ art: 'builtin:hinata-poster', artUrl: 'https://link.test/x' });
-    c.S.drawer = { id: 's1', sc, get rules() { return c.S.rules; } };
+  test(`${lang}: Large image well shows the truthful source and only a custom image has Remove and a click link`, () => {
+    const c = fixture(lang); const sc = draftOf(c, scene({ art: 'builtin:hinata-poster', artUrl: 'https://link.test/x' }));
     let well = c.m.wellHtml('lg', sc, 'Image', 'large');
-    assert.match(well, lang === 'en' ? /Vibe Studio icon/ : /ไอคอน Vibe Studio/, 'no app: names the Vibe Studio fallback');
-    assert.ok(well.includes(STUDIO), 'shows the fallback logo');
-    assert.ok(!well.includes('hinata-poster'), 'stored art is not shown');
-    assert.ok(!/imgclear|vs-icon-btn-danger/.test(well), 'no remove button for the main image');
+    assert.match(well, lang === 'en' ? /Vibe Studio icon/ : /ไอคอน Vibe Studio/); assert.ok(!/imgclear/.test(well));
+    assert.ok(!well.includes('hinata-poster'), 'stored but unselected art is not shown');
     c.S.rules = [rule('s1', 'chrome')];
+    assert.match(c.m.wellHtml('lg', sc, 'Image', 'large'), lang === 'en' ? /Follows Chrome/ : /ตามแอป Chrome/);
+    const sec = () => c.m.imageSection('lg', sc, 'Large image', 'hint', 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large');
+    assert.match(sec(), /data-f="artText"/); assert.ok(!/data-f="artUrl"/.test(sec()), 'default: no click link');
+    sc.artSource = 'custom';
     well = c.m.wellHtml('lg', sc, 'Image', 'large');
-    assert.match(well, lang === 'en' ? /Follows Chrome/ : /ตามแอป Chrome/);
-    assert.match(well, lang === 'en' ? /Apps first, Vibe fallback/ : /แอปก่อน Vibe สำรอง/);
-    assert.ok(well.includes('https://files.test/chrome.png'));
-    assert.match(well, /data-act="openimg" data-arg="lg"/, 'Change opens the App icon chooser');
-    c.S.rules = [rule('s1', 'code')];
-    assert.match(c.m.wellHtml('lg', sc, 'Image', 'large'), lang === 'en' ? /No public icon yet/ : /ยังไม่มีไอคอนสาธารณะ/);
-    const section = c.m.imageSection('lg', sc, 'Large image', 'hint', 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large');
-    assert.match(section, /data-f="artText"/, 'hover text stays');
-    assert.ok(!/data-f="artUrl"/.test(section), 'no click-link input for the main image');
-    const small = c.m.imageSection('sm', scene(), 'Small', 'hint', 'small', 'smallText', 'smallUrl', 'small', 'smallText', 'smallUrl', 'small');
-    assert.match(small, /data-f="smallUrl"/, 'small image keeps its click link');
-    assert.ok(c.m.wellHtml('sm', scene(), 'Image', 'small').includes('data-act="openimg" data-arg="sm"'), 'small image keeps its custom chooser');
+    assert.match(well, lang === 'en' ? /Built-in art/ : /ภาพในตัว/); assert.ok(well.includes('hinata-poster'));
+    assert.match(well, /data-act="openimg" data-arg="lg"/); assert.match(well, /data-act="imgclear" data-arg="lg"/);
+    assert.match(sec(), /data-f="artUrl"/, 'custom: click link');
   });
 }
 
-test('the Large image chooser is app-only: Upload/Retry stay, no Use / built-in / GIF / link choices, nothing is applied', () => {
-  const c = fixture(); const sc = scene({ art: 'builtin:hinata-poster' });
-  c.S.drawer = { id: 's1', sc, get rules() { return c.S.rules; } }; c.S.rules = [rule('s1', 'chrome'), rule('s1', 'code')];
+test('Change opens the selection home for both images; every tab has Back; the large App tab keeps Upload/Retry and Use app icon', () => {
+  const c = fixture(); draftOf(c, scene({ art: 'builtin:hinata-poster' })); c.S.rules = [rule('s1', 'chrome'), rule('s1', 'code')];
+  for (const p of ['lg', 'sm']) {
+    c.m.openImg(p, null);
+    assert.equal(c.S.ov.tab, 'builtin', p + ' opens on the type home');
+    assert.ok(!/ovback/.test(c.m.imgInner()));
+    const home = c.m.imgTab();
+    for (const t of ['link', 'gif', 'app']) assert.match(home, new RegExp(`data-act="ovtab" data-arg="${t}"`), `${p} home offers ${t}`);
+    assert.match(home, /data-arg="art:hinata-poster"/); assert.match(home, /data-arg="avatar:"/); assert.match(home, /data-arg="recent:0"/);
+    assert.equal(/data-arg="none:"/.test(home), p === 'sm');
+    for (const tab of ['app', 'gif', 'link']) { c.S.ov.tab = tab; assert.match(c.m.imgInner(), /data-act="ovback"/, `${p}/${tab} has Back`); c.m.imgTab(); }
+  }
   c.S.ov = { kind: 'img', p: 'lg', tab: 'app' };
   const tab = c.m.imgTab();
-  assert.match(tab, /data-act="uploadicon" data-arg="code"/, 'Retry upload stays reachable for the failed app');
-  assert.ok(!/data-act="pickimg"/.test(tab), 'no pick actions');
-  assert.ok(!/ovtab|appsrc/.test(tab), 'no other source tabs, no source switch');
-  assert.ok(!/ovback/.test(c.m.imgInner()), 'the app chooser is the home of the Large image picker');
-  c.m.pickImg('art:poster');
-  assert.equal(sc.art, 'builtin:hinata-poster'); assert.equal(sc.artSource, '');
-  c.S.ov = { kind: 'img', p: 'sm', tab: 'app' };
-  assert.match(c.m.imgTab(), /data-arg="appsrc:"/, 'the small image still offers its app-icon choice');
+  assert.match(tab, /data-act="uploadicon" data-arg="code"/); assert.match(tab, /data-arg="appsrc:"/);
+  assert.match(tab, /Keep app icon/);
+});
+
+test('choosing built-in/GIF/link/avatar/recent only edits the draft as custom; App icon returns to the default and keeps stored art', () => {
+  const c = fixture(); c.S.rules = [rule('s1', 'chrome')];
+  const sc = draftOf(c, scene({ art: 'https://legacy.test/old.png', artUrl: 'https://link.test/x' }));
+  const pick = (a, extra = {}) => { c.S.ov = { kind: 'img', p: 'lg', tab: 'builtin', gifRes: [], ...extra }; c.m.pickImg(a); };
+  pick('art:hinata-poster'); assert.equal(sc.art, 'builtin:hinata-poster'); assert.equal(sc.artSource, 'custom');
+  assert.equal(c.m.published(sc).art, 'builtin:hinata-poster');
+  pick('lgif:g1', { gifRes: [{ id: 'g1', originalUrl: 'https://media.giphy.com/g.gif' }] }); assert.equal(sc.art, 'https://media.giphy.com/g.gif'); assert.equal(sc.artSource, 'custom');
+  pick('avatar:'); assert.equal(sc.art, 'https://cdn.test/av.png'); assert.equal(sc.artSource, 'custom');
+  pick('recent:0'); assert.equal(sc.art, 'https://r.test/1.png');
+  c.S.ov = { kind: 'img', p: 'lg', tab: 'link', link: 'https://link.test/pic.png' }; c.m.applyImage('lg', 'https://link.test/pic.png', 'link');
+  const raw = c.m.sceneToRaw(sc);
+  assert.equal(raw.largeImageSource, 'custom'); assert.equal(raw.largeImage, 'https://link.test/pic.png'); assert.equal(raw.largeImageUrl, 'https://link.test/x');
+  const closedBefore = c.closed || 0;
+  pick('appsrc:');
+  assert.equal(c.closed, closedBefore + 1, 'closes only the chooser'); assert.ok(c.S.drawer, 'drawer stays open');
+  assert.equal(sc.artSource, 'app-icon'); assert.equal(sc.artUrl, '', 'ignored click link cleared');
+  assert.equal(sc.art, 'https://link.test/pic.png', 'stored art preserved until Done');
+  assert.equal(c.m.published(sc).art, 'https://files.test/chrome.png');
+  assert.equal(c.m.sceneToRaw(sc).largeImageSource, 'app-icon');
+  c.S.rules = []; assert.equal(c.m.published(sc).art, STUDIO, 'no app: Vibe fallback');
+});
+
+test('Remove on a custom Large image goes back to the app default without wiping the stored art; small image unchanged', () => {
+  const c = fixture(); c.S.rules = [rule('s1', 'chrome')];
+  const sc = draftOf(c, scene({ art: 'builtin:hinata-poster', artSource: 'custom', artUrl: 'https://link.test/x', small: 'https://s.test/s.png' }));
+  c.m.applyImage('lg', '', 'app-icon');
+  assert.equal(sc.artSource, 'app-icon'); assert.equal(sc.art, 'builtin:hinata-poster'); assert.equal(sc.artUrl, '');
+  assert.equal(c.m.published(sc).art, 'https://files.test/chrome.png');
+  c.m.applyImage('sm', '');
+  assert.equal(sc.small, ''); assert.equal(sc.art, 'builtin:hinata-poster');
 });

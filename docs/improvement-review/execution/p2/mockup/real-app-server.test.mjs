@@ -9,6 +9,7 @@ import { EventEmitter } from 'node:events';
 import { createIconHosting, createIconUploader, iconPng, appIdentity } from './device-apps.mjs';
 import { createRealAppServer } from './real-app-server.mjs';
 import { createLiveController } from './live-controller.mjs';
+import { STUDIO_ICON_URL } from '../../../../../scripts/application-badges.mjs';
 
 // Real generated 1x1 RGBA PNG with CRCs; no user artwork.
 export function tinyPng(value = 0) {
@@ -85,8 +86,14 @@ for (const fail of [false, true]) test(`HTTP pairing background upload and publi
   assert.equal(found.running[0].iconSource, fail ? 'default' : 'upload');
   const result = await (await request('/api/mock-live', 'POST', { action: 'send', scene: { id: 's1', activityType: 'playing', activityName: 'Unique App', details: 'Working', largeImage: '@app', smallImage: '@app', appPublicIcon: 'https://stale.test/old.png' } })).json();
   assert.equal(result.scene.imageFallback, fail ? 'app_icon_no_public_url' : null);
-  if (!fail) { assert.equal(payload.assets.large_image, 'https://files.catbox.moe/unique.png'); assert.equal(payload.assets.small_image, payload.assets.large_image); }
-  else assert.match(payload.assets.large_image, /hinata/);
+  assert.equal(payload.assets.large_image, STUDIO_ICON_URL, 'archived controller has no selected automaticMainImage delivery option');
+  if (!fail) {
+    assert.equal(payload.assets.small_image, 'https://files.catbox.moe/unique.png');
+    assert.equal(result.scene.publishedImage, 'https://files.catbox.moe/unique.png', 'historical preview metadata remains separate');
+  } else {
+    assert.equal(payload.assets.small_image, undefined);
+    assert.equal(result.scene.publishedImage, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png');
+  }
 });
 
 test('HTTP pack beats an uploaded cache, skips uploads with every consent state and publishes exact pack URLs', async t => {
@@ -121,7 +128,8 @@ test('HTTP pack beats an uploaded cache, skips uploads with every consent state 
   assert.match(packUrl, /^https:\/\/raw.githubusercontent.com\/Xsmitylnwza\/spotify-vibe\/.*\/public\/art\/apps\/visual-studio-code.png$/);
   const result = await (await request('/api/mock-live', 'POST', { action: 'send', scene: { id: 's1', activityType: 'playing', activityName: 'Code', largeImage: '@app', smallImage: '@app', appPublicIcon: 'https://stale.test/old.png' } })).json();
   assert.equal(result.scene.appIconSource, 'pack'); assert.equal(result.scene.imageFallback, null);
-  assert.equal(payload.assets.large_image, packUrl); assert.equal(payload.assets.small_image, packUrl); assert.equal(uploads, 0);
+  assert.equal(payload.assets.large_image, STUDIO_ICON_URL); assert.equal(payload.assets.small_image, packUrl); assert.equal(uploads, 0);
+  assert.equal(result.scene.publishedImage, packUrl, 'historical preview metadata still reflects the selected pack');
   const unpaired = await (await request('/api/mock-live', 'POST', { action: 'send', scene: { id: 'other', activityType: 'playing', activityName: 'Unpaired', largeImage: '@app', appPublicIcon: packUrl } })).json();
   assert.equal(unpaired.scene.imageFallback, 'app_icon_no_public_url'); assert.equal(unpaired.scene.appIconSource, 'default');
 });

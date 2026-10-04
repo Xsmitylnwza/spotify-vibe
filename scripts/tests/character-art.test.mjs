@@ -12,6 +12,7 @@ test('bundled art is default for new configs without replacing existing artwork'
 
 test('Discord never receives a local bundled asset reference', () => {
   const scene = createDefaultConfig().scenes[0];
+  scene.largeImageSource = 'custom';
   assert.throws(() => createDiscordActivity(scene), /public HTTPS/);
   const activity = createDiscordActivity(scene, new Date(), { artBaseUrl:'https://cdn.example.com/art' });
   assert.equal(activity.assets.large_image, 'https://cdn.example.com/art/hinata/idle.gif');

@@ -50,7 +50,7 @@ function iconFixture(lang = 'en') {
     loadApps: async () => { calls.loadApps++; }, api: async (path, opt) => { calls.api.push([path, opt && opt.method, opt && opt.body]); if (ctx.fail) throw new Error('nope'); return { consent: opt && opt.body ? opt.body.consent : null,provider:'test-host',providerName:'Test Host' }; },
   };
   vm.createContext(ctx);
-  vm.runInContext(slice('/* ---------- app icon hosting', 'function applyApps(')+slice('function imgTab()', '\nfunction renderOv') + '\nthis.m = { iconState, iconLabel, iconConsentNeeded, consentCard, iconHostRow, setIconConsent, loadIconHosting, iconFields,appIconRow,uploadIcon,imgTab };', ctx);
+  vm.runInContext(slice('/* ---------- app icon hosting', 'function applyApps(')+slice('const customLg = ', '\n')+slice('function imgTab()', '\nfunction renderOv') + '\nthis.m = { iconState, iconLabel, iconConsentNeeded, consentCard, iconHostRow, setIconConsent, loadIconHosting, iconFields,appIconRow,uploadIcon,imgTab };', ctx);
   return { ctx, calls };
 }
 

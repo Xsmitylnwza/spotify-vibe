@@ -350,3 +350,14 @@ test('failed atomic delete keeps saved library, mappings, and open draft unchang
   assert.equal(c.calls.length,1); assert.equal(savedSnapshot(c),before); assert.equal(c.S.drawer,drawer); assert.equal(drawer.sc.l1,'Draft');
   assert.equal(c.S.ov.err,'Disk full'); assert.equal(c.S.ov.busy,false); assert.equal(c.ST.busy,false);
 });
+
+test('custom main click links are validated before Done without saving invalid drafts',async()=>{
+  const c=fixture(); c.m.openDrawer('s1');
+  Object.assign(c.S.drawer.sc,{artSource:'custom',art:'https://example.com/image.png',artUrl:'http://example.com/click'});
+  c.S.drawer.dirty=true;
+  assert.match(c.m.sceneProblem(c.S.drawer.sc),/https/);
+  await c.m.commitDraft(); assert.equal(puts(c).length,0); assert.ok(c.S.drawer);
+  c.S.drawer.sc.artUrl='https://example.com/click'; assert.equal(c.m.sceneProblem(c.S.drawer.sc),'');
+  c.S.drawer.sc.artSource='app-icon'; c.S.drawer.sc.artUrl='http://ignored.example.com';
+  assert.equal(c.m.sceneProblem(c.S.drawer.sc),'','hidden automatic-mode click link does not block image-mode switching');
+});

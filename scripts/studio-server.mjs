@@ -1,12 +1,12 @@
 import { codexSessionScene } from './codex-session.mjs';
-import { STUDIO_ICON_URL, withApplicationBadge } from './application-badges.mjs';
+import { STUDIO_ICON_URL, hasCustomMainImage, withApplicationBadge } from './application-badges.mjs';
 import { withDefaultApplication } from './discord-application.mjs';
 import { appKey, selectRunningPreset } from './app-presence.mjs';
 import { createIconHosting, iconPng } from './app-icon-hosting.mjs';
 import { sceneTextVariables } from './scene-variables.mjs';
 import { watchWindowsApps } from './windows-apps.mjs';
 import { initInstalledApps, getInstalledApps, refreshInstalledApps } from './installed-apps.mjs';
-import { characterArt, defaultArtBaseUrl } from './character-art.mjs';
+import { characterArt, defaultArtBaseUrl, resolveDiscordArt } from './character-art.mjs';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -156,7 +156,8 @@ export async function startStudioServer(options = {}) {
     if (isStopping) return;
     await iconHosting.pair(config.appMappings.filter(mapping => {
       const scene = config.scenes.find(scene => scene.id === mapping.sceneId);
-      return mapping.enabled !== false && scene && scene.enabled !== false;
+      return mapping.enabled !== false && scene && scene.enabled !== false
+        && (!hasCustomMainImage(scene) || !scene.smallImage || scene.smallImage === '@app' || scene.smallImageSource === 'app-icon');
     }).map(catalogApp));
   }
 
@@ -265,7 +266,8 @@ export async function startStudioServer(options = {}) {
       selectionSource: desired.source,
       selectedApplication: desired.application || null,
       selectedApplicationExecutable: desired.applicationExecutable || null,
-      applicationImage: desired.scene?.largeImage || null,
+      applicationImage: desired.scene ? (desired.applicationExecutable || hasCustomMainImage(desired.scene)
+        ? resolveDiscordArt(desired.scene.largeImage, env.PRESENCE_ART_BASE_URL || defaultArtBaseUrl) || null : STUDIO_ICON_URL) : null,
       applicationIconFallback: STUDIO_ICON_URL,
       applicationBadge: desired.scene?.smallImage || null,
       selectedPresetName: desired.scene?.sceneName || null,
@@ -366,7 +368,8 @@ export async function startStudioServer(options = {}) {
         smallImage: scene.smallImage?.startsWith('builtin:') ? '' : scene.smallImage,
       } : scene;
       try {
-        activity = createDiscordActivity(deliveryScene, activityStartedAt, { artBaseUrl, app, user: runtime.discordUser?.displayName });
+        activity = createDiscordActivity(deliveryScene, activityStartedAt, { artBaseUrl, app, user: runtime.discordUser?.displayName,
+          automaticMainImage: key?.startsWith('app:') ? scene.largeImage : undefined });
       } catch (error) {
         runtime.lastError = errorMessage(error);
         return false;

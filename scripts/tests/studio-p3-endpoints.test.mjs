@@ -2,6 +2,7 @@ import { STUDIO_ICON_URL } from '../application-badges.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs/promises';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -23,7 +24,7 @@ async function until(read, predicate) {
   throw new Error('Fake boundary did not settle');
 }
 
-async function fixture(t, { sceneOverrides = {}, consent, mappings = [], uploader = async()=>uploaded, user = {id:'123456789012345678',username:'golf',global_name:'Golf Display'}, running = [], installed = [app,other,{executable:'C:\\Apps\\Code.exe',name:'VS Code',icon}] } = {}) {
+async function fixture(t, { sceneOverrides = {}, configFs, consent, mappings = [], uploader = async()=>uploaded, user = {id:'123456789012345678',username:'golf',global_name:'Golf Display'}, running = [], installed = [app,other,{executable:'C:\\Apps\\Code.exe',name:'VS Code',icon}] } = {}) {
   const directory = await mkdtemp(join(tmpdir(),'vibe-p3-http-'));
   const config = createDefaultConfig(); config.slots=[]; config.settings.autostartEnabled=false;
   const scene = config.scenes[0];
@@ -38,7 +39,7 @@ async function fixture(t, { sceneOverrides = {}, consent, mappings = [], uploade
   const probe=createServer(); await new Promise(r=>probe.listen(0,'127.0.0.1',r));
   const port=probe.address().port; await new Promise(r=>probe.close(r));
   const activities=[], commands=[]; let emit, clears=0;
-  const studio=await startStudioServer({argv:[],port,dataDirectory:directory,openBrowser:false,exitProcess:false,
+  const startOptions={argv:[],port,dataDirectory:directory,openBrowser:false,exitProcess:false,configFs,
     environment:{PRESENCE_AUTOSTART_DISABLE:'1',PRESENCE_APP_DETECTION_DISABLE:'1'},
     getInstalledApps:()=>installed,
     refreshInstalledApps:async()=>{},iconUploader:uploader,
@@ -47,14 +48,17 @@ async function fixture(t, { sceneOverrides = {}, consent, mappings = [], uploade
       const rpc=new EventEmitter(); rpc.user=user; rpc.login=async()=>{}; rpc.destroy=async()=>{};
       rpc.request=async(command,args)=>{commands.push(command); activities.push(args.activity);}; rpc.clearActivity=async()=>{clears++;}; return rpc;
     },
-  });
+  };
+  let studio=await startStudioServer(startOptions);
   t.after(async()=>{await studio.stop();await rm(directory,{recursive:true,force:true});});
   async function request(path, method='GET', body, headers={}) {
     const res=await fetch(studio.url+path,{method,headers:{'Content-Type':'application/json',...headers},
       ...(body===undefined?{}:{body:JSON.stringify(body)})}); return {status:res.status,body:await res.json()};
   }
   await until(()=>request('/api/state'),r=>r.body.connected);
-  return {request,emit,activities,commands,directory,config,url:studio.url,stop:()=>studio.stop(),clears:()=>clears,setInstalled:apps=>{installed=apps;}};
+  return {request,emit:(snapshot)=>emit(snapshot),activities,commands,directory,config,url:studio.url,stop:()=>studio.stop(),
+    restart:async()=>{await studio.stop();studio=await startStudioServer(startOptions);await until(()=>request('/api/state'),r=>r.body.connected);},
+    clears:()=>clears,setInstalled:apps=>{installed=apps;}};
 }
 
 test('HTTP consent defaults unknown, validates boolean/local origin, and only paired apps upload', async t=>{
@@ -303,4 +307,96 @@ test('automatic upload excludes disabled mapping and disabled Scene even when co
   assert.equal(result.body.runtime.selectedApplicationExecutable, null);
   assert.equal(result.body.runtime.applicationIconFallback, STUDIO_ICON_URL);
   assert.equal(f.activities.length, 0);
+});
+
+test('SET_ACTIVITY auto to custom to auto preserves click URL, disk extensions, session timer and reload', async t => {
+  const f = await fixture(t, { consent: false, mappings: [{}], running: [app], sceneOverrides: {
+    timerMode: 'elapsed', largeImageUrl: 'https://example.com/click', ownerImage: { keep: ['raw', null] }
+  } });
+  const file = join(f.directory, 'presence-config.json'), bytes = await readFile(file, 'utf8');
+  const first = await until(async()=>f.activities.at(-1), a=>!!a);
+  assert.equal(first.assets.large_image, STUDIO_ICON_URL); assert.equal(first.assets.large_url, undefined);
+  const config = (await f.request('/api/config')).body;
+  config.scenes[0].largeImageSource = 'custom';
+  config.scenes[0].largeImage = 'https://example.com/selected.gif';
+  assert.equal(await readFile(file, 'utf8'), bytes, 'local draft has no disk effect');
+  const result = await f.request('/api/config', 'PUT', { scenes: config.scenes });
+  assert.equal(result.status, 200);
+  const custom = f.activities.at(-1);
+  assert.equal(f.commands.at(-1), 'SET_ACTIVITY'); assert.equal(custom.assets.large_image, config.scenes[0].largeImage);
+  assert.equal(custom.assets.large_url, config.scenes[0].largeImageUrl); assert.deepEqual(custom.timestamps, first.timestamps);
+  assert.equal(result.body.runtime.applicationImage, custom.assets.large_image);
+  assert.equal(result.body.runtime.selectedApplicationExecutable, app.executable);
+  const disk = JSON.parse(await readFile(file, 'utf8'));
+  assert.deepEqual(disk.ownerUnknown, f.config.ownerUnknown); assert.deepEqual(disk.scenes[0].ownerImage, f.config.scenes[0].ownerImage);
+  assert.equal(disk.scenes[0].largeImageSource, 'custom'); assert.equal(disk.scenes[0].largeImageUrl, config.scenes[0].largeImageUrl);
+  await f.restart();
+  const restored = await until(()=>f.request('/api/state'), r=>r.body.active);
+  assert.equal(restored.body.applicationImage, custom.assets.large_image);
+  assert.equal((await f.request('/api/config')).body.scenes[0].largeImageSource, 'custom');
+  const afterRestart = f.activities.at(-1);
+  for (const [largeImage, expected] of [['builtin:hinata-gaming', '/hinata/gaming.gif'], ['https://cdn.discordapp.com/embed/avatars/0.png', '/avatars/0.png']]) {
+    config.scenes[0].largeImage = largeImage;
+    const changed = await f.request('/api/config', 'PUT', { scenes: config.scenes });
+    assert.equal(changed.status, 200); assert.ok(f.activities.at(-1).assets.large_image.endsWith(expected));
+    assert.equal(changed.body.runtime.applicationImage, f.activities.at(-1).assets.large_image);
+    assert.deepEqual(f.activities.at(-1).timestamps, afterRestart.timestamps);
+  }
+  config.scenes[0].largeImageSource = 'app-icon';
+  const auto = await f.request('/api/config', 'PUT', { scenes: config.scenes });
+  assert.equal(auto.status, 200); assert.equal(f.activities.at(-1).assets.large_image, STUDIO_ICON_URL);
+  assert.equal(f.activities.at(-1).assets.large_url, undefined); assert.deepEqual(f.activities.at(-1).timestamps, afterRestart.timestamps);
+  assert.equal(JSON.parse(await readFile(file, 'utf8')).scenes[0].largeImage, config.scenes[0].largeImage, 'delivery does not erase saved art');
+  assert.equal(JSON.parse(await readFile(file, 'utf8')).scenes[0].largeImageSource, 'app-icon', 'source cleared only on delivery clone');
+});
+
+test('failed custom save rolls back disk, config and SET_ACTIVITY', async t => {
+  const f = await fixture(t, { mappings: [{}], running: [app], configFs: { ...fs, rename: async()=>{throw new Error('fixture disk failure');} } });
+  const file = join(f.directory, 'presence-config.json'), bytes = await readFile(file, 'utf8');
+  const original = (await f.request('/api/config')).body;
+  await until(async()=>f.activities.at(-1), a=>!!a); const sends = f.activities.length;
+  const scenes = structuredClone(original.scenes);
+  Object.assign(scenes[0], { largeImageSource: 'custom', largeImage: 'https://example.com/new.gif', largeImageUrl: 'https://example.com/new' });
+  const saved = await f.request('/api/config', 'PUT', { scenes });
+  assert.equal(saved.status, 500); assert.equal(await readFile(file, 'utf8'), bytes);
+  assert.deepEqual((await f.request('/api/config')).body, original); assert.equal(f.activities.length, sends);
+});
+
+test('custom main and explicit small never auto-export; explicit trusted upload preserves art, URL and timer', async t => {
+  let uploads = 0, release;
+  const f = await fixture(t, { consent: true, mappings: [{}], running: [app],
+    sceneOverrides: { largeImageSource: 'custom', largeImage: 'https://example.com/custom.gif', largeImageUrl: 'https://example.com/click',
+      smallImage: 'https://example.com/small.png', timerMode: 'elapsed' },
+    uploader: ()=>{uploads++;return new Promise(r=>{release=r;});} });
+  const initial = await until(async()=>f.activities.at(-1), a=>!!a);
+  const file = join(f.directory, 'presence-config.json'), bytes = await readFile(file, 'utf8');
+  await f.request('/api/apps'); await f.request('/api/installed-apps'); assert.equal(uploads, 0);
+  assert.equal((await f.request('/api/icon-hosting/upload', 'POST', { executable: app.executable })).status, 202);
+  assert.equal(uploads, 1); release(uploaded);
+  await until(()=>f.request('/api/apps'), r=>r.body.apps[0].iconStatus === 'ready');
+  await until(async()=>f.activities.length, count=>count > 1);
+  assert.deepEqual(f.activities.at(-1), initial); assert.equal(await readFile(file, 'utf8'), bytes);
+  assert.equal((await f.request('/api/state')).body.applicationImage, initial.assets.large_image);
+});
+
+test('automatic small upload completion and app switching preserve custom main and running session timer', async t => {
+  const releases = [];
+  const f = await fixture(t, { consent: true, mappings: [{}, other], running: [app],
+    sceneOverrides: { largeImageSource: 'custom', largeImage: 'https://example.com/main.gif', largeImageUrl: 'https://example.com/click', timerMode: 'elapsed' },
+    uploader: ()=>new Promise(r=>{releases.push(r);}) });
+  const initial = await until(async()=>f.activities.at(-1), a=>!!a);
+  const bytes = await readFile(join(f.directory, 'presence-config.json'), 'utf8');
+  assert.equal(releases.length, 2, 'each saved automatic-small mapping has its own upload');
+  releases.forEach(release=>release(uploaded));
+  const completed = await until(async()=>f.activities.at(-1), a=>a?.assets?.small_image === uploaded);
+  assert.equal(completed.assets.large_image, initial.assets.large_image); assert.equal(completed.assets.large_url, initial.assets.large_url);
+  assert.deepEqual(completed.timestamps, initial.timestamps);
+  f.emit({ apps: [app, other], running: [app.executable, other.executable], foregroundExecutable: other.executable, supported: true, error: null });
+  await until(()=>f.request('/api/state'), r=>r.body.selectedApplicationExecutable === other.executable);
+  assert.equal(f.activities.at(-1).assets.large_image, initial.assets.large_image);
+  f.emit({ apps: [app], running: [app.executable], supported: true, error: null });
+  await until(()=>f.request('/api/state'), r=>r.body.selectedApplicationExecutable === app.executable);
+  await until(async()=>f.activities.at(-1), a=>a?.name === app.name);
+  assert.deepEqual(f.activities.at(-1).timestamps, initial.timestamps);
+  assert.equal(await readFile(join(f.directory, 'presence-config.json'), 'utf8'), bytes);
 });

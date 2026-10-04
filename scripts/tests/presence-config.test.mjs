@@ -4,7 +4,9 @@ import {
   createDefaultConfig,
   createDiscordActivity,
   validateConfig,
+  validateScene,
 } from '../presence-config.mjs';
+import { STUDIO_ICON_URL, withApplicationBadge } from '../application-badges.mjs';
 
 test('default configuration contains four valid daily Scenes and slots', () => {
   const config = createDefaultConfig();
@@ -65,9 +67,33 @@ test('Discord activity preserves supported custom fields and timestamps', () => 
   const scene = createDefaultConfig().scenes[0];
   const now = new Date('2026-07-16T00:00:00.000Z');
   scene.largeImage = 'https://example.com/custom.gif';
+  scene.largeImageSource = 'custom';
   const activity = createDiscordActivity(scene, now);
   assert.equal(activity.name, scene.activityName);
   assert.equal(activity.type, 2);
   assert.equal(activity.timestamps.start, now.getTime());
   assert.equal(activity.assets.large_image, scene.largeImage);
+});
+
+test('custom main requires a valid selected image and automatic ignores legacy art without mutating it', () => {
+  const scene = { ...createDefaultConfig().scenes[0], largeImageSource: 'custom', largeImageUrl: 'https://example.com/click' };
+  for (const largeImage of ['', '  ', '@app', 'builtin:missing', 'http://example.com/x.gif']) {
+    assert.throws(() => validateScene({ ...scene, largeImage }));
+    assert.throws(() => createDiscordActivity({ ...scene, largeImage }));
+    assert.equal(withApplicationBadge({ ...scene, largeImage }, null).largeImage, STUDIO_ICON_URL);
+  }
+  for (const largeImage of ['https://example.com/x.gif', 'https://cdn.discordapp.com/embed/avatars/0.png', 'builtin:hinata-idle', 'registered_asset']) {
+    const selected = { ...scene, largeImage }, before = structuredClone(selected);
+    assert.equal(validateScene(selected).largeImageSource, 'custom');
+    const delivery = withApplicationBadge(selected, { executable: 'Orca.exe' });
+    assert.equal(delivery.largeImage, largeImage); assert.equal(delivery.largeImageUrl, scene.largeImageUrl);
+    const activity = createDiscordActivity(delivery, new Date(0), { artBaseUrl: 'https://example.com/art/' });
+    assert.equal(activity.assets.large_image, largeImage === 'builtin:hinata-idle' ? 'https://example.com/art/hinata/idle.gif' : largeImage);
+    assert.equal(activity.assets.large_url, scene.largeImageUrl); assert.deepEqual(selected, before);
+    for (const largeImageSource of ['', undefined, 'app-icon']) {
+      const automatic = { ...selected, largeImageSource }, original = structuredClone(automatic);
+      assert.equal(createDiscordActivity(automatic).assets.large_image, STUDIO_ICON_URL);
+      assert.equal(createDiscordActivity(automatic).assets.large_url, undefined); assert.deepEqual(automatic, original);
+    }
+  }
 });

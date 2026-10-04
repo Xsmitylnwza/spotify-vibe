@@ -1,5 +1,6 @@
 import { packedAppIcon } from './app-icon-pack.mjs';
 import { isIP } from 'node:net';
+import { characterArt } from './character-art.mjs';
 
 export const STUDIO_ICON_URL = 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/6f686f78f80ba7a3a54ce55bd985cf2bfc7fb09d/electron/assets/src/ghost-09-256.png';
 
@@ -17,13 +18,23 @@ function usablePublicIcon(value) {
   } catch { return false; }
 }
 
+export function hasCustomMainImage(scene) {
+  const value = scene?.largeImage;
+  if (scene?.largeImageSource !== 'custom' || typeof value !== 'string' || !value.trim() || value.trim() === '@app' || value.length > 512) return false;
+  if (value.startsWith('builtin:')) return Boolean(characterArt[value]);
+  if (value.includes('://')) {
+    try { return new URL(value).protocol === 'https:'; } catch { return false; }
+  }
+  return true;
+}
+
 export function withApplicationBadge(scene, mapping, { publicIcon } = {}) {
   if (!scene) return scene;
   // An explicit empty/invalid hosting result is authoritative: do not revive a pack icon.
   const candidate = publicIcon === undefined ? applicationBadge(mapping?.executable, mapping?.name) : publicIcon;
   const badge = usablePublicIcon(candidate) ? candidate : STUDIO_ICON_URL;
   const result = { ...scene };
-  if (mapping || scene.largeImage === '@app' || scene.largeImageSource === 'app-icon') {
+  if (!hasCustomMainImage(scene)) {
     result.largeImage = badge;
     result.largeImageUrl = '';
     if (result.largeImageSource === 'app-icon') result.largeImageSource = '';

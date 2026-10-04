@@ -159,8 +159,11 @@ function sceneApp(sc) {
 }
 const STUDIO_ICON_URL = 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/6f686f78f80ba7a3a54ce55bd985cf2bfc7fb09d/electron/assets/src/ghost-09-256.png';
 const studioIcon = () => { const f = (ST.rt || {}).applicationIconFallback; return isHttps(f) ? f : STUDIO_ICON_URL; };
-/* The main Discord image is never the stored Scene art: it is the paired app's logo, else the Vibe Studio icon.
-   The server's applicationImage is its desired projection; it is used only while this Scene is active for this very app. */
+/* Main Discord image: largeImageSource "custom" (with art) is an explicit custom override; absent, empty or "app-icon" is the default
+   paired app logo, else the Vibe Studio icon. The server's applicationImage is its projection of the SAVED Scene: it is reused only for
+   the default mode, only while this Scene is active for this very app, and never when the saved Scene was a custom override. */
+const customLg = sc => !!sc && sc.artSource === 'custom' && !!(sc.art || '').trim();
+const savedCustomLg = sc => !!(sc && sc._raw && sc._raw.largeImageSource === 'custom' && String(sc._raw.largeImage || '').trim());
 function liveFor(sc, app) {
   const rt = ST.rt || {}, key = appKey(rt.selectedApplicationExecutable);
   return Boolean(app && rt.active && rt.currentSceneId === sc.id && (!rt.desiredSceneId || rt.desiredSceneId === sc.id)
@@ -168,8 +171,9 @@ function liveFor(sc, app) {
 }
 function mainIcon(sc) {
   const app = sceneApp(sc), rt = ST.rt || {};
-  const url = (liveFor(sc, app) && isHttps(rt.applicationImage) && rt.applicationImage) || (app && isHttps(app.publicIcon) && app.publicIcon) || studioIcon();
-  return { app, url };
+  if (customLg(sc)) return { app, url: sc.art.trim(), custom: true };
+  const url = (!savedCustomLg(sc) && liveFor(sc, app) && isHttps(rt.applicationImage) && rt.applicationImage) || (app && isHttps(app.publicIcon) && app.publicIcon) || studioIcon();
+  return { app, url, custom: false };
 }
 /* The scene as Discord should receive it. Main image: see mainIcon. An empty or app-icon small image is the paired app's
    logo (live badge when it matches), else the Vibe Studio icon; an explicit small image wins. Never writes to the Scene itself. */
@@ -180,7 +184,7 @@ function published(sc) {
   if (sc.smallSource === 'app-icon' || !sc.small) {
     out.small = (liveFor(sc, app) && isHttps(rt.applicationBadge) && rt.applicationBadge) || (app && isHttps(app.publicIcon) && app.publicIcon) || studioIcon(); out.smallUrl = '';
   }
-  out.artUrl = '';
+  out.artUrl = customLg(sc) ? sc.artUrl : '';
   const vals = varValues(sc), rv = v => resolveVars(v, vals);
   /* same as the server: required lines that resolve empty fall back to the Scene name */
   out.actName = rv(out.actName) || vals.scene; out.l1 = rv(out.l1) || vals.scene; out.l2 = rv(out.l2) || vals.scene;
@@ -376,7 +380,7 @@ function errText(error) {
 function sceneToUi(raw) {
   const b = Array.isArray(raw.buttons) ? raw.buttons : [];
   const sc = mkScene({ id: raw.id, enabled: raw.enabled !== false, name: raw.sceneName || '', type: raw.activityType || 'playing', actName: raw.activityName || '', l1: raw.details || '', l1url: raw.detailsUrl || '', l2: raw.state || '', l2url: raw.stateUrl || '',
-    art: raw.largeImage || '', artSource: raw.largeImageSource === 'app-icon' ? 'app-icon' : '', smallSource: raw.smallImageSource === 'app-icon' ? 'app-icon' : '', artText: raw.largeImageText || '', artUrl: raw.largeImageUrl || '', small: raw.smallImage || '', smallText: raw.smallImageText || '', smallUrl: raw.smallImageUrl || '',
+    art: raw.largeImage || '', artSource: raw.largeImageSource === 'custom' ? 'custom' : raw.largeImageSource === 'app-icon' ? 'app-icon' : '', smallSource: raw.smallImageSource === 'app-icon' ? 'app-icon' : '', artText: raw.largeImageText || '', artUrl: raw.largeImageUrl || '', small: raw.smallImage || '', smallText: raw.smallImageText || '', smallUrl: raw.smallImageUrl || '',
     btns: [0, 1].map(i => ({ label: (b[i] && b[i].label) || '', url: (b[i] && b[i].url) || '' })) });
   sc._raw = raw;
   return sc;
@@ -384,7 +388,7 @@ function sceneToUi(raw) {
 function sceneToRaw(sc) {
   return Object.assign({ timerMode: 'none', timerMinutes: 30 }, sc._raw || {}, {
     id: sc.id, enabled: sc.enabled !== false, sceneName: sc.name.trim() || 'Untitled Scene', activityType: sc.type, activityName: sc.actName.trim(), details: sc.l1.trim(), detailsUrl: sc.l1url.trim(), state: sc.l2.trim(), stateUrl: sc.l2url.trim(),
-    largeImage: sc.art.trim(), largeImageSource: sc.artSource === 'app-icon' ? 'app-icon' : undefined, smallImageSource: sc.smallSource === 'app-icon' ? 'app-icon' : undefined, largeImageText: sc.artText.trim(), largeImageUrl: sc.artUrl.trim(), smallImage: sc.small.trim(), smallImageText: sc.smallText.trim(), smallImageUrl: sc.smallUrl.trim(),
+    largeImage: sc.art.trim(), largeImageSource: customLg(sc) ? 'custom' : sc.artSource === 'app-icon' ? 'app-icon' : undefined, smallImageSource: sc.smallSource === 'app-icon' ? 'app-icon' : undefined, largeImageText: sc.artText.trim(), largeImageUrl: sc.artUrl.trim(), smallImage: sc.small.trim(), smallImageText: sc.smallText.trim(), smallImageUrl: sc.smallUrl.trim(),
     buttons: sc.btns.map(x => ({ label: x.label.trim(), url: x.url.trim() })).filter(x => x.label || x.url) });
 }
 /* The same rules the server enforces, so a draft is never sent half-valid and never silently lost. */
@@ -395,7 +399,7 @@ function sceneProblem(sc) {
   if (!len(sc.l1.trim(), 2, 128)) return T('Details line needs 2–128 characters', 'ข้อความบรรทัดแรกต้องมี 2–128 ตัวอักษร');
   if (!len(sc.l2.trim(), 2, 128)) return T('State line needs 2–128 characters', 'ข้อความบรรทัดที่สองต้องมี 2–128 ตัวอักษร');
   for (const [v, label] of [[sc.artText, T('Large image hover text', 'ข้อความเมื่อชี้ภาพใหญ่')], [sc.smallText, T('Small image hover text', 'ข้อความเมื่อชี้ภาพเล็ก')]]) if (v.trim() && !len(v.trim(), 2, 128)) return label + T(' needs 2–128 characters', ' ต้องมี 2–128 ตัวอักษร');
-  if (![sc.l1url, sc.l2url, sc.smallUrl].every(v => https(v.trim()))) return T('Links must start with https://', 'ลิงก์ต้องขึ้นต้นด้วย https://');
+  if (![sc.l1url, sc.l2url, sc.smallUrl, ...(customLg(sc) ? [sc.artUrl] : [])].every(v => https(v.trim()))) return T('Links must start with https://', 'ลิงก์ต้องขึ้นต้นด้วย https://');
   for (const x of sc.btns) {
     const label = x.label.trim(), url = x.url.trim(); if (!label && !url) continue;
     if (!len(label, 1, 32)) return T('Each button needs a label (32 max)', 'ปุ่มต้องมีข้อความ (สูงสุด 32)');
@@ -887,7 +891,7 @@ const HELP = {
   detailsUrl: ['Details link', 'ลิงก์บรรทัดแรก', 'Optional https link. Makes the first line clickable on Discord.', 'ลิงก์ https (ไม่บังคับ) ทำให้บรรทัดแรกกดได้บน Discord', 'details', 'first text line', 'ข้อความบรรทัดแรก'],
   state: ['State line', 'ข้อความบรรทัดที่สอง', 'The second line of text under Details. 2–128 characters.', 'ข้อความบรรทัดที่สองใต้บรรทัดแรก 2–128 ตัวอักษร', 'state', 'second text line', 'ข้อความบรรทัดที่สอง'],
   stateUrl: ['State link', 'ลิงก์บรรทัดที่สอง', 'Optional https link. Makes the second line clickable on Discord.', 'ลิงก์ https (ไม่บังคับ) ทำให้บรรทัดที่สองกดได้บน Discord', 'state', 'second text line', 'ข้อความบรรทัดที่สอง'],
-  large: ['Large image', 'ภาพใหญ่', 'The main picture: built-in art, a GIF or an https image link.', 'ภาพหลัก: ภาพในตัว GIF หรือลิงก์ภาพ https', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
+  large: ['Large image', 'ภาพใหญ่', 'The main picture. By default it follows your paired app’s logo; or choose built-in art, a GIF, an https image link or your Discord avatar.', 'ภาพหลัก ค่าเริ่มต้นตามโลโก้แอปที่จับคู่ หรือเลือกภาพในตัว GIF ลิงก์ภาพ https หรือรูปโปรไฟล์ Discord', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
   largeText: ['Large image hover text', 'ข้อความเมื่อชี้ภาพใหญ่', 'Shown as a tooltip when someone hovers the big image. 2–128 characters.', 'แสดงเป็นทูลทิปเมื่อชี้ที่ภาพใหญ่ 2–128 ตัวอักษร', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
   largeUrl: ['Large image link', 'ลิงก์ภาพใหญ่', 'Optional https link opened when the big image is clicked.', 'ลิงก์ https (ไม่บังคับ) ที่เปิดเมื่อกดภาพใหญ่', 'large', 'big square image', 'ภาพสี่เหลี่ยมใหญ่'],
   small: ['Small image', 'ภาพเล็ก', 'A small round badge on the corner of the big image.', 'ป้ายกลมเล็กที่มุมของภาพใหญ่', 'small', 'round badge on the image', 'ป้ายกลมที่มุมภาพ'],
@@ -925,7 +929,7 @@ function fld(id, label, key, field, val, o = {}) {
 function imageSection(prefix, sc, title, hint, key, textKey, urlKey, artField, textField, urlField, area) {
   const p = prefix === 'lg' ? 'lg' : 'sm';
   return `<section class="mk-sec" data-sec="${prefix}">${secHead(title, hint)}${wellHtml(p, sc, T('Image', 'ภาพ'), key)}
-    ${fld(prefix + '-text', T('Hover text', 'ข้อความเมื่อชี้'), textKey, textField, sc[textField], { hl: area, max: 128, vars: 1 })}${p === 'lg' ? '' : fld(prefix + '-link', T('Click link', 'ลิงก์เมื่อกด'), urlKey, urlField, sc[urlField], { hl: area, url: 1 })}</section>`;
+    ${fld(prefix + '-text', T('Hover text', 'ข้อความเมื่อชี้'), textKey, textField, sc[textField], { hl: area, max: 128, vars: 1 })}${p === 'lg' && !customLg(sc) ? '' : fld(prefix + '-link', T('Click link', 'ลิงก์เมื่อกด'), urlKey, urlField, sc[urlField], { hl: area, url: 1 })}</section>`;
 }
 function chipHtml(r) {
   const a = appBy(r.app);
@@ -951,7 +955,7 @@ function buildDrawer(first) {
      ${pairSection(sc)}
      <section class="mk-sec">${secHead(T('Details line', 'ข้อความบรรทัดแรก'), T('Bold first line.', 'ตัวหนาบรรทัดแรก'))}${fld('sc-l1', T('Details text', 'ข้อความ'), 'details', 'l1', sc.l1, { hl: 'details', max: 128, vars: 1 })}${fld('sc-l1u', T('Details link', 'ลิงก์'), 'detailsUrl', 'l1url', sc.l1url, { hl: 'details', url: 1 })}</section>
      <section class="mk-sec">${secHead(T('State line', 'ข้อความบรรทัดที่สอง'), T('Second line under Details.', 'บรรทัดที่สองใต้บรรทัดแรก'))}${fld('sc-l2', T('State text', 'ข้อความ'), 'state', 'l2', sc.l2, { hl: 'state', max: 128, vars: 1 })}${fld('sc-l2u', T('State link', 'ลิงก์'), 'stateUrl', 'l2url', sc.l2url, { hl: 'state', url: 1 })}</section>
-     ${imageSection('lg', sc, T('Large image', 'ภาพใหญ่'), T('Follows the app: its logo while it is open, the Vibe Studio icon otherwise.', 'ตามแอป: ใช้โลโก้แอปขณะเปิดอยู่ ไม่มีก็ใช้ไอคอน Vibe Studio'), 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large')}
+     ${imageSection('lg', sc, T('Large image', 'ภาพใหญ่'), T('Default follows the app’s logo (Vibe Studio icon if none). Change it to pick your own picture.', 'ค่าเริ่มต้นตามโลโก้แอป (ไม่มีใช้ไอคอน Vibe Studio) กดเปลี่ยนเพื่อเลือกภาพของคุณเอง'), 'large', 'largeText', 'largeUrl', 'art', 'artText', 'artUrl', 'large')}
      ${imageSection('sm', sc, T('Small image', 'ภาพเล็ก'), T('Optional round badge on the corner of the large image.', 'ป้ายกลมที่มุมภาพใหญ่ (ไม่บังคับ)'), 'small', 'smallText', 'smallUrl', 'small', 'smallText', 'smallUrl', 'small')}
      <section class="mk-sec">${secHead(T('Buttons', 'ปุ่ม'), T('Up to two. Links must be https. Discord hides these on your own profile; check from another account. Click the preview button to test its link.', 'สูงสุดสองปุ่ม ลิงก์ต้องเป็น https Discord ซ่อนปุ่มบนโปรไฟล์ที่คุณดูเอง ให้ตรวจจากบัญชีอื่น คลิกปุ่มในตัวอย่างเพื่อทดสอบลิงก์'))}
       ${sc.btns.map((b, i) => `<div class="vs-field"><span class="vs-label">${T('Button', 'ปุ่ม')} ${i + 1}${helpBtn('btn' + i)}${varBtn('sc-btn' + i)}</span><div class="mk-two"><input class="vs-input" type="text" id="sc-btn${i}" data-var="1" aria-label="${T('Button label', 'ข้อความปุ่ม')} ${i + 1}" placeholder="${T('Label', 'ข้อความ')}" value="${esc(b.label)}" data-bind="btn" data-i="${i}" data-f="label" data-hl="btn${i}" maxlength="32"><input class="vs-input" type="text" data-mono="1" data-url="1" aria-label="${T('Button link', 'ลิงก์ปุ่ม')} ${i + 1}" placeholder="https://…" value="${esc(b.url)}" data-bind="btn" data-i="${i}" data-f="url" data-hl="btn${i}"></div><p class="field-error" hidden></p>${varChips('sc-btn' + i)}</div>`).join('')}</section>
@@ -1127,7 +1131,7 @@ const hostOf = v => { try { return new URL(v).host; } catch (e) { return v; } };
 const SRC = { lg: 'artSource', sm: 'smallSource' };
 function srcLabel(sc, p) {
   const v = sc[FIELD[p]];
-  if (sc[SRC[p]] === 'app-icon') { const a = sceneApp(sc); return [T('Paired app icon', 'ไอคอนของแอปที่จับคู่'), a ? a.name : T('Pair an app to show its icon', 'จับคู่แอปเพื่อแสดงไอคอน')]; }
+  if (p === 'sm' && sc[SRC[p]] === 'app-icon') { const a = sceneApp(sc); return [T('Paired app icon', 'ไอคอนของแอปที่จับคู่'), a ? a.name : T('Pair an app to show its icon', 'จับคู่แอปเพื่อแสดงไอคอน')]; }
   if (!v) return [T('No image', 'ไม่มีภาพ'), p === 'lg' ? T('Discord shows a placeholder', 'Discord จะแสดงพื้นที่ว่าง') : T('No badge unless a paired app adds its icon', 'ไม่มีป้าย เว้นแต่แอปที่จับคู่เพิ่มไอคอนให้')];
   if (ARTMAP[v]) return [T('Built-in art', 'ภาพในตัว'), T('Included with Vibe', 'มาพร้อม Vibe')];
   if (DCID.avatarUrl && v === DCID.avatarUrl) return [T('Your Discord avatar', 'รูปโปรไฟล์ Discord ของคุณ'), 'cdn.discordapp.com'];
@@ -1135,18 +1139,23 @@ function srcLabel(sc, p) {
   return [/giphy\.com$/i.test(host) ? T('GIF from GIPHY', 'GIF จาก GIPHY') : isHttps(v) ? T('Image link', 'ลิงก์ภาพ') : T('Image', 'ภาพ'), host];
 }
 function largeWellHtml(sc, label, key) {
-  const m = mainIcon(sc), ready = m.app && isHttps(m.app.publicIcon);
-  const t1 = m.app ? T('Follows ', 'ตามแอป ') + m.app.name : T('Vibe Studio icon', 'ไอคอน Vibe Studio');
-  const t2 = !m.app ? T('Pair an app to show its logo here', 'จับคู่แอปเพื่อแสดงโลโก้ที่นี่') : ready ? T('Apps first, Vibe fallback', 'แอปก่อน Vibe สำรอง') : T('No public icon yet — Vibe Studio icon until uploaded', 'ยังไม่มีไอคอนสาธารณะ — ใช้ไอคอน Vibe Studio จนกว่าจะอัปโหลด');
-  return `<div class="vs-field"><span class="vs-label" id="lg-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="lg-wl"><span class="mk-well-thumb" aria-hidden="true"><img src="${esc(artSrc(m.url))}" alt=""></span><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="lg" data-k="well-lg" data-hl="large">${T('Change', 'เปลี่ยน')}</button></div></div>`;
+  const m = mainIcon(sc), ready = m.app && isHttps(m.app.publicIcon), custom = m.custom;
+  const [t1, t2] = custom ? srcLabel(sc, 'lg') : [m.app ? T('Follows ', 'ตามแอป ') + m.app.name : T('Vibe Studio icon', 'ไอคอน Vibe Studio'),
+    !m.app ? T('Pair an app to show its logo here', 'จับคู่แอปเพื่อแสดงโลโก้ที่นี่') : ready ? T('Apps first, Vibe fallback', 'แอปก่อน Vibe สำรอง') : T('No public icon yet — Vibe Studio icon until uploaded', 'ยังไม่มีไอคอนสาธารณะ — ใช้ไอคอน Vibe Studio จนกว่าจะอัปโหลด')];
+  return `<div class="vs-field"><span class="vs-label" id="lg-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="lg-wl"><span class="mk-well-thumb" aria-hidden="true"><img src="${esc(artSrc(m.url))}" alt=""></span><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="lg" data-k="well-lg" data-hl="large">${T('Change', 'เปลี่ยน')}</button>${custom ? `<button type="button" class="vs-icon-btn-danger" data-act="imgclear" data-arg="lg" aria-label="${T('Remove custom image — use the app icon', 'ลบภาพที่เลือก — ใช้ไอคอนแอป')}">${I.x}</button>` : ''}</div></div>`;
 }
 function wellHtml(p, sc, label, key) {
   if (p === 'lg') return largeWellHtml(sc, label, key);
   const src = sc[SRC[p]] === 'app-icon', a = src ? sceneApp(sc) : null, v = src ? (a && a.publicIcon) || '' : sc[FIELD[p]], [t1, t2] = srcLabel(sc, p);
-  return `<div class="vs-field"><span class="vs-label" id="${p}-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="${p}-wl"><button type="button" class="mk-well-thumb" data-act="openimg" data-arg="${p}" tabindex="-1" aria-hidden="true">${v ? `<img src="${esc(artSrc(v))}" alt="">` : `<span class="mk-well-empty">${I.plus}</span>`}</button><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="${p}" data-k="well-${p}" data-hl="${p === 'lg' ? 'large' : 'small'}">${v || src ? T('Change', 'เปลี่ยน') : T('Choose', 'เลือก')}</button>${v || src ? `<button type="button" class="vs-icon-btn-danger" data-act="imgclear" data-arg="${p}" aria-label="${T('Remove image', 'ลบภาพ')}">${I.x}</button>` : ''}</div></div>`;
+  return `<div class="vs-field"><span class="vs-label" id="${p}-wl">${label}${helpBtn(key)}</span><div class="mk-well" role="group" aria-labelledby="${p}-wl"><button type="button" class="mk-well-thumb" data-act="openimg" data-arg="${p}" tabindex="-1" aria-hidden="true">${v ? `<img src="${esc(artSrc(v))}" alt="">` : `<span class="mk-well-empty">${I.plus}</span>`}</button><span class="mk-well-t"><b>${esc(t1)}</b><small>${esc(t2)}</small></span><button type="button" class="vs-btn vs-btn-sm" data-act="openimg" data-arg="${p}" data-k="well-${p}" data-hl="small">${v || src ? T('Change', 'เปลี่ยน') : T('Choose', 'เลือก')}</button>${v || src ? `<button type="button" class="vs-icon-btn-danger" data-act="imgclear" data-arg="${p}" aria-label="${T('Remove image', 'ลบภาพ')}">${I.x}</button>` : ''}</div></div>`;
 }
 function applyImage(p, value, source) {
-  const sc = S.drawer.sc; sc[FIELD[p]] = value; sc[SRC[p]] = source || ''; S.imgFlash = p; touch(); buildDrawer();
+  const sc = S.drawer.sc;
+  /* Large image: a chosen picture is an explicit custom override; "app icon"/clear returns to the default and drops the now-ignored click link,
+     but keeps the stored art untouched (only Done saves, and it never wipes unseen data). */
+  if (p === 'lg') { if (source === 'app-icon' || !value) { sc.artSource = 'app-icon'; sc.artUrl = ''; } else { sc.art = value; sc.artSource = 'custom'; } }
+  else { sc[FIELD[p]] = value; sc[SRC[p]] = source || ''; }
+  S.imgFlash = p; touch(); buildDrawer();
 }
 /* generic stacked overlay: fade + 8px rise in, animated exit, focus returns to the opener */
 function showOv(kind, label, inner, retKey) {
@@ -1169,12 +1178,12 @@ function ovFocus(sel) { const e = sel && $(sel, layer2()); e && e.focus({ preven
 
 /* ---- image picker: built-in art, App icon, GIF search, public https link ---- */
 function openImg(p, opener, o = {}) {
-  rememberFocus(opener); S.ov = Object.assign({ kind: 'img', p, tab: p === 'lg' ? 'app' : 'builtin', gifRes: [], gifNext: null, gifErr: '', q: '', loading: false, link: '' }, o);
+  rememberFocus(opener); S.ov = Object.assign({ kind: 'img', p, tab: 'builtin', gifRes: [], gifNext: null, gifErr: '', q: '', loading: false, link: '' }, o);
   showOv('img', T('Choose image', 'เลือกภาพ'), imgInner(), `well-${p}`); ovFocus('.mk-pk3');
 }
 const IMGTABS = [['app', 'App icon', 'ไอคอนแอป'], ['builtin', 'Built-in art', 'ภาพในตัว'], ['gif', 'GIF search', 'ค้นหา GIF'], ['link', 'Link', 'ลิงก์']];
 function imgInner() {
-  const o = S.ov, who = o.p === 'lg' ? T('Large image', 'ภาพใหญ่') : T('Small image', 'ภาพเล็ก'), home = o.tab === 'builtin' || o.p === 'lg';
+  const o = S.ov, who = o.p === 'lg' ? T('Large image', 'ภาพใหญ่') : T('Small image', 'ภาพเล็ก'), home = o.tab === 'builtin';
   return `<div class="gif-dialog-head"><div>${home ? '' : `<button class="vs-quiet-link mk-pk-back" type="button" data-act="ovback" data-k="ovback">‹ ${T('Back', 'กลับ')}</button>`}<h2>${T('Choose image', 'เลือกภาพ')}</h2><p>${who}</p></div><button class="vs-icon-btn" type="button" data-act="closeov" aria-label="${T('Close', 'ปิด')}">✕</button></div>
   <div class="gif-search-panel" id="ovpanel">${imgTab()}</div>`;
 }
@@ -1186,7 +1195,7 @@ function imgHome(o, cur) {
   const tile = (cls, act, arg, ic, title, sub, extra = '') => `<button type="button" class="mk-pk3 ${cls}" data-act="${act}" ${arg ? `data-arg="${arg}"` : ''} ${extra}>${ic}<span class="mk-pk3-t"><b>${title}</b><small>${sub}</small></span></button>`;
   const linkTile = tile('is-up', 'ovtab', 'link', `<span class="mk-pk3-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span>`, T('Image link', 'ลิงก์ภาพ'), T('A public https URL', 'ลิงก์ https สาธารณะ'));
   const gifTile = tile('is-gif', 'ovtab', 'gif', `<span class="mk-pk3-collage" aria-hidden="true">${collage}</span><span class="mk-pk3-badge" aria-hidden="true">GIF</span>`, T('Choose a GIF', 'เลือก GIF'), T('Search GIPHY', 'ค้นหาจาก GIPHY'));
-  const appTile = tile('is-app', 'ovtab', 'app', `<span class="mk-pk3-ic mk-pk3-app" aria-hidden="true">${APPGLYPH_L}</span>`, T('App icon', 'ไอคอนแอป'), o.p === 'sm' ? T('Added by the paired app', 'แอปที่จับคู่เพิ่มให้') : T('Local icons aren’t public', 'ไอคอนในเครื่องไม่เป็นสาธารณะ'));
+  const appTile = tile('is-app', 'ovtab', 'app', `<span class="mk-pk3-ic mk-pk3-app" aria-hidden="true">${APPGLYPH_L}</span>`, T('App icon', 'ไอคอนแอป'), o.p === 'sm' ? T('Added by the paired app', 'แอปที่จับคู่เพิ่มให้') : T('Default — follows the paired app', 'ค่าเริ่มต้น — ตามแอปที่จับคู่'));
   const none = o.p === 'sm' ? `<button type="button" role="option" class="mk-cat mk-cat-none" aria-selected="${!cur}" data-act="pickimg" data-arg="none:"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></svg><span>${T('None', 'ไม่มี')}</span></button>` : '';
   const avatar = DCID.avatarUrl ? `<button type="button" role="option" class="mk-cat" aria-selected="${cur === DCID.avatarUrl}" aria-label="${T('Your Discord avatar', 'รูปโปรไฟล์ Discord ของคุณ')}" data-act="pickimg" data-arg="avatar:"><img src="${esc(DCID.avatarUrl)}" alt=""></button>` : '';
   const cats = ART.map(([key, file]) => `<button type="button" role="option" class="mk-cat" aria-selected="${cur === key}" aria-label="${T('Built-in art', 'ภาพในตัว')} ${esc(key.replace('builtin:hinata-', ''))}" data-act="pickimg" data-arg="art:${esc(key.slice(8))}"><img src="${H_ + file}" alt=""></button>`).join('');
@@ -1196,14 +1205,13 @@ function imgHome(o, cur) {
   ${rec}`;
 }
 function imgTab() {
-  const o = S.ov, sc = S.drawer.sc, cur = sc[FIELD[o.p]];
+  const o = S.ov, sc = S.drawer.sc, cur = o.p === 'lg' ? (customLg(sc) ? sc.art : '') : sc[FIELD[o.p]];
   if (o.tab === 'app') {
     const apps = sceneApps(sc.id);
     const row = a => appIconRow(a, o.p);
     const list = apps.length ? `${iconConsentNeeded(apps) ? consentCard() : ''}<ul class="mk-aff">${apps.map(row).join('')}</ul>` : `<div class="mk-empty"><b>${T('No paired app yet', 'ยังไม่มีแอปที่จับคู่')}</b><p>${T('Pair an app with this Scene first.', 'จับคู่แอปกับ Scene นี้ก่อน')}</p></div>`;
-    if (o.p === 'lg') return `<p class="vs-hint" style="margin:0 0 12px">${T('The large image always follows your paired app: its logo while it is open, the Vibe Studio icon if it has no public icon. Upload a public copy below so Discord can show the logo.', 'ภาพใหญ่จะตามแอปที่จับคู่เสมอ: ใช้โลโก้แอปขณะเปิดอยู่ ถ้าแอปไม่มีไอคอนสาธารณะจะใช้ไอคอน Vibe Studio อัปโหลดสำเนาสาธารณะด้านล่างเพื่อให้ Discord แสดงโลโก้ได้')}</p>${list}<div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn vs-btn-primary" type="button" data-act="closeov">${T('Close', 'ปิด')}</button></div>`;
-    return `<p class="vs-hint" style="margin:0 0 12px">${T('While a paired app is showing, Vibe adds that app’s own icon as the small image when Discord can load a public copy of it. If it has none, no app icon appears. Choose this to leave the small image to the app.', 'ขณะที่แอปที่จับคู่แสดงอยู่ Vibe จะเพิ่มไอคอนของแอปเป็นภาพเล็กให้เมื่อ Discord โหลดไอคอนสาธารณะของแอปได้ หากไม่มีจะไม่แสดงไอคอน เลือกตัวเลือกนี้เพื่อปล่อยให้แอปจัดการภาพเล็ก')}</p>${list}
-    <div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="closeov">${T('Cancel', 'ยกเลิก')}</button><button class="vs-btn vs-btn-primary" type="button" data-act="pickimg" data-arg="appsrc:" data-k="useapp">${sc.smallSource === 'app-icon' ? T('Keep app icon', 'ใช้ไอคอนแอปต่อไป') : T('Use app icon', 'ใช้ไอคอนแอป')}</button></div>`;
+    return `<p class="vs-hint" style="margin:0 0 12px">${o.p === 'lg' ? T('Default: the large image follows your paired app — its logo while it is open, the Vibe Studio icon if it has no public icon. Upload a public copy below so Discord can show the logo.', 'ค่าเริ่มต้น: ภาพใหญ่ตามแอปที่จับคู่ — ใช้โลโก้แอปขณะเปิดอยู่ ถ้าแอปไม่มีไอคอนสาธารณะจะใช้ไอคอน Vibe Studio อัปโหลดสำเนาสาธารณะด้านล่างเพื่อให้ Discord แสดงโลโก้ได้') : ''}${o.p === 'lg' ? '' : T('While a paired app is showing, Vibe adds that app’s own icon as the small image when Discord can load a public copy of it. If it has none, no app icon appears. Choose this to leave the small image to the app.', 'ขณะที่แอปที่จับคู่แสดงอยู่ Vibe จะเพิ่มไอคอนของแอปเป็นภาพเล็กให้เมื่อ Discord โหลดไอคอนสาธารณะของแอปได้ หากไม่มีจะไม่แสดงไอคอน เลือกตัวเลือกนี้เพื่อปล่อยให้แอปจัดการภาพเล็ก')}</p>${list}
+    <div class="vs-form-actions" style="justify-content:flex-end"><button class="vs-btn" type="button" data-act="closeov">${T('Cancel', 'ยกเลิก')}</button><button class="vs-btn vs-btn-primary" type="button" data-act="pickimg" data-arg="appsrc:" data-k="useapp">${(o.p === 'lg' ? !customLg(sc) : sc.smallSource === 'app-icon') ? T('Keep app icon', 'ใช้ไอคอนแอปต่อไป') : T('Use app icon', 'ใช้ไอคอนแอป')}</button></div>`;
   }
   if (o.tab === 'builtin') return imgHome(o, cur);
   if (o.tab === 'gif') return `<div class="gif-search-row"><input type="text" id="gifq" value="${esc(o.q)}" placeholder="${T('Search GIPHY…', 'ค้นหาใน GIPHY…')}" aria-label="${T('Search GIFs', 'ค้นหา GIF')}" data-bind="gifq" autocomplete="off" maxlength="80"></div><p class="gif-search-status" id="gifst" role="status" aria-live="polite"></p><div id="gifres"></div><p class="gif-provider">${T('GIFs provided by', 'GIF จาก')} <span class="giphy-mark">GIPHY</span></p>`;
@@ -1252,7 +1260,6 @@ function updateLink() {
 }
 function pickImg(a) {
   const i = a.indexOf(':'), kind = a.slice(0, i), v = a.slice(i + 1), p = S.ov.p;
-  if (p === 'lg') return closeOverlay(); /* the large image follows the app; nothing is chosen here */
   if (kind === 'art') applyImage(p, 'builtin:' + v);
   else if (kind === 'none') applyImage(p, '');
   else if (kind === 'appsrc') applyImage(p, '', 'app-icon');
@@ -1433,7 +1440,7 @@ const ACT = {
     return 'overlay';
   },
   openimg: (a, el) => { openImg(a, el); return 'overlay'; },
-  imgclear: a => { if (a === 'lg') return 'overlay'; applyImage(a, ''); const b = $(`[data-k="well-${a}"]`, layer()); b && b.focus({ preventScroll: true }); return 'overlay'; },
+  imgclear: a => { applyImage(a, '', a === 'lg' ? 'app-icon' : undefined); const b = $(`[data-k="well-${a}"]`, layer()); b && b.focus({ preventScroll: true }); return 'overlay'; },
   donedrawer: () => { void commitDraft(); return 'overlay'; },
   sumadd: a => { closeOverlay(); setTimeout(() => { if (!openDrawer(a, $(`[data-k="lib-${a}"]`))) return; const p = $('#pairsec'); p && p.scrollIntoView({ block: 'center' }); openPicker('app', null, { scene: a, mode: 'pair', host: 'l2' }); }, 260); return 'overlay'; },
   closeov: () => { closeOverlay(); return 'overlay'; },

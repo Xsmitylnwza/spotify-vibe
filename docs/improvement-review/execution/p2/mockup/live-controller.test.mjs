@@ -90,18 +90,19 @@ test('app icon without public URL publishes explicit fallback and no timestamp f
   const { controller, calls } = fake();
   const result = await controller.command('send', { ...scene, largeImage: '@app' });
   assert.equal(result.scene.imageFallback, 'app_icon_no_public_url');
-  assert.equal(result.scene.publishedImage, calls[1].args.activity.assets.large_image);
+  assert.equal(result.scene.publishedImage, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png');
+  assert.equal(calls[1].args.activity.assets.large_image, STUDIO_ICON_URL);
   assert.equal(Object.hasOwn(calls[1].args.activity, 'timestamps'), false);
   await controller.command('end');
 });
 
 for (const [label, input, image, reason, historicalPreviewImage = image] of [
-  ['public app icon', { largeImage: '@app', appPublicIcon: 'https://example.com/orca.png' }, 'https://example.com/orca.png', null],
-  ['local app icon', { largeImage: '@app', appPublicIcon: 'data:image/png;base64,AAAA' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', 'app_icon_no_public_url'],
+  ['public app icon', { largeImage: '@app', appPublicIcon: 'https://example.com/orca.png' }, STUDIO_ICON_URL, null, 'https://example.com/orca.png'],
+  ['local app icon', { largeImage: '@app', appPublicIcon: 'data:image/png;base64,AAAA' }, STUDIO_ICON_URL, 'app_icon_no_public_url', 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png'],
   ['pre-resolved app icon', { largeImage: '', largeImageSource: 'app-icon' }, STUDIO_ICON_URL, 'app_icon_no_public_url', 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png'],
   ['failed cached icon overrides stale renderer URL', { largeImage: 'https://stale.test/icon.png', largeImageSource: 'app-icon', appPublicIcon: '' }, STUDIO_ICON_URL, 'app_icon_no_public_url', 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png'],
-  ['built-in', { largeImage: 'builtin:hinata-poster' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', null],
-  ['link', { largeImage: 'https://example.com/art.gif' }, 'https://example.com/art.gif', null],
+  ['built-in', { largeImage: 'builtin:hinata-poster', largeImageSource: 'custom' }, 'https://raw.githubusercontent.com/Xsmitylnwza/spotify-vibe/7202b72685d7957148db782f176005a62ec76c94/hinata/poster.png', null],
+  ['link', { largeImage: 'https://example.com/art.gif', largeImageSource: 'custom' }, 'https://example.com/art.gif', null],
 ]) test(`exact SET_ACTIVITY payload: ${label}`, async () => {
   const { controller, calls } = fake();
   const result = await controller.command('send', { ...scene, ...input });
