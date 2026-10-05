@@ -70,6 +70,7 @@ $lastKey = $null
 $catalogKey = ""
 $apps = @()
 $running = @()
+$hasCatalog = $false
 while ($true) {
   try {
     [uint32]$foregroundProcessId = 0
@@ -89,6 +90,12 @@ while ($true) {
     if ($null -ne $completedScan) {
     $processes = @($completedScan)
     $running = @($processes.Path | Sort-Object -Unique)
+    $hasCatalog = $true
+    # Metadata belongs to live executables, not every app ever seen by this helper.
+    $livePaths = @{}
+    foreach ($path in $running) { $livePaths[$path] = $true }
+    foreach ($path in @($iconCache.Keys)) { if (-not $livePaths.ContainsKey($path)) { $iconCache.Remove($path) } }
+    foreach ($path in @($nameCache.Keys)) { if (-not $livePaths.ContainsKey($path)) { $nameCache.Remove($path) } }
     $apps = @($processes | Where-Object { $_.Visible } | ForEach-Object {
       try {
         if ($_.Path -and $_.ProcessName -ne 'ApplicationFrameHost') {
@@ -133,7 +140,9 @@ while ($true) {
     [void][VibeForeground]::GetWindowThreadProcessId([VibeForeground]::GetForegroundWindow(), [ref]$foregroundProcessId)
     $foreground = [VibeForeground]::ForegroundPath($foregroundProcessId)
     $key = $catalogKey + ':' + $foreground
-    if ($key -ne $lastKey) {
+    # Startup/restart has no evidence that apps closed until a full scan completes.
+    # Publishing the initial empty arrays would erase the server's retained timers.
+    if ($hasCatalog -and $key -ne $lastKey) {
       foreach ($app in $apps) { $app.foreground = ($app.processId -eq $foregroundProcessId) }
       @{ apps=$apps; running=$running; foregroundExecutable=$foreground; observedAt=[DateTime]::UtcNow.ToString('o') } | ConvertTo-Json -Depth 4 -Compress
       $lastKey = $key; $nextHeartbeat = $scanClock.ElapsedMilliseconds + 5000

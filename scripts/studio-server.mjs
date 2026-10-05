@@ -786,6 +786,12 @@ export async function startStudioServer(options = {}) {
     iconHosting.close();
     clearSchedulerTimeout(foregroundTimer);
     try { stopAppWatcher(); } catch { /* continue shutdown */ }
+    runningAppStartedAt.clear();
+    recentApplications = [];
+    appSnapshot = { apps:[], running:[], supported:false, error:null };
+    stableForeground = null;
+    foregroundCandidate = undefined;
+    activityIdentity = null;
     stopSchedulerTimer();
     stopReconnectTimer();
     const candidate = discordClient;
@@ -1078,6 +1084,7 @@ export async function startStudioServer(options = {}) {
     failServerStart = rejectStart;
     server.listen(port, '127.0.0.1', async () => {
     if (!options.disableHostEffects) stopAppWatcher = (options.watchApps ?? watchWindowsApps)(snapshot => {
+      if (isStopping) return;
       const previousKey = desiredPresence().key;
       if (!snapshot.error && snapshot.supported !== false) {
         const running = new Set((snapshot.running || snapshot.apps.map(app => app.executable)).map(appKey));
@@ -1098,6 +1105,7 @@ export async function startStudioServer(options = {}) {
         clearSchedulerTimeout(foregroundTimer);
         foregroundTimer = setSchedulerTimeout(() => {
           foregroundTimer = undefined;
+          if (isStopping) return;
           const before = desiredPresence().key;
           stableForeground = appKey(path);
           if (stableForeground && stableForeground !== recentApplications[0]) recentApplications = [stableForeground, ...recentApplications.filter(item => item !== stableForeground)].slice(0,100);

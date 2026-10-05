@@ -31,7 +31,7 @@ test('real server reconciles only selected-app transitions; preserves running ti
   rpc.request = async (_, args) => { sends++; activities.push(args.activity); }; rpc.clearActivity = async () => { clears++; };
   const server = await startStudioServer({ argv:[], port, dataDirectory:directory, exitProcess:false, openBrowser:false,
     environment:{ PRESENCE_DISABLE_DEFAULT_APPLICATION:'1', PRESENCE_AUTOSTART_DISABLE:'1', PRESENCE_APP_DETECTION_DISABLE:'1', DISCORD_CLIENT_ID:'1526867893508116620' },
-    clock, createDiscordClient:() => rpc, watchApps:callback => { emit=callback; return () => { watcherStopped=true; }; } });
+    clock, createDiscordClient:() => rpc, watchApps:callback => { emit=callback; return () => { watcherStopped=true; emit(snapshot('C:\\late.exe',['C:\\late.exe'])); }; } });
   t.after(async () => { await server.stop(); await rm(directory,{recursive:true,force:true}); });
   const flush = async () => { await new Promise(resolve => setImmediate(resolve)); await new Promise(resolve => setImmediate(resolve)); };
   const state = () => fetch(server.url+'/api/state').then(r=>r.json());
@@ -102,4 +102,6 @@ test('real server reconciles only selected-app transitions; preserves running ti
   assert.equal((await apps()).foreground,legacyAlias.toLowerCase());
   assert.equal((await apps()).mappings[0].executable,legacyAlias,'existing mapping is not canonicalized or migrated');
   await server.stop(); assert.equal(watcherStopped,true); assert.equal(timers.size,0);
+  emit(snapshot('C:\\after-stop.exe',['C:\\after-stop.exe'])); await flush();
+  assert.equal(timers.size,0,'late detector callbacks after shutdown must not retain snapshots or create timers');
 });

@@ -4,6 +4,13 @@ Changes are listed newest first. Historical entries were reconstructed from Git
 commit history and published GitHub releases. Dates below use UTC publication
 dates; versions without a separate release are explicitly marked.
 
+## [1.0.26] - 2026-10-05
+
+### Fixed
+- Preserve each running app's elapsed timer when Windows app detection restarts; wait for a completed scan before treating an empty catalog as closed apps.
+- Release cached app names and icons when their executables stop running.
+- Clear app session state during shutdown and ignore late detection callbacks so they cannot retain snapshots or create new timers.
+
 ## [1.0.25] - 2026-10-04
 
 ### Fixed
